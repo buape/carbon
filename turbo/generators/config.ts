@@ -28,19 +28,15 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
 				path: "packages/{{name}}/README.md",
 				templateFile: "templates/README.md.hbs",
 			},
-
-			// Library Files
 			{
 				type: "add",
 				path: "packages/{{name}}/src/index.ts",
 				templateFile: "templates/src/index.ts.hbs",
 			},
-
-			// Test Files
 			{
 				type: "add",
-				path: "packages/{{name}}/test/index.test.ts",
-				templateFile: "templates/test/index.test.ts.hbs",
+				path: "packages/{{name}}/tests/index.test.ts",
+				templateFile: "templates/tests/index.test.ts.hbs",
 			},
 		],
 	});
