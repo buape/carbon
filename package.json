@@ -1,0 +1,17 @@
+{
+	"name": "carbon",
+	"description": "Carbon monorepo",
+	"scripts": {
+		"build": "turbo run build",
+		"lint": "biome check . --apply && pnpm run db:format",
+		"preinstall": "npx only-allow pnpm",
+		"test": "turbo run test"
+	},
+	"dependencies": {
+		"turbo": "1.13.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.6.4",
+		"typescript": "5.4.5"
+	}
+}

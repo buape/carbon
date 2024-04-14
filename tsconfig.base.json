@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"allowJs": false,
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"lib": [
+			"ES2022",
+			"DOM"
+		],
+		"module": "NodeNext",
+		"moduleDetection": "force",
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es2022"
+	},
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}
