@@ -6,7 +6,7 @@
 		"dev": "dotenv -- turbo run dev",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
-		"test": "turbo run test",
+		"test": "vitest",
 		"typecheck": "turbo run typecheck"
 	},
 	"dependencies": {
@@ -14,7 +14,8 @@
 		"dotenv-cli": "^7.4.1",
 		"dotenv-mono": "^1.3.14",
 		"tsc-watch": "^6.2.0",
-		"turbo": "1.13.2"
+		"turbo": "1.13.2",
+		"vitest": "^1.5.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.4",
