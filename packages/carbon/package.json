@@ -4,7 +4,8 @@
 	"type": "module",
 	"main": "./dist/index.js",
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"typecheck": "tsc --noEmit"
 	},
 	"license": "MIT"
 }

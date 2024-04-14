@@ -5,7 +5,8 @@
 		"build": "turbo run build",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
-		"test": "turbo run test"
+		"test": "turbo run test",
+		"typecheck": "turbo run typecheck"
 	},
 	"dependencies": {
 		"turbo": "1.13.2"
