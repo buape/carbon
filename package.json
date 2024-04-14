@@ -12,6 +12,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.4",
+		"pierre": "^2.0.30",
 		"typescript": "5.4.5"
 	}
 }
