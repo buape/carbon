@@ -1,0 +1,19 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		":dependencyDashboard",
+		":ignoreModulesAndTests",
+		"group:monorepos",
+		"group:recommended",
+		"replacements:all",
+		"workarounds:all",
+		"helpers:disableTypesNodeMajor"
+	],
+	"assigneesFromCodeOwners": true,
+	"automerge": true,
+	"automergeType": "pr",
+	"automergeStrategy": "squash",
+	"platformAutomerge": true,
+	"prConcurrentLimit": 10000,
+	"branchConcurrentLimit": 10000
+}
