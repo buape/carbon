@@ -6,7 +6,6 @@
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
 		"test": "vitest",
-		"test:ci": "vitest",
 		"typecheck": "turbo run typecheck"
 	},
 	"dependencies": {
