@@ -1,0 +1,14 @@
+{
+	"name": "test-bot",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "./dist/index.js",
+	"scripts": {
+		"dev": "tsc-watch --onSuccess \"node .\"",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"carbon": "workspace:*"
+	},
+	"license": "MIT"
+}

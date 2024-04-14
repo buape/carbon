@@ -3,6 +3,7 @@
 	"description": "Carbon monorepo",
 	"scripts": {
 		"build": "turbo run build",
+		"dev": "turbo run dev",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
 		"test": "turbo run test",
