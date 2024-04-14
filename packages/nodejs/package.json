@@ -9,5 +9,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"license": "MIT",
-	"dependencies": {}
+	"dependencies": {
+		"carbon": "workspace:*"
+	}
 }
