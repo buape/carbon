@@ -7,10 +7,7 @@
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": true,
-		"lib": [
-			"ES2022",
-			"DOM"
-		],
+		"lib": ["ES2022", "DOM"],
 		"module": "NodeNext",
 		"moduleDetection": "force",
 		"noUncheckedIndexedAccess": true,
@@ -23,8 +20,5 @@
 		"strict": true,
 		"target": "es2022"
 	},
-	"exclude": [
-		"node_modules",
-		"dist"
-	]
+	"exclude": ["node_modules", "dist"]
 }
