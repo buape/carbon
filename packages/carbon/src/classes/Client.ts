@@ -1,6 +1,5 @@
 import type { ClientOptions } from "../typings.js";
 import { type Context, Hono } from "hono"
-import { serve } from "@hono/node-server"
 import { verify } from "discord-verify";
 import { type APIInteraction, InteractionResponseType, InteractionType } from "discord-api-types/v10";
 import type { Command } from "../structures/Command.js";
@@ -8,7 +7,7 @@ import type { Command } from "../structures/Command.js";
 export class Client {
 	options: ClientOptions
 	commands: Command[]
-	private router: Hono
+	router: Hono
 	constructor(options: ClientOptions, commands: Command[]) {
 		this.options = options
 		this.commands = commands
@@ -45,7 +44,7 @@ export class Client {
 			const command = this.commands.find(x => x.name === rawInteraction.data.name)
 			if (!command) return c.notFound()
 
-			if(command.defer) return 
+			if (command.defer) return
 
 
 		})
@@ -79,10 +78,5 @@ export class Client {
 			return c.json({ error: "Invalid request signature." })
 		}
 		return
-	}
-
-	public async start(port: number) {
-		serve({ fetch: this.router.fetch, port })
-		console.log(`Now listening on port ${port}`)
 	}
 }

@@ -37,8 +37,11 @@ importers:
         specifier: 5.4.5
         version: 5.4.5
 
-  apps/test-bot:
+  apps/rocko:
     dependencies:
+      '@carbonjs/nodejs':
+        specifier: workspace:*
+        version: link:../../packages/nodejs
       '@types/node':
         specifier: ^20.12.7
         version: 20.12.7
@@ -48,9 +51,6 @@ importers:
 
   packages/carbon:
     dependencies:
-      '@hono/node-server':
-        specifier: ^1.10.0
-        version: 1.10.0
       discord-api-types:
         specifier: ^0.37.79
         version: 0.37.79
@@ -60,6 +60,15 @@ importers:
       hono:
         specifier: 4.2.4
         version: 4.2.4
+
+  packages/nodejs:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.10.0
+        version: 1.10.0
+      carbon:
+        specifier: workspace:*
+        version: link:../carbon
 
 packages:
 

@@ -1,4 +1,5 @@
 import { Client, type Interaction, type Command } from "carbon"
+import { serve } from "@carbonjs/nodejs"
 
 class PingCommand implements Command {
 	name = "ping"
@@ -17,4 +18,4 @@ const client = new Client({
 	new PingCommand()
 ])
 
-client.start(3000)
+serve(client, { port: 3000 })

@@ -10,6 +10,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"carbon": "workspace:*"
+		"carbon": "workspace:*",
+		"@hono/node-server": "^1.10.0"
 	}
 }

@@ -4,7 +4,8 @@
 		"biomejs",
 		"Buape",
 		"carbonjs",
-		"hono"
+		"hono",
+		"Rocko"
 	],
 	"editor.defaultFormatter": "biomejs.biome"
 }
