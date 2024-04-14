@@ -5,11 +5,13 @@
 		"build": "turbo run build",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
-		"test": "turbo run test",
+		"test": "vitest",
+		"test:ci": "vitest",
 		"typecheck": "turbo run typecheck"
 	},
 	"dependencies": {
-		"turbo": "1.13.2"
+		"turbo": "1.13.2",
+		"vitest": "^1.5.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.4",

@@ -6,7 +6,6 @@
 			"outputs": ["dist/**"],
 			"cache": true
 		},
-		"test": {},
 		"typecheck": {}
 	}
 }
