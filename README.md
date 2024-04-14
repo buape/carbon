@@ -1,3 +1,1 @@
-# Carbon
-
-Yay new framework woo!
+packages/carbon/README.md

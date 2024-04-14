@@ -2,12 +2,13 @@
 	"name": "test-bot",
 	"version": "0.0.0",
 	"type": "module",
-	"main": "./dist/index.js",
+	"main": "./dist/src/index.js",
 	"scripts": {
 		"dev": "tsc-watch --onSuccess \"node .\"",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@types/node": "^20.12.7",
 		"carbon": "workspace:*"
 	},
 	"license": "MIT"

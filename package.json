@@ -3,13 +3,17 @@
 	"description": "Carbon monorepo",
 	"scripts": {
 		"build": "turbo run build",
-		"dev": "turbo run dev",
+		"dev": "dotenv -- turbo run dev",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck"
 	},
 	"dependencies": {
+		"@turbo/gen": "^1.13.2",
+		"dotenv-cli": "^7.4.1",
+		"dotenv-mono": "^1.3.14",
+		"tsc-watch": "^6.2.0",
 		"turbo": "1.13.2"
 	},
 	"devDependencies": {
