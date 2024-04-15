@@ -1,10 +1,12 @@
 {
-	"name": "test-bot",
+	"name": "rocko",
 	"version": "0.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"scripts": {
+		"build": "tsc",
 		"dev": "tsc-watch --onSuccess \"node .\"",
+		"start": "node .",
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {

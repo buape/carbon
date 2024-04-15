@@ -6,6 +6,7 @@
 		"dev": "dotenv -- turbo run dev",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
+		"start": "dotenv -- turbo run start",
 		"test": "vitest",
 		"typecheck": "turbo run typecheck",
 		"generate": "turbo gen create-package"
