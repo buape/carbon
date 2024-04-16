@@ -1,4 +1,4 @@
-import type { Client } from "../classes/Client.js";
+import type { Client } from "../classes/Client.js"
 
 /**
  * The base class that all classes extend from

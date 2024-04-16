@@ -1,0 +1,8 @@
+{
+	"entryPoints": [
+		"packages/*"
+	],
+	"name": "Carbon",
+	"entryPointStrategy": "packages",
+	"includeVersion": true
+}
