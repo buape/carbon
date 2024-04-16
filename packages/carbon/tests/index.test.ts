@@ -1,4 +1,14 @@
 import { expect, test } from "vitest"
-import { hello } from "../src"
+import { Command, type Interaction } from "../src"
 
-test("It works", () => expect(hello()).toBe("Hello world"))
+test("Serializing commands", () => {
+	class PingCommand extends Command {
+		name = "test"
+		description = "test"
+		run(_interaction: Interaction): Promise<void> {
+			throw new Error("Method not implemented.")
+		}
+	}
+
+	expect(new PingCommand().serialize()).toEqual({ name: "test", description: "test" })
+})

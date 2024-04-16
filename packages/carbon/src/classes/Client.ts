@@ -15,11 +15,13 @@ import { Interaction } from "./Interaction.js"
 export class Client {
 	options: ClientOptions
 	commands: Command[]
-	router: ReturnType<typeof AutoRouter>
+	// biome-ignore lint/suspicious/noExplicitAny: from the actual router type
+	router: ReturnType<typeof AutoRouter<IRequestStrict, any[], Response>>
 	constructor(options: ClientOptions, commands: Command[]) {
 		this.options = options
 		this.commands = commands
-		this.router = AutoRouter()
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		this.router = AutoRouter<IRequestStrict, any[], Response>()
 		this.setupRoutes()
 		this.deployCommands()
 	}
@@ -40,7 +42,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch {}
+		} catch { }
 	}
 
 	private setupRoutes() {
@@ -49,7 +51,7 @@ export class Client {
 				return Response.redirect(this.options.redirectUrl, 302)
 			throw new StatusError(404)
 		})
-		this.router.post("/interaction", async (req: IRequestStrict) => {
+		this.router.post("/interaction", async (req) => {
 			const isValid = await this.validateInteraction(req)
 			if (!isValid) {
 				return new Response("Invalid request signature", { status: 401 })
