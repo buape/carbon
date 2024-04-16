@@ -1,9 +1,16 @@
-import type { ClientOptions } from "../typings.js";
-import { AutoRouter, StatusError, json, type IRequestStrict } from "itty-router"
-import { PlatformAlgorithm, isValidRequest } from "discord-verify";
-import { type APIInteraction, InteractionResponseType, InteractionType, MessageFlags, Routes, RouteBases } from "discord-api-types/v10";
-import type { Command } from "../structures/Command.js";
-import { Interaction } from "./Interaction.js";
+import {
+	type APIInteraction,
+	InteractionResponseType,
+	InteractionType,
+	MessageFlags,
+	RouteBases,
+	Routes
+} from "discord-api-types/v10"
+import { PlatformAlgorithm, isValidRequest } from "discord-verify"
+import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
+import type { Command } from "../structures/Command.js"
+import type { ClientOptions } from "../typings.js"
+import { Interaction } from "./Interaction.js"
 
 export class Client {
 	options: ClientOptions
@@ -33,12 +40,13 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch { }
+		} catch {}
 	}
 
 	private setupRoutes() {
 		this.router.get("/", () => {
-			if (this.options.redirectUrl) return Response.redirect(this.options.redirectUrl, 302)
+			if (this.options.redirectUrl)
+				return Response.redirect(this.options.redirectUrl, 302)
 			throw new StatusError(404)
 		})
 		this.router.post("/interaction", async (req: IRequestStrict) => {
@@ -47,7 +55,7 @@ export class Client {
 				return new Response("Invalid request signature", { status: 401 })
 			}
 
-			const rawInteraction = await req.json() as unknown as APIInteraction
+			const rawInteraction = (await req.json()) as unknown as APIInteraction
 			if (rawInteraction.type === InteractionType.Ping) {
 				return json({
 					type: InteractionResponseType.Pong
@@ -63,7 +71,9 @@ export class Client {
 				})
 			}
 
-			const command = this.commands.find(x => x.name === rawInteraction.data.name)
+			const command = this.commands.find(
+				(x) => x.name === rawInteraction.data.name
+			)
 			if (!command) return new Response(null, { status: 400 })
 
 			const interaction = new Interaction(rawInteraction)
@@ -79,10 +89,7 @@ export class Client {
 				type: InteractionResponseType.ChannelMessageWithSource,
 				content: "Man someone should really implement non-deferred replies huh"
 			})
-
-
 		})
-
 	}
 
 	private async validateInteraction(req: IRequestStrict) {

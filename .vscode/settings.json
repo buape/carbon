@@ -1,11 +1,5 @@
 {
 	"dotenv.enableAutocloaking": false,
-	"cSpell.words": [
-		"biomejs",
-		"Buape",
-		"carbonjs",
-		"hono",
-		"Rocko"
-	],
+	"cSpell.words": ["biomejs", "Buape", "carbonjs", "hono", "Rocko"],
 	"editor.defaultFormatter": "biomejs.biome"
 }
