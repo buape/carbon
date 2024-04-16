@@ -1,11 +1,11 @@
 import { expect, test } from "vitest"
-import { Command, type Interaction } from "../src"
+import { Command } from "../src"
 
 test("Serializing commands", () => {
 	class PingCommand extends Command {
 		name = "test"
 		description = "test"
-		run(_interaction: Interaction): Promise<void> {
+		run(_interaction: unknown): Promise<void> {
 			throw new Error("Method not implemented.")
 		}
 	}

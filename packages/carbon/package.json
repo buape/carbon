@@ -10,6 +10,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
+		"@discordjs/rest": "^2.2.0",
 		"discord-api-types": "0.37.79",
 		"discord-verify": "1.2.0",
 		"itty-router": "5.0.15"

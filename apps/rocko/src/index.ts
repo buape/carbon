@@ -1,12 +1,12 @@
 import { serve } from "@carbonjs/nodejs"
-import { Client, Command, type Interaction } from "carbon"
+import { Client, Command, type CommandInteraction } from "carbon"
 
 class PingCommand extends Command {
 	name = "ping"
 	description = "A simple ping command"
 	defer = true
 
-	async run(interaction: Interaction) {
+	async run(interaction: CommandInteraction) {
 		await sleep(7500)
 		interaction.reply({ content: "Pong" })
 	}

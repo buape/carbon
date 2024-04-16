@@ -8,20 +8,30 @@ import {
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
-import type { Command } from "../structures/Command.js"
-import type { ClientOptions } from "../typings.js"
-import { Interaction } from "./Interaction.js"
+import type { Command } from "./Command.js"
+import { RestClient } from "../structures/RestClient.js"
+import { CommandInteraction } from "../structures/CommandInteraction.js"
+
+export type ClientOptions = {
+	redirectUrl?: string
+	clientId: string
+	publicKey: string
+	token: string
+}
+
 
 export class Client {
 	options: ClientOptions
 	commands: Command[]
 	// biome-ignore lint/suspicious/noExplicitAny: from the actual router type
 	router: ReturnType<typeof AutoRouter<IRequestStrict, any[], Response>>
+	rest: RestClient
 	constructor(options: ClientOptions, commands: Command[]) {
 		this.options = options
 		this.commands = commands
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
+		this.rest = new RestClient().setToken(options.token)
 		this.setupRoutes()
 		this.deployCommands()
 	}
@@ -42,7 +52,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch {}
+		} catch { }
 	}
 
 	private setupRoutes() {
@@ -78,7 +88,7 @@ export class Client {
 			)
 			if (!command) return new Response(null, { status: 400 })
 
-			const interaction = new Interaction(rawInteraction)
+			const interaction = new CommandInteraction(this, rawInteraction)
 
 			if (command.defer) {
 				command.run(interaction)

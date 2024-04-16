@@ -1,5 +1,5 @@
 import type { RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord-api-types/v10"
-import type { Interaction } from "../classes/Interaction.js"
+import type { CommandInteraction } from "../structures/CommandInteraction.js"
 
 export abstract class Command {
 	abstract name: string
@@ -7,7 +7,7 @@ export abstract class Command {
 	defer = false
 	ephemeral = false
 
-	abstract run(interaction: Interaction): Promise<void>
+	abstract run(interaction: CommandInteraction): Promise<void>
 
 	serialize() {
 		return {

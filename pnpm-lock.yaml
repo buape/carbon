@@ -51,6 +51,9 @@ importers:
 
   packages/carbon:
     dependencies:
+      '@discordjs/rest':
+        specifier: ^2.2.0
+        version: 2.2.0
       discord-api-types:
         specifier: 0.37.79
         version: 0.37.79
@@ -173,6 +176,31 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+
+  /@discordjs/collection@2.0.0:
+    resolution: {integrity: sha512-YTWIXLrf5FsrLMycpMM9Q6vnZoR/lN2AWX23/Cuo8uOOtS8eHB2dyQaaGnaF8aZPYnttf2bkLMcXn/j6JUOi3w==}
+    engines: {node: '>=18'}
+    dev: false
+
+  /@discordjs/rest@2.2.0:
+    resolution: {integrity: sha512-nXm9wT8oqrYFRMEqTXQx9DUTeEtXUDMmnUKIhZn6O2EeDY9VCdwj23XCPq7fkqMPKdF7ldAfeVKyxxFdbZl59A==}
+    engines: {node: '>=16.11.0'}
+    dependencies:
+      '@discordjs/collection': 2.0.0
+      '@discordjs/util': 1.0.2
+      '@sapphire/async-queue': 1.5.2
+      '@sapphire/snowflake': 3.5.3
+      '@vladfrangu/async_event_emitter': 2.2.4
+      discord-api-types: 0.37.61
+      magic-bytes.js: 1.10.0
+      tslib: 2.6.2
+      undici: 5.27.2
+    dev: false
+
+  /@discordjs/util@1.0.2:
+    resolution: {integrity: sha512-IRNbimrmfb75GMNEjyznqM1tkI7HrZOf14njX7tCAAUetyZM1Pr8hX/EK2lxBCOgWDRmigbp24fD1hdMfQK5lw==}
+    engines: {node: '>=16.11.0'}
+    dev: false
 
   /@esbuild/aix-ppc64@0.20.2:
     resolution: {integrity: sha512-D+EBOJHXdNZcLJRBkhENNG8Wji2kgc9AZ9KiPr1JuZjsNtyHzrsfLRrY0tk2H2aoFu6RANO1y1iPPUCDYWkb5g==}
@@ -380,6 +408,11 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@fastify/busboy@2.1.1:
+    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
+    engines: {node: '>=14'}
+    dev: false
 
   /@fat/prompts@0.0.3:
     resolution: {integrity: sha512-g7pakVIMOpwRsy4Z9LC5CbCtOjPAZvPbJGfjxAPEAINMg6g+x1WmFq4PcXd69e5lxMN0KAZMBdAEYY9lQFkP3A==}
@@ -821,6 +854,16 @@ packages:
     dev: false
     optional: true
 
+  /@sapphire/async-queue@1.5.2:
+    resolution: {integrity: sha512-7X7FFAA4DngXUl95+hYbUF19bp1LGiffjJtu7ygrZrbdCSsdDDBaSjB7Akw0ZbOu6k0xpXyljnJ6/RZUvLfRdg==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
+    dev: false
+
+  /@sapphire/snowflake@3.5.3:
+    resolution: {integrity: sha512-jjmJywLAFoWeBi1W7994zZyiNWPIiqRRNAmSERxyg93xRGzNYvGjlZ0gR6x0F4gPRi2+0O6S71kOZYyr3cxaIQ==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
+    dev: false
+
   /@sinclair/typebox@0.27.8:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
     dev: false
@@ -1099,6 +1142,11 @@ packages:
       estree-walker: 3.0.3
       loupe: 2.3.7
       pretty-format: 29.7.0
+    dev: false
+
+  /@vladfrangu/async_event_emitter@2.2.4:
+    resolution: {integrity: sha512-ButUPz9E9cXMLgvAW8aLAKKJJsPu1dY1/l/E8xzLFuysowXygs6GBcyunK9rnGC4zTsnIc2mQo71rGw9U+Ykug==}
+    engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
     dev: false
 
   /acorn-walk@8.3.2:
@@ -1609,6 +1657,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       path-type: 4.0.0
+    dev: false
+
+  /discord-api-types@0.37.61:
+    resolution: {integrity: sha512-o/dXNFfhBpYHpQFdT6FWzeO7pKc838QeeZ9d91CfVAtpr5XLK4B/zYxQbYgPdoMiTDvJfzcsLW5naXgmHGDNXw==}
     dev: false
 
   /discord-api-types@0.37.79:
@@ -2493,6 +2545,10 @@ packages:
   /lru-cache@7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
+    dev: false
+
+  /magic-bytes.js@1.10.0:
+    resolution: {integrity: sha512-/k20Lg2q8LE5xiaaSkMXk4sfvI+9EGEykFS4b0CHHGWqDYU0bGUFSwchNOMA56D7TCs9GwVTkqe9als1/ns8UQ==}
     dev: false
 
   /magic-string@0.30.9:
@@ -3531,6 +3587,13 @@ packages:
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
+
+  /undici@5.27.2:
+    resolution: {integrity: sha512-iS857PdOEy/y3wlM3yRp+6SNQQ6xU0mmZcwRSriqk+et/cwWAtwmIGf6WkoDN2EK/AMdCO/dfXzIwi+rFMrjjQ==}
+    engines: {node: '>=14.0'}
+    dependencies:
+      '@fastify/busboy': 2.1.1
+    dev: false
 
   /universal-github-app-jwt@1.1.2:
     resolution: {integrity: sha512-t1iB2FmLFE+yyJY9+3wMx0ejB+MQpEVkH0gQv7dR6FZyltyq+ZZO0uDpbopxhrZ3SLEO4dCEkIujOMldEQ2iOA==}
