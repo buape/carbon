@@ -10,5 +10,8 @@ test("Serializing commands", () => {
 		}
 	}
 
-	expect(new PingCommand().serialize()).toEqual({ name: "test", description: "test" })
+	expect(new PingCommand().serialize()).toEqual({
+		name: "test",
+		description: "test"
+	})
 })

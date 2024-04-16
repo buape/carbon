@@ -42,7 +42,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch { }
+		} catch {}
 	}
 
 	private setupRoutes() {
