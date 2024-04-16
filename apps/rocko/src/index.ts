@@ -7,7 +7,7 @@ class PingCommand extends Command {
 	defer = true
 
 	async run(interaction: Interaction) {
-		sleep(7500)
+		await sleep(7500)
 		interaction.reply({ content: "Pong" })
 	}
 }

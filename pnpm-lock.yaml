@@ -52,14 +52,14 @@ importers:
   packages/carbon:
     dependencies:
       discord-api-types:
-        specifier: ^0.37.79
+        specifier: 0.37.79
         version: 0.37.79
       discord-verify:
         specifier: 1.2.0
         version: 1.2.0
-      hono:
-        specifier: 4.2.4
-        version: 4.2.4
+      itty-router:
+        specifier: 5.0.15
+        version: 5.0.15
 
   packages/nodejs:
     dependencies:
@@ -2044,11 +2044,6 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /hono@4.2.4:
-    resolution: {integrity: sha512-2T5Ahxh8tT0ISKCrNeA+OIwfD5W4EZ00iIMYBBCuiIivr+sOrZYOphinARSG7wL3nFsY6zkFHMMZbcR9CzEzug==}
-    engines: {node: '>=16.0.0'}
-    dev: false
-
   /http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
@@ -2315,6 +2310,10 @@ packages:
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  /itty-router@5.0.15:
+    resolution: {integrity: sha512-TGpdnAYdzfUWROKBGDXi2d44taRv1j2B1QG0Yt3NeUhwp8QkfdskF2VfZnFHgUMvYx0YpN99ymACq2mVJbLOIg==}
+    dev: false
 
   /js-tokens@9.0.0:
     resolution: {integrity: sha512-WriZw1luRMlmV3LGJaR6QOJjWwgLUTf89OwT2lUOyjX2dJGBwgmIkbcz+7WFZjrZM635JOIR517++e/67CP9dQ==}

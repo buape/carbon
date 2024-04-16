@@ -1,6 +1,6 @@
 import type { ClientOptions } from "../typings.js";
-import { type Context, Hono } from "hono"
-import { verify } from "discord-verify";
+import { AutoRouter, StatusError, json, type IRequestStrict } from "itty-router"
+import { PlatformAlgorithm, isValidRequest } from "discord-verify";
 import { type APIInteraction, InteractionResponseType, InteractionType, MessageFlags, Routes, RouteBases } from "discord-api-types/v10";
 import type { Command } from "../structures/Command.js";
 import { Interaction } from "./Interaction.js";
@@ -8,11 +8,11 @@ import { Interaction } from "./Interaction.js";
 export class Client {
 	options: ClientOptions
 	commands: Command[]
-	router: Hono
+	router: ReturnType<typeof AutoRouter>
 	constructor(options: ClientOptions, commands: Command[]) {
 		this.options = options
 		this.commands = commands
-		this.router = new Hono()
+		this.router = AutoRouter()
 		this.setupRoutes()
 		this.deployCommands()
 	}
@@ -37,27 +37,26 @@ export class Client {
 	}
 
 	private setupRoutes() {
-		this.router.get("/", (c) => {
-			if (this.options.redirectUrl) return c.redirect(this.options.redirectUrl)
-			c.status(401)
-			return c.json({ error: "Unauthorized" })
+		this.router.get("/", () => {
+			if (this.options.redirectUrl) return Response.redirect(this.options.redirectUrl, 302)
+			throw new StatusError(404)
 		})
-		this.router.post("/interaction", async (c) => {
-			const isValid = await this.validateInteraction(c)
+		this.router.post("/interaction", async (req: IRequestStrict) => {
+			const isValid = await this.validateInteraction(req)
 			if (!isValid) {
-				c.status(401)
-				return c.json({ error: "Invalid request signature." })
+				return new Response("Invalid request signature", { status: 401 })
 			}
 
-			const rawInteraction = c.req.json() as unknown as APIInteraction
+			const rawInteraction = await req.json() as unknown as APIInteraction
+			console.log(rawInteraction)
 			if (rawInteraction.type === InteractionType.Ping) {
-				return c.json({
+				return json({
 					type: InteractionResponseType.Pong
 				})
 			}
 
 			if (rawInteraction.type !== InteractionType.ApplicationCommand) {
-				return c.json({
+				return json({
 					type: InteractionResponseType.ChannelMessageWithSource,
 					data: {
 						content: "Interaction type not supported"
@@ -66,18 +65,18 @@ export class Client {
 			}
 
 			const command = this.commands.find(x => x.name === rawInteraction.data.name)
-			if (!command) return c.status(400)
+			if (!command) return new Response(null, { status: 400 })
 
 			const interaction = new Interaction(rawInteraction)
 
 			if (command.defer) {
 				command.run(interaction)
-				return c.json({
+				return json({
 					type: InteractionResponseType.DeferredChannelMessageWithSource,
 					flags: command.ephemeral ? MessageFlags.Ephemeral : 0
 				})
 			}
-			return c.json({
+			return json({
 				type: InteractionResponseType.ChannelMessageWithSource,
 				content: "Man someone should really implement non-deferred replies huh"
 			})
@@ -87,27 +86,14 @@ export class Client {
 
 	}
 
-	private async validateInteraction(c: Context) {
-		if (c.req.method !== "POST") {
-			c.status(405)
-			return c.json({ error: "Method not allowed." })
+	private async validateInteraction(req: IRequestStrict) {
+		if (req.method !== "POST") {
+			throw new StatusError(405)
 		}
-		if (
-			!c.req.header("x-signature-ed25519") ||
-			!c.req.header("x-signature-timestamp")
-		) {
-			c.status(401)
-			return c.json({ error: "Invalid request signature." })
-		}
-		const signature = c.req.header("x-signature-ed25519")
-		const timestamp = c.req.header("x-signature-timestamp")
-		const body = JSON.stringify(c.req.json())
-		const isValid = await verify(
-			body,
-			signature,
-			timestamp,
+		const isValid = await isValidRequest(
+			req,
 			this.options.publicKey,
-			crypto.subtle
+			PlatformAlgorithm.NewNode
 		)
 		return isValid
 	}
