@@ -48,7 +48,6 @@ export class Client {
 			}
 
 			const rawInteraction = await req.json() as unknown as APIInteraction
-			console.log(rawInteraction)
 			if (rawInteraction.type === InteractionType.Ping) {
 				return json({
 					type: InteractionResponseType.Pong

@@ -20,8 +20,6 @@ const client = new Client({
 	new PingCommand()
 ])
 
-console.log(client)
-
 serve(client, { port: 3000 })
 
 const sleep = async (ms: number) => { return new Promise(resolve => setTimeout(resolve, ms)) }
