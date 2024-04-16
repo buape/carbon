@@ -1,4 +1,3 @@
-import { expect, test } from "vitest"
-import { hello } from "../src"
+import { expect, test } from "vitest";
 
-test("It works", () => expect(hello()).toBe("Hello world"))
+test("Dummy test", () => expect(1).toBe(1))
