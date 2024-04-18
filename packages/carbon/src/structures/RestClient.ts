@@ -1,5 +1,2 @@
-// TODO: Switch to our own client
-
-import { REST } from "@discordjs/rest"
-
-export { REST as RestClient }
+import { Client as RestClient } from "discord-request";
+export { RestClient }

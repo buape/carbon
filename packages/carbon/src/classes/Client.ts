@@ -11,6 +11,7 @@ import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import { CommandInteraction } from "../structures/CommandInteraction.js"
 import { RestClient } from "../structures/RestClient.js"
 import type { Command } from "./Command.js"
+import pkg from "../../package.json" assert { type: "json" }
 
 /**
  * The options used for initializing the client
@@ -53,7 +54,7 @@ export class Client {
 		this.commands = commands
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
-		this.rest = new RestClient().setToken(options.token)
+		this.rest = new RestClient({ userAgent: `DiscordBot (https://github.com/buape/carbon v${pkg.version})` }).setToken(options.token)
 		this.setupRoutes()
 		this.deployCommands()
 	}
@@ -77,7 +78,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch {}
+		} catch { }
 	}
 
 	/**
