@@ -37,3 +37,34 @@ npx create-carbon-app my-carbon-app
 - [Documentation](https://carbon.buape.com/docs)
 - [Discord](https://go.buape.com/Discord)
 - [NPM](https://www.npmjs.com/package/@buape/carbon)
+
+
+## Examples
+
+### Cloudflare
+
+```ts
+import { Client } from "carbon"
+
+const client = new Client()
+
+export default {...client.router}
+```
+
+### NodeJS
+
+```ts
+import { Client } from "carbon"
+import { serve } from "@carbonjs/nodejs"
+
+const client = new Client(
+	{
+		clientId: process.env.CLIENT_ID!,
+		publicKey: process.env.PUBLIC_KEY!,
+		token: process.env.DISCORD_TOKEN!
+	},
+	[new PingCommand()]
+)
+
+serve(client, { port: 3000 })
+```
