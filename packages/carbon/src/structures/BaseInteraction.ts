@@ -9,21 +9,37 @@ import { Base } from "./Base.js"
 /**
  * The data to reply to an interaction
  */
-type InteractionReplyData = {
+export type InteractionReplyData = {
+	/**
+	 * The content of the message
+	 */
 	content?: string
 }
 
 /**
  * Additional options for replying to an interaction
  */
-type InteractionReplyOptions = {
+export type InteractionReplyOptions = {
+	/**
+	 * The files to send in the interaction
+	 */
 	files?: InteractionFileData[]
 }
 
-type InteractionFileData = {
+/**
+ * The data for a file to send in an interaction
+ */
+export type InteractionFileData = {
+	/**
+	 * The name of the file that will be given to Discord
+	 */
 	name: string
+	/**
+	 * The data of the file in a Blob
+	 */
 	data: Blob
 	/**
+	 * The alt text of the file, shown for accessibility
 	 * @alpha This isn't implemented yet
 	 */
 	description?: string
@@ -31,6 +47,7 @@ type InteractionFileData = {
 
 /**
  * This is the base type interaction, all interaction types extend from this
+ * @abstract
  */
 export abstract class BaseInteraction extends Base {
 	/**

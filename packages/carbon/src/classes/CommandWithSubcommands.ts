@@ -2,7 +2,7 @@ import {
 	type APIApplicationCommandBasicOption,
 	ApplicationCommandType
 } from "discord-api-types/v10"
-import { BaseCommand } from "../structures/_BaseCommand.js"
+import { BaseCommand } from "../structures/BaseCommand.js"
 import type { Command } from "./Command.js"
 
 /**

@@ -7,6 +7,7 @@ import { Base } from "../Base.js"
 
 /**
  * The base type for options received from Discord, to create a usable interface for the end user
+ * @abstract
  */
 export abstract class BaseOption extends Base {
 	type: ApplicationCommandOptionType

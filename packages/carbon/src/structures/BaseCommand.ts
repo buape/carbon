@@ -5,6 +5,7 @@ import type {
 
 /**
  * Represents the base data of a command that the user creates
+ * @abstract
  */
 export abstract class BaseCommand {
 	/**
@@ -42,5 +43,8 @@ export abstract class BaseCommand {
 		return data
 	}
 
+	/**
+	 * Serializes the options of the command into a JSON object that can be sent to Discord
+	 */
 	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
 }
