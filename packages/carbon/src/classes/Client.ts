@@ -1,3 +1,4 @@
+import { Client as RestClient } from "@carbonjs/discord-request"
 import {
 	type APIInteraction,
 	ApplicationCommandType,
@@ -11,7 +12,6 @@ import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import pkg from "../../package.json" assert { type: "json" }
 import { CommandInteraction } from "../structures/CommandInteraction.js"
-import { Client as RestClient } from "@carbonjs/discord-request"
 import type { BaseCommand } from "../structures/_BaseCommand.js"
 import { Command } from "./Command.js"
 import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
