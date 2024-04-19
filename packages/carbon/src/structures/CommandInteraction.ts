@@ -15,13 +15,15 @@ export class CommandInteraction extends BaseInteraction {
 	 */
 	async reply(data: RESTPostAPIChannelMessageJSONBody) {
 		// TODO: Handle non-deferred
+
+		console.log(JSON.stringify(data, null, 2))
 		this.client.rest.patch(
 			Routes.webhookMessage(
 				this.rawData.application_id,
 				this.rawData.token,
 				"@original"
 			),
-			{ body: JSON.stringify(data) }
+			{ body: data }
 		)
 	}
 }

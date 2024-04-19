@@ -4,14 +4,17 @@ import {
 	InteractionType,
 	MessageFlags,
 	RouteBases,
-	Routes
+	Routes,
+	ApplicationCommandType
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import { CommandInteraction } from "../structures/CommandInteraction.js"
 import { RestClient } from "../structures/RestClient.js"
-import type { Command } from "./Command.js"
+import { Command } from "./Command.js"
 import pkg from "../../package.json" assert { type: "json" }
+import type { BaseCommand } from "../structures/_BaseCommand.js"
+import { Subcommand } from "./Subcommand.js"
 
 /**
  * The options used for initializing the client
@@ -34,7 +37,7 @@ export class Client {
 	/**
 	 * The commands that the client has registered
 	 */
-	commands: Command[]
+	commands: BaseCommand[]
 	/**
 	 * The router used to handle requests
 	 */
@@ -49,7 +52,7 @@ export class Client {
 	 * @param options The options used to initialize the client
 	 * @param commands The commands that the client has registered
 	 */
-	constructor(options: ClientOptions, commands: Command[]) {
+	constructor(options: ClientOptions, commands: BaseCommand[]) {
 		this.options = options
 		this.commands = commands
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -67,6 +70,7 @@ export class Client {
 			const commands = this.commands.map((command) => {
 				return command.serialize()
 			})
+			console.log(commands)
 			await fetch(
 				RouteBases.api + Routes.applicationCommands(this.options.clientId),
 				{
@@ -119,17 +123,46 @@ export class Client {
 
 			const interaction = new CommandInteraction(this, rawInteraction)
 
-			if (command.defer) {
-				command.run(interaction)
+			if (command instanceof Command) {
+				if (command.defer) {
+					command.run(interaction)
+					return json({
+						type: InteractionResponseType.DeferredChannelMessageWithSource,
+						flags: command.ephemeral ? MessageFlags.Ephemeral : 0
+					})
+				}
 				return json({
-					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					flags: command.ephemeral ? MessageFlags.Ephemeral : 0
+					type: InteractionResponseType.ChannelMessageWithSource,
+					content: "Man someone should really implement non-deferred replies huh"
 				})
 			}
-			return json({
-				type: InteractionResponseType.ChannelMessageWithSource,
-				content: "Man someone should really implement non-deferred replies huh"
-			})
+
+			if (command instanceof Subcommand) {
+				if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
+					return json({
+						type: InteractionResponseType.ChannelMessageWithSource,
+						data: {
+							content: "Subcommands must be used with ChatInput"
+						}
+					})
+				}
+				const data = rawInteraction.data
+				const subcommand = command.subcommands.find(
+					(x) => x.name === data.options?.[0]?.name
+				)
+				if (!subcommand) return new Response(null, { status: 400 })
+
+				if (subcommand.defer) {
+					subcommand.run(interaction)
+					return json({
+						type: InteractionResponseType.DeferredChannelMessageWithSource,
+						flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
+					})
+				}
+				return json({
+					type: InteractionResponseType.ChannelMessageWithSource
+				})
+			}
 		})
 	}
 

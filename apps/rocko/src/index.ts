@@ -1,5 +1,7 @@
 import { serve } from "@carbonjs/nodejs"
 import { Client, Command, type CommandInteraction } from "carbon"
+import { Subc } from "./subcommand.js"
+import { inspect } from "node:util"
 
 class PingCommand extends Command {
 	name = "ping"
@@ -7,7 +9,7 @@ class PingCommand extends Command {
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		await sleep(7500)
+		await sleep(3000)
 		interaction.reply({ content: "Pong" })
 	}
 }
@@ -18,11 +20,13 @@ const client = new Client(
 		publicKey: process.env.PUBLIC_KEY!,
 		token: process.env.DISCORD_TOKEN!
 	},
-	[new PingCommand()]
+	[new PingCommand(), new Subc()]
 )
 
 serve(client, { port: 3000 })
 
-const sleep = async (ms: number) => {
+console.log(inspect(client.commands.map((x) => x.serialize()), false, null, true))
+
+export const sleep = async (ms: number) => {
 	return new Promise((resolve) => setTimeout(resolve, ms))
 }
