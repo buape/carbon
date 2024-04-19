@@ -1,19 +1,19 @@
 import {
 	type APIInteraction,
+	ApplicationCommandType,
 	InteractionResponseType,
 	InteractionType,
 	MessageFlags,
 	RouteBases,
-	Routes,
-	ApplicationCommandType
+	Routes
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
+import pkg from "../../package.json" assert { type: "json" }
 import { CommandInteraction } from "../structures/CommandInteraction.js"
 import { RestClient } from "../structures/RestClient.js"
-import { Command } from "./Command.js"
-import pkg from "../../package.json" assert { type: "json" }
 import type { BaseCommand } from "../structures/_BaseCommand.js"
+import { Command } from "./Command.js"
 import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 
 /**
@@ -57,7 +57,9 @@ export class Client {
 		this.commands = commands
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
-		this.rest = new RestClient({ userAgent: `DiscordBot (https://github.com/buape/carbon v${pkg.version})` }).setToken(options.token)
+		this.rest = new RestClient({
+			userAgent: `DiscordBot (https://github.com/buape/carbon v${pkg.version})`
+		}).setToken(options.token)
 		this.setupRoutes()
 		this.deployCommands()
 	}
@@ -82,7 +84,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch { }
+		} catch {}
 	}
 
 	/**
@@ -133,7 +135,8 @@ export class Client {
 				}
 				return json({
 					type: InteractionResponseType.ChannelMessageWithSource,
-					content: "Man someone should really implement non-deferred replies huh"
+					content:
+						"Man someone should really implement non-deferred replies huh"
 				})
 			}
 

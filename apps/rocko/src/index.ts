@@ -1,7 +1,7 @@
+import { inspect } from "node:util"
 import { serve } from "@carbonjs/nodejs"
 import { Client, Command, type CommandInteraction } from "carbon"
 import { Subc } from "./subcommand.js"
-import { inspect } from "node:util"
 
 class PingCommand extends Command {
 	name = "ping"
@@ -25,7 +25,14 @@ const client = new Client(
 
 serve(client, { port: 3000 })
 
-console.log(inspect(client.commands.map((x) => x.serialize()), false, null, true))
+console.log(
+	inspect(
+		client.commands.map((x) => x.serialize()),
+		false,
+		null,
+		true
+	)
+)
 
 export const sleep = async (ms: number) => {
 	return new Promise((resolve) => setTimeout(resolve, ms))

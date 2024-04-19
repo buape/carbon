@@ -1,4 +1,7 @@
-import type { ApplicationCommandType, RESTPostAPIApplicationCommandsJSONBody } from "discord-api-types/v10"
+import type {
+	ApplicationCommandType,
+	RESTPostAPIApplicationCommandsJSONBody
+} from "discord-api-types/v10"
 
 /**
  * Represents the base data of a command that the user creates

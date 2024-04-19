@@ -1,5 +1,9 @@
-import { Command, CommandWithSubcommands, type CommandInteraction } from "carbon";
-import { sleep } from "./index.js";
+import {
+	Command,
+	type CommandInteraction,
+	CommandWithSubcommands
+} from "carbon"
+import { sleep } from "./index.js"
 
 class Sub1 extends Command {
 	name = "sub1"
@@ -22,7 +26,6 @@ class Sub2 extends Command {
 		interaction.reply({ content: "Subcommand 2" })
 	}
 }
-
 
 export class Subc extends CommandWithSubcommands {
 	name = "subc"
