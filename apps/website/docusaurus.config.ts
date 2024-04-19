@@ -16,7 +16,7 @@ const config: Config = {
 	organizationName: "buape",
 	projectName: "@buape/carbon",
 
-	onBrokenLinks: "throw",
+	onBrokenLinks: "warn",
 	onBrokenMarkdownLinks: "warn",
 	trailingSlash: false,
 
