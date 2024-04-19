@@ -12,5 +12,8 @@
 	"editor.defaultFormatter": "biomejs.biome",
 	"[typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
+	},
+	"[yaml]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml"
 	}
 }
