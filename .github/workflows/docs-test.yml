@@ -17,4 +17,4 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Test build website
-        run: yarn build
+        run: pnpm run web:build
