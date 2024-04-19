@@ -123,7 +123,7 @@ export class Client {
 			)
 			if (!command) return new Response(null, { status: 400 })
 
-			const interaction = new CommandInteraction(this, rawInteraction)
+			const interaction = new CommandInteraction(this, rawInteraction, command)
 
 			if (command instanceof Command) {
 				if (command.defer) {

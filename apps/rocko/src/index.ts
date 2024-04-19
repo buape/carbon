@@ -3,6 +3,7 @@ import { Client, Command, type CommandInteraction } from "@buape/carbon"
 import { serve } from "@carbonjs/nodejs"
 import { Attachment } from "./attachment.js"
 import { Subc } from "./subcommand.js"
+import { Options } from "./options.js"
 
 class PingCommand extends Command {
 	name = "ping"
@@ -21,7 +22,7 @@ const client = new Client(
 		publicKey: process.env.PUBLIC_KEY!,
 		token: process.env.DISCORD_TOKEN!
 	},
-	[new PingCommand(), new Subc(), new Attachment()]
+	[new PingCommand(), new Subc(), new Attachment(), new Options()]
 )
 
 serve(client, { port: 3000 })
