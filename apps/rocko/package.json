@@ -6,8 +6,7 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc-watch --onSuccess \"node .\"",
-		"start": "node .",
-		"typecheck": "tsc --noEmit"
+		"start": "node ."
 	},
 	"dependencies": {
 		"@carbonjs/nodejs": "workspace:*",

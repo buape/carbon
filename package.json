@@ -8,7 +8,6 @@
 		"preinstall": "npx only-allow pnpm",
 		"start": "dotenv -- turbo run start",
 		"test": "vitest",
-		"typecheck": "turbo run typecheck",
 		"generate": "turbo gen create-package",
 		"web": "turbo run web:start --filter website",
 		"web:build": "turbo run web:build --filter website"

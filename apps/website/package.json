@@ -11,8 +11,7 @@
 		"web:clear": "docusaurus clear",
 		"web:serve": "docusaurus serve",
 		"web:write-translations": "docusaurus write-translations",
-		"web:write-heading-ids": "docusaurus write-heading-ids",
-		"web:typecheck": "tsc"
+		"web:write-heading-ids": "docusaurus write-heading-ids"
 	},
 	"dependencies": {
 		"@docusaurus/core": "3.2.1",
