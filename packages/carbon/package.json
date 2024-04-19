@@ -5,12 +5,12 @@
 	"main": "./dist/src/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc -w -preserveWatchOutput"
+		"dev": "tsc -w"
 	},
 	"license": "MIT",
 	"dependencies": {
 		"discord-api-types": "0.37.79",
-		"discord-request": "^1.0.1",
+		"@carbonjs/discord-request": "workspace:*",
 		"discord-verify": "1.2.0",
 		"itty-router": "5.0.15"
 	}

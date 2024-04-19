@@ -100,18 +100,27 @@ importers:
 
   packages/carbon:
     dependencies:
+      '@carbonjs/discord-request':
+        specifier: workspace:*
+        version: link:../discord-request
       discord-api-types:
         specifier: 0.37.79
         version: 0.37.79
-      discord-request:
-        specifier: ^1.0.1
-        version: 1.0.1
       discord-verify:
         specifier: 1.2.0
         version: 1.2.0
       itty-router:
         specifier: 5.0.15
         version: 5.0.15
+
+  packages/discord-request:
+    dependencies:
+      discord-error:
+        specifier: 3.0.1
+        version: 3.0.1
+      discord-snowflake:
+        specifier: 2.0.0
+        version: 2.0.0
 
   packages/nodejs:
     dependencies:
@@ -5255,14 +5264,6 @@ packages:
   /discord-error@3.0.1:
     resolution: {integrity: sha512-br6wRBs8UtnPJV/hz2hv0UPw8XsOnw5GmlaYYbTsrPssM78mgEUSvCu7q2tWEGrk+MAPwBf9zxZq9U50YMKa2Q==}
     engines: {node: '>=18'}
-    dev: false
-
-  /discord-request@1.0.1:
-    resolution: {integrity: sha512-7SWx2nX2OdYZ5TOUHi8O6yhUn09eH4bnO0HOF4xIk3kaOcIJz1hbD6/CltiZh6q37YRhHxXPRJBooLU6gfwzrA==}
-    engines: {node: '>=18'}
-    dependencies:
-      discord-error: 3.0.1
-      discord-snowflake: 2.0.0
     dev: false
 
   /discord-snowflake@2.0.0:

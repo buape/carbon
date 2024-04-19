@@ -6,4 +6,4 @@ export * from "./classes/CommandWithSubcommands.js"
 // ----- Structures -----
 export * from "./structures/Base.js"
 export * from "./structures/CommandInteraction.js"
-export * from "./structures/Interaction.js"
+export * from "./structures/BaseInteraction.js"
