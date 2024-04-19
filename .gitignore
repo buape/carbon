@@ -3,4 +3,4 @@ dist
 .turbo
 .pnpm-store
 .env
-docs
+./docs
