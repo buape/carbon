@@ -283,7 +283,7 @@ export class Client {
 		let body: RequestInit["body"]
 
 		if (data.files != null) {
-			headers.set("Content-Type", "multipart/form-data")
+			// headers.set("Content-Type", "multipart/form-data")
 			const formData = new FormData()
 
 			for (const [index, file] of data.files.entries()) {
