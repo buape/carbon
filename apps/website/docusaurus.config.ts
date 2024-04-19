@@ -47,7 +47,7 @@ const config: Config = {
 			title: "Carbon",
 			items: [
 				{
-					to: "api",
+					to: "api/carbon",
 					label: "API",
 					position: "left"
 				},
