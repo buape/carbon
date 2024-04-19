@@ -4,7 +4,8 @@
 		"ignore": [
 			"dist",
 			"./packages/**/package.json",
-			"./packages/**/tsconfig.json"
+			"./packages/**/tsconfig.json",
+			"./apps/web/build"
 		],
 		"ignoreUnknown": true
 	},
