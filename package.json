@@ -2,7 +2,7 @@
 	"name": "@buape/carbon",
 	"description": "Carbon monorepo",
 	"scripts": {
-		"build": "turbo run build --filter carbon && turbo run build",
+		"build": "turbo run build",
 		"dev": "dotenv -- turbo run dev",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",

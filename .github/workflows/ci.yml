@@ -33,6 +33,9 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Build
+        run: pnpm run build --filter carbon
+
+      - name: Typecheck
         run: pnpm run typecheck
 
   biome:
