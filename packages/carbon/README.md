@@ -44,7 +44,7 @@ npx create-carbon-app my-carbon-app
 ### Cloudflare
 
 ```ts
-import { Client } from "carbon"
+import { Client } from "@buape/carbon"
 
 const client = new Client()
 
@@ -54,7 +54,7 @@ export default {...client.router}
 ### NodeJS
 
 ```ts
-import { Client } from "carbon"
+import { Client } from "@buape/carbon"
 import { serve } from "@carbonjs/nodejs"
 
 const client = new Client(

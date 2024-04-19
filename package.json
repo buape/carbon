@@ -1,5 +1,5 @@
 {
-	"name": "carbon",
+	"name": "@buape/carbon",
 	"description": "Carbon monorepo",
 	"scripts": {
 		"build": "turbo run build",

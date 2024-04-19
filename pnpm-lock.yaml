@@ -42,15 +42,15 @@ importers:
 
   apps/rocko:
     dependencies:
+      '@buape/carbon':
+        specifier: workspace:*
+        version: link:../../packages/carbon
       '@carbonjs/nodejs':
         specifier: workspace:*
         version: link:../../packages/nodejs
       '@types/node':
         specifier: ^20.12.7
         version: 20.12.7
-      carbon:
-        specifier: workspace:*
-        version: link:../../packages/carbon
 
   apps/website:
     dependencies:
@@ -115,12 +115,12 @@ importers:
 
   packages/nodejs:
     dependencies:
+      '@buape/carbon':
+        specifier: workspace:*
+        version: link:../carbon
       '@hono/node-server':
         specifier: ^1.11.0
         version: 1.11.0
-      carbon:
-        specifier: workspace:*
-        version: link:../carbon
 
 packages:
 

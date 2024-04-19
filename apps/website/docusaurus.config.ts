@@ -7,14 +7,14 @@ import type * as Preset from "@docusaurus/preset-classic"
 import type { Config } from "@docusaurus/types"
 
 const config: Config = {
-	title: "Carbon",
+	title: "@buape/carbon",
 	tagline: "What the fuck is this",
 
 	url: "https://carbon.buape.com",
 	baseUrl: "/",
 
 	organizationName: "buape",
-	projectName: "carbon",
+	projectName: "@buape/carbon",
 
 	onBrokenLinks: "throw",
 	onBrokenMarkdownLinks: "warn",
@@ -44,7 +44,7 @@ const config: Config = {
 		// Replace with your project's social card
 		image: "img/docusaurus-social-card.jpg",
 		navbar: {
-			title: "Carbon",
+			title: "@buape/carbon",
 			items: [
 				{
 					to: "api/carbon",
@@ -81,7 +81,7 @@ const config: Config = {
 			"docusaurus-plugin-typedoc-api",
 			{
 				projectRoot: path.join(__dirname, "../.."),
-				packages: ["carbon", "nodejs"].map((x) => `packages/${x}`),
+				packages: ["@buape/carbon", "nodejs"].map((x) => `packages/${x}`),
 				tsconfigName: "tsconfig.base.json"
 			}
 		]

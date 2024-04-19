@@ -1,6 +1,8 @@
 {
-	"entryPoints": ["packages/*"],
-	"name": "Carbon",
+	"entryPoints": [
+		"packages/*"
+	],
+	"name": "@buape/carbon",
 	"entryPointStrategy": "packages",
 	"includeVersion": true
 }

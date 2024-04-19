@@ -1,6 +1,6 @@
 import { inspect } from "node:util"
 import { serve } from "@carbonjs/nodejs"
-import { Client, Command, type CommandInteraction } from "carbon"
+import { Client, Command, type CommandInteraction } from "@buape/carbon"
 import { Subc } from "./subcommand.js"
 
 class PingCommand extends Command {

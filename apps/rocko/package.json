@@ -12,7 +12,7 @@
 	"dependencies": {
 		"@carbonjs/nodejs": "workspace:*",
 		"@types/node": "^20.12.7",
-		"carbon": "workspace:*"
+		"@buape/carbon": "workspace:*"
 	},
 	"license": "MIT"
 }

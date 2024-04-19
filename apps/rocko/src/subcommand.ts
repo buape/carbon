@@ -2,7 +2,7 @@ import {
 	Command,
 	type CommandInteraction,
 	CommandWithSubcommands
-} from "carbon"
+} from "@buape/carbon"
 import { sleep } from "./index.js"
 
 class Sub1 extends Command {

@@ -11,6 +11,6 @@
 	"license": "MIT",
 	"dependencies": {
 		"@hono/node-server": "^1.11.0",
-		"carbon": "workspace:*"
+		"@buape/carbon": "workspace:*"
 	}
 }
