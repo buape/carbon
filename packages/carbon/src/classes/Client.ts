@@ -14,7 +14,7 @@ import { RestClient } from "../structures/RestClient.js"
 import { Command } from "./Command.js"
 import pkg from "../../package.json" assert { type: "json" }
 import type { BaseCommand } from "../structures/_BaseCommand.js"
-import { Subcommand } from "./Subcommand.js"
+import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 
 /**
  * The options used for initializing the client
@@ -137,7 +137,7 @@ export class Client {
 				})
 			}
 
-			if (command instanceof Subcommand) {
+			if (command instanceof CommandWithSubcommands) {
 				if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
 					return json({
 						type: InteractionResponseType.ChannelMessageWithSource,

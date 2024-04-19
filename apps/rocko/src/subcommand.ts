@@ -1,4 +1,4 @@
-import { Command, Subcommand, type CommandInteraction } from "carbon";
+import { Command, CommandWithSubcommands, type CommandInteraction } from "carbon";
 import { sleep } from "./index.js";
 
 class Sub1 extends Command {
@@ -24,7 +24,7 @@ class Sub2 extends Command {
 }
 
 
-export class Subc extends Subcommand {
+export class Subc extends CommandWithSubcommands {
 	name = "subc"
 	description = "Subcommands!"
 	defer = true

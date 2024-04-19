@@ -6,7 +6,7 @@ import type { Command } from "./Command.js";
  * Represents a subcommand command that the user creates.
  * You make this instead of a {@link Command} class when you want to have subcommands in your options.
  */
-export abstract class Subcommand extends BaseCommand {
+export abstract class CommandWithSubcommands extends BaseCommand {
 	type = ApplicationCommandType.ChatInput
 	abstract subcommands: Command[]
 

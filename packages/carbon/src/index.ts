@@ -1,7 +1,7 @@
 // ----- Classes -----
 export * from "./classes/Client.js"
 export * from "./classes/Command.js"
-export * from "./classes/Subcommand.js"
+export * from "./classes/CommandWithSubcommands.js"
 
 // ----- Structures -----
 export * from "./structures/Base.js"
