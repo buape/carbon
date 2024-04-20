@@ -1,6 +1,9 @@
 import { Client as RestClient } from "@carbonjs/discord-request"
 import {
+	type APIApplicationCommandSubcommandGroupOption,
+	type APIChatInputApplicationCommandInteractionData,
 	type APIInteraction,
+	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	InteractionResponseType,
 	InteractionType,
@@ -14,6 +17,7 @@ import pkg from "../../package.json" assert { type: "json" }
 import type { BaseCommand } from "../structures/BaseCommand.js"
 import { CommandInteraction } from "../structures/CommandInteraction.js"
 import { Command } from "./Command.js"
+import { CommandWithSubcommandGroups } from "./CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 
 /**
@@ -162,9 +166,67 @@ export class Client {
 					})
 				}
 				return json({
-					type: InteractionResponseType.ChannelMessageWithSource
+					type: InteractionResponseType.ChannelMessageWithSource,
+					content:
+						"Man someone should really implement non-deferred replies huh"
 				})
 			}
+
+			if (command instanceof CommandWithSubcommandGroups) {
+				if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
+					return json({
+						type: InteractionResponseType.ChannelMessageWithSource,
+						data: {
+							content: "Subcommand groups must be used with ChatInput"
+						}
+					})
+				}
+				const data = rawInteraction.data
+				const subcommandGroupName = data.options?.find(
+					(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
+				)?.name
+				if (!subcommandGroupName) return new Response(null, { status: 400 })
+
+				const subcommandGroup = command.subcommandGroups.find(
+					(x) => x.name === subcommandGroupName
+				)
+
+				if (!subcommandGroup) return new Response(null, { status: 400 })
+
+				const subcommandName = (
+					data.options?.find(
+						(x) => x.type === ApplicationCommandOptionType.Subcommand
+					) as APIApplicationCommandSubcommandGroupOption
+				).options?.find(
+					(x) => x.type === ApplicationCommandOptionType.Subcommand
+				)?.name
+				if (!subcommandName) return new Response(null, { status: 400 })
+
+				const subcommand = subcommandGroup.subcommands.find(
+					(x) => x.name === subcommandName
+				)
+
+				if (!subcommand) return new Response(null, { status: 400 })
+
+				if (subcommand.defer) {
+					subcommand.run(interaction)
+					return json({
+						type: InteractionResponseType.DeferredChannelMessageWithSource,
+						flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
+					})
+				}
+				return json({
+					type: InteractionResponseType.ChannelMessageWithSource,
+					content:
+						"Man someone should really implement non-deferred replies huh"
+				})
+			}
+
+			console.error(`Command ${command.name} is not a valid command type`)
+			console.log(
+				(rawInteraction.data as APIChatInputApplicationCommandInteractionData)
+					.options
+			)
 		})
 	}
 

@@ -31,6 +31,7 @@ export abstract class BaseCommand {
 
 	/**
 	 * Serializes the command into a JSON object that can be sent to Discord
+	 * @internal
 	 */
 	serialize() {
 		const data: RESTPostAPIApplicationCommandsJSONBody = {
@@ -45,6 +46,7 @@ export abstract class BaseCommand {
 
 	/**
 	 * Serializes the options of the command into a JSON object that can be sent to Discord
+	 * @internal
 	 */
 	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
 }
