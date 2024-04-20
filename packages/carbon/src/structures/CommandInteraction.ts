@@ -1,14 +1,14 @@
 import {
-	type APIInteraction,
-	ApplicationCommandType,
-	InteractionType,
 	type APIApplicationCommandInteractionDataBasicOption,
-	ApplicationCommandOptionType
+	type APIInteraction,
+	ApplicationCommandOptionType,
+	ApplicationCommandType,
+	InteractionType
 } from "discord-api-types/v10"
-import { BaseInteraction } from "./BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
 import type { BaseCommand } from "./BaseCommand.js"
+import { BaseInteraction } from "./BaseInteraction.js"
 
 /**
  * Represents a command interaction

@@ -1,6 +1,6 @@
+import path from "node:path"
 import type { BaseCommand } from "@buape/carbon"
 import { getFiles } from "./utils.js"
-import path from "node:path"
 
 /**
  * Load commands from a folder.

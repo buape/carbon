@@ -1,8 +1,8 @@
+import { dirname } from "node:path"
+import { fileURLToPath } from "node:url"
 import { inspect } from "node:util"
 import { Client } from "@buape/carbon"
 import { loadCommands, serve } from "@carbonjs/nodejs"
-import { fileURLToPath } from "node:url"
-import { dirname } from "node:path"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const client = new Client(
