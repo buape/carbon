@@ -11,7 +11,7 @@ export const AUDIT_LOG_LIMIT = 512
  */
 export type UserAgent = `DiscordBot (${string}, ${string})${string}`
 
-export const DEFAULT_USER_AGENT: UserAgent = `DiscordBot (https://github.com/ianmitchell/interaction-kit, v${pkg.version})`
+export const DEFAULT_USER_AGENT: UserAgent = `DiscordBot (https://github.com/buape/carbon, v${pkg.version})`
 
 /**
  * Helpers
