@@ -320,8 +320,6 @@ export class Client {
 			}
 		}
 
-		console.log(body)
-
 		const fetchOptions: RequestInit = {
 			method: data.method,
 			headers,

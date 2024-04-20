@@ -72,7 +72,6 @@ export class Client {
 			const commands = this.commands.map((command) => {
 				return command.serialize()
 			})
-			console.log(commands)
 			await fetch(
 				RouteBases.api + Routes.applicationCommands(this.options.clientId),
 				{
