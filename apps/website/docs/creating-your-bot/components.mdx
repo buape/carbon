@@ -1,0 +1,46 @@
+---
+title: Commands
+sidebar_position: 2
+---
+
+Commands are what the user will use to interact with your bot. They can be anything from simple commands like `ping` to more complex commands like `ban`.
+
+For our bot, let's create a ping command. This command will respond with "Pong!" when the user runs it.
+
+## Creating a Command
+
+To create a command, we need to create a new file in the `commands` folder. Let's call it `ping.js`.
+
+```js
+import { Command } from "@buape/carbon"
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = true
+	ephemeral = false
+}
+
+```
+
+Every component needs to extend one of the `Command` classes. In this case, we are using the regular `Command` class.
+The `name` property is the name of the command. This is what the user will use to run the command.
+The `description` property is a description of the command. This is what the user will see when they run the help command.
+The `defer` property is a boolean that determines whether the command should be deferred or not. If it is set to `true`, the command response will be deferred and show a Thinking... message. If it is set to `false` or not set at all, the command will be replied to immediately.
+The `ephemeral` property is a boolean that determines whether the command should be ephemeral or not. If it is set to `true`, the command response will be ephemeral. If it is set to `false` or not set at all, the command response will be visible to everyone.
+
+## Adding a Handler
+
+Now that we have our component, we need to add a handler. This handler will be called when the component is triggered.
+
+Add this code below the constructor, but still within the class you created
+
+```js
+	async run(interaction) {
+		interaction.reply({ content: "Pong" })
+	}
+```
+
+This run method will be called when the component is triggered. It gives you an `interaction` object that you can use to see the user who triggered the command, the channel it was triggered in, and more.
+
+

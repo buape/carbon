@@ -1,0 +1,36 @@
+---
+title: Installation
+sidebar_position: 1
+---
+
+## Prerequisites
+
+Before installing CrossBuild, you'll need to install [Node.js](https://nodejs.org). For the purposes of this guide, we will be using Node.js v18, as well as using pnpm for our package manager. See the Node.js website for specifics on how to install Node.js on your platform. Once you do, you can install pnpm by using the following command:
+
+```bash
+npm install -g pnpm
+```
+
+We also recommend using [Visual Studio Code](https://code.visualstudio.com) as your code editor, as it has great support for Node.js.
+
+## Setting up your project
+
+Now that you have Node.js and pnpm installed, it's time to setup your project folder. Navigate to a suitable place on your machine and create a new folder named `awesome-bot` (or whatever you want). Then, you will need to open up a terminal on your machine and navigate to the folder you just created. Once you are in the folder, you can run the following command to create a new Node.js project:
+
+```bash
+pnpm init
+```
+
+After this, you should have a `package.json` file in your project folder.
+
+Now, you install CrossBuild by using the following command:
+
+```bash
+pnpm add crossbuild
+```
+
+Then, you will need to add the `dotenv` package to your project, which will allow you to use environment variables in your project. You can do this by running the following command:
+
+```bash
+pnpm add dotenv
+```
