@@ -5,7 +5,7 @@
 	"main": "./dist/src/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc-watch --onSuccess \"node .\" ",
+		"dev": "tsc-watch --onSuccess \"node .\"",
 		"start": "node ."
 	},
 	"dependencies": {

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import { Command, type CommandInteraction } from "@buape/carbon"
 
-export class Attachment extends Command {
+export default class Attachment extends Command {
 	name = "attachment"
 	description = "Attachment test"
 	defer = true

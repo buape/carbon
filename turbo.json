@@ -10,7 +10,9 @@
 		"start": {
 			"dependsOn": ["build"]
 		},
-		"dev": {},
+		"dev": {
+			"persistent": true
+		},
 		"web:build": {},
 		"web:start": {}
 	}

@@ -1,20 +1,9 @@
 import { inspect } from "node:util"
-import { Client, Command, type CommandInteraction } from "@buape/carbon"
-import { serve } from "@carbonjs/nodejs"
-import { Attachment } from "./attachment.js"
-import { Subc } from "./subcommand.js"
-import { Options } from "./options.js"
-
-class PingCommand extends Command {
-	name = "ping"
-	description = "A simple ping command"
-	defer = true
-
-	async run(interaction: CommandInteraction) {
-		await sleep(3000)
-		interaction.reply({ content: "Pong" })
-	}
-}
+import { Client } from "@buape/carbon"
+import { loadCommands, serve } from "@carbonjs/nodejs"
+import { fileURLToPath } from "node:url"
+import { dirname } from "node:path"
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const client = new Client(
 	{
@@ -22,7 +11,7 @@ const client = new Client(
 		publicKey: process.env.PUBLIC_KEY!,
 		token: process.env.DISCORD_TOKEN!
 	},
-	[new PingCommand(), new Subc(), new Attachment(), new Options()]
+	await loadCommands("commands", __dirname)
 )
 
 serve(client, { port: 3000 })

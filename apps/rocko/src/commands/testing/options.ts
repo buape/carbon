@@ -5,7 +5,7 @@ import {
 	type CommandInteraction
 } from "@buape/carbon"
 
-export class Options extends Command {
+export default class Options extends Command {
 	name = "options"
 	description = "Options test"
 	defer = true

@@ -3,7 +3,6 @@ import {
 	type CommandInteraction,
 	CommandWithSubcommands
 } from "@buape/carbon"
-import { sleep } from "./index.js"
 
 class Sub1 extends Command {
 	name = "sub1"
@@ -11,7 +10,6 @@ class Sub1 extends Command {
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		await sleep(3000)
 		interaction.reply({ content: "Subcommand 1" })
 	}
 }
@@ -22,12 +20,11 @@ class Sub2 extends Command {
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		await sleep(3000)
 		interaction.reply({ content: "Subcommand 2" })
 	}
 }
 
-export class Subc extends CommandWithSubcommands {
+export default class Subc extends CommandWithSubcommands {
 	name = "subc"
 	description = "Subcommands!"
 	defer = true
