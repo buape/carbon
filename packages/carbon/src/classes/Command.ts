@@ -11,6 +11,9 @@ import { BaseCommand } from "../structures/BaseCommand.js"
 export abstract class Command extends BaseCommand {
 	type = ApplicationCommandType.ChatInput
 
+	/**
+	 * The options that the user passes along with the command in Discord
+	 */
 	options?: APIApplicationCommandBasicOption[] = []
 
 	/**
@@ -19,6 +22,9 @@ export abstract class Command extends BaseCommand {
 	 */
 	abstract run(interaction: CommandInteraction): Promise<void>
 
+	/**
+	 * @internal
+	 */
 	serializeOptions() {
 		return this.options
 	}

@@ -11,8 +11,15 @@ import type { Command } from "./Command.js"
  */
 export abstract class CommandWithSubcommands extends BaseCommand {
 	type = ApplicationCommandType.ChatInput
+
+	/**
+	 * The subcommands that the user can use
+	 */
 	abstract subcommands: Command[]
 
+	/**
+	 * @internal
+	 */
 	serializeOptions(): APIApplicationCommandBasicOption[] {
 		return this.subcommands.map((subcommand) =>
 			subcommand.serialize()
