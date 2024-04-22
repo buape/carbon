@@ -5,6 +5,7 @@ import {
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { Base } from "./Base.js"
+import type { Row } from "../classes/Row.js"
 
 /**
  * The data to reply to an interaction
@@ -14,6 +15,10 @@ export type InteractionReplyData = {
 	 * The content of the message
 	 */
 	content?: string
+	/**
+	 * The components to send in the message, listed in rows
+	 */
+	components?: Row[]
 }
 
 /**
@@ -58,11 +63,17 @@ export abstract class BaseInteraction extends Base {
 	 * The raw data of the interaction
 	 */
 	rawData: APIInteraction
+	/**
+	 * The user who sent the interaction
+	 */
+	userId: string | undefined
 
 	constructor(client: Client, data: APIInteraction) {
 		super(client)
 		this.rawData = data
 		this.type = data.type
+		this.userId =
+			this.rawData.user?.id || this.rawData.member?.user.id || undefined
 	}
 
 	/**
@@ -74,6 +85,11 @@ export abstract class BaseInteraction extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
+		data.components?.map((row) =>
+			row.components.map((component) => {
+				this.client.componentHandler.registerComponent(component)
+			})
+		)
 		// TODO: Handle non-deferred
 		this.client.rest.patch(
 			Routes.webhookMessage(
@@ -81,9 +97,13 @@ export abstract class BaseInteraction extends Base {
 				this.rawData.token,
 				"@original"
 			),
-			{ body: data, files: options.files }
+			{
+				body: {
+					...data,
+					components: data.components?.map((row) => row.serialize())
+				},
+				files: options.files
+			}
 		)
 	}
 }
-
-export class BaseComponentInteraction extends BaseInteraction {}

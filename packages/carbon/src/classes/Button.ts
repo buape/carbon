@@ -1,19 +1,14 @@
-import { ButtonStyle, ComponentType } from "discord-api-types/v10"
 import {
-	BaseComponent,
-	type ComponentAdditionalData
-} from "../structures/BaseComponent.js"
+	type APIButtonComponent,
+	type APIButtonComponentWithURL,
+	ButtonStyle,
+	ComponentType
+} from "discord-api-types/v10"
+import { BaseComponent } from "../structures/BaseComponent.js"
 import type { ButtonInteraction } from "../structures/ButtonInteraction.js"
 
-abstract class BaseButton<
-	T extends ComponentAdditionalData
-> extends BaseComponent<T> {
+abstract class BaseButton extends BaseComponent {
 	type = ComponentType.Button
-
-	/**
-	 * The custom ID of the button
-	 */
-	abstract customId: string
 
 	/**
 	 * The label of the button
@@ -23,7 +18,7 @@ abstract class BaseButton<
 	/**
 	 * The emoji of the button
 	 */
-	abstract emoji?: {
+	emoji?: {
 		name: string
 		id?: string
 		animated?: boolean
@@ -38,23 +33,44 @@ abstract class BaseButton<
 	 * The disabled state of the button
 	 */
 	disabled = false
-
-	abstract handle: (interaction: ButtonInteraction) => void
 }
 
-export abstract class Button<
-	T extends ComponentAdditionalData
-> extends BaseButton<T> {
+export abstract class Button extends BaseButton {
 	/**
 	 * The style of the button
 	 */
 	abstract style: Exclude<ButtonStyle, ButtonStyle.Link>
+
+	abstract run(interaction: ButtonInteraction): Promise<void>
+
+	serialize = (): APIButtonComponent => {
+		return {
+			type: ComponentType.Button,
+			style: this.style,
+			label: this.label,
+			custom_id: this.customId,
+			disabled: this.disabled,
+			emoji: this.emoji
+		}
+	}
 }
 
-export abstract class LinkButton extends BaseButton<null> {
+export abstract class LinkButton extends BaseButton {
+	customId = ""
 	/**
 	 * The URL that the button links to
 	 */
 	abstract url: string
 	style = ButtonStyle.Link
+
+	serialize = (): APIButtonComponentWithURL => {
+		return {
+			type: ComponentType.Button,
+			url: this.url,
+			style: ButtonStyle.Link,
+			label: this.label,
+			disabled: this.disabled,
+			emoji: this.emoji
+		}
+	}
 }
