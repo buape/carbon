@@ -85,3 +85,5 @@ export abstract class BaseInteraction extends Base {
 		)
 	}
 }
+
+export class BaseComponentInteraction extends BaseInteraction {}

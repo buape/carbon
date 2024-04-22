@@ -1,9 +1,9 @@
 import {
 	type APIApplicationCommandInteractionDataBasicOption,
-	type APIInteraction,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	InteractionType
+	InteractionType,
+	type APIApplicationCommandInteraction
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
@@ -19,7 +19,11 @@ export class CommandInteraction extends BaseInteraction {
 			| APIApplicationCommandInteractionDataBasicOption["value"]
 			| undefined
 	} = {}
-	constructor(client: Client, data: APIInteraction, command?: BaseCommand) {
+	constructor(
+		client: Client,
+		data: APIApplicationCommandInteraction,
+		command?: BaseCommand
+	) {
 		super(client, data)
 		if (data.type !== InteractionType.ApplicationCommand) {
 			throw new Error("Invalid interaction type was used to create this class")
