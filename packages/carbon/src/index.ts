@@ -10,4 +10,6 @@ export * from "./structures/BaseCommand.js"
 export * from "./structures/BaseInteraction.js"
 export * from "./structures/CommandInteraction.js"
 
+// ----- Types -----
 export * from "discord-api-types/v10"
+export * from "./types.js"

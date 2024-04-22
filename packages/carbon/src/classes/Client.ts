@@ -87,7 +87,10 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
-		} catch {}
+		} catch (err) {
+			console.error("Failed to deploy commands")
+			console.error(err)
+		}
 	}
 
 	/**
@@ -127,6 +130,7 @@ export class Client {
 			if (!command) return new Response(null, { status: 400 })
 
 			const interaction = new CommandInteraction(this, rawInteraction, command)
+			console.log(1)
 
 			if (command instanceof Command) {
 				if (command.defer) {
@@ -134,35 +138,6 @@ export class Client {
 					return json({
 						type: InteractionResponseType.DeferredChannelMessageWithSource,
 						flags: command.ephemeral ? MessageFlags.Ephemeral : 0
-					})
-				}
-				return json({
-					type: InteractionResponseType.ChannelMessageWithSource,
-					content:
-						"Man someone should really implement non-deferred replies huh"
-				})
-			}
-
-			if (command instanceof CommandWithSubcommands) {
-				if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-					return json({
-						type: InteractionResponseType.ChannelMessageWithSource,
-						data: {
-							content: "Subcommands must be used with ChatInput"
-						}
-					})
-				}
-				const data = rawInteraction.data
-				const subcommand = command.subcommands.find(
-					(x) => x.name === data.options?.[0]?.name
-				)
-				if (!subcommand) return new Response(null, { status: 400 })
-
-				if (subcommand.defer) {
-					subcommand.run(interaction)
-					return json({
-						type: InteractionResponseType.DeferredChannelMessageWithSource,
-						flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
 					})
 				}
 				return json({
@@ -195,7 +170,7 @@ export class Client {
 
 				const subcommandName = (
 					data.options?.find(
-						(x) => x.type === ApplicationCommandOptionType.Subcommand
+						(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
 					) as APIApplicationCommandSubcommandGroupOption
 				).options?.find(
 					(x) => x.type === ApplicationCommandOptionType.Subcommand
@@ -206,6 +181,35 @@ export class Client {
 					(x) => x.name === subcommandName
 				)
 
+				if (!subcommand) return new Response(null, { status: 400 })
+
+				if (subcommand.defer) {
+					subcommand.run(interaction)
+					return json({
+						type: InteractionResponseType.DeferredChannelMessageWithSource,
+						flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
+					})
+				}
+				return json({
+					type: InteractionResponseType.ChannelMessageWithSource,
+					content:
+						"Man someone should really implement non-deferred replies huh"
+				})
+			}
+
+			if (command instanceof CommandWithSubcommands) {
+				if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
+					return json({
+						type: InteractionResponseType.ChannelMessageWithSource,
+						data: {
+							content: "Subcommands must be used with ChatInput"
+						}
+					})
+				}
+				const data = rawInteraction.data
+				const subcommand = command.subcommands.find(
+					(x) => x.name === data.options?.[0]?.name
+				)
 				if (!subcommand) return new Response(null, { status: 400 })
 
 				if (subcommand.defer) {

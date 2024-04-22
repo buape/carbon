@@ -6,6 +6,6 @@ export default class PingCommand extends Command {
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({ content: "Pong" })
+		interaction.reply({ content: "Pong <:caughtIn4k:1145473115703496816>" })
 	}
 }
