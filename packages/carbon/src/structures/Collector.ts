@@ -87,11 +87,18 @@ export class Collector extends Base {
 				this.stop()
 			}, this.filter.idle)
 		}
+		if (
+			!this.filter.maxUsers ||
+			(this.filter.maxUsers &&
+				this.usersProcessed.length >= this.filter.maxUsers)
+		) {
+			this.stop()
+		}
 		return true
 	}
 
 	public stop() {
-		this.client.componentHandler
+		this.client.componentHandler.removeCollector(this)
 	}
 
 	private resetTimeout() {
