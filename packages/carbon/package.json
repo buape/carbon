@@ -12,6 +12,6 @@
 		"discord-api-types": "0.37.79",
 		"@carbonjs/discord-request": "workspace:*",
 		"discord-verify": "1.2.0",
-		"itty-router": "5.0.15"
+		"itty-router": "5.0.16"
 	}
 }
