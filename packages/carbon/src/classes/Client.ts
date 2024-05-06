@@ -22,6 +22,16 @@ import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 import { ComponentHandler } from "../structures/ComponentHandler.js"
 
 /**
+ * The mode that the client is running in.
+ * Different platforms have different requirements for how processes are handled.
+ */
+export enum ClientMode {
+	NodeJS = "node",
+	CloudflareWorkers = "cloudflare",
+	Vercel = "vercel"
+}
+
+/**
  * The options used for initializing the client
  */
 export type ClientOptions = {
@@ -29,6 +39,7 @@ export type ClientOptions = {
 	clientId: string
 	publicKey: string
 	token: string
+	mode: ClientMode
 }
 
 /**
@@ -71,13 +82,14 @@ export class Client {
 		}).setToken(options.token)
 		this.componentHandler = new ComponentHandler(this)
 		this.setupRoutes()
-		this.deployCommands()
+		if (this.options.mode === ClientMode.NodeJS) this.deployCommands()
 	}
 
 	/**
-	 * Deploy the commands registered to Discord
+	 * Deploy the commands registered to Discord.
+	 * This is automatically called when running in NodeJS mode.
 	 */
-	private async deployCommands() {
+	async deployCommands() {
 		try {
 			const commands = this.commands.map((command) => {
 				return command.serialize()
@@ -93,6 +105,7 @@ export class Client {
 					body: JSON.stringify(commands)
 				}
 			)
+			console.log(`Deployed ${commands.length} commands to Discord`)
 		} catch (err) {
 			console.error("Failed to deploy commands")
 			console.error(err)
@@ -132,7 +145,6 @@ export class Client {
 					rawInteraction,
 					command
 				)
-				console.log(1)
 
 				if (command instanceof Command) {
 					if (command.defer) {
@@ -254,7 +266,11 @@ export class Client {
 		const isValid = await isValidRequest(
 			req,
 			this.options.publicKey,
-			PlatformAlgorithm.NewNode
+			this.options.mode === ClientMode.CloudflareWorkers
+				? PlatformAlgorithm.Cloudflare
+				: this.options.mode === ClientMode.Vercel
+					? PlatformAlgorithm.VercelProd
+					: PlatformAlgorithm.NewNode
 		)
 		return isValid
 	}

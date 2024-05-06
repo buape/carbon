@@ -1,0 +1,8 @@
+name = "carbon-test"
+main = "src/index.ts"
+compatibility_date = "2023-03-20"
+
+[vars]
+CLIENT_ID = ""
+PUBLIC_KEY = ""
+DISCORD_TOKEN = ""

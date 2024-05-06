@@ -4,3 +4,4 @@ dist
 .pnpm-store
 .env
 ./docs
+wrangler.toml

@@ -1,0 +1,18 @@
+{
+	"name": "cloudo",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "./dist/src/index.js",
+	"scripts": {
+		"build": "wrangler deploy",
+		"dev": "wrangler deploy && wrangler tail"
+	},
+	"dependencies": {
+		"@buape/carbon": "workspace:*"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20240502.0",
+		"wrangler": "3.53.1"
+	}
+}
