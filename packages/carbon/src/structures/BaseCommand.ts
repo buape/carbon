@@ -3,6 +3,8 @@ import type {
 	RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import { ApplicationIntegrationType, InteractionContextType } from "../types.js"
+import type { BaseComponent } from "./BaseComponent.js"
+import type { Paginator } from "../classes/Paginator.js"
 
 /**
  * Represents the base data of a command that the user creates
@@ -46,6 +48,17 @@ export abstract class BaseCommand {
 		InteractionContextType.BotDM,
 		InteractionContextType.PrivateChannel
 	]
+
+	/**
+	 * All the components that the command is able to use.
+	 * You mount these here so the handler can access them
+	 */
+	components?: BaseComponent[] = []
+	/**
+	 * All the paginators that the command is able to use.
+	 * You mount these here so the handler can access them
+	 */
+	paginators?: Paginator[] = []
 
 	/**
 	 * Serializes the command into a JSON object that can be sent to Discord

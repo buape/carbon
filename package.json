@@ -4,7 +4,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"cf": "pnpm build --filter carbon... && pnpm dev --filter cloudo",
-		"dev": "dotenv -- turbo run dev",
+		"dev": "dotenv -- turbo run dev --filter !cloudo",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
 		"start": "dotenv -- turbo run start",

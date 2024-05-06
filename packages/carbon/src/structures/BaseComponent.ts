@@ -1,5 +1,4 @@
 import type { APIBaseComponent, ComponentType } from "discord-api-types/v10"
-import type { ComponentFilter } from "./Collector.js"
 
 export type ComponentAdditionalData = {
 	[key: string]: string | number | boolean
@@ -8,10 +7,8 @@ export type ComponentAdditionalData = {
 export abstract class BaseComponent {
 	constructor(data?: {
 		additionalData?: ComponentAdditionalData
-		filter?: ComponentFilter
 	}) {
 		if (data?.additionalData) this.additionalData = data.additionalData
-		if (data?.filter) this.filter = data.filter
 	}
 	/**
 	 * The type of the component
@@ -23,7 +20,6 @@ export abstract class BaseComponent {
 	abstract customId: string
 
 	additionalData: ComponentAdditionalData | null = null
-	filter: ComponentFilter | null = null
 
 	/**
 	 * Create a custom ID to use for this component that embeds additional data that you want to be handed

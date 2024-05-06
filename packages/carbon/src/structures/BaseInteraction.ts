@@ -85,11 +85,6 @@ export abstract class BaseInteraction extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
-		data.components?.map((row) =>
-			row.components.map((component) => {
-				this.client.componentHandler.registerComponent(component)
-			})
-		)
 		// TODO: Handle non-deferred
 		this.client.rest.patch(
 			Routes.webhookMessage(

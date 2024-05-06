@@ -1,13 +1,8 @@
 import { Client as RestClient } from "@carbonjs/discord-request"
 import {
-	type APIApplicationCommandSubcommandGroupOption,
-	type APIChatInputApplicationCommandInteractionData,
 	type APIInteraction,
-	ApplicationCommandOptionType,
-	ApplicationCommandType,
 	InteractionResponseType,
 	InteractionType,
-	MessageFlags,
 	RouteBases,
 	Routes
 } from "discord-api-types/v10"
@@ -15,11 +10,8 @@ import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import pkg from "../../package.json" assert { type: "json" }
 import type { BaseCommand } from "../structures/BaseCommand.js"
-import { CommandInteraction } from "../structures/CommandInteraction.js"
-import { Command } from "./Command.js"
-import { CommandWithSubcommandGroups } from "./CommandWithSubcommandGroups.js"
-import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 import { ComponentHandler } from "../structures/ComponentHandler.js"
+import { CommandHandler } from "../structures/CommandHandler.js"
 
 /**
  * The mode that the client is running in.
@@ -66,6 +58,7 @@ export class Client {
 	 * The handler for the component interactions sent from Discord
 	 */
 	componentHandler: ComponentHandler
+	commandHandler: CommandHandler
 
 	/**
 	 * Creates a new client
@@ -81,6 +74,7 @@ export class Client {
 			userAgent: `DiscordBot (https://github.com/buape/carbon v${pkg.version})`
 		}).setToken(options.token)
 		this.componentHandler = new ComponentHandler(this)
+		this.commandHandler = new CommandHandler(this)
 		this.setupRoutes()
 		if (this.options.mode === ClientMode.NodeJS) this.deployCommands()
 	}
@@ -135,116 +129,9 @@ export class Client {
 			}
 
 			if (rawInteraction.type === InteractionType.ApplicationCommand) {
-				const command = this.commands.find(
-					(x) => x.name === rawInteraction.data.name
-				)
-				if (!command) return new Response(null, { status: 400 })
-
-				const interaction = new CommandInteraction(
-					this,
-					rawInteraction,
-					command
-				)
-
-				if (command instanceof Command) {
-					if (command.defer) {
-						command.run(interaction)
-						return json({
-							type: InteractionResponseType.DeferredChannelMessageWithSource,
-							flags: command.ephemeral ? MessageFlags.Ephemeral : 0
-						})
-					}
-					return json({
-						type: InteractionResponseType.ChannelMessageWithSource,
-						content:
-							"Man someone should really implement non-deferred replies huh"
-					})
-				}
-
-				if (command instanceof CommandWithSubcommandGroups) {
-					if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-						return json({
-							type: InteractionResponseType.ChannelMessageWithSource,
-							data: {
-								content: "Subcommand groups must be used with ChatInput"
-							}
-						})
-					}
-					const data = rawInteraction.data
-					const subcommandGroupName = data.options?.find(
-						(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
-					)?.name
-					if (!subcommandGroupName) return new Response(null, { status: 400 })
-
-					const subcommandGroup = command.subcommandGroups.find(
-						(x) => x.name === subcommandGroupName
-					)
-
-					if (!subcommandGroup) return new Response(null, { status: 400 })
-
-					const subcommandName = (
-						data.options?.find(
-							(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
-						) as APIApplicationCommandSubcommandGroupOption
-					).options?.find(
-						(x) => x.type === ApplicationCommandOptionType.Subcommand
-					)?.name
-					if (!subcommandName) return new Response(null, { status: 400 })
-
-					const subcommand = subcommandGroup.subcommands.find(
-						(x) => x.name === subcommandName
-					)
-
-					if (!subcommand) return new Response(null, { status: 400 })
-
-					if (subcommand.defer) {
-						subcommand.run(interaction)
-						return json({
-							type: InteractionResponseType.DeferredChannelMessageWithSource,
-							flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
-						})
-					}
-					return json({
-						type: InteractionResponseType.ChannelMessageWithSource,
-						content:
-							"Man someone should really implement non-deferred replies huh"
-					})
-				}
-
-				if (command instanceof CommandWithSubcommands) {
-					if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-						return json({
-							type: InteractionResponseType.ChannelMessageWithSource,
-							data: {
-								content: "Subcommands must be used with ChatInput"
-							}
-						})
-					}
-					const data = rawInteraction.data
-					const subcommand = command.subcommands.find(
-						(x) => x.name === data.options?.[0]?.name
-					)
-					if (!subcommand) return new Response(null, { status: 400 })
-
-					if (subcommand.defer) {
-						subcommand.run(interaction)
-						return json({
-							type: InteractionResponseType.DeferredChannelMessageWithSource,
-							flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
-						})
-					}
-					return json({
-						type: InteractionResponseType.ChannelMessageWithSource,
-						content:
-							"Man someone should really implement non-deferred replies huh"
-					})
-				}
-
-				console.error(`Command ${command.name} is not a valid command type`)
-				console.log(
-					(rawInteraction.data as APIChatInputApplicationCommandInteractionData)
-						.options
-				)
+				const result = this.commandHandler.handleInteraction(rawInteraction)
+				if (result === false) return new Response(null, { status: 400 })
+				return json(result)
 			}
 			if (rawInteraction.type === InteractionType.MessageComponent) {
 				this.componentHandler.handleInteraction(rawInteraction)
