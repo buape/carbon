@@ -24,8 +24,8 @@ importers:
         specifier: 2.0.6
         version: 2.0.6
       typedoc:
-        specifier: ^0.25.13
-        version: 0.25.13(typescript@5.4.5)
+        specifier: ^0.26.0
+        version: 0.26.3(typescript@5.4.5)
       vitest:
         specifier: ^1.5.0
         version: 1.5.0(@types/node@20.12.7)(terser@5.30.3)
@@ -1712,6 +1712,9 @@ packages:
     resolution: {integrity: sha512-/BypzV0H1y1HzgYpxqRaXGBRqfodgoBBCcsrujT6QRcakDQdfU+Lq9PENPh5jB4I44YWq+0C2eHsHya+nZY1sA==}
     cpu: [x64]
     os: [win32]
+
+  '@shikijs/core@1.10.0':
+    resolution: {integrity: sha512-BZcr6FCmPfP6TXaekvujZcnkFmJHZ/Yglu97r/9VjzVndQA56/F4WjUKtJRQUnK59Wi7p/UTAOekMfCJv7jnYg==}
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -4082,6 +4085,9 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+  linkify-it@5.0.0:
+    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
+
   loader-runner@4.3.0:
     resolution: {integrity: sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==}
     engines: {node: '>=6.11.5'}
@@ -4215,6 +4221,10 @@ packages:
     resolution: {integrity: sha512-o5vL7aDWatOTX8LzaS1WMoaoxIiLRQJuIKKe2wAw6IeULDHaqbiqiggmx+pKvZDb1Sj+pE46Sn1T7lCqfFtg1Q==}
     engines: {node: '>=16'}
 
+  markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+
   markdown-table@3.0.3:
     resolution: {integrity: sha512-Z1NL3Tb1M9wH4XESsCDEksWoKTdlUafKc4pt0GRwjUyXaCFZ+dc3g2erqB6zm3szA2IUSi7VnPI+o/9jnxh9hw==}
 
@@ -4289,6 +4299,9 @@ packages:
 
   mdn-data@2.0.14:
     resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
+
+  mdurl@2.0.0:
+    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
@@ -4500,6 +4513,10 @@ packages:
 
   minimatch@9.0.4:
     resolution: {integrity: sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw==}
+    engines: {node: '>=16 || 14 >=14.17'}
+
+  minimatch@9.0.5:
+    resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
 
   minimist@1.2.8:
@@ -5163,6 +5180,10 @@ packages:
   pump@3.0.0:
     resolution: {integrity: sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==}
 
+  punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
+
   punycode@1.4.1:
     resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}
 
@@ -5579,6 +5600,9 @@ packages:
 
   shiki@0.14.7:
     resolution: {integrity: sha512-dNPAPrxSc87ua2sKJ3H5dQ/6ZaY8RNnaAqK+t0eG7p0Soi2ydiqbGOTaZCqaYvA/uZYfS1LJnemt3Q+mSfcPCg==}
+
+  shiki@1.10.0:
+    resolution: {integrity: sha512-YD2sXQ+TMD/F9BimV9Jn0wj35pqOvywvOG/3PB6hGHyGKlM7TJ9tyJ02jOb2kF8F0HfJwKNYrh3sW7jEcuRlXA==}
 
   side-channel@1.0.6:
     resolution: {integrity: sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==}
@@ -6011,10 +6035,20 @@ packages:
     peerDependencies:
       typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x
 
+  typedoc@0.26.3:
+    resolution: {integrity: sha512-6d2Sw9disvvpdk4K7VNjKr5/3hzijtfQVHRthhDqJgnhMHy1wQz4yPMJVKXElvnZhFr0nkzo+GzjXDTRV5yLpg==}
+    engines: {node: '>= 18'}
+    hasBin: true
+    peerDependencies:
+      typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x
+
   typescript@5.4.5:
     resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   ufo@1.5.3:
     resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
@@ -6423,6 +6457,11 @@ packages:
   yaml@1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+
+  yaml@2.4.5:
+    resolution: {integrity: sha512-aBx2bnqDzVOyNKfsysjA2ms5ZlnjSAW2eG3/L5G/CSujfjLJTJsEw1bGw8kCf04KodQWk1pxlGnZ56CRxiawmg==}
+    engines: {node: '>= 14'}
+    hasBin: true
 
   yn@3.1.1:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
@@ -8565,6 +8604,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.14.3':
     optional: true
+
+  '@shikijs/core@1.10.0': {}
 
   '@sideway/address@4.1.5':
     dependencies:
@@ -11352,6 +11393,10 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
+  linkify-it@5.0.0:
+    dependencies:
+      uc.micro: 2.1.0
+
   loader-runner@4.3.0: {}
 
   loader-utils@2.0.4:
@@ -11467,6 +11512,15 @@ snapshots:
   map-stream@0.1.0: {}
 
   markdown-extensions@2.0.0: {}
+
+  markdown-it@14.1.0:
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
 
   markdown-table@3.0.3: {}
 
@@ -11667,6 +11721,8 @@ snapshots:
       '@types/mdast': 4.0.3
 
   mdn-data@2.0.14: {}
+
+  mdurl@2.0.0: {}
 
   media-typer@0.3.0: {}
 
@@ -12038,6 +12094,10 @@ snapshots:
       brace-expansion: 1.1.11
 
   minimatch@9.0.4:
+    dependencies:
+      brace-expansion: 2.0.1
+
+  minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.1
 
@@ -12752,6 +12812,8 @@ snapshots:
       end-of-stream: 1.4.4
       once: 1.4.0
 
+  punycode.js@2.3.1: {}
+
   punycode@1.4.1: {}
 
   punycode@2.3.1: {}
@@ -13324,6 +13386,10 @@ snapshots:
       vscode-oniguruma: 1.7.0
       vscode-textmate: 8.0.0
 
+  shiki@1.10.0:
+    dependencies:
+      '@shikijs/core': 1.10.0
+
   side-channel@1.0.6:
     dependencies:
       call-bind: 1.0.7
@@ -13731,7 +13797,18 @@ snapshots:
       shiki: 0.14.7
       typescript: 5.4.5
 
+  typedoc@0.26.3(typescript@5.4.5):
+    dependencies:
+      lunr: 2.3.9
+      markdown-it: 14.1.0
+      minimatch: 9.0.5
+      shiki: 1.10.0
+      typescript: 5.4.5
+      yaml: 2.4.5
+
   typescript@5.4.5: {}
+
+  uc.micro@2.1.0: {}
 
   ufo@1.5.3: {}
 
@@ -14214,6 +14291,8 @@ snapshots:
   yallist@4.0.0: {}
 
   yaml@1.10.2: {}
+
+  yaml@2.4.5: {}
 
   yn@3.1.1: {}
 
