@@ -20,7 +20,7 @@
 		"tsc-watch": "^6.2.0",
 		"turbo": "2.0.6",
 		"typedoc": "^0.25.13",
-		"vitest": "^1.5.0"
+		"vitest": "^2.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.7.1",
