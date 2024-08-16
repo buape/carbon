@@ -123,8 +123,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       itty-router:
-        specifier: 5.0.16
-        version: 5.0.16
+        specifier: 5.0.18
+        version: 5.0.18
 
   packages/discord-request:
     dependencies:
@@ -3968,8 +3968,8 @@ packages:
     resolution: {integrity: sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==}
     engines: {node: '>=0.10.0'}
 
-  itty-router@5.0.16:
-    resolution: {integrity: sha512-Kzk07Cx1dXvwtbCVeLvIT7W9uQaJc3UdWb6L57aSt8usqAWpQJziH3UgSWw2k7up00ImPeNACXY7zHE7eEPd7w==}
+  itty-router@5.0.18:
+    resolution: {integrity: sha512-mK3ReOt4ARAGy0V0J7uHmArG2USN2x0zprZ+u+YgmeRjXTDbaowDy3kPcsmQY6tH+uHhDgpWit9Vqmv/4rTXwA==}
 
   jest-util@29.7.0:
     resolution: {integrity: sha512-z6EbKajIpqGKU56y5KBUgy1dt1ihhQJgWzUlZHArA/+X2ad7Cb5iF+AK1EWVL/Bo7Rz9uurpqw6SiBCefUbCGA==}
@@ -11232,7 +11232,7 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  itty-router@5.0.16: {}
+  itty-router@5.0.18: {}
 
   jest-util@29.7.0:
     dependencies:
