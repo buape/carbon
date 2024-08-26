@@ -1,5 +1,6 @@
 import {
 	type APIButtonComponent,
+	type APIButtonComponentWithSKUId,
 	type APIButtonComponentWithURL,
 	ButtonStyle,
 	ComponentType
@@ -39,7 +40,7 @@ export abstract class Button extends BaseButton {
 	/**
 	 * The style of the button
 	 */
-	abstract style: Exclude<ButtonStyle, ButtonStyle.Link>
+	abstract style: Exclude<ButtonStyle, ButtonStyle.Link | ButtonStyle.Premium>
 
 	abstract run(interaction: ButtonInteraction): Promise<void>
 
@@ -61,16 +62,34 @@ export abstract class LinkButton extends BaseButton {
 	 * The URL that the button links to
 	 */
 	abstract url: string
-	style = ButtonStyle.Link
+	style: ButtonStyle.Link = ButtonStyle.Link
 
 	serialize = (): APIButtonComponentWithURL => {
 		return {
 			type: ComponentType.Button,
 			url: this.url,
-			style: ButtonStyle.Link,
+			style: this.style,
 			label: this.label,
 			disabled: this.disabled,
 			emoji: this.emoji
+		}
+	}
+}
+
+export abstract class PremiumButton extends BaseButton {
+	style: ButtonStyle.Premium = ButtonStyle.Premium
+
+	/**
+	 * The SKU ID of the button
+	 */
+	abstract sku_id: string
+
+	serialize = (): APIButtonComponentWithSKUId => {
+		return {
+			style: this.style,
+			type: ComponentType.Button,
+			disabled: this.disabled,
+			sku_id: this.sku_id
 		}
 	}
 }

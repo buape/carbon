@@ -2,7 +2,7 @@ import type {
 	ApplicationCommandType,
 	RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
-import { ApplicationIntegrationType, InteractionContextType } from "../types.js"
+import { ApplicationIntegrationType, InteractionContextType } from "../index.js"
 import type { BaseComponent } from "./BaseComponent.js"
 import type { Paginator } from "../classes/Paginator.js"
 

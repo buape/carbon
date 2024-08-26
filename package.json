@@ -1,9 +1,10 @@
 {
-	"name": "@buape/carbon",
+	"name": "monorepo",
 	"description": "Carbon monorepo",
+	"private": true,
 	"scripts": {
 		"build": "turbo run build",
-		"cf": "pnpm build --filter carbon... && pnpm dev --filter cloudo",
+		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter cloudo",
 		"dev": "dotenv -- turbo run dev --filter !cloudo",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
@@ -14,17 +15,17 @@
 		"web:build": "turbo run web:build --filter website"
 	},
 	"dependencies": {
-		"@turbo/gen": "^2.0.0",
-		"dotenv-cli": "^7.4.1",
-		"dotenv-mono": "^1.3.14",
-		"tsc-watch": "^6.2.0",
-		"turbo": "2.0.6",
-		"typedoc": "^0.25.13",
-		"vitest": "^1.5.0"
+		"@turbo/gen": "2.0.14",
+		"dotenv-cli": "7.4.2",
+		"dotenv-mono": "1.3.14",
+		"tsc-watch": "6.2.0",
+		"turbo": "2.0.14",
+		"typedoc": "0.26.6",
+		"vitest": "2.0.5"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.7.1",
-		"pierre": "^2.0.31",
-		"typescript": "5.4.5"
-	}
+		"@biomejs/biome": "1.8.3",
+		"typescript": "5.5.4"
+	},
+	"packageManager": "pnpm@9.3.0"
 }

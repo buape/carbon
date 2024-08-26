@@ -9,9 +9,9 @@
 		"start": "node ."
 	},
 	"dependencies": {
+		"@buape/carbon": "workspace:*",
 		"@carbonjs/nodejs": "workspace:*",
-		"@types/node": "^20.12.7",
-		"@buape/carbon": "workspace:*"
+		"@types/node": "22.5.0"
 	},
 	"license": "MIT"
 }

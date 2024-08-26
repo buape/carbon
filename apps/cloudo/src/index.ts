@@ -12,7 +12,7 @@ type Env = {
 }
 
 export default {
-	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+	async fetch(request: Request, env: Env, _ctx: ExecutionContext) {
 		const client = new Client(
 			{
 				clientId: env.CLIENT_ID,
@@ -26,7 +26,6 @@ export default {
 			await client.deployCommands()
 			return new Response("Deployed commands")
 		}
-		ctx.waitUntil(client.router.fetch(request))
-		return new Response("OK")
+		return client.router.fetch(request)
 	}
 }

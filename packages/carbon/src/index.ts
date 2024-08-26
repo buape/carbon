@@ -31,4 +31,3 @@ export * from "./structures/UserSelectMenuInteraction.js"
 
 // ----- Types -----
 export * from "discord-api-types/v10"
-export * from "./types.js"
