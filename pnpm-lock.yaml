@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@turbo/gen':
         specifier: 2.0.14
-        version: 2.0.14(@types/node@22.5.0)(typescript@5.5.4)
+        version: 2.0.14(@types/node@22.5.0)(typescript@5.4.2)
       dotenv-cli:
         specifier: 7.4.2
         version: 7.4.2
@@ -19,13 +19,13 @@ importers:
         version: 1.3.14
       tsc-watch:
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.5.4)
+        version: 6.2.0(typescript@5.4.2)
       turbo:
         specifier: 2.0.14
         version: 2.0.14
       typedoc:
         specifier: 0.26.6
-        version: 0.26.6(typescript@5.5.4)
+        version: 0.26.6(typescript@5.4.2)
       vitest:
         specifier: 2.0.5
         version: 2.0.5(@types/node@22.5.0)(terser@5.31.6)
@@ -34,8 +34,8 @@ importers:
         specifier: 1.8.3
         version: 1.8.3
       typescript:
-        specifier: 5.5.4
-        version: 5.5.4
+        specifier: 5.4.2
+        version: 5.4.2
 
   apps/cloudo:
     dependencies:
@@ -5625,6 +5625,11 @@ packages:
     peerDependencies:
       typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x
 
+  typescript@5.4.2:
+    resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
     engines: {node: '>=14.17'}
@@ -8206,7 +8211,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.0.14(@types/node@22.5.0)(typescript@5.5.4)':
+  '@turbo/gen@2.0.14(@types/node@22.5.0)(typescript@5.4.2)':
     dependencies:
       '@turbo/workspaces': 2.0.14
       commander: 10.0.1
@@ -8216,7 +8221,7 @@ snapshots:
       node-plop: 0.26.3
       picocolors: 1.0.1
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@types/node@22.5.0)(typescript@5.5.4)
+      ts-node: 10.9.2(@types/node@22.5.0)(typescript@5.4.2)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.1
     transitivePeerDependencies:
@@ -12757,7 +12762,7 @@ snapshots:
 
   trough@2.2.0: {}
 
-  ts-node@10.9.2(@types/node@22.5.0)(typescript@5.5.4):
+  ts-node@10.9.2(@types/node@22.5.0)(typescript@5.4.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -12771,17 +12776,17 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.5.4
+      typescript: 5.4.2
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  tsc-watch@6.2.0(typescript@5.5.4):
+  tsc-watch@6.2.0(typescript@5.4.2):
     dependencies:
       cross-spawn: 7.0.3
       node-cleanup: 2.1.2
       ps-tree: 1.2.0
       string-argv: 0.3.2
-      typescript: 5.5.4
+      typescript: 5.4.2
 
   tslib@1.14.1: {}
 
@@ -12837,14 +12842,16 @@ snapshots:
       shiki: 0.14.7
       typescript: 5.5.4
 
-  typedoc@0.26.6(typescript@5.5.4):
+  typedoc@0.26.6(typescript@5.4.2):
     dependencies:
       lunr: 2.3.9
       markdown-it: 14.1.0
       minimatch: 9.0.5
       shiki: 1.14.1
-      typescript: 5.5.4
+      typescript: 5.4.2
       yaml: 2.5.0
+
+  typescript@5.4.2: {}
 
   typescript@5.5.4: {}
 
