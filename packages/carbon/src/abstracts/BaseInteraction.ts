@@ -7,6 +7,8 @@ import {
 import type { Client } from "../classes/Client.js"
 import { Base } from "./Base.js"
 import type { Row } from "../classes/Row.js"
+import { Message } from "../structures/Message.js"
+import { Guild } from "../structures/Guild.js"
 
 /**
  * The data to reply to an interaction
@@ -81,6 +83,16 @@ export abstract class BaseInteraction extends Base {
 		this.type = data.type
 		this.userId =
 			this.rawData.user?.id || this.rawData.member?.user.id || undefined
+	}
+
+	get message(): Message | null {
+		if (!this.rawData.message) return null
+		return new Message(this.client, this.rawData.message)
+	}
+
+	get guild(): Guild | null {
+		if (!this.rawData.guild_id) return null
+		return new Guild(this.client, this.rawData.guild_id)
 	}
 
 	/**

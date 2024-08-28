@@ -29,5 +29,9 @@ export * from "./abstracts/RoleSelectMenuInteraction.js"
 export * from "./abstracts/StringSelectMenuInteraction.js"
 export * from "./abstracts/UserSelectMenuInteraction.js"
 
+// ----- Structures -----
+export * from "./structures/Guild.js"
+export * from "./structures/Message.js"
+
 // ----- Types -----
 export * from "discord-api-types/v10"
