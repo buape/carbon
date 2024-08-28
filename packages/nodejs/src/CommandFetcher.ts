@@ -52,14 +52,13 @@ export const loadCommands = async (folderPath: string, dirname: string) => {
 
 	for (const parentFolder of parentFolders) {
 		const files = getFiles(path.join(mainFolderPath, parentFolder), "js")
-		console.log(files)
 		for await (const fileName of files) {
 			const filePath = path.join(mainFolderPath, parentFolder, fileName)
 			const fileUrl = `file://${filePath.replace(/\\/g, "/")}`
 			const file = await import(fileUrl)
 			const cmd = new file.default()
 			commands.push(cmd)
-		}
+		}	
 	}
 	return commands
 }

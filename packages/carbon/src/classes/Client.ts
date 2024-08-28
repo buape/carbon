@@ -8,7 +8,6 @@ import {
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
-import pkg from "../../package.json"
 import type { BaseCommand } from "../structures/BaseCommand.js"
 import { ComponentHandler } from "../structures/ComponentHandler.js"
 import { CommandHandler } from "../structures/CommandHandler.js"
@@ -72,7 +71,7 @@ export class Client {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
 		this.rest = new RestClient({
-			userAgent: `DiscordBot (https://github.com/buape/carbon v${pkg.version})`
+			userAgent: `DiscordBot (https://github.com/buape/carbon v0.0.0)`
 		}).setToken(options.token)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)
@@ -116,15 +115,12 @@ export class Client {
 				return Response.redirect(this.options.redirectUrl, 302)
 			throw new StatusError(404)
 		})
-		this.router.post("/interaction", async (req) => {
-			console.log(0)
+		this.router.post("/interaction", async (req, ctx?: ExecutionContext) => {
+			console.log(ctx)
 			const isValid = await this.validateInteraction(req)
 			if (!isValid) {
-				console.log(isValid)
 				return new Response("Invalid request signature", { status: 401 })
 			}
-
-			console.log(1)
 
 			const rawInteraction = (await req.json()) as unknown as APIInteraction
 			if (rawInteraction.type === InteractionType.Ping) {
@@ -133,24 +129,20 @@ export class Client {
 				})
 			}
 
-			console.log(2, rawInteraction)
-
 			try {
 				if (rawInteraction.type === InteractionType.ApplicationCommand) {
-					console.log(3)
-					const done =
-						await this.commandHandler.handleInteraction(rawInteraction)
-					console.log(4)
-					if (done === false) return new Response(null, { status: 404 })
-					console.log(5)
-					return new Response(null, { status: 202 })
+					if (ctx?.waitUntil)
+						ctx.waitUntil(this.commandHandler.handleInteraction(rawInteraction))
+					else await this.commandHandler.handleInteraction(rawInteraction)
 				}
 				if (rawInteraction.type === InteractionType.MessageComponent) {
-					const done =
-						await this.componentHandler.handleInteraction(rawInteraction)
-					if (done === false) return new Response(null, { status: 404 })
-					return new Response(null, { status: 202 })
+					if (ctx?.waitUntil)
+						ctx.waitUntil(
+							this.componentHandler.handleInteraction(rawInteraction)
+						)
+					else await this.componentHandler.handleInteraction(rawInteraction)
 				}
+				return new Response(null, { status: 202 })
 			} catch (err: unknown) {
 				if (err instanceof Error)
 					// TODO: Custom error instances
@@ -172,7 +164,6 @@ export class Client {
 		if (req.method !== "POST") {
 			throw new StatusError(405)
 		}
-		console.log(req.method, this.options.publicKey)
 		const isValid = await isValidRequest(
 			req,
 			this.options.publicKey,
@@ -184,7 +175,11 @@ export class Client {
 						? PlatformAlgorithm.Web
 						: PlatformAlgorithm.NewNode
 		)
-		console.log(isValid)
 		return isValid
 	}
+}
+
+export interface ExecutionContext {
+	// biome-ignore lint/suspicious/noExplicitAny: true any
+	waitUntil(promise: Promise<any>): void
 }

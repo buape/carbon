@@ -26,7 +26,7 @@ export default {
 			await client.deployCommands()
 			return new Response("Deployed commands")
 		}
-		ctx.waitUntil(client.router.fetch(request, ctx))
-		return new Response(null, { status: 202 })
+		const response = await client.router.fetch(request, ctx)
+		return response
 	}
 }

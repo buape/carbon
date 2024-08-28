@@ -17,7 +17,6 @@ export class CommandHandler extends Base {
 			(x) => x.name === rawInteraction.data.name
 		)
 		if (!command) return false
-		console.log("a")
 
 		const interaction = new CommandInteraction(
 			this.client,
@@ -25,16 +24,17 @@ export class CommandHandler extends Base {
 			command
 		)
 
-		console.log("b")
-
 		if (command instanceof Command) {
-			console.log("c")
+			console.log(1)
 			if (command.defer) {
-				console.log("d")
 				await interaction.defer()
 			}
-			console.log("e")
-			return await command.run(interaction)
+			console.log(2)
+			await command.run(interaction).then(() => {
+				console.log("2 done")
+			})
+			console.log(3)
+			return
 		}
 
 		if (command instanceof CommandWithSubcommandGroups) {
@@ -95,7 +95,7 @@ export class CommandHandler extends Base {
 		}
 
 		console.error(`Command ${command.name} is not a valid command type`)
-		console.log(
+		console.debug(
 			(rawInteraction.data as APIChatInputApplicationCommandInteractionData)
 				.options
 		)

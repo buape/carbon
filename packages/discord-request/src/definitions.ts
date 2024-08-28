@@ -1,6 +1,4 @@
 import type { Snowflake } from "discord-snowflake"
-import pkg from "../package.json"
-
 /**
  * @see {@link https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object}
  */
@@ -11,7 +9,7 @@ export const AUDIT_LOG_LIMIT = 512
  */
 export type UserAgent = `DiscordBot (${string}, ${string})${string}`
 
-export const DEFAULT_USER_AGENT: UserAgent = `DiscordBot (https://github.com/buape/carbon, v${pkg.version})`
+export const DEFAULT_USER_AGENT: UserAgent = `DiscordBot (https://github.com/buape/carbon, v0.0.0)`
 
 /**
  * Helpers

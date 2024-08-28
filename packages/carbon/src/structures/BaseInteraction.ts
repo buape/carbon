@@ -92,20 +92,55 @@ export abstract class BaseInteraction extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
-		this.client.rest.patch(
-			Routes.webhookMessage(
-				this.rawData.application_id,
-				this.rawData.token,
-				"@original"
-			),
-			{
-				body: {
-					...data,
-					components: data.components?.map((row) => row.serialize())
-				},
-				files: options.files
-			}
-		)
+		if (this._deferred) {
+			console.log(data)
+			const response = await fetch(
+				`https://discord.com/api/v10/webhooks/${this.client.options.clientId}/${this.rawData.token}`,
+				{
+					method: "POST",
+					body: JSON.stringify({
+						...data,
+						components: data.components?.map((row) => row.serialize())
+					}),
+					headers: {
+						"Content-Type": "application/json"
+					}
+				}
+			).catch((err) => {
+				console.error(err)
+				throw err
+			})
+			console.log(response.json(), response.status)
+			// await this.client.rest.patch(
+			// 	Routes.webhookMessage(
+			// 		this.client.options.clientId,
+			// 		this.rawData.token,
+			// 		"@original"
+			// 	),
+			// 	{
+			// 		body: {
+			// 			...data,
+			// 			components: data.components?.map((row) => row.serialize())
+			// 		},
+			// 		files: options.files
+			// 	}
+			// )
+			console.log("reply done")
+		} else {
+			await this.client.rest.post(
+				Routes.interactionCallback(this.rawData.id, this.rawData.token),
+				{
+					body: {
+						type: InteractionResponseType.ChannelMessageWithSource,
+						data: {
+							...data,
+							components: data.components?.map((row) => row.serialize())
+						}
+					},
+					files: options.files
+				}
+			)
+		}
 	}
 
 	/**
@@ -114,23 +149,15 @@ export abstract class BaseInteraction extends Base {
 	 * @internal
 	 */
 	async defer() {
-		console.log("aa")
 		if (this._deferred) return
-		console.log("ab")
 		this._deferred = true
-		console.log("ac")
-		await this.client.rest.patch(
-			Routes.webhookMessage(
-				this.rawData.application_id,
-				this.rawData.token,
-				"@original"
-			),
+		await this.client.rest.post(
+			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.DeferredChannelMessageWithSource
 				}
 			}
 		)
-		console.log("ad")
 	}
 }

@@ -1,6 +1,5 @@
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
-import { inspect } from "node:util"
 import { Client, ClientMode } from "@buape/carbon"
 import { loadCommands, serve } from "@carbonjs/nodejs"
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -16,15 +15,6 @@ const client = new Client(
 )
 
 serve(client, { port: 3000 })
-
-console.log(
-	inspect(
-		client.commands.map((x) => x.serialize()),
-		false,
-		null,
-		true
-	)
-)
 
 export const sleep = async (ms: number) => {
 	return new Promise((resolve) => setTimeout(resolve, ms))

@@ -248,7 +248,6 @@ export class Client {
 		path: string,
 		options: Prettify<RequestOptions> = {}
 	): Promise<unknown> {
-		console.log("patch")
 		return this.#request({
 			method: RequestMethod.Patch,
 			path,
@@ -326,8 +325,6 @@ export class Client {
 			headers,
 			body: body ?? null
 		}
-
-		console.log("req")
 
 		return {
 			path: url,

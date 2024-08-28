@@ -14,7 +14,7 @@ export default class ButtonCommand extends Command {
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({
+		await interaction.reply({
 			content: "Pong <:caughtIn4k:1145473115703496816>",
 			components: [new Row([new PingButton(), new Link()])]
 		})
@@ -27,7 +27,7 @@ class PingButton extends Button {
 	style = ButtonStyle.Primary as typeof Button.prototype.style
 
 	async run(interaction: ButtonInteraction) {
-		interaction.reply({ content: "OMG YOU CLICKED THE BUTTON" })
+		await interaction.reply({ content: "OMG YOU CLICKED THE BUTTON" })
 	}
 }
 
