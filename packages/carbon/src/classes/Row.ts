@@ -1,4 +1,4 @@
-import type { BaseComponent } from "../structures/BaseComponent.js"
+import type { BaseComponent } from "../abstracts/BaseComponent.js"
 
 export class Row {
 	/**

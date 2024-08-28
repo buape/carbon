@@ -2,8 +2,8 @@ import {
 	type APIApplicationCommandBasicOption,
 	ApplicationCommandType
 } from "discord-api-types/v10"
-import { BaseCommand } from "../structures/BaseCommand.js"
-import type { CommandInteraction } from "../structures/CommandInteraction.js"
+import { BaseCommand } from "../abstracts/BaseCommand.js"
+import type { CommandInteraction } from "../abstracts/CommandInteraction.js"
 
 /**
  * Represents a standard command that the user creates

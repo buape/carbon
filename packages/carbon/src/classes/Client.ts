@@ -8,9 +8,9 @@ import {
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
-import type { BaseCommand } from "../structures/BaseCommand.js"
-import { ComponentHandler } from "../structures/ComponentHandler.js"
-import { CommandHandler } from "../structures/CommandHandler.js"
+import type { BaseCommand } from "../abstracts/BaseCommand.js"
+import { ComponentHandler } from "../abstracts/ComponentHandler.js"
+import { CommandHandler } from "../abstracts/CommandHandler.js"
 
 /**
  * The mode that the client is running in.
