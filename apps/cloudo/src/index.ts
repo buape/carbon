@@ -15,11 +15,9 @@ export default {
 	async fetch(request: Request, _env: Env, ctx: ExecutionContext) {
 		const client = new Client(
 			{
-				clientId: "1277072471979331584",
-				publicKey:
-					"7791cdc93fa19fe624f10edebfb444a572eab16c756fafbebe084b3ea87c6bc3",
-				token:
-					"MTI3NzA3MjQ3MTk3OTMzMTU4NA.GGTVyY.2if5MiHhqdL_Qukxyy7GjQww2ejnKsDKIgoTNo",
+				clientId: _env.CLIENT_ID,
+				publicKey: _env.PUBLIC_KEY,
+				token: _env.DISCORD_TOKEN,
 				mode: ClientMode.CloudflareWorkers
 			},
 			[new ButtonCommand(), new Options(), new PingCommand()]
@@ -28,6 +26,7 @@ export default {
 			await client.deployCommands()
 			return new Response("Deployed commands")
 		}
-		return client.router.fetch(request, ctx)
+		ctx.waitUntil(client.router.fetch(request, ctx))
+		return new Response(null, { status: 202 })
 	}
 }

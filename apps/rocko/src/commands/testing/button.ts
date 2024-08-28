@@ -33,6 +33,5 @@ class PingButton extends Button {
 
 class Link extends LinkButton {
 	label = "Link"
-	style = ButtonStyle.Link as typeof Button.prototype.style
-	url = "https://google.com"
+	url = "https://buape.com"
 }

@@ -4,8 +4,6 @@ import {
 	type APIChatInputApplicationCommandInteractionData,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	InteractionResponseType,
-	MessageFlags,
 	type APIApplicationCommandInteraction
 } from "discord-api-types/v10"
 import { Command } from "../classes/Command.js"
@@ -14,13 +12,12 @@ import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
 export class CommandHandler extends Base {
-	handleInteraction(
-		rawInteraction: APIApplicationCommandInteraction
-	): Record<string, unknown> | false {
+	async handleInteraction(rawInteraction: APIApplicationCommandInteraction) {
 		const command = this.client.commands.find(
 			(x) => x.name === rawInteraction.data.name
 		)
 		if (!command) return false
+		console.log("a")
 
 		const interaction = new CommandInteraction(
 			this.client,
@@ -28,28 +25,23 @@ export class CommandHandler extends Base {
 			command
 		)
 
+		console.log("b")
+
 		if (command instanceof Command) {
+			console.log("c")
 			if (command.defer) {
-				command.run(interaction)
-				return {
-					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					flags: command.ephemeral ? MessageFlags.Ephemeral : 0
-				}
+				console.log("d")
+				await interaction.defer()
 			}
-			return {
-				type: InteractionResponseType.ChannelMessageWithSource,
-				content: "Man someone should really implement non-deferred replies huh"
-			}
+			console.log("e")
+			return await command.run(interaction)
 		}
 
 		if (command instanceof CommandWithSubcommandGroups) {
 			if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-				return {
-					type: InteractionResponseType.ChannelMessageWithSource,
-					data: {
-						content: "Subcommand groups must be used with ChatInput"
-					}
-				}
+				return await interaction.reply({
+					content: "Subcommand groups must be used with ChatInput"
+				})
 			}
 			const data = rawInteraction.data
 			const subcommandGroupName = data.options?.find(
@@ -79,26 +71,16 @@ export class CommandHandler extends Base {
 			if (!subcommand) return false
 
 			if (subcommand.defer) {
-				subcommand.run(interaction)
-				return {
-					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
-				}
+				await interaction.defer()
 			}
-			return {
-				type: InteractionResponseType.ChannelMessageWithSource,
-				content: "Man someone should really implement non-deferred replies huh"
-			}
+			return await subcommand.run(interaction)
 		}
 
 		if (command instanceof CommandWithSubcommands) {
 			if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-				return {
-					type: InteractionResponseType.ChannelMessageWithSource,
-					data: {
-						content: "Subcommands must be used with ChatInput"
-					}
-				}
+				return interaction.reply({
+					content: "Subcommands must be used with ChatInput"
+				})
 			}
 			const data = rawInteraction.data
 			const subcommand = command.subcommands.find(
@@ -107,16 +89,9 @@ export class CommandHandler extends Base {
 			if (!subcommand) return false
 
 			if (subcommand.defer) {
-				subcommand.run(interaction)
-				return {
-					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					flags: subcommand.ephemeral ? MessageFlags.Ephemeral : 0
-				}
+				await interaction.defer()
 			}
-			return {
-				type: InteractionResponseType.ChannelMessageWithSource,
-				content: "Man someone should really implement non-deferred replies huh"
-			}
+			return await subcommand.run(interaction)
 		}
 
 		console.error(`Command ${command.name} is not a valid command type`)

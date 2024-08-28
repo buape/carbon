@@ -8,7 +8,7 @@ import {
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
-import pkg from "../../package.json" assert { type: "json" }
+import pkg from "../../package.json"
 import type { BaseCommand } from "../structures/BaseCommand.js"
 import { ComponentHandler } from "../structures/ComponentHandler.js"
 import { CommandHandler } from "../structures/CommandHandler.js"
@@ -20,7 +20,8 @@ import { CommandHandler } from "../structures/CommandHandler.js"
 export enum ClientMode {
 	NodeJS = "node",
 	CloudflareWorkers = "cloudflare",
-	Vercel = "vercel"
+	Vercel = "vercel",
+	Web = "web"
 }
 
 /**
@@ -116,10 +117,14 @@ export class Client {
 			throw new StatusError(404)
 		})
 		this.router.post("/interaction", async (req) => {
+			console.log(0)
 			const isValid = await this.validateInteraction(req)
 			if (!isValid) {
+				console.log(isValid)
 				return new Response("Invalid request signature", { status: 401 })
 			}
+
+			console.log(1)
 
 			const rawInteraction = (await req.json()) as unknown as APIInteraction
 			if (rawInteraction.type === InteractionType.Ping) {
@@ -128,16 +133,33 @@ export class Client {
 				})
 			}
 
-			if (rawInteraction.type === InteractionType.ApplicationCommand) {
-				const result = this.commandHandler.handleInteraction(rawInteraction)
-				if (result === false) return new Response(null, { status: 400 })
-				return json(result)
-			}
-			if (rawInteraction.type === InteractionType.MessageComponent) {
-				this.componentHandler.handleInteraction(rawInteraction)
-				return json({
-					type: InteractionResponseType.DeferredChannelMessageWithSource
-				})
+			console.log(2, rawInteraction)
+
+			try {
+				if (rawInteraction.type === InteractionType.ApplicationCommand) {
+					console.log(3)
+					const done =
+						await this.commandHandler.handleInteraction(rawInteraction)
+					console.log(4)
+					if (done === false) return new Response(null, { status: 404 })
+					console.log(5)
+					return new Response(null, { status: 202 })
+				}
+				if (rawInteraction.type === InteractionType.MessageComponent) {
+					const done =
+						await this.componentHandler.handleInteraction(rawInteraction)
+					if (done === false) return new Response(null, { status: 404 })
+					return new Response(null, { status: 202 })
+				}
+			} catch (err: unknown) {
+				if (err instanceof Error)
+					// TODO: Custom error instances
+					return new Response(
+						JSON.stringify({
+							type: InteractionResponseType.ChannelMessageWithSource,
+							data: { content: err.message }
+						})
+					)
 			}
 		})
 	}
@@ -150,6 +172,7 @@ export class Client {
 		if (req.method !== "POST") {
 			throw new StatusError(405)
 		}
+		console.log(req.method, this.options.publicKey)
 		const isValid = await isValidRequest(
 			req,
 			this.options.publicKey,
@@ -157,8 +180,11 @@ export class Client {
 				? PlatformAlgorithm.Cloudflare
 				: this.options.mode === ClientMode.Vercel
 					? PlatformAlgorithm.VercelProd
-					: PlatformAlgorithm.NewNode
+					: this.options.mode === ClientMode.Web
+						? PlatformAlgorithm.Web
+						: PlatformAlgorithm.NewNode
 		)
+		console.log(isValid)
 		return isValid
 	}
 }

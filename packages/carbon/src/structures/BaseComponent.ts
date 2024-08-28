@@ -10,6 +10,16 @@ export abstract class BaseComponent {
 	}) {
 		if (data?.additionalData) this.additionalData = data.additionalData
 	}
+
+	/**
+	 * Whether the component response should be automatically deferred
+	 */
+	defer = false
+	/**
+	 * Whether the component response should be ephemeral
+	 */
+	ephemeral = false
+
 	/**
 	 * The type of the component
 	 */

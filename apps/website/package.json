@@ -27,9 +27,7 @@
 		"@docusaurus/module-type-aliases": "3.5.2",
 		"@docusaurus/tsconfig": "3.5.2",
 		"@docusaurus/types": "3.5.2",
-		"@types/node": "22.5.0",
-		"docusaurus-plugin-typedoc-api": "4.2.1",
-		"typescript": "~5.5.4"
+		"docusaurus-plugin-typedoc-api": "4.2.1"
 	},
 	"browserslist": {
 		"production": [">0.5%", "not dead", "not op_mini all"],

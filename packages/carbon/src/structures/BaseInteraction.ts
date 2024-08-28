@@ -1,5 +1,6 @@
 import {
 	type APIInteraction,
+	InteractionResponseType,
 	type InteractionType,
 	Routes
 } from "discord-api-types/v10"
@@ -68,6 +69,12 @@ export abstract class BaseInteraction extends Base {
 	 */
 	userId: string | undefined
 
+	/**
+	 * Whether the interaction is deferred already
+	 * @internal
+	 */
+	_deferred = false
+
 	constructor(client: Client, data: APIInteraction) {
 		super(client)
 		this.rawData = data
@@ -85,7 +92,6 @@ export abstract class BaseInteraction extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
-		// TODO: Handle non-deferred
 		this.client.rest.patch(
 			Routes.webhookMessage(
 				this.rawData.application_id,
@@ -100,5 +106,31 @@ export abstract class BaseInteraction extends Base {
 				files: options.files
 			}
 		)
+	}
+
+	/**
+	 * Defer the interaction response. This is used automatically by commands that are set to defer.
+	 * If the interaction is already deferred, this will do nothing.
+	 * @internal
+	 */
+	async defer() {
+		console.log("aa")
+		if (this._deferred) return
+		console.log("ab")
+		this._deferred = true
+		console.log("ac")
+		await this.client.rest.patch(
+			Routes.webhookMessage(
+				this.rawData.application_id,
+				this.rawData.token,
+				"@original"
+			),
+			{
+				body: {
+					type: InteractionResponseType.DeferredChannelMessageWithSource
+				}
+			}
+		)
+		console.log("ad")
 	}
 }

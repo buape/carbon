@@ -1,5 +1,5 @@
 import type { Snowflake } from "discord-snowflake"
-import pkg from "../package.json" assert { type: "json" }
+import pkg from "../package.json"
 
 /**
  * @see {@link https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object}

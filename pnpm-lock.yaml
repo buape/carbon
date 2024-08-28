@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@net-tech-/env-cmd':
+        specifier: 1.0.3
+        version: 1.0.3
       '@turbo/gen':
         specifier: 2.0.14
         version: 2.0.14(@types/node@22.5.0)(typescript@5.4.2)
@@ -98,15 +101,9 @@ importers:
       '@docusaurus/types':
         specifier: 3.5.2
         version: 3.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/node':
-        specifier: 22.5.0
-        version: 22.5.0
       docusaurus-plugin-typedoc-api:
         specifier: 4.2.1
         version: 4.2.1(@docusaurus/core@3.5.2(@docusaurus/types@3.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mdx-js/react@3.0.1(@types/react@18.3.4)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@docusaurus/mdx-loader@3.5.2(@docusaurus/types@3.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4))(@mdx-js/react@3.0.1(@types/react@18.3.4)(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.5.4)
-      typescript:
-        specifier: ~5.5.4
-        version: 5.5.4
 
   packages/carbon:
     dependencies:
@@ -1498,6 +1495,11 @@ packages:
     peerDependencies:
       '@types/react': '>=16'
       react: '>=16'
+
+  '@net-tech-/env-cmd@1.0.3':
+    resolution: {integrity: sha512-Rmh0w2GcRF1Mqxi7QUhQwOIRKrClachtczk78xJEN4UDMYLbWluO4nR7EwiOfFzQSp6cVn6FxRGgFGq9jhtYlA==}
+    engines: {node: '>=8.0.0'}
+    hasBin: true
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -8003,6 +8005,11 @@ snapshots:
       '@types/mdx': 2.0.13
       '@types/react': 18.3.4
       react: 18.3.1
+
+  '@net-tech-/env-cmd@1.0.3':
+    dependencies:
+      commander: 5.1.0
+      cross-spawn: 7.0.3
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
