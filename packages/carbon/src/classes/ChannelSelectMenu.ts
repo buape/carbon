@@ -2,8 +2,8 @@ import {
 	ComponentType,
 	type APIChannelSelectComponent
 } from "discord-api-types/v10"
-import { AnySelectMenu } from "../structures/AnySelectMenu.js"
-import type { ChannelSelectMenuInteraction } from "../structures/ChannelSelectMenuInteraction.js"
+import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
+import type { ChannelSelectMenuInteraction } from "../abstracts/ChannelSelectMenuInteraction.js"
 
 export abstract class ChannelSelectMenu extends AnySelectMenu {
 	type: ComponentType.ChannelSelect = ComponentType.ChannelSelect

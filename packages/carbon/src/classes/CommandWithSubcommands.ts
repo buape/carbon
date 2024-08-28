@@ -5,7 +5,7 @@ import {
 	ApplicationCommandType,
 	type RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
-import { BaseCommand } from "../structures/BaseCommand.js"
+import { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { Command } from "./Command.js"
 
 /**
