@@ -97,7 +97,7 @@ export abstract class BaseInteraction extends Base {
 			const response = await fetch(
 				`https://discord.com/api/v10/webhooks/${this.client.options.clientId}/${this.rawData.token}`,
 				{
-					method: "POST",
+					method: "PATCH",
 					body: JSON.stringify({
 						...data,
 						components: data.components?.map((row) => row.serialize())

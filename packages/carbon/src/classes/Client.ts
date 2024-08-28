@@ -116,7 +116,6 @@ export class Client {
 			throw new StatusError(404)
 		})
 		this.router.post("/interaction", async (req, ctx?: ExecutionContext) => {
-			console.log(ctx)
 			const isValid = await this.validateInteraction(req)
 			if (!isValid) {
 				return new Response("Invalid request signature", { status: 401 })
