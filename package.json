@@ -15,7 +15,7 @@
 		"web:build": "turbo run web:build --filter website"
 	},
 	"dependencies": {
-		"@turbo/gen": "2.0.14",
+		"@turbo/gen": "2.1.0",
 		"dotenv-cli": "7.4.2",
 		"dotenv-mono": "1.3.14",
 		"@net-tech-/env-cmd": "1.0.3",
