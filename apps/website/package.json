@@ -14,9 +14,9 @@
 		"web:write-heading-ids": "docusaurus write-heading-ids"
 	},
 	"dependencies": {
-		"@docusaurus/core": "3.5.2",
-		"@docusaurus/preset-classic": "3.5.2",
-		"@docusaurus/theme-classic": "3.5.2",
+		"@docusaurus/core": "3.4.0",
+		"@docusaurus/preset-classic": "3.4.0",
+		"@docusaurus/theme-classic": "3.4.0",
 		"@mdx-js/react": "3.0.1",
 		"clsx": "2.1.1",
 		"prism-react-renderer": "2.3.1",
@@ -24,9 +24,9 @@
 		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
-		"@docusaurus/module-type-aliases": "3.5.2",
-		"@docusaurus/tsconfig": "3.5.2",
-		"@docusaurus/types": "3.5.2",
+		"@docusaurus/module-type-aliases": "3.4.0",
+		"@docusaurus/tsconfig": "3.4.0",
+		"@docusaurus/types": "3.4.0",
 		"docusaurus-plugin-typedoc-api": "4.2.1"
 	},
 	"browserslist": {
