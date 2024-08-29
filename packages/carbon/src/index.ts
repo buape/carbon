@@ -32,6 +32,7 @@ export * from "./abstracts/UserSelectMenuInteraction.js"
 // ----- Structures -----
 export * from "./structures/Guild.js"
 export * from "./structures/Message.js"
+export * from "./structures/User.js"
 
 // ----- Types -----
 export * from "discord-api-types/v10"
