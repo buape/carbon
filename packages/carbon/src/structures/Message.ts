@@ -1,6 +1,7 @@
 import { type APIMessage, Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { User } from "./User.js"
 
 export class Message extends Base {
 	/**
@@ -65,5 +66,16 @@ export class Message extends Base {
 		return await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
+	}
+
+	get author(): User | null {
+		if (this.rawData?.webhook_id) return null // TODO: Add webhook user
+		// Check if we have an additional property on the author object, in which case we have a full user object
+		if (this.rawData?.author.username)
+			return new User(this.client, this.rawData.author)
+		// This means we only have a partial user object
+		if (this.rawData?.author.id)
+			return new User(this.client, this.rawData.author.id)
+		return null
 	}
 }

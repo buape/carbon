@@ -8,6 +8,7 @@ import type { Client } from "../classes/Client.js"
 import type { Row } from "../classes/Row.js"
 import { Guild } from "../structures/Guild.js"
 import { Message } from "../structures/Message.js"
+import { User } from "../structures/User.js"
 import { Base } from "./Base.js"
 
 /**
@@ -93,6 +94,13 @@ export abstract class BaseInteraction extends Base {
 	get guild(): Guild | null {
 		if (!this.rawData.guild_id) return null
 		return new Guild(this.client, this.rawData.guild_id)
+	}
+
+	get user(): User {
+		if (this.rawData.user) return new User(this.client, this.rawData.user)
+		if (this.rawData.member)
+			return new User(this.client, this.rawData.member.user)
+		throw new Error("No user found in interaction")
 	}
 
 	/**
