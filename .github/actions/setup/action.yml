@@ -5,8 +5,6 @@ runs:
     using: composite
     steps:
         - uses: pnpm/action-setup@v4.0.0
-          with:
-              version: 9
 
         - name: Setup Node.js environment
           uses: actions/setup-node@v4
