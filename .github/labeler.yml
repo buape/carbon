@@ -1,0 +1,15 @@
+"dependencies":
+  - changed-files:
+      - any-glob-to-any-file: ["pnpm-lock.yaml"]
+"p:carbon":
+  - changed-files:
+      - any-glob-to-any-file: ["packages/carbon/**"]
+"p:discord-request":
+  - changed-files:
+      - any-glob-to-any-file: ["packages/discord-request/**"]
+"p:nodejs":
+  - changed-files:
+      - any-glob-to-any-file: ["packages/nodejs/**"]
+"docs":
+  - changed-files:
+      - any-glob-to-any-file: ["apps/website/**"]
