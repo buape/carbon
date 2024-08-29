@@ -1,14 +1,14 @@
-import { Base } from "./Base.js"
 import {
+	type APIApplicationCommandInteraction,
 	type APIApplicationCommandSubcommandGroupOption,
 	type APIChatInputApplicationCommandInteractionData,
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-	type APIApplicationCommandInteraction
+	ApplicationCommandType
 } from "discord-api-types/v10"
 import { Command } from "../classes/Command.js"
 import { CommandWithSubcommandGroups } from "../classes/CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
+import { Base } from "./Base.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
 export class CommandHandler extends Base {

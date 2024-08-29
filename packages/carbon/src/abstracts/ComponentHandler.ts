@@ -1,22 +1,22 @@
-import { Base } from "./Base.js"
-import { Button } from "../classes/Button.js"
-import { ButtonInteraction } from "./ButtonInteraction.js"
 import type {
 	APIMessageComponentButtonInteraction,
 	APIMessageComponentInteraction,
 	APIMessageComponentSelectMenuInteraction
 } from "discord-api-types/v10"
-import type { BaseComponent } from "./BaseComponent.js"
-import { RoleSelectMenu } from "../classes/RoleSelectMenu.js"
+import { Button } from "../classes/Button.js"
 import { ChannelSelectMenu } from "../classes/ChannelSelectMenu.js"
 import { MentionableSelectMenu } from "../classes/MentionableSelectMenu.js"
+import { RoleSelectMenu } from "../classes/RoleSelectMenu.js"
 import { StringSelectMenu } from "../classes/StringSelectMenu.js"
 import { UserSelectMenu } from "../classes/UserSelectMenu.js"
-import { RoleSelectMenuInteraction } from "./RoleSelectMenuInteraction.js"
-import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
-import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
-import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
+import { Base } from "./Base.js"
+import type { BaseComponent } from "./BaseComponent.js"
+import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
+import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
+import { RoleSelectMenuInteraction } from "./RoleSelectMenuInteraction.js"
+import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
+import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
 export class ComponentHandler extends Base {
 	async handleInteraction(data: APIMessageComponentInteraction) {

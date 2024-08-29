@@ -1,6 +1,7 @@
-import { Routes, type APIMessage } from "discord-api-types/v10"
+import { type APIMessage, Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { User } from "./User.js"
 
 export class Message extends Base {
 	/**
@@ -65,5 +66,10 @@ export class Message extends Base {
 		return await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
+	}
+
+	get author(): User | null {
+		if (!this.author?.id) return null
+		return new User(this.client, this.author?.id)
 	}
 }

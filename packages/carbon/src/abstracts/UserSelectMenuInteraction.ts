@@ -1,7 +1,7 @@
 import {
 	type APIMessageComponentSelectMenuInteraction,
-	ComponentType,
-	type APIMessageUserSelectInteractionData
+	type APIMessageUserSelectInteractionData,
+	ComponentType
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { AnySelectMenuInteraction } from "./AnySelectMenuInteraction.js"

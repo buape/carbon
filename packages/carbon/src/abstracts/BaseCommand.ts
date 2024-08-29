@@ -2,9 +2,9 @@ import type {
 	ApplicationCommandType,
 	RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
+import type { Paginator } from "../classes/Paginator.js"
 import { ApplicationIntegrationType, InteractionContextType } from "../index.js"
 import type { BaseComponent } from "./BaseComponent.js"
-import type { Paginator } from "../classes/Paginator.js"
 
 /**
  * Represents the base data of a command that the user creates

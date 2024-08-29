@@ -1,11 +1,11 @@
 import {
-	InteractionType,
+	type APIMessageComponentSelectMenuInteraction,
 	type APIMessageSelectMenuInteractionData,
-	type APIMessageComponentSelectMenuInteraction
+	InteractionType
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import { BaseComponentInteraction } from "./BaseComponentInteraction.js"
 import { splitCustomId } from "../utils.js"
+import { BaseComponentInteraction } from "./BaseComponentInteraction.js"
 
 export abstract class AnySelectMenuInteraction extends BaseComponentInteraction {
 	customId: string = splitCustomId(

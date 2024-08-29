@@ -2,9 +2,9 @@ import type {
 	APIMessageComponentInteraction,
 	ComponentType
 } from "discord-api-types/v10"
+import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
 import { BaseInteraction } from "./BaseInteraction.js"
-import type { Client } from "../classes/Client.js"
 
 export class BaseComponentInteraction extends BaseInteraction {
 	customId: string
