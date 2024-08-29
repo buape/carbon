@@ -1,4 +1,4 @@
-import { Client as RestClient } from "@carbonjs/discord-request"
+import { Client as RestClient } from "@buape/carbon-discord-request"
 import {
 	type APIInteraction,
 	InteractionResponseType,
@@ -71,7 +71,7 @@ export class Client {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
 		this.rest = new RestClient({
-			userAgent: `DiscordBot (https://github.com/buape/carbon v0.0.0)`
+			userAgent: "DiscordBot (https://github.com/buape/carbon v0.0.0)"
 		}).setToken(options.token)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)
