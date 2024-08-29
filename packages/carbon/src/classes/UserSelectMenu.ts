@@ -1,6 +1,6 @@
 import {
-	ComponentType,
-	type APIUserSelectComponent
+	type APIUserSelectComponent,
+	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
 import type { UserSelectMenuInteraction } from "../abstracts/UserSelectMenuInteraction.js"

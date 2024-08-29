@@ -1,4 +1,1 @@
-export class Paginator {
-	
-
-}
+export class Paginator {}

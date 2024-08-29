@@ -1,6 +1,6 @@
 import {
-	ComponentType,
-	type APIRoleSelectComponent
+	type APIRoleSelectComponent,
+	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
 import type { RoleSelectMenuInteraction } from "../abstracts/RoleSelectMenuInteraction.js"

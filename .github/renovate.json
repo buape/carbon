@@ -26,7 +26,5 @@
 			"groupName": "web"
 		}
 	],
-	"labels": [
-    		"dependencies"
-  	]
+	"labels": ["dependencies"]
 }

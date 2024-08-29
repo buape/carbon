@@ -7,7 +7,7 @@
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter cloudo",
 		"dev": "turbo run dev loose --filter !cloudo",
 		"generate": "turbo gen create-package",
-		"lint": "biome check . --apply",
+		"lint": "biome check . --write",
 		"preinstall": "npx only-allow pnpm",
 		"start": "turbo run start --filter !cloudo",
 		"test": "vitest",

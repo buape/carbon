@@ -9,8 +9,8 @@ import {
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
-import { ComponentHandler } from "../abstracts/ComponentHandler.js"
 import { CommandHandler } from "../abstracts/CommandHandler.js"
+import { ComponentHandler } from "../abstracts/ComponentHandler.js"
 
 /**
  * The mode that the client is running in.
@@ -71,7 +71,7 @@ export class Client {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
 		this.rest = new RestClient({
-			userAgent: `DiscordBot (https://github.com/buape/carbon v0.0.0)`
+			userAgent: "DiscordBot (https://github.com/buape/carbon v0.0.0)"
 		}).setToken(options.token)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)

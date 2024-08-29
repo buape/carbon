@@ -28,7 +28,7 @@ function HomepageHeader() {
 
 export default function Home() {
 	return (
-		<Layout title={`Carbon`} description="Docs for Carbon">
+		<Layout title={"Carbon"} description="Docs for Carbon">
 			<HomepageHeader />
 			{/* <main>
                 <HomepageFeatures />

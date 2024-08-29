@@ -33,7 +33,7 @@ test("userAgent", () => {
 	const client = new Client()
 	client.userAgent = "test UA"
 	expect(client.userAgent).toEqual(
-		`DiscordBot (https://github.com/buape/carbon, v0.0.0) test UA`
+		"DiscordBot (https://github.com/buape/carbon, v0.0.0) test UA"
 	)
 })
 

@@ -1,4 +1,4 @@
-import { Routes, type APIMessage } from "discord-api-types/v10"
+import { type APIMessage, Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 

@@ -5,10 +5,10 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import { Base } from "./Base.js"
 import type { Row } from "../classes/Row.js"
-import { Message } from "../structures/Message.js"
 import { Guild } from "../structures/Guild.js"
+import { Message } from "../structures/Message.js"
+import { Base } from "./Base.js"
 
 /**
  * The data to reply to an interaction

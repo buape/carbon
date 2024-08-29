@@ -1,6 +1,6 @@
 import {
-	ComponentType,
-	type APIMentionableSelectComponent
+	type APIMentionableSelectComponent,
+	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
 import type { MentionableSelectMenuInteraction } from "../abstracts/MentionableSelectMenuInteraction.js"

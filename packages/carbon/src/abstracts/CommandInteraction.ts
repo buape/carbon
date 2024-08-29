@@ -1,9 +1,9 @@
 import {
+	type APIApplicationCommandInteraction,
 	type APIApplicationCommandInteractionDataBasicOption,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	InteractionType,
-	type APIApplicationCommandInteraction
+	InteractionType
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"

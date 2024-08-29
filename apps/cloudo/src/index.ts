@@ -1,9 +1,9 @@
-import type { ExecutionContext } from "@cloudflare/workers-types/2023-07-01"
 import { Client, ClientMode } from "@buape/carbon"
+import type { ExecutionContext } from "@cloudflare/workers-types/2023-07-01"
 
+import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/testing/button.js"
 import Options from "./commands/testing/options.js"
-import PingCommand from "./commands/ping.js"
 
 type Env = {
 	CLIENT_ID: string
