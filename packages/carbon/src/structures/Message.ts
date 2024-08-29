@@ -70,6 +70,10 @@ export class Message extends Base {
 
 	get author(): User | null {
 		if (this.rawData?.webhook_id) return null // TODO: Add webhook user
+		// Check if we have an additional property on the author object, in which case we have a full user object
+		if (this.rawData?.author.username)
+			return new User(this.client, this.rawData.author)
+		// This means we only have a partial user object
 		if (this.rawData?.author.id)
 			return new User(this.client, this.rawData.author.id)
 		return null
