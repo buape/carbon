@@ -58,7 +58,7 @@ export const loadCommands = async (folderPath: string, dirname: string) => {
 			const file = await import(fileUrl)
 			const cmd = new file.default()
 			commands.push(cmd)
-		}	
+		}
 	}
 	return commands
 }

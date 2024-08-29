@@ -1,4 +1,4 @@
-import { Client as RestClient } from "@carbonjs/discord-request"
+import { Client as RestClient } from "@buape/carbon-discord-request"
 import {
 	type APIInteraction,
 	InteractionResponseType,

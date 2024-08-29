@@ -4,7 +4,7 @@
 		"apilink",
 		"biomejs",
 		"Buape",
-		"carbonjs",
+		"@buape/carbon",
 		"Cloudo",
 		"hono",
 		"paginators",

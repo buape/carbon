@@ -1,5 +1,5 @@
 {
-	"name": "@carbonjs/nodejs",
+	"name": "@buape/carbon-nodejs",
 	"version": "0.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",

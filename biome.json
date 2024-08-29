@@ -24,17 +24,13 @@
 				"noUnusedVariables": "error",
 				"noConstAssign": "error",
 				"noUndeclaredVariables": "error"
-			},
-			"style": {
-				"noUnusedTemplateLiteral": "off",
-				"noNonNullAssertion": "off"
 			}
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"semicolons": "asNeeded",
-			"trailingComma": "none"
+			"trailingCommas": "none"
 		}
 	}
 }

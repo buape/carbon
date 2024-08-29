@@ -1,4 +1,4 @@
-# @carbonjs/nodejs
+# @buape/carbon-nodejs
 
 <div align="center">
 <a href="https://go.buape.com/Discord"><img src="https://cdn.buape.com/CarbonWordmark.png" alt="Carbon Wordmark"></a>

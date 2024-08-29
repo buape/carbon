@@ -5,26 +5,26 @@
 	"scripts": {
 		"build": "turbo run build",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter cloudo",
-		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !cloudo",
+		"dev": "turbo run dev loose --filter !cloudo",
 		"generate": "turbo gen create-package",
 		"lint": "biome check . --apply",
 		"preinstall": "npx only-allow pnpm",
-		"start": "env-cmd -- turbo run start --env-mode loose",
+		"start": "turbo run start --filter !cloudo",
 		"test": "vitest",
 		"web": "turbo run web:start --filter website",
 		"web:build": "turbo run web:build --filter website"
 	},
 	"dependencies": {
-		"@turbo/gen": "2.1.0",
-		"@net-tech-/env-cmd": "1.0.3",
-		"tsc-watch": "6.2.0",
-		"turbo": "2.1.0",
-		"typedoc": "0.26.6",
-		"vitest": "2.0.5"
+		"@net-tech-/env-cmd": "1.0.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
-		"typescript": "5.4.2"
+		"@turbo/gen": "2.1.0",
+		"tsc-watch": "6.2.0",
+		"turbo": "2.1.0",
+		"typedoc": "0.26.6",
+		"typescript": "5.4.2",
+		"vitest": "2.0.5"
 	},
 	"packageManager": "pnpm@9.9.0"
 }
