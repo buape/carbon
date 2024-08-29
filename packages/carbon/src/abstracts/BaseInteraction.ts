@@ -96,9 +96,11 @@ export abstract class BaseInteraction extends Base {
 		return new Guild(this.client, this.rawData.guild_id)
 	}
 
-	get user(): User | null {
-		if (!this.rawData.user?.id) return null
-		return new User(this.client, this.rawData.user?.id)
+	get user(): User {
+		if (this.rawData.user) return new User(this.client, this.rawData.user)
+		if (this.rawData.member)
+			return new User(this.client, this.rawData.member.user)
+		throw new Error("No user found in interaction")
 	}
 
 	/**

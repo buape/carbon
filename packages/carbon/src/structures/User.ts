@@ -28,8 +28,8 @@ export class User extends Base {
 	 */
 	discriminator?: string
 	/**
-	 * The icon hash of the user.
-	 * You can use {@link user.iconUrl} to get the URL of the icon.
+	 * The avatar hash of the user.
+	 * You can use {@link user.avatarUrl} to get the URL of the avatar.
 	 */
 	avatar?: string | null
 	/**
@@ -100,7 +100,7 @@ export class User extends Base {
 		const newData = (await this.client.rest.get(
 			Routes.user(this.id)
 		)) as APIUser
-		if (!newData) throw new Error(`user ${this.id}not found`)
+		if (!newData) throw new Error(`User ${this.id} not found`)
 
 		this.setData(newData)
 	}
@@ -109,12 +109,12 @@ export class User extends Base {
 	 * Instantiate a new DM channel with this user.
 	 */
 	async createDm(userId: string) {
-		const dmChannel = await this.client.rest.post(Routes.userChannels(), {
+		const dmChannel = (await this.client.rest.post(Routes.userChannels(), {
 			body: {
 				recipient_id: userId
 			}
-		})
-		return dmChannel as APIDMChannel
+		})) as APIDMChannel
+		return dmChannel
 	}
 
 	/**
@@ -126,7 +126,7 @@ export class User extends Base {
 			Routes.channelMessages(dmChannel.id),
 			{
 				body: {
-					data
+					...data
 				}
 			}
 		)) as APIMessage

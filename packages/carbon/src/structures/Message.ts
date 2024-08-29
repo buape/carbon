@@ -69,7 +69,9 @@ export class Message extends Base {
 	}
 
 	get author(): User | null {
-		if (!this.author?.id) return null
-		return new User(this.client, this.author?.id)
+		if (this.rawData?.webhook_id) return null // TODO: Add webhook user
+		if (this.rawData?.author.id)
+			return new User(this.client, this.rawData.author.id)
+		return null
 	}
 }
