@@ -6,7 +6,7 @@ import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
 import { BaseInteraction } from "./BaseInteraction.js"
 
-export class BaseComponentInteraction extends BaseInteraction {
+export class BaseComponentInteraction extends BaseInteraction<APIMessageComponentInteraction> {
 	customId: string
 	componentType: ComponentType
 	constructor(client: Client, data: APIMessageComponentInteraction) {

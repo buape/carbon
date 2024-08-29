@@ -58,7 +58,7 @@ export type InteractionFileData = {
  * This is the base type interaction, all interaction types extend from this
  * @abstract
  */
-export abstract class BaseInteraction extends Base {
+export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	/**
 	 * The type of interaction
 	 */
@@ -66,7 +66,7 @@ export abstract class BaseInteraction extends Base {
 	/**
 	 * The raw data of the interaction
 	 */
-	rawData: APIInteraction
+	rawData: T
 	/**
 	 * The user who sent the interaction
 	 */
@@ -78,7 +78,7 @@ export abstract class BaseInteraction extends Base {
 	 */
 	_deferred = false
 
-	constructor(client: Client, data: APIInteraction) {
+	constructor(client: Client, data: T) {
 		super(client)
 		this.rawData = data
 		this.type = data.type
