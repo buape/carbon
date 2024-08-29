@@ -25,5 +25,10 @@
 			"matchFileNames": ["apps/website/**"],
 			"groupName": "web"
 		}
-	]
+	],
+	{
+  		"labels": [
+    			"dependencies"
+  		]
+	}
 }
