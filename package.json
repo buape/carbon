@@ -15,10 +15,10 @@
 		"web:build": "turbo run web:build --filter website"
 	},
 	"dependencies": {
-		"@turbo/gen": "2.0.14",
+		"@turbo/gen": "2.1.0",
 		"@net-tech-/env-cmd": "1.0.3",
 		"tsc-watch": "6.2.0",
-		"turbo": "2.0.14",
+		"turbo": "2.1.0",
 		"typedoc": "0.26.6",
 		"vitest": "2.0.5"
 	},
