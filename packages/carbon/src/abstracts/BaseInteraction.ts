@@ -113,39 +113,20 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		options: InteractionReplyOptions = {}
 	) {
 		if (this._deferred) {
-			console.log(data)
-			const response = await fetch(
-				`https://discord.com/api/v10/webhooks/${this.client.options.clientId}/${this.rawData.token}`,
+			await this.client.rest.patch(
+				Routes.webhookMessage(
+					this.client.options.clientId,
+					this.rawData.token,
+					"@original"
+				),
 				{
-					method: "PATCH",
-					body: JSON.stringify({
+					body: {
 						...data,
 						components: data.components?.map((row) => row.serialize())
-					}),
-					headers: {
-						"Content-Type": "application/json"
-					}
+					},
+					files: options.files
 				}
-			).catch((err) => {
-				console.error(err)
-				throw err
-			})
-			console.log(response.json(), response.status)
-			// await this.client.rest.patch(
-			// 	Routes.webhookMessage(
-			// 		this.client.options.clientId,
-			// 		this.rawData.token,
-			// 		"@original"
-			// 	),
-			// 	{
-			// 		body: {
-			// 			...data,
-			// 			components: data.components?.map((row) => row.serialize())
-			// 		},
-			// 		files: options.files
-			// 	}
-			// )
-			console.log("reply done")
+			)
 		} else {
 			await this.client.rest.post(
 				Routes.interactionCallback(this.rawData.id, this.rawData.token),

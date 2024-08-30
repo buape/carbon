@@ -1,4 +1,4 @@
-import { Client as RestClient } from "@buape/carbon-discord-request"
+import { RequestClient, type RequestClientOptions } from "@buape/carbon-request"
 import {
 	type APIInteraction,
 	InteractionResponseType,
@@ -32,6 +32,7 @@ export type ClientOptions = {
 	publicKey: string
 	token: string
 	mode: ClientMode
+	requestOptions?: RequestClientOptions
 }
 
 /**
@@ -53,7 +54,7 @@ export class Client {
 	/**
 	 * The rest client used to interact with the Discord API
 	 */
-	rest: RestClient
+	rest: RequestClient
 	/**
 	 * The handler for the component interactions sent from Discord
 	 */
@@ -66,13 +67,14 @@ export class Client {
 	 * @param commands The commands that the client has registered
 	 */
 	constructor(options: ClientOptions, commands: BaseCommand[]) {
+		if (!options.clientId) throw new Error("Missing client ID")
+		if (!options.publicKey) throw new Error("Missing public key")
+		if (!options.token) throw new Error("Missing token")
 		this.options = options
 		this.commands = commands
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>()
-		this.rest = new RestClient({
-			userAgent: "DiscordBot (https://github.com/buape/carbon v0.0.0)"
-		}).setToken(options.token)
+		this.rest = new RequestClient(options.token, options.requestOptions)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)
 		this.setupRoutes()
@@ -128,30 +130,17 @@ export class Client {
 				})
 			}
 
-			try {
-				if (rawInteraction.type === InteractionType.ApplicationCommand) {
-					if (ctx?.waitUntil)
-						ctx.waitUntil(this.commandHandler.handleInteraction(rawInteraction))
-					else await this.commandHandler.handleInteraction(rawInteraction)
-				}
-				if (rawInteraction.type === InteractionType.MessageComponent) {
-					if (ctx?.waitUntil)
-						ctx.waitUntil(
-							this.componentHandler.handleInteraction(rawInteraction)
-						)
-					else await this.componentHandler.handleInteraction(rawInteraction)
-				}
-				return new Response(null, { status: 202 })
-			} catch (err: unknown) {
-				if (err instanceof Error)
-					// TODO: Custom error instances
-					return new Response(
-						JSON.stringify({
-							type: InteractionResponseType.ChannelMessageWithSource,
-							data: { content: err.message }
-						})
-					)
+			if (rawInteraction.type === InteractionType.ApplicationCommand) {
+				if (ctx?.waitUntil)
+					ctx.waitUntil(this.commandHandler.handleInteraction(rawInteraction))
+				else await this.commandHandler.handleInteraction(rawInteraction)
 			}
+			if (rawInteraction.type === InteractionType.MessageComponent) {
+				if (ctx?.waitUntil)
+					ctx.waitUntil(this.componentHandler.handleInteraction(rawInteraction))
+				else await this.componentHandler.handleInteraction(rawInteraction)
+			}
+			return new Response(null, { status: 202 })
 		})
 	}
 

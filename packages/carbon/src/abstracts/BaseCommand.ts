@@ -2,7 +2,6 @@ import type {
 	ApplicationCommandType,
 	RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
-import type { Paginator } from "../classes/Paginator.js"
 import { ApplicationIntegrationType, InteractionContextType } from "../index.js"
 import type { BaseComponent } from "./BaseComponent.js"
 
@@ -58,7 +57,7 @@ export abstract class BaseCommand {
 	 * All the paginators that the command is able to use.
 	 * You mount these here so the handler can access them
 	 */
-	paginators?: Paginator[] = []
+	// paginators?: Paginator[] = []
 
 	/**
 	 * Serializes the command into a JSON object that can be sent to Discord

@@ -101,9 +101,9 @@ importers:
 
   packages/carbon:
     dependencies:
-      '@buape/carbon-discord-request':
+      '@buape/carbon-request':
         specifier: workspace:*
-        version: link:../discord-request
+        version: link:../request
       discord-api-types:
         specifier: 0.37.98
         version: 0.37.98
@@ -113,15 +113,6 @@ importers:
       itty-router:
         specifier: 5.0.18
         version: 5.0.18
-
-  packages/discord-request:
-    dependencies:
-      discord-error:
-        specifier: 3.0.1
-        version: 3.0.1
-      discord-snowflake:
-        specifier: 2.0.0
-        version: 2.0.0
 
   packages/nodejs:
     dependencies:
@@ -137,6 +128,8 @@ importers:
       path:
         specifier: 0.12.7
         version: 0.12.7
+
+  packages/request: {}
 
 packages:
 
@@ -2827,14 +2820,6 @@ packages:
 
   discord-api-types@0.37.98:
     resolution: {integrity: sha512-xsH4UwmnCQl4KjAf01/p9ck9s+/vDqzHbUxPOBzo8fcVUa/hQG6qInD7Cr44KAuCM+xCxGJFSAUx450pBrX0+g==}
-
-  discord-error@3.0.1:
-    resolution: {integrity: sha512-br6wRBs8UtnPJV/hz2hv0UPw8XsOnw5GmlaYYbTsrPssM78mgEUSvCu7q2tWEGrk+MAPwBf9zxZq9U50YMKa2Q==}
-    engines: {node: '>=18'}
-
-  discord-snowflake@2.0.0:
-    resolution: {integrity: sha512-MFWier0d78ajvk1lAXUCm7wbNnY2bD7/rqvtemuhoebkBBS9AnA0OwQI7SpYqiy/01GR1raLPTsIOwWCj8Pb+w==}
-    engines: {node: '>=18'}
 
   discord-verify@1.2.0:
     resolution: {integrity: sha512-8qlrMROW8DhpzWWzgNq9kpeLDxKanWa4EDVoj/ASVv2nr+dSr4JPmu2tFSydf3hAGI/OIJTnZyD0JulMYIxx4w==}
@@ -9852,10 +9837,6 @@ snapshots:
       path-type: 4.0.0
 
   discord-api-types@0.37.98: {}
-
-  discord-error@3.0.1: {}
-
-  discord-snowflake@2.0.0: {}
 
   discord-verify@1.2.0:
     dependencies:
