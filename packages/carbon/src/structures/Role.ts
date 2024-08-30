@@ -116,7 +116,11 @@ export class Role extends Base {
 	 * Set the name of the role
 	 */
 	async setName(guildId: string, name: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), { name })
+		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+			body: {
+				name
+			}
+		})
 		this.name = name
 	}
 
@@ -124,7 +128,9 @@ export class Role extends Base {
 	 * Set the color of the role
 	 */
 	async setColor(guildId: string, color: number) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), { color })
+		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+			body: { color }
+		})
 		this.color = color
 	}
 
@@ -133,7 +139,9 @@ export class Role extends Base {
 	 * @param icon The unicode emoji or icon URL to set
 	 */
 	async setIcon(guildId: string, icon: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), { icon })
+		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+			body: { icon }
+		})
 		this.icon = icon
 	}
 
@@ -142,7 +150,7 @@ export class Role extends Base {
 	 */
 	async setMentionable(guildId: string, mentionable: boolean) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			mentionable
+			body: { mentionable }
 		})
 		this.mentionable = mentionable
 	}
@@ -152,7 +160,7 @@ export class Role extends Base {
 	 */
 	async setHoisted(guildId: string, hoisted: boolean) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			hoist: hoisted
+			body: { hoist: hoisted }
 		})
 		this.hoisted = hoisted
 	}
@@ -162,7 +170,7 @@ export class Role extends Base {
 	 */
 	async setPosition(guildId: string, position: number) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			position
+			body: { position }
 		})
 		this.position = position
 	}
@@ -173,7 +181,7 @@ export class Role extends Base {
 	 */
 	async setPermissions(guildId: string, permissions: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			permissions
+			body: { permissions }
 		})
 		this.permissions = permissions
 	}

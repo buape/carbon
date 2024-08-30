@@ -93,10 +93,11 @@ export class Guild extends Base {
 	 * Create a role in the guild
 	 */
 	async createRole(data: RESTPostAPIGuildRoleJSONBody) {
-		const role = (await this.client.rest.post(
-			Routes.guildRoles(this.id),
-			data
-		)) as APIRole
+		const role = (await this.client.rest.post(Routes.guildRoles(this.id), {
+			body: {
+				...data
+			}
+		})) as APIRole
 		return new Role(this.client, role)
 	}
 
