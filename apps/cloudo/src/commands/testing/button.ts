@@ -33,5 +33,5 @@ class PingButton extends Button {
 
 class Link extends LinkButton {
 	label = "Link"
-	url = "https://google.com"
+	url = "https://buape.com"
 }

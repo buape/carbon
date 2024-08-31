@@ -4,6 +4,9 @@ import type { ExecutionContext } from "@cloudflare/workers-types/2023-07-01"
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/testing/button.js"
 import Options from "./commands/testing/options.js"
+import SelectCommand from "./commands/testing/every_select.js"
+import Subc from "./commands/testing/subcommand.js"
+import SubcG from "./commands/testing/subcommandgroup.js"
 
 type Env = {
 	CLIENT_ID: string
@@ -20,7 +23,14 @@ export default {
 				token: _env.DISCORD_TOKEN,
 				mode: ClientMode.CloudflareWorkers
 			},
-			[new ButtonCommand(), new Options(), new PingCommand()]
+			[
+				new ButtonCommand(),
+				new Options(),
+				new PingCommand(),
+				new SelectCommand(),
+				new Subc(),
+				new SubcG()
+			]
 		)
 		if (request.url.endsWith("/deploy")) {
 			await client.deployCommands()
