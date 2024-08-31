@@ -1,6 +1,12 @@
-import { type APIGuild, Routes } from "discord-api-types/v10"
+import {
+	type APIGuild,
+	type APIRole,
+	type RESTPostAPIGuildRoleJSONBody,
+	Routes
+} from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { Role } from "./Role.js"
 
 export class Guild extends Base {
 	/**
@@ -84,6 +90,18 @@ export class Guild extends Base {
 	}
 
 	/**
+	 * Create a role in the guild
+	 */
+	async createRole(data: RESTPostAPIGuildRoleJSONBody) {
+		const role = (await this.client.rest.post(Routes.guildRoles(this.id), {
+			body: {
+				...data
+			}
+		})) as APIRole
+		return new Role(this.client, role)
+	}
+
+	/**
 	 * Get the URL of the guild's icon
 	 */
 	get iconUrl(): string | null {
@@ -99,5 +117,14 @@ export class Guild extends Base {
 		return this.splash
 			? `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
 			: null
+	}
+
+	/**
+	 * Get all roles in the guild
+	 */
+	get roles() {
+		const roles = this.rawData?.roles
+		if (!roles) throw new Error("Cannot get roles without having data... smh")
+		return roles.map((role) => new Role(this.client, role))
 	}
 }
