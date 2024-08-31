@@ -131,14 +131,26 @@ export class Client {
 			}
 
 			if (rawInteraction.type === InteractionType.ApplicationCommand) {
-				if (ctx?.waitUntil)
-					ctx.waitUntil(this.commandHandler.handleInteraction(rawInteraction))
-				else await this.commandHandler.handleInteraction(rawInteraction)
+				if (ctx?.waitUntil) {
+					ctx.waitUntil(
+						(async () => {
+							await this.commandHandler.handleInteraction(rawInteraction)
+						})()
+					)
+				} else {
+					await this.commandHandler.handleInteraction(rawInteraction)
+				}
 			}
 			if (rawInteraction.type === InteractionType.MessageComponent) {
-				if (ctx?.waitUntil)
-					ctx.waitUntil(this.componentHandler.handleInteraction(rawInteraction))
-				else await this.componentHandler.handleInteraction(rawInteraction)
+				if (ctx?.waitUntil) {
+					ctx.waitUntil(
+						(async () => {
+							await this.componentHandler.handleInteraction(rawInteraction)
+						})()
+					)
+				} else {
+					await this.componentHandler.handleInteraction(rawInteraction)
+				}
 			}
 			return new Response(null, { status: 202 })
 		})

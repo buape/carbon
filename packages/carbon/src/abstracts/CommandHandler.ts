@@ -25,15 +25,10 @@ export class CommandHandler extends Base {
 		)
 
 		if (command instanceof Command) {
-			console.log(1)
 			if (command.defer) {
 				await interaction.defer()
 			}
-			console.log(2)
-			await command.run(interaction).then(() => {
-				console.log("2 done")
-			})
-			console.log(3)
+			await command.run(interaction)
 			return
 		}
 
