@@ -1,6 +1,6 @@
-import { test, expect } from "vitest"
+import { expect, test } from "vitest"
 
-import { DiscordError, errorMapper, RateLimitError } from "../src/index.js"
+import { DiscordError, RateLimitError, errorMapper } from "../src/index.js"
 
 test("Error Mapper", () => {
 	// Example usage with Array Error type
