@@ -7,8 +7,8 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { Role } from "./Role.js"
 import { channelFactory } from "../factories/channelFactory.js"
+import { Role } from "./Role.js"
 
 export class Guild extends Base {
 	/**

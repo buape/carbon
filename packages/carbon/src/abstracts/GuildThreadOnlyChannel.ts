@@ -1,13 +1,13 @@
 import type {
-	APIMessage,
 	APIGuildForumDefaultReactionEmoji,
 	APIGuildForumTag,
+	APIMessage,
 	APIThreadOnlyChannel,
 	ChannelType,
 	SortOrderType
 } from "discord-api-types/v10"
-import { BaseGuildChannel } from "./BaseGuildChannel.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
+import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class GuildThreadOnlyChannel<
 	Type extends ChannelType.GuildForum | ChannelType.GuildMedia

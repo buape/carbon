@@ -1,10 +1,10 @@
 import {
-	Routes,
 	type APIChannel,
-	type ChannelType
+	type ChannelType,
+	Routes
 } from "discord-api-types/v10"
-import { Base } from "./Base.js"
 import type { Client } from "../classes/Client.js"
+import { Base } from "./Base.js"
 
 export abstract class BaseChannel<Type extends ChannelType> extends Base {
 	/**

@@ -1,14 +1,14 @@
 import {
-	type RESTGetAPIChannelPinsResult,
-	Routes,
 	type APIGuildTextChannel,
+	type APIThreadChannel,
 	type GuildTextChannelType,
+	type RESTGetAPIChannelPinsResult,
 	type RESTPostAPIChannelThreadsJSONBody,
-	type APIThreadChannel
+	Routes
 } from "discord-api-types/v10"
-import { BaseGuildChannel } from "./BaseGuildChannel.js"
-import { Message } from "../structures/Message.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
+import { Message } from "../structures/Message.js"
+import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class BaseGuildTextChannel<
 	Type extends GuildTextChannelType

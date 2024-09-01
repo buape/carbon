@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"build": "turbo run build",
+		"ci": "pnpm build --filter !cloudo --filter !rocko --filter !website",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter cloudo",
 		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !cloudo",
 		"generate": "turbo gen package",

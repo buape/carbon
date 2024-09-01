@@ -7,9 +7,9 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { User } from "./User.js"
-import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { channelFactory } from "../factories/channelFactory.js"
+import { GuildThreadChannel } from "./GuildThreadChannel.js"
+import { User } from "./User.js"
 
 export class Message extends Base {
 	/**

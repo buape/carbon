@@ -7,8 +7,8 @@ import { GuildCategoryChannel } from "../structures/GuildCategoryChannel.js"
 import { GuildForumChannel } from "../structures/GuildForumChannel.js"
 import { GuildMediaChannel } from "../structures/GuildMediaChannel.js"
 import {
-	GuildVoiceChannel,
-	GuildStageChannel
+	GuildStageChannel,
+	GuildVoiceChannel
 } from "../structures/GuildStageOrVoiceChannel.js"
 import { GuildTextChannel } from "../structures/GuildTextChannel.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"

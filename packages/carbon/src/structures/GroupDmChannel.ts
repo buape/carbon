@@ -4,8 +4,8 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import { User } from "./User.js"
 import { Message } from "./Message.js"
+import { User } from "./User.js"
 
 /**
  * Represents a group DM channel.
@@ -129,6 +129,4 @@ export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
 				(x) => x.id !== (typeof user === "string" ? user : user.id)
 			)
 	}
-
-	
 }

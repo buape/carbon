@@ -3,14 +3,14 @@ import type {
 	APIMessageComponentInteraction,
 	APIMessageComponentSelectMenuInteraction
 } from "discord-api-types/v10"
+import { Base } from "../abstracts/Base.js"
+import type { BaseComponent } from "../abstracts/BaseComponent.js"
 import { Button } from "../classes/Button.js"
 import { ChannelSelectMenu } from "../classes/ChannelSelectMenu.js"
 import { MentionableSelectMenu } from "../classes/MentionableSelectMenu.js"
 import { RoleSelectMenu } from "../classes/RoleSelectMenu.js"
 import { StringSelectMenu } from "../classes/StringSelectMenu.js"
 import { UserSelectMenu } from "../classes/UserSelectMenu.js"
-import { Base } from "../abstracts/Base.js"
-import type { BaseComponent } from "../abstracts/BaseComponent.js"
 import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
 import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"

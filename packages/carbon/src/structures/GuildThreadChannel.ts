@@ -1,6 +1,6 @@
 import {
-	Routes,
 	type APIThreadChannel,
+	Routes,
 	type ThreadChannelType
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
