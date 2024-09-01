@@ -1,4 +1,5 @@
 import {
+	type APIChannel,
 	type APIGuild,
 	type APIRole,
 	type RESTPostAPIGuildRoleJSONBody,
@@ -7,6 +8,7 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Role } from "./Role.js"
+import { channelFactory } from "../factories/channelFactory.js"
 
 export class Guild extends Base {
 	/**
@@ -126,5 +128,15 @@ export class Guild extends Base {
 		const roles = this.rawData?.roles
 		if (!roles) throw new Error("Cannot get roles without having data... smh")
 		return roles.map((role) => new Role(this.client, role))
+	}
+
+	/**
+	 * Fetch a channel from the guild by ID
+	 */
+	async fetchChannel(channelId: string) {
+		const channel = (await this.client.rest.get(
+			Routes.channel(channelId)
+		)) as APIChannel
+		return channelFactory(this.client, channel)
 	}
 }

@@ -9,6 +9,9 @@ import { GuildThreadOnlyChannel } from "../abstracts/GuildThreadOnlyChannel.js"
  * Represents a guild forum channel.
  */
 export class GuildForumChannel extends GuildThreadOnlyChannel<ChannelType.GuildForum> {
+	/**
+	 * The default forum layout of the channel.
+	 */
 	defaultForumLayout?: ForumLayoutType
 
 	protected setMoreSpecificData(data: APIGuildForumChannel) {

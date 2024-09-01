@@ -66,20 +66,20 @@ export class RequestClient {
 		return await this.request("GET", path)
 	}
 
-	async post(path: string, data: RequestData) {
+	async post(path: string, data?: RequestData) {
 		return await this.request("POST", path, data)
 	}
 
-	async patch(path: string, data: RequestData) {
+	async patch(path: string, data?: RequestData) {
 		return await this.request("PATCH", path, data)
 	}
 
-	async put(path: string, data: RequestData) {
+	async put(path: string, data?: RequestData) {
 		return await this.request("PUT", path, data)
 	}
 
-	async delete(path: string) {
-		return await this.request("DELETE", path)
+	async delete(path: string, data?: RequestData) {
+		return await this.request("DELETE", path, data)
 	}
 	private async request(
 		method: string,

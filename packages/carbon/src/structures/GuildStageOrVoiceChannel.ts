@@ -9,9 +9,23 @@ import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
 export abstract class GuildStageOrVoiceChannel<
 	Type extends ChannelType.GuildStageVoice | ChannelType.GuildVoice
 > extends BaseGuildChannel<Type> {
+	/**
+	 * The bitrate of the channel.
+	 */
 	bitrate?: number | null
+	/**
+	 * The user limit of the channel.
+	 */
 	userLimit?: number | null
+	/**
+	 * The RTC region of the channel.
+	 * This is automatic when set to `null`.
+	 */
 	rtcRegion?: string | null
+	/**
+	 * The video quality mode of the channel.
+	 * 1 when not present.
+	 */
 	videoQualityMode?: VideoQualityMode | null
 
 	protected setSpecificData(

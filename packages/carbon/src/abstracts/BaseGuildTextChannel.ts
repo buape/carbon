@@ -1,9 +1,14 @@
-import type {
-	APIGuildTextChannel,
-	GuildTextChannelType
+import {
+	type RESTGetAPIChannelPinsResult,
+	Routes,
+	type APIGuildTextChannel,
+	type GuildTextChannelType,
+	type RESTPostAPIChannelThreadsJSONBody,
+	type APIThreadChannel
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 import { Message } from "../structures/Message.js"
+import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 
 export abstract class BaseGuildTextChannel<
 	Type extends GuildTextChannelType
@@ -47,5 +52,26 @@ export abstract class BaseGuildTextChannel<
 			id: this.lastMessageId,
 			channel_id: this.id
 		})
+	}
+
+	/**
+	 * Get the pinned messages in the channel
+	 */
+	async getPinnedMessages() {
+		const msgs = (await this.client.rest.get(
+			Routes.channelPins(this.id)
+		)) as RESTGetAPIChannelPinsResult
+		return msgs.map((x) => new Message(this.client, x))
+	}
+
+	/**
+	 * Start a thread without an associated start message.
+	 * If you want to start a thread with a start message, use {@link Message.startThread}
+	 */
+	async startThread(data: RESTPostAPIChannelThreadsJSONBody) {
+		const thread = (await this.client.rest.post(Routes.threads(this.id), {
+			body: { ...data }
+		})) as APIThreadChannel
+		return new GuildThreadChannel(this.client, thread)
 	}
 }

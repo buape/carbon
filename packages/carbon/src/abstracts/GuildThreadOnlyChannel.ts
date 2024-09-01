@@ -1,4 +1,5 @@
 import type {
+	APIMessage,
 	APIGuildForumDefaultReactionEmoji,
 	APIGuildForumTag,
 	APIThreadOnlyChannel,
@@ -6,6 +7,7 @@ import type {
 	SortOrderType
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
+import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 
 export abstract class GuildThreadOnlyChannel<
 	Type extends ChannelType.GuildForum | ChannelType.GuildMedia
@@ -46,4 +48,24 @@ export abstract class GuildThreadOnlyChannel<
 	}
 
 	protected abstract setMoreSpecificData(data: APIThreadOnlyChannel<Type>): void
+
+	/**
+	 * You cannot send a message directly to a forum or media channel, so this method throws an error.
+	 * Use {@link GuildThreadChannel.send} instead, or the alias {@link GuildThreadOnlyChannel.sendToPost} instead, to send a message to the channel's posts.
+	 */
+	override async send(): Promise<void> {
+		throw new Error(
+			"You cannot send a message directly to a forum or media channel. Use GuildThreadChannel.send instead, or the alias GuildThreadOnlyChannel.sendToPost instead, to send a message to the channel's posts."
+		)
+	}
+
+	/**
+	 * Send a message to a post in the channel
+	 * @remarks
+	 * This is an alias for {@link GuildThreadChannel.send} that will fetch the channel, but if you already have the channel, you can use {@link GuildThreadChannel.send} instead.
+	 */
+	async sendToPost(message: APIMessage, postId: string): Promise<void> {
+		const channel = new GuildThreadChannel(this.client, postId)
+		await channel.send(message)
+	}
 }

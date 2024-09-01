@@ -24,9 +24,6 @@ export * from "./classes/Row.js"
 export * from "./classes/StringSelectMenu.js"
 export * from "./classes/UserSelectMenu.js"
 
-// ----- Factories -----
-export * from "./factories/channelFactory.js"
-
 // ----- Internals -----
 export * from "./internals/ButtonInteraction.js"
 export * from "./internals/ChannelSelectMenuInteraction.js"

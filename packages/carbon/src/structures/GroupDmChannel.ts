@@ -1,4 +1,8 @@
-import { type APIGroupDMChannel, ChannelType } from "discord-api-types/v10"
+import {
+	type APIGroupDMChannel,
+	ChannelType,
+	Routes
+} from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
 import { User } from "./User.js"
 import { Message } from "./Message.js"
@@ -82,4 +86,49 @@ export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
 			channel_id: this.id
 		})
 	}
+
+	/**
+	 * Set the name of the channel
+	 * @param name The new name of the channel
+	 */
+	async setName(name: string) {
+		await this.client.rest.patch(Routes.channel(this.id), {
+			body: {
+				name
+			}
+		})
+		this.name = name
+	}
+
+	async addRecipient(user: User | string) {
+		await this.client.rest.put(
+			Routes.channelRecipient(
+				this.id,
+				typeof user === "string" ? user : user.id
+			)
+		)
+		if (this.recipients)
+			this.recipients.push(
+				typeof user === "string" ? new User(this.client, user) : user
+			)
+		else
+			this.recipients = [
+				typeof user === "string" ? new User(this.client, user) : user
+			]
+	}
+
+	async removeRecipient(user: User | string) {
+		await this.client.rest.delete(
+			Routes.channelRecipient(
+				this.id,
+				typeof user === "string" ? user : user.id
+			)
+		)
+		if (this.recipients)
+			this.recipients = this.recipients.filter(
+				(x) => x.id !== (typeof user === "string" ? user : user.id)
+			)
+	}
+
+	
 }

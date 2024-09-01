@@ -3,7 +3,13 @@ import { BaseGuildTextChannel } from "../abstracts/BaseGuildTextChannel.js"
 
 export class GuildTextChannel extends BaseGuildTextChannel<ChannelType.GuildText> {
 	type: ChannelType.GuildText = ChannelType.GuildText
+	/**
+	 * The default auto archive duration of threads in the channel.
+	 */
 	defaultAutoArchiveDuration?: number | null
+	/**
+	 * The default thread rate limit per user of the channel.
+	 */
 	defaultThreadRateLimitPerUser?: number | null
 
 	protected setMoreSpecificData(
