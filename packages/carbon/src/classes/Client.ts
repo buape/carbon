@@ -3,7 +3,6 @@ import {
 	type APIInteraction,
 	InteractionResponseType,
 	InteractionType,
-	RouteBases,
 	Routes
 } from "discord-api-types/v10"
 import { PlatformAlgorithm, isValidRequest } from "discord-verify"
@@ -90,17 +89,9 @@ export class Client {
 			const commands = this.commands.map((command) => {
 				return command.serialize()
 			})
-			await fetch(
-				RouteBases.api + Routes.applicationCommands(this.options.clientId),
-				{
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bot ${this.options.token}`
-					},
-					method: "PUT",
-					body: JSON.stringify(commands)
-				}
-			)
+			await this.rest.put(Routes.applicationCommands(this.options.clientId), {
+				body: commands
+			})
 			console.log(`Deployed ${commands.length} commands to Discord`)
 		} catch (err) {
 			console.error("Failed to deploy commands")

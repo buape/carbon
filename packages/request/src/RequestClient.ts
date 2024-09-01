@@ -28,7 +28,7 @@ type QueuedRequest = {
 }
 
 type RequestData = {
-	body?: Record<string, unknown>
+	body?: unknown
 	files?: Attachment[]
 	rawBody?: boolean
 }
@@ -96,7 +96,6 @@ export class RequestClient {
 			this.executeRequest({ method, path, data, resolve, reject })
 				.then(resolve)
 				.catch((err) => {
-					console.error(`Error during request: ${err.message}`, err)
 					reject(err)
 				})
 		})
@@ -203,10 +202,8 @@ export class RequestClient {
 				this.queue.unshift(queueItem)
 			} else {
 				if (error instanceof Error) {
-					console.error(`Error during request: ${error.message}`, error)
 					reject(error)
 				} else {
-					console.error("Unknown error during request", error)
 					reject(new Error("Unknown error during request", { cause: error }))
 				}
 			}

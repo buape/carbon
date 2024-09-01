@@ -5,6 +5,8 @@ import {
 import { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { CommandInteraction } from "../internals/CommandInteraction.js"
 
+export type CommandOptions = APIApplicationCommandBasicOption[]
+
 /**
  * Represents a standard command that the user creates
  */
@@ -14,7 +16,7 @@ export abstract class Command extends BaseCommand {
 	/**
 	 * The options that the user passes along with the command in Discord
 	 */
-	options?: APIApplicationCommandBasicOption[] = []
+	options?: CommandOptions
 
 	/**
 	 * The function that is called when the command is ran

@@ -9,16 +9,18 @@ import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
+import { OptionsHandler } from "./OptionsHandler.js"
+// import type { RawOptions } from "./OptionsHandler.js"
 
 /**
  * Represents a command interaction
  */
 export class CommandInteraction extends BaseInteraction<APIApplicationCommandInteraction> {
-	options: {
-		[key: string]:
-			| APIApplicationCommandInteractionDataBasicOption["value"]
-			| undefined
-	} = {}
+	/**
+	 * This is the options of the commands, parsed from the interaction data.
+	 * It is only available if the command is a {@link Command} class.
+	 */
+	options?: OptionsHandler
 	constructor(
 		client: Client,
 		data: APIApplicationCommandInteraction,
@@ -32,55 +34,19 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 			throw new Error("Invalid command type was used to create this class")
 		}
 		if (
-			command &&
 			command instanceof Command &&
-			data.data.type === ApplicationCommandType.ChatInput
+			!data.data.options?.find(
+				(x) =>
+					x.type === ApplicationCommandOptionType.Subcommand ||
+					x.type === ApplicationCommandOptionType.SubcommandGroup
+			)
 		) {
-			this.options = this.parseOptions(
-				command,
+			this.options = new OptionsHandler(
+				client,
 				(data.data.options ??
-					[]) as APIApplicationCommandInteractionDataBasicOption[]
+					[]) as APIApplicationCommandInteractionDataBasicOption[],
+				command.options
 			)
 		}
-	}
-
-	private parseOptions = (
-		command: Command,
-		options: APIApplicationCommandInteractionDataBasicOption[]
-	) => {
-		const result: {
-			[key: string]: (typeof options)[number]["value"] | undefined
-		} = {}
-		for (const option of options) {
-			const optionData = command.options?.find((x) => x.name === option.name)
-			if (!optionData) {
-				result[option.name] = undefined
-			} else {
-				switch (optionData.type) {
-					case ApplicationCommandOptionType.String:
-						result[option.name] = option.value as string
-						break
-					case ApplicationCommandOptionType.Integer:
-						result[option.name] = option.value as number
-						break
-					case ApplicationCommandOptionType.Boolean:
-						result[option.name] = option.value as boolean
-						break
-					case ApplicationCommandOptionType.User:
-						result[option.name] = option.value as string
-						break
-					case ApplicationCommandOptionType.Channel:
-						result[option.name] = option.value as string
-						break
-					case ApplicationCommandOptionType.Role:
-						result[option.name] = option.value as string
-						break
-					case ApplicationCommandOptionType.Mentionable:
-						result[option.name] = option.value as string
-						break
-				}
-			}
-		}
-		return result
 	}
 }
