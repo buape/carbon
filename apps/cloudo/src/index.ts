@@ -3,8 +3,8 @@ import type { ExecutionContext } from "@cloudflare/workers-types/2023-07-01"
 
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/testing/button.js"
-import Options from "./commands/testing/options.js"
 import SelectCommand from "./commands/testing/every_select.js"
+import Options from "./commands/testing/options.js"
 import Subc from "./commands/testing/subcommand.js"
 import SubcG from "./commands/testing/subcommandgroup.js"
 

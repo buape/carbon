@@ -6,7 +6,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "../abstracts/BaseComponent.js"
-import type { ButtonInteraction } from "../abstracts/ButtonInteraction.js"
+import type { ButtonInteraction } from "../internals/ButtonInteraction.js"
 
 abstract class BaseButton extends BaseComponent {
 	type = ComponentType.Button

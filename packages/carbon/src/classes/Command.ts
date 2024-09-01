@@ -3,7 +3,7 @@ import {
 	ApplicationCommandType
 } from "discord-api-types/v10"
 import { BaseCommand } from "../abstracts/BaseCommand.js"
-import type { CommandInteraction } from "../abstracts/CommandInteraction.js"
+import type { CommandInteraction } from "../internals/CommandInteraction.js"
 
 /**
  * Represents a standard command that the user creates

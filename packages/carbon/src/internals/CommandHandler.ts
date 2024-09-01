@@ -5,10 +5,10 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType
 } from "discord-api-types/v10"
+import { Base } from "../abstracts/Base.js"
 import { Command } from "../classes/Command.js"
 import { CommandWithSubcommandGroups } from "../classes/CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
-import { Base } from "./Base.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
 export class CommandHandler extends Base {

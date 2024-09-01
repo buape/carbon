@@ -3,7 +3,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
-import type { UserSelectMenuInteraction } from "../abstracts/UserSelectMenuInteraction.js"
+import type { UserSelectMenuInteraction } from "../internals/UserSelectMenuInteraction.js"
 
 export abstract class UserSelectMenu extends AnySelectMenu {
 	type: ComponentType.UserSelect = ComponentType.UserSelect

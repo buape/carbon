@@ -1,6 +1,14 @@
-import { type APIMessage, Routes } from "discord-api-types/v10"
+import {
+	type APIChannel,
+	type APIMessage,
+	type APIThreadChannel,
+	type RESTPostAPIChannelThreadsJSONBody,
+	Routes
+} from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { channelFactory } from "../factories/channelFactory.js"
+import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { User } from "./User.js"
 
 export class Message extends Base {
@@ -77,5 +85,40 @@ export class Message extends Base {
 		if (this.rawData?.author.id)
 			return new User(this.client, this.rawData.author.id)
 		return null
+	}
+
+	async fetchChannel() {
+		const data = (await this.client.rest.get(
+			Routes.channel(this.channelId)
+		)) as APIChannel
+		return channelFactory(this.client, data)
+	}
+
+	/**
+	 * Pin this message
+	 */
+	async pin() {
+		await this.client.rest.put(Routes.channelPin(this.channelId, this.id))
+	}
+
+	/**
+	 * Unpin this message
+	 */
+	async unpin() {
+		await this.client.rest.delete(Routes.channelPin(this.channelId, this.id))
+	}
+
+	/**
+	 * Start a thread with this message as the associated start message.
+	 * If you want to start a thread without a start message, use {@link BaseGuildTextChannel.startThread}
+	 */
+	async startThread(data: RESTPostAPIChannelThreadsJSONBody) {
+		const thread = (await this.client.rest.post(
+			Routes.threads(this.channelId, this.id),
+			{
+				body: { ...data }
+			}
+		)) as APIThreadChannel
+		return new GuildThreadChannel(this.client, thread)
 	}
 }

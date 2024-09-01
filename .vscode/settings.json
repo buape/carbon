@@ -1,12 +1,15 @@
 {
 	"dotenv.enableAutocloaking": false,
 	"cSpell.words": [
+		"@buape/carbon",
+		"APIDM",
 		"apilink",
 		"biomejs",
+		"bitfield",
 		"Buape",
-		"@buape/carbon",
 		"Cloudo",
 		"hono",
+		"invitable",
 		"paginators",
 		"Rocko",
 		"whatwg"

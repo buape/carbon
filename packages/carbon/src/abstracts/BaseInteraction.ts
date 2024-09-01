@@ -1,4 +1,5 @@
 import {
+	type APIChannel,
 	type APIInteraction,
 	InteractionResponseType,
 	type InteractionType,
@@ -6,6 +7,7 @@ import {
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import type { Row } from "../classes/Row.js"
+import { channelFactory } from "../factories/channelFactory.js"
 import { Guild } from "../structures/Guild.js"
 import { Message } from "../structures/Message.js"
 import { User } from "../structures/User.js"
@@ -96,11 +98,16 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		return new Guild(this.client, this.rawData.guild_id)
 	}
 
-	get user(): User {
+	get user(): User | null {
 		if (this.rawData.user) return new User(this.client, this.rawData.user)
 		if (this.rawData.member)
 			return new User(this.client, this.rawData.member.user)
-		throw new Error("No user found in interaction")
+		return null
+	}
+
+	get channel() {
+		if (!this.rawData.channel) return null
+		return channelFactory(this.client, this.rawData.channel as APIChannel)
 	}
 
 	/**
