@@ -3,7 +3,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
-import type { MentionableSelectMenuInteraction } from "../abstracts/MentionableSelectMenuInteraction.js"
+import type { MentionableSelectMenuInteraction } from "../internals/MentionableSelectMenuInteraction.js"
 
 export abstract class MentionableSelectMenu extends AnySelectMenu {
 	type: ComponentType.MentionableSelect = ComponentType.MentionableSelect

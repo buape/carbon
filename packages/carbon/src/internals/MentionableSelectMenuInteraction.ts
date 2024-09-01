@@ -4,7 +4,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import { AnySelectMenuInteraction } from "./AnySelectMenuInteraction.js"
+import { AnySelectMenuInteraction } from "../abstracts/AnySelectMenuInteraction.js"
 
 export class MentionableSelectMenuInteraction extends AnySelectMenuInteraction {
 	constructor(client: Client, data: APIMessageComponentSelectMenuInteraction) {

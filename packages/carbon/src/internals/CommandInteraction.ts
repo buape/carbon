@@ -7,8 +7,8 @@ import {
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
-import type { BaseCommand } from "./BaseCommand.js"
-import { BaseInteraction } from "./BaseInteraction.js"
+import type { BaseCommand } from "../abstracts/BaseCommand.js"
+import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 
 /**
  * Represents a command interaction

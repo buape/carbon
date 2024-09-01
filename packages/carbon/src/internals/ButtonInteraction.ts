@@ -6,7 +6,7 @@ import {
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
-import { BaseComponentInteraction } from "./BaseComponentInteraction.js"
+import { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 
 export class ButtonInteraction extends BaseComponentInteraction {
 	customId: string = splitCustomId(
