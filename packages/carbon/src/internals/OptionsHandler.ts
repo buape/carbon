@@ -1,15 +1,15 @@
 import {
+	type APIApplicationCommandInteractionDataBasicOption,
 	type APIChannel,
 	ApplicationCommandOptionType,
-	Routes,
-	type APIApplicationCommandInteractionDataBasicOption
+	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import {
-	Role,
-	User,
 	type Client,
 	type Command,
+	Role,
+	User,
 	channelFactory
 } from "../index.js"
 

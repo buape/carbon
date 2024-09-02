@@ -5,13 +5,14 @@
 	"main": "./dist/src/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc -w"
+		"dev": "tsc -w",
+		"docs": "typedoc"
 	},
 	"license": "MIT",
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
 		"@hono/node-server": "1.12.2",
-		"@types/node": "22.5.1",
+		"@types/node": "22.5.2",
 		"path": "0.12.7"
 	}
 }

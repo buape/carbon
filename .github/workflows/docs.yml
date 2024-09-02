@@ -17,13 +17,13 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: Build website
-              run: pnpm run web:build
+              run: pnpm run web:export
 
             - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v4
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   # Build output to publish to the `gh-pages` branch:
-                  publish_dir: ./apps/website/build
+                  publish_dir: ./website/out
                   user_name: buapebot
                   user_email: 119761697+buapebot@users.noreply.github.com

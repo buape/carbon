@@ -3,5 +3,13 @@ dist
 .turbo
 .pnpm-store
 .env
-./docs
 wrangler.toml
+.map.ts
+.contentlayer
+.content-collections
+out/
+build/
+.next/
+.DS_Store
+packages/*/docs/
+website/content/*/api

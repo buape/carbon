@@ -12,19 +12,23 @@
 		"preinstall": "npx only-allow pnpm",
 		"start": "turbo run start --filter !cloudo",
 		"test": "vitest",
-		"web": "turbo run web:start --filter website",
-		"web:build": "turbo run web:build --filter website"
+		"web": "pnpm run web:docs && turbo run web:dev",
+		"web:build": "turbo run docs && turbo run web:build",
+		"web:docs": "turbo run docs"
 	},
 	"dependencies": {
 		"@net-tech-/env-cmd": "1.0.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
-		"@turbo/gen": "2.1.0",
+		"@turbo/gen": "2.1.1",
 		"tsc-watch": "6.2.0",
-		"turbo": "2.1.0",
+		"turbo": "2.1.1",
 		"typedoc": "0.26.6",
-		"typescript": "5.4.2",
+		"typedoc-plugin-frontmatter": "^1.0.0",
+		"typedoc-plugin-markdown": "^4.2.6",
+		"typedoc-plugin-mdn-links": "^3.2.11",
+		"typescript": "5.5.4",
 		"vitest": "2.0.5"
 	},
 	"packageManager": "pnpm@9.9.0"

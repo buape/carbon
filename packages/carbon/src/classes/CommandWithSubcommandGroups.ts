@@ -9,7 +9,7 @@ import { CommandWithSubcommands } from "./CommandWithSubcommands.js"
 
 /**
  * Represents a subcommand group command that the user creates.
- * You make this instead of a {@apilink Command} class when you want to have subcommand groups in your options.
+ * You make this instead of a {@link Command} class when you want to have subcommand groups in your options.
  */
 export abstract class CommandWithSubcommandGroups extends CommandWithSubcommands {
 	/**
