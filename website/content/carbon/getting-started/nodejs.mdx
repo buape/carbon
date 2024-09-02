@@ -1,0 +1,155 @@
+---
+title: Node.js
+---
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+import { LayoutDashboard } from 'lucide-react';
+
+
+Node.js is a popular choice for running your bot, and has first-class support from Carbon.
+
+## File Structure
+
+<Files>
+	<Folder name="src" defaultOpen>
+		<File name="index.ts" />
+		<Folder name="commands" defaultOpen>
+			<File name="ping.ts" />
+		</Folder>
+	</Folder>
+	<File name=".env" />
+	<File name="package.json" />
+</Files>
+
+## Getting Started
+
+### Installation 
+First, we need to install Carbon and its NodeJS package, as well as env-cmd to help us set our environment variables.
+<CommandTabs command="add" args={["@buape/carbon", "@buape/carbon-nodejs", "env-cmd"]} />
+
+### Setting up your .env
+
+Let's start by creating your `.env` file, which will contain the secrets and tokens for your app.
+
+```env title=".env"
+CLIENT_ID=""
+PUBLIC_KEY=""
+DISCORD_TOKEN=""
+```
+
+Now, you need to get your client ID, public key, and token, and fill those out there. [You can learn more about these here.](/carbon/developer-portal/create-a-bot)
+
+### Creating a Client
+
+Now let's start your `index.ts` file. It will be the entry point for your worker, and the main file that will be executed when your worker is deployed.
+
+First, we need to import the Carbon client.
+```ts 
+// Import the Carbon client
+import { Client, ClientMode } from "@buape/carbon"
+```
+
+We also need to import the NodeJS helpers from `@buape/carbon-nodejs`.
+```ts
+import { dirname } from "node:path"
+import { fileURLToPath } from "node:url"
+import { loadCommands, serve } from "@buape/carbon-nodejs"
+const __dirname = dirname(fileURLToPath(import.meta.url))
+```
+
+Now, let's make our Client.
+```
+const client = new Client(
+	{
+		clientId: process.env.CLIENT_ID,
+		publicKey: process.env.PUBLIC_KEY,
+		token: process.env.DISCORD_TOKEN,
+		mode: ClientMode.NodeJS,
+		requestOptions: {
+			queueRequests: false
+		}
+	},
+	await loadCommands("commands", __dirname)
+)
+```
+
+And finally, we need to host Carbon on a port.
+```ts
+serve(client, { port: 3000 })
+```
+
+### Adding Commands
+
+Now that we have our client, we can start adding commands to it. Let's create a new file called `ping.ts` in the `src/commands` folder.
+```ts title="src/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = false
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "Pong!"
+		})
+	}
+}
+```
+
+This is a basic command, you set the name and description, and then add a run function that will be called when the command is used.
+
+Now, let's add this command to our client. We already created the `__dirname` variable for where our code is running earlier, so we can use that and load all the commands in that folder.
+```ts title="src/index.ts"
+const client = new Client(
+	{
+		clientId: env.CLIENT_ID,
+		publicKey: env.PUBLIC_KEY,
+		token: env.DISCORD_TOKEN,
+		mode: ClientMode.CloudflareWorkers
+	},
+	await loadCommands("commands", __dirname)
+)
+```
+
+And that's it! You now have a basic Carbon bot running on NodeJS.
+If you want to add more commands, just create more classes in the `src/commands` folder, and add them to the client in the `src/index.ts` file.
+
+## Running
+
+To run your bot, let's add some scripts to your `package.json` file. 
+
+
+Let's also add some scripts to our `package.json` file.
+```json title="package.json"
+{
+	// ...
+
+	"scripts": {
+		"start": "tsc && env-cmd --node ."
+	},
+
+	// ...
+}
+```
+
+Then you can use this command:
+<CommandTabs multiLine command="run" args={["start"]} />
+
+This will compile your code, and run your bot with the environment variables from your `.env` file.
+
+Now you'll need to setup your bot on the [Discord Developer Portal](https://discord.com/developers/applications). Take a look at the following cards for more information.
+
+<Cards>
+  <Card
+    icon={<LayoutDashboard />}
+    href="/"
+    title="Discord Developer Portal"
+    description="Learn how to setup your bot on the Discord Developer Portal."
+  />
+  <Card
+    icon={<GitHub />}
+    href="/"
+    title="Example Project"
+    description="See a full example project for Carbon on NodeJS."
+  />
+</Cards>

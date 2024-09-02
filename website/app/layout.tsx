@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en" className={inter.className} suppressHydrationWarning>
 			<body>
-				<RootProvider>{children}</RootProvider>
+				<RootProvider search={{ enabled: false }}>{children}</RootProvider>
 			</body>
 		</html>
 	)

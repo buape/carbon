@@ -240,6 +240,9 @@ export class Client {
 	}
 }
 
+/**
+ * @hidden
+ */
 export interface ExecutionContext {
 	// biome-ignore lint/suspicious/noExplicitAny: true any
 	waitUntil(promise: Promise<any>): void

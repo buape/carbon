@@ -11,3 +11,5 @@ for d in packages/*/docs; do
     mkdir -p "$API_DIR"
     cp -rv "$d"/* "$API_DIR"
 done
+
+find . -type d -name "type-aliases" | xargs -I {} cp -v website/type-aliases.meta.json {}/meta.json

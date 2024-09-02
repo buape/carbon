@@ -30,6 +30,7 @@ export default async function Page({
 
 	return (
 		<DocsLayout
+		
 			tree={loader.pageTree}
 			githubUrl="https://github.com/buape/carbon"
 			nav={{

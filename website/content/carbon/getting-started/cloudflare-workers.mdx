@@ -1,0 +1,182 @@
+---
+title: Cloudflare Workers
+---
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+import { LayoutDashboard, GitHub } from 'lucide-react';
+
+
+Cloudflare Workers is a quick and free option for hosting your bot, and is the primary runtime that we at Buape Studios use Carbon on.
+
+## File Structure
+
+<Files>
+	<Folder name="src" defaultOpen>
+		<File name="index.ts" />
+		<Folder name="commands" defaultOpen>
+			<File name="ping.ts" />
+		</Folder>
+	</Folder>
+	<File name="package.json" />
+	<File name="wrangler.toml" />
+</Files>
+
+## Getting Started
+
+### Installation 
+First, we need to install Carbon, as well as Wrangler to help us deploy our worker.
+<CommandTabs command="add" args={["@buape/carbon wrangler"]} />
+
+Let's also add `@cloudflare/workers-types`, so that we can use the `ExecutionContext` type.
+<CommandTabs command="add" args={["@cloudflare/workers-types -D"]} />
+
+### Setting up your Worker
+
+Let's start by creating your `wrangler.toml` file, which will contain the configuration for your worker.
+
+```toml title="wrangler.toml"
+name = "my-carbon-worker"
+main = "src/index.ts"
+compatibility_date = "2024-09-03"
+```
+
+Now, you need to get your client ID, public key, and token. [You can learn more about these here.](/carbon/developer-portal/create-a-bot)
+
+Let's add these to your worker:
+
+<CommandTabs multiLine command="wrangler" executer args={["secret put CLIENT_ID", "secret put PUBLIC_KEY", "secret put DISCORD_TOKEN"]} />
+
+After each of these commands, you'l be prompted to enter the value. 
+
+### Creating a Client
+
+Now let's start your `index.ts` file. It will be the entry point for your worker, and the main file that will be executed when your worker is deployed.
+
+First, we need to import the Carbon client.
+```ts 
+// Import the Carbon client
+import { Client, ClientMode } from "@buape/carbon"
+```
+
+We also need to get two types: we need to create a type for our environment variables that we set in the wrangler.toml file, and we need to import the `ExecutionContext` type from `@cloudflare/workers-types`.
+```ts
+import type { ExecutionContext } from "@cloudflare/workers-types/2023-07-01"
+
+type Env = {
+	CLIENT_ID: string
+	PUBLIC_KEY: string
+	DISCORD_TOKEN: string
+}
+```
+
+In Cloudflare Workers, everything is exported in one object. The `fetch` function is the entry point for your worker.
+```ts
+export default {
+	async fetch(request: Request, _env: Env, ctx: ExecutionContext) {
+		// Place your code here.
+	}
+}
+```
+
+Now, let's add some code to actually use Carbon. First, we will create a new Carbon client. 
+
+```ts
+export default {
+	async fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		// Create a new Carbon client.
+		const client = new Client(
+			{
+				// Put your client ID, public key, and token here, _env will have them from your `wrangler.toml` file.
+				clientId: env.CLIENT_ID,
+				publicKey: env.PUBLIC_KEY,
+				token: env.DISCORD_TOKEN,
+				mode: ClientMode.CloudflareWorkers
+			}
+		)
+		// This is how you pass control from your cf worker to Carbon. Make sure you pass the ctx part as well, so that awaits work properly within Carbon.
+		const response = await client.router.fetch(request, ctx)
+		// Finally, return the response from Carbon.
+		return response
+	}
+}
+```
+
+### Adding Commands
+
+Now that we have our client, we can start adding commands to it. Let's create a new file called `ping.ts` in the `src/commands` folder.
+```ts title="src/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = false
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "Pong!"
+		})
+	}
+}
+```
+
+This is a basic command, you set the name and description, and then add a run function that will be called when the command is used.
+
+Now, let's add this command to our client.
+```ts title="src/index.ts"
+const client = new Client(
+	{
+		clientId: env.CLIENT_ID,
+		publicKey: env.PUBLIC_KEY,
+		token: env.DISCORD_TOKEN,
+		mode: ClientMode.CloudflareWorkers
+	},
+	[
+		new PingCommand()
+	]
+)
+```
+
+And that's it! You now have a basic Carbon bot running on Cloudflare Workers.
+If you want to add more commands, just create more classes in the `src/commands` folder, and add them to the client in the `src/index.ts` file.
+
+## Deploying
+
+To deploy your bot, let's add some scripts to your `package.json` file. 
+
+
+
+Let's also add some scripts to our `package.json` file.
+```json title="package.json"
+{
+	// ...
+
+	"scripts": {
+		"build": "wrangler deploy",
+		"tail": "wrangler tail"
+	}
+
+	// ...
+}
+```
+
+Then you can use these like this:
+<CommandTabs multiLine command="run" args={["build", "tail"]} />
+
+This will push your code to Cloudflare, and deploy your worker. You can also use the `tail` command to see the logs from your worker.
+
+Now you'll need to setup your bot on the [Discord Developer Portal](https://discord.com/developers/applications). Take a look at the following cards for more information.
+
+<Cards>
+  <Card
+    icon={<LayoutDashboard />}
+    href="/"
+    title="Discord Developer Portal"
+    description="Learn how to setup your bot on the Discord Developer Portal."
+  />
+  <Card
+    icon={<GitHub />}
+    href="/"
+    title="Example Project"
+    description="See a full example project for Carbon on Cloudflare Workers."
+  />
+</Cards>
