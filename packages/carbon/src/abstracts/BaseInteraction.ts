@@ -9,6 +9,7 @@ import type { Client } from "../classes/Client.js"
 import type { Row } from "../classes/Row.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { Guild } from "../structures/Guild.js"
+import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
 import { User } from "../structures/User.js"
 import { Base } from "./Base.js"
@@ -107,6 +108,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	get channel() {
 		if (!this.rawData.channel) return null
 		return channelFactory(this.client, this.rawData.channel as APIChannel)
+	}
+
+	get member() {
+		if (!this.rawData.member) return null
+		if (!this.guild) return null
+		return new GuildMember(this.client, this.rawData.member, this.guild)
 	}
 
 	/**

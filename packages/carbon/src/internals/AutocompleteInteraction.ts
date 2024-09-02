@@ -1,14 +1,14 @@
-import type { BaseCommand } from "../abstracts/BaseCommand.js"
-import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import {
+	type APIApplicationCommandAutocompleteInteraction,
 	type APIApplicationCommandInteractionDataBasicOption,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
+	InteractionResponseType,
 	InteractionType,
-	type APIApplicationCommandAutocompleteInteraction,
-	Routes,
-	InteractionResponseType
+	Routes
 } from "discord-api-types/v10"
+import type { BaseCommand } from "../abstracts/BaseCommand.js"
+import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
 import { OptionsHandler } from "./OptionsHandler.js"
