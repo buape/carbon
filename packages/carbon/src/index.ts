@@ -28,6 +28,7 @@ export * from "./classes/UserSelectMenu.js"
 export * from "./factories/channelFactory.js"
 
 // ----- Internals -----
+export * from "./internals/AutocompleteInteraction.js"
 export * from "./internals/ButtonInteraction.js"
 export * from "./internals/ChannelSelectMenuInteraction.js"
 export * from "./internals/CommandHandler.js"

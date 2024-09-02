@@ -5,13 +5,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
-import {
-	type Client,
-	type Command,
-	Role,
-	User,
-	channelFactory
-} from "../index.js"
+import { type Client, Role, User, channelFactory } from "../index.js"
 
 export type RawOptions = {
 	[key: string]:
@@ -35,17 +29,10 @@ export class OptionsHandler extends Base {
 
 	constructor(
 		client: Client,
-		options: APIApplicationCommandInteractionDataBasicOption[],
-		commandOptions: typeof Command.prototype.options
+		options: APIApplicationCommandInteractionDataBasicOption[]
 	) {
 		super(client)
 		this.raw = options
-		if (commandOptions) {
-			for (const option of commandOptions) {
-				const optionData = this.raw.find((x) => x.name === option.name)
-				console.log(optionData, option)
-			}
-		}
 	}
 
 	/**

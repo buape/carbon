@@ -44,8 +44,7 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 			this.options = new OptionsHandler(
 				client,
 				(data.data.options ??
-					[]) as APIApplicationCommandInteractionDataBasicOption[],
-				command.options
+					[]) as APIApplicationCommandInteractionDataBasicOption[]
 			)
 		}
 	}

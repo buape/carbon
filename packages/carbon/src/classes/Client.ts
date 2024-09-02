@@ -125,11 +125,39 @@ export class Client {
 				if (ctx?.waitUntil) {
 					ctx.waitUntil(
 						(async () => {
-							await this.commandHandler.handleInteraction(rawInteraction)
+							await this.commandHandler.handleCommandInteraction(rawInteraction)
 						})()
 					)
 				} else {
-					await this.commandHandler.handleInteraction(rawInteraction)
+					await this.commandHandler.handleCommandInteraction(rawInteraction)
+				}
+			}
+			if (
+				rawInteraction.type === InteractionType.ApplicationCommandAutocomplete
+			) {
+				if (ctx?.waitUntil) {
+					ctx.waitUntil(
+						(async () => {
+							await this.commandHandler.handleAutocompleteInteraction(
+								rawInteraction
+							)
+						})()
+					)
+				} else {
+					await this.commandHandler.handleAutocompleteInteraction(
+						rawInteraction
+					)
+				}
+			}
+			if (rawInteraction.type === InteractionType.ApplicationCommand) {
+				if (ctx?.waitUntil) {
+					ctx.waitUntil(
+						(async () => {
+							await this.commandHandler.handleCommandInteraction(rawInteraction)
+						})()
+					)
+				} else {
+					await this.commandHandler.handleCommandInteraction(rawInteraction)
 				}
 			}
 			if (rawInteraction.type === InteractionType.MessageComponent) {

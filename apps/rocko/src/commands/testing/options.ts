@@ -1,5 +1,6 @@
 import {
 	ApplicationCommandOptionType,
+	type AutocompleteInteraction,
 	Command,
 	type CommandInteraction,
 	type CommandOptions
@@ -64,12 +65,32 @@ export default class Options extends Command {
 			type: ApplicationCommandOptionType.Mentionable,
 			description: "DESCRIPTION",
 			required: false
+		},
+		{
+			name: "autocomplete",
+			type: ApplicationCommandOptionType.String,
+			description: "DESCRIPTION",
+			required: false,
+			autocomplete: true
 		}
 	]
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({
-			content: `Errors: ${interaction.options?.errors}\nStr: ${interaction.options?.getString("str")}\nInt: ${interaction.options?.getInteger("int")}\nNum: ${interaction.options?.getNumber("num")}\nBool: ${interaction.options?.getBoolean("bool")}\nUser: ${interaction.options?.getUser("user")}\nChannel: ${interaction.options?.getChannel("channel")}\nRole: ${interaction.options?.getRole("role")}\nMentionable: ${interaction.options?.getMentionable("mentionable")}`
+		await interaction.reply({
+			content: `Errors: ${interaction.options?.errors}\nStr: ${interaction.options?.getString("str")}\nInt: ${interaction.options?.getInteger("int")}\nNum: ${interaction.options?.getNumber("num")}\nBool: ${interaction.options?.getBoolean("bool")}\nUser: ${interaction.options?.getUser("user")}\nChannel: ${interaction.options?.getChannel("channel")}\nRole: ${interaction.options?.getRole("role")}\nMentionable: ${interaction.options?.getMentionable("mentionable")}\nAutocomplete: ${interaction.options?.getString("autocomplete")}`
 		})
+	}
+
+	async autocomplete(interaction: AutocompleteInteraction) {
+		await interaction.respond([
+			{
+				name: "That thing you said",
+				value: `${interaction.options?.getFocused() || "NONE"}`
+			},
+			{
+				name: "That thing you said but with a 4",
+				value: `4: ${interaction.options?.getFocused() || "NONE"}`
+			}
+		])
 	}
 }
