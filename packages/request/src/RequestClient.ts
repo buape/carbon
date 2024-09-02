@@ -1,12 +1,44 @@
 import { DiscordError } from "./errors/DiscordError.js"
 import { RateLimitError } from "./errors/RatelimitError.js"
 
+/**
+ * The options used to initialize the RequestClient
+ */
 export type RequestClientOptions = {
+	/**
+	 * The header used to send the token in the request.
+	 * This should generally always be "Bot" unless you are working with OAuth.
+	 *
+	 * @default "Bot"
+	 */
 	tokenHeader?: "Bot" | "Bearer"
+	/**
+	 * The base URL of the API.
+	 * @default https://discord.com/api
+	 */
 	baseUrl?: string
+	/**
+	 * The version of the API to use.
+	 * @default 10
+	 */
 	apiVersion?: number
+	/**
+	 * The user agent to use when making requests.
+	 * @default DiscordBot (https://github.com/buape/carbon, v0.0.0)
+	 */
 	userAgent?: string
+	/**
+	 * The timeout for requests.
+	 * @default 15000
+	 */
 	timeout?: number
+	/**
+	 * Whether or not to queue requests if you are rate limited.
+	 * If this is true, requests will be queued and wait for the ratelimit to clear.
+	 * If this is false, requests will be made immediately and will throw a RateLimitError if you are rate limited.
+	 *
+	 * @default true
+	 */
 	queueRequests?: boolean
 }
 
@@ -19,7 +51,7 @@ const defaultOptions: Required<RequestClientOptions> = {
 	queueRequests: true
 }
 
-type QueuedRequest = {
+export type QueuedRequest = {
 	method: string
 	path: string
 	data?: RequestData
@@ -27,23 +59,30 @@ type QueuedRequest = {
 	reject: (reason?: unknown) => void
 }
 
-type RequestData = {
+export type RequestData = {
 	body?: unknown
 	files?: Attachment[]
 	rawBody?: boolean
 }
 
-type Attachment = {
+export type Attachment = {
 	id?: string
 	name: string
 	data: Blob
 }
 
+/**
+ * This is the main class that handles making requests to the Discord API.
+ * It is used internally by Carbon, and you should not need to use it directly, but feel free to if you feel like living dangerously.
+ */
 export class RequestClient {
-	private options: RequestClientOptions
+	/**
+	 * The options used to initialize the client
+	 */
+	readonly options: RequestClientOptions
+	protected queue: QueuedRequest[] = []
 	private token: string
 	private rateLimitResetTime: number
-	private queue: QueuedRequest[] = []
 	private abortController: AbortController | null = null
 
 	constructor(token: string, options?: RequestClientOptions) {
