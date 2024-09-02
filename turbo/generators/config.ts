@@ -42,6 +42,16 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
 				type: "add",
 				path: "packages/{{name}}/typedoc.json",
 				templateFile: "templates/typedoc.json.hbs"
+			},
+			{
+				type: "add",
+				path: "website/content/{{name}}/index.mdx",
+				templateFile: "templates/web/index.mdx.hbs"
+			},
+			{
+				type: "add",
+				path: "website/content/{{name}}/meta.json",
+				templateFile: "templates/web/meta.json.hbs"
 			}
 		]
 	})
