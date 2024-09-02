@@ -1,0 +1,15 @@
+{
+	"name": "@buape/carbon-linked-roles",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "./dist/src/index.js",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc -w",
+		"docs": "typedoc"
+	},
+	"license": "MIT",
+	"dependencies": {
+		"@buape/carbon": "workspace:*"
+	}
+}

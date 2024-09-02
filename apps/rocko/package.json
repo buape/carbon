@@ -10,6 +10,7 @@
 	},
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
+		"@buape/carbon-linked-roles": "workspace:*",
 		"@buape/carbon-nodejs": "workspace:*",
 		"@types/node": "22.5.2"
 	},

@@ -1,5 +1,5 @@
 import { RootToggle } from "fumadocs-ui/components/layout/root-toggle"
-import { Braces, Computer, Package2 } from "lucide-react"
+import { Braces, Computer, Link, Package2 } from "lucide-react"
 
 export function Toggle() {
 	return (
@@ -22,6 +22,12 @@ export function Toggle() {
 					description: "The request client",
 					url: "/request",
 					icon: <Computer size={24} />
+				},
+				{
+					title: "@buape/carbon-linked-roles",
+					description: "The linked roles package",
+					url: "/linked-roles",
+					icon: <Link size={24} />
 				}
 			]}
 		/>
