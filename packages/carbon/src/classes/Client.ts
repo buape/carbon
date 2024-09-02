@@ -18,6 +18,7 @@ import { ComponentHandler } from "../internals/ComponentHandler.js"
 export enum ClientMode {
 	NodeJS = "node",
 	CloudflareWorkers = "cloudflare",
+	Bun = "bun",
 	Vercel = "vercel",
 	Web = "web"
 }
@@ -26,12 +27,49 @@ export enum ClientMode {
  * The options used for initializing the client
  */
 export type ClientOptions = {
+	/**
+	 * If you want to have the root route for the interaction handler redirect to a different URL, you can set this.
+	 */
 	redirectUrl?: string
+	/**
+	 * The client ID of the bot
+	 */
 	clientId: string
+	/**
+	 * The public key of the bot, used for interaction verification
+	 */
 	publicKey: string
+	/**
+	 * The token of the bot
+	 */
 	token: string
+	/**
+	 * The mode of the client, generally where you are hosting the bot. If you have a different mode for your local development, make sure to set it to the local one.
+	 * @example
+	 * ```ts
+	 * import { Client, ClientMode } from "@buape/carbon"
+	 *
+	 * const client = new Client({
+	 * 	clientId: "12345678901234567890",
+	 * 	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
+	 * 	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE",
+	 * 	mode: process.env.NODE_ENV === "development" ? ClientMode.NodeJS : ClientMode.CloudflareWorkers
+	 * })
+	 * ```
+	 */
 	mode: ClientMode
+	/**
+	 * The options used to initialize the request client, if you want to customize it.
+	 */
 	requestOptions?: RequestClientOptions
+	/**
+	 * The port to run the server on, if you are using {@link ClientMode.Bun} mode.
+	 */
+	port?: number
+	/**
+	 * Whether the commands should be deployed to Discord automatically.
+	 */
+	autoDeploy?: boolean
 }
 
 /**
@@ -71,13 +109,17 @@ export class Client {
 		if (!options.token) throw new Error("Missing token")
 		this.options = options
 		this.commands = commands
+		const routerData =
+			this.options.mode === ClientMode.Bun && this.options.port
+				? { port: this.options.port }
+				: {}
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-		this.router = AutoRouter<IRequestStrict, any[], Response>()
+		this.router = AutoRouter<IRequestStrict, any[], Response>(routerData)
 		this.rest = new RequestClient(options.token, options.requestOptions)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)
 		this.setupRoutes()
-		if (this.options.mode === ClientMode.NodeJS) this.deployCommands()
+		if (this.options.autoDeploy) this.deployCommands()
 	}
 
 	/**
