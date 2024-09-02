@@ -12,6 +12,7 @@ import { Guild } from "../structures/Guild.js"
 import { Message } from "../structures/Message.js"
 import { User } from "../structures/User.js"
 import { Base } from "./Base.js"
+import { GuildMember } from "../structures/GuildMember.js"
 
 /**
  * The data to reply to an interaction
@@ -107,6 +108,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	get channel() {
 		if (!this.rawData.channel) return null
 		return channelFactory(this.client, this.rawData.channel as APIChannel)
+	}
+
+	get member() {
+		if (!this.rawData.member) return null
+		if (!this.guild) return null
+		return new GuildMember(this.client, this.rawData.member, this.guild)
 	}
 
 	/**

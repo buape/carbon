@@ -1,6 +1,7 @@
 import {
 	type APIChannel,
 	type APIGuild,
+	type APIGuildMember,
 	type APIRole,
 	type RESTPostAPIGuildRoleJSONBody,
 	Routes
@@ -9,6 +10,7 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { Role } from "./Role.js"
+import { GuildMember } from "./GuildMember.js"
 
 export class Guild extends Base {
 	/**
@@ -101,6 +103,16 @@ export class Guild extends Base {
 			}
 		})) as APIRole
 		return new Role(this.client, role)
+	}
+
+	/**
+	 * Get a member in the guild by ID
+	 */
+	async fetchMember(memberId: string) {
+		const member = (await this.client.rest.get(
+			Routes.guildMember(this.id, memberId)
+		)) as APIGuildMember
+		return new GuildMember(this.client, member, this)
 	}
 
 	/**
