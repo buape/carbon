@@ -1,8 +1,8 @@
-import { loaders } from "~/app/source"
-import { DocsPage, DocsBody } from "fumadocs-ui/page"
-import { notFound } from "next/navigation"
 import { DocsLayout } from "fumadocs-ui/layout"
+import { DocsBody, DocsPage } from "fumadocs-ui/page"
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
+import { loaders } from "~/app/source"
 import { Toggle } from "./toggle"
 
 export default async function Page({

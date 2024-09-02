@@ -1,18 +1,11 @@
-import defaultComponents from "fumadocs-ui/mdx"
-import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import { Callout } from "fumadocs-ui/components/callout"
 import {
-	Pre,
 	CodeBlock,
-	type CodeBlockProps
+	type CodeBlockProps,
+	Pre
 } from "fumadocs-ui/components/codeblock"
-import {
-	Children,
-	cloneElement,
-	type ComponentProps,
-	type ReactNode
-} from "react"
-import type { MDXComponents } from "mdx/types"
+import { Tab, Tabs } from "fumadocs-ui/components/tabs"
+import defaultComponents from "fumadocs-ui/mdx"
 import {
 	AlertCircle,
 	InfoIcon,
@@ -20,6 +13,13 @@ import {
 	OctagonXIcon,
 	TriangleAlert
 } from "lucide-react"
+import type { MDXComponents } from "mdx/types"
+import {
+	Children,
+	type ComponentProps,
+	type ReactNode,
+	cloneElement
+} from "react"
 
 type CalloutProps = ComponentProps<typeof Callout>
 
