@@ -1,6 +1,5 @@
 {
 	"name": "cloudo",
-	"version": "0.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"private": true,
