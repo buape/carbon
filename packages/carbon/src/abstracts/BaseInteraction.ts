@@ -58,7 +58,6 @@ export type InteractionFileData = {
 
 /**
  * This is the base type interaction, all interaction types extend from this
- * @abstract
  */
 export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	/**

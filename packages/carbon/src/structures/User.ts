@@ -29,7 +29,7 @@ export class User extends Base {
 	discriminator?: string
 	/**
 	 * The avatar hash of the user.
-	 * You can use {@link user.avatarUrl} to get the URL of the avatar.
+	 * You can use {@link User.avatarUrl} to get the URL of the avatar.
 	 */
 	avatar?: string | null
 	/**
@@ -47,7 +47,7 @@ export class User extends Base {
 	flags?: UserFlags
 	/**
 	 * The banner hash of the user.
-	 * You can use {@link user.bannerUrl} to get the URL of the banner.
+	 * You can use {@link User.bannerUrl} to get the URL of the banner.
 	 */
 	banner?: string | null
 	/**
@@ -57,7 +57,7 @@ export class User extends Base {
 
 	/**
 	 * Whether the user is a partial user (meaning it does not have all the data).
-	 * If this is true, you should use {@link user.fetch} to get the full data of the user.
+	 * If this is true, you should use {@link User.fetch} to get the full data of the user.
 	 */
 	partial: boolean
 

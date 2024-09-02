@@ -7,7 +7,6 @@ import type { BaseComponent } from "./BaseComponent.js"
 
 /**
  * Represents the base data of a command that the user creates
- * @abstract
  */
 export abstract class BaseCommand {
 	/**
