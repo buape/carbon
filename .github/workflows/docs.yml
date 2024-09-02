@@ -1,4 +1,4 @@
-name: Deploy Docs to GitHub Pages
+name: Deploy Website to GitHub Pages
 
 on:
     push:
@@ -6,8 +6,8 @@ on:
             - main
 
 jobs:
-    build:
-        name: Build Docusaurus
+    web:
+        name: Deploy Website
         runs-on: ubuntu-latest
         steps:
             - name: Check out code
@@ -17,7 +17,7 @@ jobs:
               uses: ./.github/actions/setup
 
             - name: Build website
-              run: pnpm run web:export
+              run: pnpm run web:build
 
             - name: Deploy to GitHub Pages
               uses: peaceiris/actions-gh-pages@v4
