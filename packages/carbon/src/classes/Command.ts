@@ -12,12 +12,16 @@ export type CommandOptions = APIApplicationCommandBasicOption[]
  * Represents a standard command that the user creates
  */
 export abstract class Command extends BaseCommand {
-	type = ApplicationCommandType.ChatInput
-
 	/**
 	 * The options that the user passes along with the command in Discord
 	 */
 	options?: CommandOptions
+
+	/**
+	 * The type of command, either ChatInput, User, or Message. User and Message are context menu commands.
+	 * @default ChatInput
+	 */
+	type: ApplicationCommandType = ApplicationCommandType.ChatInput
 
 	/**
 	 * The function that is called when the command is ran

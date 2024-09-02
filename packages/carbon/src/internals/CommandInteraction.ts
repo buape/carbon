@@ -18,7 +18,7 @@ import { OptionsHandler } from "./OptionsHandler.js"
 export class CommandInteraction extends BaseInteraction<APIApplicationCommandInteraction> {
 	/**
 	 * This is the options of the commands, parsed from the interaction data.
-	 * It is only available if the command is a {@link Command} class.
+	 * It is only available if the command is a {@link Command} class, and the command is a ChatInput command.
 	 */
 	options?: OptionsHandler
 	constructor(
@@ -30,11 +30,9 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 		if (data.type !== InteractionType.ApplicationCommand) {
 			throw new Error("Invalid interaction type was used to create this class")
 		}
-		if (data.data.type !== ApplicationCommandType.ChatInput) {
-			throw new Error("Invalid command type was used to create this class")
-		}
 		if (
 			command instanceof Command &&
+			data.data.type === ApplicationCommandType.ChatInput &&
 			!data.data.options?.find(
 				(x) =>
 					x.type === ApplicationCommandOptionType.Subcommand ||

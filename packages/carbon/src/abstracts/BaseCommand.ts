@@ -1,6 +1,6 @@
-import type {
+import {
 	ApplicationCommandType,
-	RESTPostAPIApplicationCommandsJSONBody
+	type RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import { ApplicationIntegrationType, InteractionContextType } from "../index.js"
 import type { BaseComponent } from "./BaseComponent.js"
@@ -63,12 +63,21 @@ export abstract class BaseCommand {
 	 * @internal
 	 */
 	serialize() {
-		const data: RESTPostAPIApplicationCommandsJSONBody & {
-			integration_types: ApplicationIntegrationType[]
-			contexts: InteractionContextType[]
-		} = {
+		// Only chat input commands can have descriptions
+		if (this.type === ApplicationCommandType.ChatInput) {
+			const data: RESTPostAPIApplicationCommandsJSONBody = {
+				name: this.name,
+				type: this.type,
+				description: this.description,
+				options: this.serializeOptions(),
+				integration_types: this.integrationTypes,
+				contexts: this.contexts
+			}
+
+			return data
+		}
+		const data: RESTPostAPIApplicationCommandsJSONBody = {
 			name: this.name,
-			description: this.description,
 			type: this.type,
 			options: this.serializeOptions(),
 			integration_types: this.integrationTypes,
