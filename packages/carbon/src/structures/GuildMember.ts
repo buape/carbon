@@ -1,9 +1,9 @@
 import type { APIGuildMember, GuildMemberFlags } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
-import type { Guild } from "./Guild.js"
 
 export class GuildMember extends Base {
 	/**

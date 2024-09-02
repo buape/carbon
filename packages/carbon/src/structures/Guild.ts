@@ -9,8 +9,8 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { channelFactory } from "../factories/channelFactory.js"
-import { Role } from "./Role.js"
 import { GuildMember } from "./GuildMember.js"
+import { Role } from "./Role.js"
 
 export class Guild extends Base {
 	/**

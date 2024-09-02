@@ -9,8 +9,8 @@ import { Base } from "../abstracts/Base.js"
 import { Command } from "../classes/Command.js"
 import { CommandWithSubcommandGroups } from "../classes/CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
-import { CommandInteraction } from "./CommandInteraction.js"
 import { AutocompleteInteraction } from "./AutocompleteInteraction.js"
+import { CommandInteraction } from "./CommandInteraction.js"
 
 export class CommandHandler extends Base {
 	private getCommand(

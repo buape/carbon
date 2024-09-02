@@ -9,10 +9,10 @@ import type { Client } from "../classes/Client.js"
 import type { Row } from "../classes/Row.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { Guild } from "../structures/Guild.js"
+import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
 import { User } from "../structures/User.js"
 import { Base } from "./Base.js"
-import { GuildMember } from "../structures/GuildMember.js"
 
 /**
  * The data to reply to an interaction
