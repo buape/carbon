@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.1.1
+
+### Patch Changes
+
+- 8438b8d: Add GuildMember structure
+
 ## 0.1.0
 
 ### Minor Changes
