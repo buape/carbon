@@ -3,6 +3,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
+	"private": true,
 	"scripts": {
 		"build": "wrangler deploy",
 		"dev": "wrangler deploy && wrangler tail"

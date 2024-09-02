@@ -4,12 +4,14 @@
 	"private": true,
 	"scripts": {
 		"build": "turbo run build",
+		"changeset": "changeset add",
 		"ci": "pnpm build --filter !cloudo --filter !rocko --filter !website",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter cloudo",
 		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !cloudo",
 		"generate": "turbo gen package",
 		"lint": "biome check . --write",
 		"preinstall": "npx only-allow pnpm",
+		"publish": "changeset version && pnpm run build && changeset publish",
 		"start": "turbo run start --filter !cloudo",
 		"test": "vitest",
 		"web": "pnpm run web:docs && turbo run web:dev",
@@ -21,6 +23,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
+		"@changesets/cli": "^2.27.7",
 		"@turbo/gen": "2.1.1",
 		"tsc-watch": "6.2.0",
 		"turbo": "2.1.1",
