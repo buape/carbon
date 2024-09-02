@@ -1,8 +1,8 @@
-import { join } from "node:path"
 import { readdirSync } from "node:fs"
-import { map } from "~/.map"
-import { createMDXSource } from "fumadocs-mdx"
+import { join } from "node:path"
 import { loader } from "fumadocs-core/source"
+import { createMDXSource } from "fumadocs-mdx"
+import { map } from "~/.map"
 
 const dirnameParts = __dirname.split("/")
 const docsDir = dirnameParts
