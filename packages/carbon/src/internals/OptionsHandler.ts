@@ -57,7 +57,8 @@ export class OptionsHandler extends Base {
 		const num = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Integer
 		)?.value
-		if (!num || !Number.isSafeInteger(num)) return undefined
+		if (!num || typeof num !== "number" || !Number.isSafeInteger(num))
+			return undefined
 		return num
 	}
 
