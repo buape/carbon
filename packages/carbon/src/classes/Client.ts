@@ -169,7 +169,7 @@ export class Client {
 	 * @param ctx Cloudflare Workers only. The execution context of the request, provided in the fetch handler from CF.
 	 * @returns A response to send back to the client.
 	 */
-	public async handle(req: IRequestStrict, ctx?: ExecutionContext) {
+	public async handle(req: Request, ctx?: ExecutionContext) {
 		const isValid = await this.validateInteraction(req)
 		if (!isValid) {
 			return new Response("Invalid request signature", { status: 401 })
@@ -226,7 +226,7 @@ export class Client {
 	 * Validate the interaction request
 	 * @param req The request to validate
 	 */
-	private async validateInteraction(req: IRequestStrict) {
+	private async validateInteraction(req: Request) {
 		if (req.method !== "POST") {
 			throw new StatusError(405)
 		}
