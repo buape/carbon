@@ -11,7 +11,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@buape/carbon-request": "workspace:*",
-		"discord-api-types": "0.37.98",
+		"discord-api-types": "0.37.99",
 		"discord-verify": "1.2.0",
 		"itty-router": "5.0.18"
 	}
