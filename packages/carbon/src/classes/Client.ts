@@ -59,6 +59,11 @@ export type ClientOptions = {
 	 */
 	mode: ClientMode
 	/**
+	 * The route to use for interactions on your server.
+	 * @default "/interaction"
+	 */
+	interactionRoute?: string
+	/**
 	 * The options used to initialize the request client, if you want to customize it.
 	 */
 	requestOptions?: RequestClientOptions
@@ -150,71 +155,71 @@ export class Client {
 				return Response.redirect(this.options.redirectUrl, 302)
 			throw new StatusError(404)
 		})
-		this.router.post("/interaction", async (req, ctx?: ExecutionContext) => {
-			const isValid = await this.validateInteraction(req)
-			if (!isValid) {
-				return new Response("Invalid request signature", { status: 401 })
+		this.router.post(
+			this.options.interactionRoute || "/interaction",
+			async (req, ctx?: ExecutionContext) => {
+				return await this.handle(req, ctx)
 			}
+		)
+	}
 
-			const rawInteraction = (await req.json()) as unknown as APIInteraction
-			if (rawInteraction.type === InteractionType.Ping) {
-				return json({
-					type: InteractionResponseType.Pong
-				})
-			}
+	/**
+	 * If you want use a custom handler for HTTP requests instead of Carbon's router, you can use this method.
+	 * @param req The request to handle
+	 * @param ctx Cloudflare Workers only. The execution context of the request, provided in the fetch handler from CF.
+	 * @returns A response to send back to the client.
+	 */
+	public async handle(req: IRequestStrict, ctx?: ExecutionContext) {
+		const isValid = await this.validateInteraction(req)
+		if (!isValid) {
+			return new Response("Invalid request signature", { status: 401 })
+		}
 
-			if (rawInteraction.type === InteractionType.ApplicationCommand) {
-				if (ctx?.waitUntil) {
-					ctx.waitUntil(
-						(async () => {
-							await this.commandHandler.handleCommandInteraction(rawInteraction)
-						})()
-					)
-				} else {
-					await this.commandHandler.handleCommandInteraction(rawInteraction)
-				}
+		const rawInteraction = (await req.json()) as unknown as APIInteraction
+		if (rawInteraction.type === InteractionType.Ping) {
+			return json({
+				type: InteractionResponseType.Pong
+			})
+		}
+
+		if (rawInteraction.type === InteractionType.ApplicationCommand) {
+			if (ctx?.waitUntil) {
+				ctx.waitUntil(
+					(async () => {
+						await this.commandHandler.handleCommandInteraction(rawInteraction)
+					})()
+				)
+			} else {
+				await this.commandHandler.handleCommandInteraction(rawInteraction)
 			}
-			if (
-				rawInteraction.type === InteractionType.ApplicationCommandAutocomplete
-			) {
-				if (ctx?.waitUntil) {
-					ctx.waitUntil(
-						(async () => {
-							await this.commandHandler.handleAutocompleteInteraction(
-								rawInteraction
-							)
-						})()
-					)
-				} else {
-					await this.commandHandler.handleAutocompleteInteraction(
-						rawInteraction
-					)
-				}
+		}
+		if (
+			rawInteraction.type === InteractionType.ApplicationCommandAutocomplete
+		) {
+			if (ctx?.waitUntil) {
+				ctx.waitUntil(
+					(async () => {
+						await this.commandHandler.handleAutocompleteInteraction(
+							rawInteraction
+						)
+					})()
+				)
+			} else {
+				await this.commandHandler.handleAutocompleteInteraction(rawInteraction)
 			}
-			if (rawInteraction.type === InteractionType.ApplicationCommand) {
-				if (ctx?.waitUntil) {
-					ctx.waitUntil(
-						(async () => {
-							await this.commandHandler.handleCommandInteraction(rawInteraction)
-						})()
-					)
-				} else {
-					await this.commandHandler.handleCommandInteraction(rawInteraction)
-				}
+		}
+		if (rawInteraction.type === InteractionType.MessageComponent) {
+			if (ctx?.waitUntil) {
+				ctx.waitUntil(
+					(async () => {
+						await this.componentHandler.handleInteraction(rawInteraction)
+					})()
+				)
+			} else {
+				await this.componentHandler.handleInteraction(rawInteraction)
 			}
-			if (rawInteraction.type === InteractionType.MessageComponent) {
-				if (ctx?.waitUntil) {
-					ctx.waitUntil(
-						(async () => {
-							await this.componentHandler.handleInteraction(rawInteraction)
-						})()
-					)
-				} else {
-					await this.componentHandler.handleInteraction(rawInteraction)
-				}
-			}
-			return new Response(null, { status: 202 })
-		})
+		}
+		return new Response(null, { status: 202 })
 	}
 
 	/**

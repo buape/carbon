@@ -1,0 +1,27 @@
+---
+title: Custom Router
+---
+
+If you want to use a custom router for your bot, you can use the `handle` method on the client.
+
+```js title="index.js"
+import { Client, ClientMode } from "@buape/carbon"
+import { AutoRouter } from 'itty-router'
+
+const client = new Client({
+	clientId: "12345678901234567890",
+	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
+	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE",
+	mode: ClientMode.NodeJS
+})
+
+const router = AutoRouter()
+router.get("/", () => {
+	return new Response("Hello world")
+})
+
+router.post("/interaction", async (req) => {
+	return await client.handle(req)
+})
+```
+
