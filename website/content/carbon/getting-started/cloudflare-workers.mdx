@@ -137,6 +137,15 @@ const client = new Client(
 )
 ```
 
+Finally, we need to add a way to deploy your commands to Discord. We can do this by adding a deploy route to our client.
+Add this right above the `client.router.fetch` line:
+```ts title="src/index.ts"
+client.router.get("/deploy", () => {
+	return client.deployCommands()
+})
+```
+
+
 And that's it! You now have a basic Carbon bot running on Cloudflare Workers.
 If you want to add more commands, just create more classes in the `src/commands` folder, and add them to the client in the `src/index.ts` file.
 
