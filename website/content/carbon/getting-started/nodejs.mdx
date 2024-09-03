@@ -23,8 +23,8 @@ Node.js is a popular choice for running your bot, and has first-class support fr
 ## Getting Started
 
 ### Installation 
-First, we need to install Carbon and its NodeJS package, as well as env-cmd to help us set our environment variables.
-<CommandTabs command="add" args={["@buape/carbon", "@buape/carbon-nodejs", "env-cmd"]} />
+First, we need to install Carbon and its NodeJS package, as well as env-cmd to help us set our environment variables, and the typings for node.
+<CommandTabs command="add" args={["@buape/carbon @buape/carbon-nodejs env-cmd @types/node"]} />
 
 ### Setting up your .env
 
@@ -64,9 +64,6 @@ const client = new Client(
 		publicKey: process.env.PUBLIC_KEY,
 		token: process.env.DISCORD_TOKEN,
 		mode: ClientMode.NodeJS,
-		requestOptions: {
-			queueRequests: false
-		}
 	},
 	await loadCommands("commands", __dirname)
 )
@@ -105,7 +102,7 @@ const client = new Client(
 		clientId: env.CLIENT_ID,
 		publicKey: env.PUBLIC_KEY,
 		token: env.DISCORD_TOKEN,
-		mode: ClientMode.CloudflareWorkers
+		mode: ClientMode.NodeJS,
 	},
 	await loadCommands("commands", __dirname)
 )
