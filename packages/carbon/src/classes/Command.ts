@@ -5,8 +5,7 @@ import {
 import {
 	type AutocompleteInteraction,
 	BaseCommand,
-	type CommandInteraction,
-	type BaseComponent
+	type CommandInteraction
 } from "../index.js"
 
 export type CommandOptions = APIApplicationCommandBasicOption[]
@@ -25,12 +24,6 @@ export abstract class Command extends BaseCommand {
 	 * @default ChatInput
 	 */
 	type: ApplicationCommandType = ApplicationCommandType.ChatInput
-
-	/**
-	 * All the components that the command is able to use.
-	 * You mount these here so the handler can access them
-	 */
-	components?: BaseComponent[] = []
 
 	/**
 	 * The function that is called when the command is ran

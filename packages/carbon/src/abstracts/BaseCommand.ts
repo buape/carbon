@@ -2,7 +2,11 @@ import {
 	ApplicationCommandType,
 	type RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
-import { ApplicationIntegrationType, InteractionContextType } from "../index.js"
+import {
+	ApplicationIntegrationType,
+	type BaseComponent,
+	InteractionContextType
+} from "../index.js"
 
 /**
  * Represents the base data of a command that the user creates
@@ -45,6 +49,12 @@ export abstract class BaseCommand {
 		InteractionContextType.BotDM,
 		InteractionContextType.PrivateChannel
 	]
+
+	/**
+	 * All the components that the command is able to use.
+	 * You mount these here so the handler can access them
+	 */
+	components?: BaseComponent[] = []
 
 	/**
 	 * All the paginators that the command is able to use.
