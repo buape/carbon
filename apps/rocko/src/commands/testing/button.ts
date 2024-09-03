@@ -12,6 +12,7 @@ export default class ButtonCommand extends Command {
 	name = "button"
 	description = "A simple command with a button!"
 	defer = true
+	components = [new PingButton(), new Link()]
 
 	async run(interaction: CommandInteraction) {
 		await interaction.reply({

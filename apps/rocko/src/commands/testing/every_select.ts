@@ -18,6 +18,13 @@ export default class SelectCommand extends Command {
 	name = "every_select"
 	description = "Send every select menu"
 	defer = true
+	components = [
+		new StringSelect(),
+		new RoleSelect(),
+		new MentionableSelect(),
+		new ChannelSelect(),
+		new UserSelect()
+	]
 
 	async run(interaction: CommandInteraction) {
 		interaction.reply({
