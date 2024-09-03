@@ -90,7 +90,8 @@ export default {
 				publicKey: env.PUBLIC_KEY,
 				token: env.DISCORD_TOKEN,
 				mode: ClientMode.CloudflareWorkers
-			}
+			},
+			[]
 		)
 		// This is how you pass control from your cf worker to Carbon. Make sure you pass the ctx part as well, so that awaits work properly within Carbon.
 		const response = await client.router.fetch(request, ctx)
