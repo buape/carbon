@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.1.3
+
+### Patch Changes
+
+- fix: use Request instead of IRequestStrict for Client#handle
+
 ## 0.1.2
 
 ### Patch Changes
