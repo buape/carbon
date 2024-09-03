@@ -21,7 +21,7 @@ export default class Options extends Command {
 
 	async run(interaction: CommandInteraction) {
 		interaction.reply({
-			content: `${interaction.options.str}`
+			content: `${interaction.options?.getString("str")}`
 		})
 	}
 }
