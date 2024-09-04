@@ -5,14 +5,17 @@ import {
 	type InteractionType,
 	Routes
 } from "discord-api-types/v10"
-import type { Client } from "../classes/Client.js"
-import type { Row } from "../classes/Row.js"
-import { channelFactory } from "../factories/channelFactory.js"
-import { Guild } from "../structures/Guild.js"
+import {
+	Base,
+	channelFactory,
+	type Client,
+	Guild,
+	Message,
+	type Row,
+	User,
+	type Modal
+} from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
-import { Message } from "../structures/Message.js"
-import { User } from "../structures/User.js"
-import { Base } from "./Base.js"
 
 /**
  * The data to reply to an interaction
@@ -184,6 +187,21 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				body: {
 					type: InteractionResponseType.DeferredChannelMessageWithSource,
 					ephemeral: this.defaultEphemeral
+				}
+			}
+		)
+	}
+
+	async showModal(modal: Modal) {
+		if (this._deferred)
+			throw new Error("You cannot defer an interaction that shows a modal")
+		this.client.modalHandler.registerModal(modal)
+		await this.client.rest.post(
+			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			{
+				body: {
+					type: InteractionResponseType.Modal,
+					data: modal.serialize()
 				}
 			}
 		)

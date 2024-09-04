@@ -10,6 +10,7 @@ import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
+import { ModalHandler } from "../internals/ModalHandler.js"
 
 /**
  * The mode that the client is running in.
@@ -99,9 +100,19 @@ export class Client {
 	rest: RequestClient
 	/**
 	 * The handler for the component interactions sent from Discord
+	 * @internal
 	 */
 	componentHandler: ComponentHandler
+	/**
+	 * The handler for the modal interactions sent from Discord
+	 * @internal
+	 */
 	commandHandler: CommandHandler
+	/**
+	 * The handler for the modal interactions sent from Discord
+	 * @internal
+	 */
+	modalHandler: ModalHandler
 
 	/**
 	 * Creates a new client
@@ -123,6 +134,7 @@ export class Client {
 		this.rest = new RequestClient(options.token, options.requestOptions)
 		this.componentHandler = new ComponentHandler(this)
 		this.commandHandler = new CommandHandler(this)
+		this.modalHandler = new ModalHandler(this)
 		this.setupRoutes()
 		if (this.options.autoDeploy) this.deployCommands()
 	}
@@ -217,6 +229,17 @@ export class Client {
 				)
 			} else {
 				await this.componentHandler.handleInteraction(rawInteraction)
+			}
+		}
+		if (rawInteraction.type === InteractionType.ModalSubmit) {
+			if (ctx?.waitUntil) {
+				ctx.waitUntil(
+					(async () => {
+						await this.modalHandler.handleInteraction(rawInteraction)
+					})()
+				)
+			} else {
+				await this.modalHandler.handleInteraction(rawInteraction)
 			}
 		}
 		return new Response(null, { status: 202 })

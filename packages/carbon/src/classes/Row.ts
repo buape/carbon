@@ -1,12 +1,16 @@
+import type {
+	APIActionRowComponent,
+	APIActionRowComponentTypes
+} from "discord-api-types/v10"
 import type { BaseComponent } from "../abstracts/BaseComponent.js"
 
-export class Row {
+export class Row<T extends BaseComponent = BaseComponent> {
 	/**
 	 * The components in the action row
 	 */
-	components: BaseComponent[] = []
+	components: T[] = []
 
-	constructor(components?: BaseComponent[]) {
+	constructor(components?: T[]) {
 		if (components) this.components = components
 	}
 
@@ -14,7 +18,7 @@ export class Row {
 	 * Add a component to the action row
 	 * @param component The component to add
 	 */
-	addComponent(component: BaseComponent) {
+	addComponent(component: T) {
 		this.components.push(component)
 	}
 
@@ -22,7 +26,7 @@ export class Row {
 	 * Remove a component from the action row
 	 * @param component The component to remove
 	 */
-	removeComponent(component: BaseComponent) {
+	removeComponent(component: T) {
 		const index = this.components.indexOf(component)
 		if (index === -1) return
 		this.components.splice(index, 1)
@@ -35,10 +39,12 @@ export class Row {
 		this.components = []
 	}
 
-	serialize() {
+	serialize = (): APIActionRowComponent<APIActionRowComponentTypes> => {
 		return {
 			type: 1,
-			components: this.components.map((component) => component.serialize())
+			components: this.components.map((component) =>
+				component.serialize()
+			) as APIActionRowComponentTypes[]
 		}
 	}
 }
