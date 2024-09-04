@@ -25,7 +25,8 @@ const client = new Client(
 		mode: ClientMode.NodeJS,
 		requestOptions: {
 			queueRequests: false
-		}
+		},
+		autoDeploy: true
 	},
 	await loadCommands("commands", __dirname)
 )
