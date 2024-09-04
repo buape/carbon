@@ -36,6 +36,10 @@ export type InteractionReplyOptions = {
 	 * The files to send in the interaction
 	 */
 	files?: InteractionFileData[]
+	/**
+	 * Whether the interaction should be ephemeral
+	 */
+	ephemeral?: boolean
 }
 
 /**
@@ -80,12 +84,15 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 */
 	_deferred = false
 
-	constructor(client: Client, data: T) {
+	private defaultEphemeral = false
+
+	constructor(client: Client, data: T, defaults: { ephemeral?: boolean } = {}) {
 		super(client)
 		this.rawData = data
 		this.type = data.type
 		this.userId =
 			this.rawData.user?.id || this.rawData.member?.user.id || undefined
+		if (defaults.ephemeral) this.defaultEphemeral = defaults.ephemeral
 	}
 
 	get message(): Message | null {
@@ -125,6 +132,11 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
+		data.components?.map((row) => {
+			row.components.map((component) => {
+				this.client.componentHandler.registerComponent(component)
+			})
+		})
 		if (this._deferred) {
 			await this.client.rest.patch(
 				Routes.webhookMessage(
@@ -148,7 +160,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 						type: InteractionResponseType.ChannelMessageWithSource,
 						data: {
 							...data,
-							components: data.components?.map((row) => row.serialize())
+							components: data.components?.map((row) => row.serialize()),
+							ephemeral: options.ephemeral ?? this.defaultEphemeral
 						}
 					},
 					files: options.files
@@ -169,7 +182,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
 				body: {
-					type: InteractionResponseType.DeferredChannelMessageWithSource
+					type: InteractionResponseType.DeferredChannelMessageWithSource,
+					ephemeral: this.defaultEphemeral
 				}
 			}
 		)

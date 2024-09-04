@@ -76,6 +76,10 @@ export class CommandHandler extends Base {
 
 		throw new Error("Command is not a valid command type")
 	}
+	/**
+	 * Handle a command interaction
+	 * @internal
+	 */
 	async handleCommandInteraction(
 		rawInteraction: APIApplicationCommandInteraction
 	) {

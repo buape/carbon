@@ -4,10 +4,10 @@ export class Row {
 	/**
 	 * The components in the action row
 	 */
-	components: BaseComponent[]
+	components: BaseComponent[] = []
 
-	constructor(components: BaseComponent[]) {
-		this.components = components
+	constructor(components?: BaseComponent[]) {
+		if (components) this.components = components
 	}
 
 	/**

@@ -19,11 +19,22 @@ import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
 import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
 export class ComponentHandler extends Base {
+	components: BaseComponent[] = []
+	/**
+	 * Register a component with the handler
+	 * @internal
+	 */
+	registerComponent(component: BaseComponent) {
+		if (!this.components.find((x) => x.customId === component.customId)) {
+			this.components.push(component)
+		}
+	}
+	/**
+	 * Handle an interaction
+	 * @internal
+	 */
 	async handleInteraction(data: APIMessageComponentInteraction) {
-		const allComponents = this.client.commands
-			.filter((x) => x.components && x.components.length > 0)
-			.flatMap((x) => x.components) as BaseComponent[]
-		const component = allComponents.find(
+		const component = this.components.find(
 			(x) =>
 				x.customId === data.data.custom_id &&
 				x.type === data.data.component_type
