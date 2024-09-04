@@ -1,5 +1,15 @@
 # @buape/carbon
 
+## 0.2.0
+
+### Minor Changes
+
+- ad9666b: feat: Modal support
+
+### Patch Changes
+
+- 9e93027: feat: make components automatically registered
+
 ## 0.1.3
 
 ### Patch Changes

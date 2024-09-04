@@ -1,5 +1,14 @@
 # @buape/carbon-nodejs
 
+## 0.1.4
+
+### Patch Changes
+
+- 0b69408: deps: update dependency @types/node to v22.5.2
+- Updated dependencies [9e93027]
+- Updated dependencies [ad9666b]
+  - @buape/carbon@0.2.0
+
 ## 0.1.3
 
 ### Patch Changes
