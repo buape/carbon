@@ -3,9 +3,9 @@ import type {
 	APIModalInteractionResponseCallbackData,
 	APITextInputComponent
 } from "discord-api-types/v10"
+import type { ModalInteraction } from "../internals/ModalInteraction.js"
 import type { Row } from "./Row.js"
 import type { TextInput } from "./TextInput.js"
-import type { ModalInteraction } from "../internals/ModalInteraction.js"
 
 export abstract class Modal {
 	/**

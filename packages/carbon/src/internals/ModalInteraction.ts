@@ -1,6 +1,6 @@
 import {
-	ComponentType,
-	type APIModalSubmitInteraction
+	type APIModalSubmitInteraction,
+	ComponentType
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../index.js"

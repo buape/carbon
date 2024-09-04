@@ -7,13 +7,13 @@ import {
 } from "discord-api-types/v10"
 import {
 	Base,
-	channelFactory,
 	type Client,
 	Guild,
 	Message,
+	type Modal,
 	type Row,
 	User,
-	type Modal
+	channelFactory
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 
