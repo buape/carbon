@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon-linked-roles",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"scripts": {
@@ -12,5 +12,8 @@
 	"dependencies": {
 		"@buape/carbon": "workspace:^"
 	},
-	"files": ["dist", "LICENSE"]
+	"files": [
+		"dist",
+		"LICENSE"
+	]
 }

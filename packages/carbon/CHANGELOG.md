@@ -1,5 +1,14 @@
 # @buape/carbon
 
+## 0.3.0
+
+### Minor Changes
+
+- f8b608f: fix: new interaction verification
+- 50c8200: feat: add ComponentInteraction#acknowledge
+- a15bf55: feat: add fields handler
+- 51d84c3: feat: add overloads for a required type for options and fields
+
 ## 0.2.0
 
 ### Minor Changes
