@@ -12,5 +12,6 @@
 	"dependencies": {},
 	"engines": {
 		"node": ">=18"
-	}
+	},
+	"files": ["dist", "LICENSE"]
 }

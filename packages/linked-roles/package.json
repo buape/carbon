@@ -10,6 +10,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@buape/carbon": "workspace:*"
-	}
+		"@buape/carbon": "workspace:^"
+	},
+	"files": ["dist", "LICENSE"]
 }
