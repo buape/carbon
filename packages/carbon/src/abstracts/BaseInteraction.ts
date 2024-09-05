@@ -192,6 +192,10 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		)
 	}
 
+	/**
+	 * Show a modal to the user
+	 * This can only be used if the interaction is not deferred
+	 */
 	async showModal(modal: Modal) {
 		if (this._deferred)
 			throw new Error("You cannot defer an interaction that shows a modal")
