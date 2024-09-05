@@ -1,10 +1,14 @@
 {
 	"root": true,
 	"pages": [
+		"--- Carbon---",
 		"index",
-		"--- Usage ---",
 		"getting-started",
 		"...",
+		"--- Usage ---",
+		"classes",
+		"helpful-guides",
+		"even-more",
 		"--- API Reference ---",
 		"...api"
 	]
