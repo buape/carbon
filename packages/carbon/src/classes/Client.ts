@@ -10,7 +10,7 @@ import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
-import { valueToUint8Array, concatUint8Arrays, subtleCrypto } from "../utils.js"
+import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
 
 /**
  * The mode that the client is running in.

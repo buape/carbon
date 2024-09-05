@@ -32,9 +32,14 @@ export class FieldsHandler extends Base {
 	 * @param key The name of the input to get the value of.
 	 * @returns The value of the input, or undefined if the input was not provided.
 	 */
-	public getText(key: string) {
+	public getText(key: string, required?: false): string | undefined
+	public getText(key: string, required: true): string
+	public getText(key: string, required = false) {
 		const value = this.raw[key]
-		if (!value || typeof value !== "string") return undefined
+		if (required) {
+			if (!value || typeof value !== "string")
+				throw new Error(`Missing required field: ${key}`)
+		} else if (!value || typeof value !== "string") return undefined
 		return value
 	}
 }

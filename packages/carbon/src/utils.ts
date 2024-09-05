@@ -57,7 +57,7 @@ export function valueToUint8Array(
 		if (Buffer.isBuffer(value)) {
 			return new Uint8Array(value)
 		}
-	} catch (_){}
+	} catch (_) {}
 	if (value instanceof ArrayBuffer) {
 		return new Uint8Array(value)
 	}

@@ -1,8 +1,8 @@
 import {
-	InteractionResponseType,
-	Routes,
 	type APIMessageComponentInteraction,
-	type ComponentType
+	type ComponentType,
+	InteractionResponseType,
+	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"

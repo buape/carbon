@@ -38,79 +38,128 @@ export class OptionsHandler extends Base {
 	/**
 	 * Get the value of a string option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getString(key: string) {
+	public getString(key: string, required?: false): string | undefined
+	public getString(key: string, required: true): string
+	public getString(key: string, required = false): string | undefined {
 		const value = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.String
 		)?.value
-		if (!value || typeof value !== "string") return undefined
+		if (required) {
+			if (!value || typeof value !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!value || typeof value !== "string") return undefined
 		return value
 	}
 
 	/**
 	 * Get the value of an integer option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getInteger(key: string) {
-		const num = this.raw.find(
+	public getInteger(key: string, required?: false): number | undefined
+	public getInteger(key: string, required: true): number
+	public getInteger(key: string, required = false): number | undefined {
+		const value = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Integer
 		)?.value
-		if (!num || typeof num !== "number" || !Number.isSafeInteger(num))
+		if (required) {
+			if (!value || typeof value !== "number" || !Number.isSafeInteger(value))
+				throw new Error(`Missing required option: ${key}`)
+		} else if (
+			!value ||
+			typeof value !== "number" ||
+			!Number.isSafeInteger(value)
+		)
 			return undefined
-		return num
+		return value
 	}
 
 	/**
 	 * Get the value of a number option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getNumber(key: string) {
+	public getNumber(key: string, required?: false): number | undefined
+	public getNumber(key: string, required: true): number
+	public getNumber(key: string, required = false): number | undefined {
 		const value = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Number
 		)?.value
-		if (!value || typeof value !== "number") return undefined
+		if (required) {
+			if (!value || typeof value !== "number")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!value || typeof value !== "number") return undefined
 		return value
 	}
 
 	/**
 	 * Get the value of a boolean option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getBoolean(key: string) {
+	public getBoolean(key: string, required?: false): boolean | undefined
+	public getBoolean(key: string, required: true): boolean
+	public getBoolean(key: string, required = false): boolean | undefined {
 		const value = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Boolean
 		)?.value
-		if (!value || typeof value !== "boolean") return undefined
+		if (required) {
+			if (!value || typeof value !== "boolean")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!value || typeof value !== "boolean") return undefined
 		return value
 	}
 
 	/**
 	 * Get the value of a user option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getUser(key: string) {
+	public getUser(key: string, required?: false): User | undefined
+	public getUser(key: string, required: true): User
+	public getUser(key: string, required = false): User | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
 		)?.value
-		if (!id || typeof id !== "string") return undefined
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
 		return new User(this.client, id)
 	}
 
 	/**
 	 * Get the value of a channel option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public async getChannel(key: string) {
+	public async getChannel(
+		key: string,
+		required?: false
+	): Promise<ReturnType<typeof channelFactory> | undefined>
+	public async getChannel(
+		key: string,
+		required: true
+	): Promise<ReturnType<typeof channelFactory>>
+	public async getChannel(
+		key: string,
+		required = false
+	): Promise<ReturnType<typeof channelFactory> | undefined> {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
 		)?.value
-		if (!id || typeof id !== "string") return undefined
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
 		const data = (await this.client.rest.get(Routes.channel(id))) as APIChannel
 		return channelFactory(this.client, data)
 	}
@@ -118,27 +167,45 @@ export class OptionsHandler extends Base {
 	/**
 	 * Get the value of a role option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getRole(key: string): Role | undefined {
+	public getRole(key: string, required?: false): Role | undefined
+	public getRole(key: string, required: true): Role
+	public getRole(key: string, required = false): Role | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Role
 		)?.value
-		if (!id || typeof id !== "string") return undefined
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
 		return new Role(this.client, id)
 	}
 
 	/**
 	 * Get the value of a mentionable option.
 	 * @param key The name of the option to get the value of.
-	 * @returns The value of the option, or undefined if the option was not provided.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public async getMentionable(key: string): Promise<User | Role | undefined> {
+	public async getMentionable(
+		key: string,
+		required?: false
+	): Promise<User | Role | undefined>
+	public async getMentionable(key: string, required: true): Promise<User | Role>
+	public async getMentionable(
+		key: string,
+		required = false
+	): Promise<User | Role | undefined> {
 		const id = this.raw.find(
 			(x) =>
 				x.name === key && x.type === ApplicationCommandOptionType.Mentionable
 		)?.value
-		if (!id || typeof id !== "string") return undefined
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
 		const user = new User(this.client, id)
 		await user.fetch().catch(() => {
 			return new Role(this.client, id)
