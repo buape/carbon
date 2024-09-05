@@ -5,12 +5,12 @@ import {
 	InteractionType,
 	Routes
 } from "discord-api-types/v10"
-import { PlatformAlgorithm, isValidRequest } from "discord-verify"
 import { AutoRouter, type IRequestStrict, StatusError, json } from "itty-router"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
+import { valueToUint8Array, concatUint8Arrays, subtleCrypto } from "../utils.js"
 
 /**
  * The mode that the client is running in.
@@ -250,21 +250,37 @@ export class Client {
 	 * @param req The request to validate
 	 */
 	private async validateInteraction(req: Request) {
-		if (req.method !== "POST") {
-			throw new StatusError(405)
+		const body = await req.clone().text()
+		const signature = req.headers.get("X-Signature-Ed25519")
+		const timestamp = req.headers.get("X-Signature-Timestamp")
+		if (!timestamp || !signature || req.method !== "POST" || !body) {
+			throw new StatusError(401)
 		}
-		const isValid = await isValidRequest(
-			req,
-			this.options.publicKey,
-			this.options.mode === ClientMode.CloudflareWorkers
-				? PlatformAlgorithm.Cloudflare
-				: this.options.mode === ClientMode.Vercel
-					? PlatformAlgorithm.VercelProd
-					: this.options.mode === ClientMode.Web
-						? PlatformAlgorithm.Web
-						: PlatformAlgorithm.NewNode
-		)
-		return isValid
+		try {
+			const timestampData = valueToUint8Array(timestamp)
+			const bodyData = valueToUint8Array(body)
+			const message = concatUint8Arrays(timestampData, bodyData)
+			const isValid = await subtleCrypto.verify(
+				{
+					name: "ed25519"
+				},
+				await subtleCrypto.importKey(
+					"raw",
+					valueToUint8Array(this.options.publicKey, "hex"),
+					{
+						name: "ed25519",
+						namedCurve: "ed25519"
+					},
+					false,
+					["verify"]
+				),
+				valueToUint8Array(signature, "hex"),
+				message
+			)
+			return isValid
+		} catch (_) {
+			return false
+		}
 	}
 }
 

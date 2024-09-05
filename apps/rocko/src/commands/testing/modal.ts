@@ -31,7 +31,7 @@ class TestModal extends Modal {
 
 	run(interaction: ModalInteraction) {
 		return interaction.reply({
-			content: `Hi ${interaction.values.name}, you are ${interaction.values.age} years old, and your favorite color is ${interaction.values.color}. You are ${interaction.values.height || "not"} tall.`
+			content: `Hi ${interaction.fields.getText("name")}, you are ${interaction.fields.getText("age")} years old, and your favorite color is ${interaction.fields.getText("color")}. You are ${interaction.fields.getText("height") || "not"} tall.`
 		})
 	}
 }
