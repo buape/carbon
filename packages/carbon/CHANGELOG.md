@@ -1,5 +1,12 @@
 # @buape/carbon
 
+## 0.3.2
+
+### Patch Changes
+
+- dcf5b44: feat: add support for interaction#acknowledge for modals
+- c8e7c1c: feat: add followup messages for interactions
+
 ## 0.3.1
 
 ### Patch Changes

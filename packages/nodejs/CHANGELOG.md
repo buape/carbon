@@ -1,5 +1,13 @@
 # @buape/carbon-nodejs
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [dcf5b44]
+- Updated dependencies [c8e7c1c]
+  - @buape/carbon@0.3.2
+
 ## 0.1.6
 
 ### Patch Changes

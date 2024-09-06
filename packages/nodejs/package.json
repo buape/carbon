@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon-nodejs",
-	"version": "0.1.6",
+	"version": "0.1.7",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"scripts": {
