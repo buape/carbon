@@ -31,7 +31,7 @@ export default function Page({
 	return (
 		<DocsLayout {...docsOptions}>
 			<DocsPage
-				toc={page.data.toc}
+				toc={page.data.toc.filter((x) => x.depth <= 3)}
 				lastUpdate={page.data.lastModified}
 				full={page.data.full}
 				editOnGithub={{

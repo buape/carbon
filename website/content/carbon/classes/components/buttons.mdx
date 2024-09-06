@@ -1,5 +1,54 @@
 ---
 title: Buttons
+description: Buttons appear below messages and can be used to trigger actions or link to external sources.
 ---
 
-Coming soon!
+Buttons appear below messages and can be used to trigger actions or link to external sources.
+
+## Creating a Button
+
+To create a button, you need to create a class that extends the `Button` class. This class will handle the button and its functionality.
+
+```ts title="src/buttons/ping.ts"
+import { Button, type ButtonInteraction } from "@buape/carbon"
+
+export default class PingButton extends Button {
+	customId = "ping"
+	label = "Ping"
+
+	async run(interaction: ButtonInteraction) {
+		return interaction.reply({
+			content: "Pong <:caughtIn4k:1145473115703496816>"
+		})
+	}
+}
+```
+
+In this example, we have created a simple button that responds with "Pong" when the user clicks on it.
+
+The custom ID is what is set on the button to differentiate it from other buttons. You cannot have the same custom ID for multiple buttons in a message sent to Discord.
+
+### Setting the Style
+
+The `style` property is used to set the style of the button. This is used to determine the style of the button. The available styles are:
+
+- `Primary`: A blurple colored button
+- `Secondary`: A gray colored button
+- `Success`: A green colored button
+- `Danger`: A red colored button
+- `Link`: A gray button solely used for links
+
+## Link Buttons
+
+Link buttons are used to link to external sources. They are created by extending the [`LinkButton`](/carbon/api/classes/LinkButton) class, and adding a `url` property.
+
+```ts title="src/buttons/link.ts"
+import { Button, type ButtonInteraction } from "@buape/carbon"
+
+export default class LinkButton extends Button {
+	label = "Link"
+	url = "https://buape.com"
+}
+```
+
+Note that these buttons do not trigger any actions on the bot side, and are only used to link to external sources.

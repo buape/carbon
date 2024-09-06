@@ -1,5 +1,36 @@
 ---
 title: Modals
+description: Modals are popup forms that can be used to collect user input
 ---
 
-Coming soon!
+Modals are popup forms that can be used to collect user input. They are created by extending the [`Modal`](/carbon/api/classes/Modal) class, and adding a `title` and `components` property. All the components must be [`TextInput`](/carbon/classes/TextInput) classes.
+
+```ts title="src/commands/modal.ts"
+class ModalCommand extends Modal {
+	title = "Test Modal"
+	customId = "test-modal"
+
+	components = [
+		new Row([new TextInputHi()]),
+		new Row([new TextInputAge()])
+	]
+
+	run(interaction: ModalInteraction) {
+		return interaction.reply({
+			content: `Hi ${interaction.fields.getText("name")}, you are ${interaction.fields.getText("age")} years old, and your favorite color is ${interaction.fields.getText("color")}. You are ${interaction.fields.getText("height") || "not"} tall.`
+		})
+	}
+}
+class TextInputHi extends TextInput {
+	label = "Tell me about your life"
+	customId = "life"
+	style = TextInputStyle.Paragraph
+}
+
+class TextInputAge extends TextInput {
+	label = "How old are you?"
+	customId = "age"
+	style = TextInputStyle.Short
+}
+```
+

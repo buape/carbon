@@ -14,7 +14,5 @@ export const utils = loader({
 	source: createMDXSource(docs, meta)
 })
 
-console.log(utils.pageTree)
-
 export type Page = InferPageType<typeof utils>
 export type Meta = InferMetaType<typeof utils>

@@ -2,17 +2,17 @@ import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 import { ImageZoom } from "fumadocs-ui/components/image-zoom"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import defaultComponents from "fumadocs-ui/mdx"
-import { Package, Code, CloudLightning, Award } from "lucide-react"
+import { CirclePlay, Code, Library, Heart } from "lucide-react"
 
 import type { MDXComponents } from "mdx/types"
 
 export function useMDXComponents(): MDXComponents {
 	return {
 		...defaultComponents,
-		Package,
+		CirclePlay,
 		Code,
-		CloudLightning,
-		Award,
+		Library,
+		Heart,
 		pre: ({ ref: _ref, ...props }) => (
 			<CodeBlock {...props}>
 				<Pre>{props.children}</Pre>
