@@ -1,6 +1,7 @@
 import {
 	InteractionResponseType,
 	Routes,
+	type RESTPostAPIInteractionCallbackJSONBody,
 	type APIModalSubmitInteraction
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
@@ -28,7 +29,7 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 			{
 				body: {
 					type: InteractionResponseType.DeferredMessageUpdate
-				}
+				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}

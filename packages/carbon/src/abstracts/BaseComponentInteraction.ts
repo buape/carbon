@@ -2,6 +2,7 @@ import {
 	type APIMessageComponentInteraction,
 	type ComponentType,
 	InteractionResponseType,
+	type RESTPostAPIInteractionCallbackJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
@@ -29,7 +30,7 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 			{
 				body: {
 					type: InteractionResponseType.DeferredMessageUpdate
-				}
+				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}

@@ -3,6 +3,9 @@ import {
 	type APIInteraction,
 	InteractionResponseType,
 	type InteractionType,
+	type RESTPatchAPIInteractionOriginalResponseJSONBody,
+	type RESTPostAPIInteractionCallbackJSONBody,
+	type RESTPostAPIInteractionFollowupJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import {
@@ -160,8 +163,9 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				{
 					body: {
 						...data,
+						embeds: data.embeds?.map((embed) => embed.serialize()),
 						components: data.components?.map((row) => row.serialize())
-					},
+					} as RESTPatchAPIInteractionOriginalResponseJSONBody,
 					files: options.files
 				}
 			)
@@ -173,10 +177,11 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 						type: InteractionResponseType.ChannelMessageWithSource,
 						data: {
 							...data,
+							embeds: data.embeds?.map((embed) => embed.serialize()),
 							components: data.components?.map((row) => row.serialize()),
-							ephemeral: options.ephemeral ?? this.defaultEphemeral
+							flags: options.ephemeral ? 64 : undefined
 						}
-					},
+					} as RESTPostAPIInteractionCallbackJSONBody,
 					files: options.files
 				}
 			)
@@ -196,8 +201,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			{
 				body: {
 					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					ephemeral: this.defaultEphemeral
-				}
+					flags: this.defaultEphemeral ? 64 : undefined
+				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}
@@ -216,7 +221,27 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				body: {
 					type: InteractionResponseType.Modal,
 					data: modal.serialize()
-				}
+				} as RESTPostAPIInteractionCallbackJSONBody
+			}
+		)
+	}
+
+	/**
+	 * Send a followup message to the interaction
+	 */
+	async followUp(
+		reply: InteractionReplyData,
+		options: InteractionReplyOptions = {}
+	) {
+		await this.client.rest.post(
+			Routes.webhook(this.client.options.clientId, this.rawData.token),
+			{
+				body: {
+					...reply,
+					embeds: reply.embeds?.map((embed) => embed.serialize()),
+					components: reply.components?.map((row) => row.serialize()),
+					flags: options.ephemeral ? 64 : undefined
+				} as RESTPostAPIInteractionFollowupJSONBody
 			}
 		)
 	}
