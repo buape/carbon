@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.3.1
+
+### Patch Changes
+
+- c80ce0f: feat: embeds
+
 ## 0.3.0
 
 ### Minor Changes
