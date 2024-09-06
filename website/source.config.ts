@@ -2,7 +2,8 @@ import {
 	defineConfig,
 	defineDocs,
 	defineCollections,
-	frontmatterSchema
+	frontmatterSchema,
+	metaSchema
 } from "fumadocs-mdx/config"
 import { z } from "zod"
 
@@ -12,6 +13,10 @@ export const { docs, meta } = defineDocs({
 		schema: frontmatterSchema.extend({
 			index: z.boolean().default(false)
 		})
+	},
+	meta: {
+		dir: "content",
+		schema: metaSchema
 	}
 })
 
