@@ -8,6 +8,7 @@ import {
 import {
 	Base,
 	type Client,
+	Embed,
 	Guild,
 	Message,
 	type Modal,
@@ -25,6 +26,10 @@ export type InteractionReplyData = {
 	 * The content of the message
 	 */
 	content?: string
+	/**
+	 * The embeds of the message
+	 */
+	embeds?: Embed[]
 	/**
 	 * The components to send in the message, listed in rows
 	 */
@@ -96,6 +101,11 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this.userId =
 			this.rawData.user?.id || this.rawData.member?.user.id || undefined
 		if (defaults.ephemeral) this.defaultEphemeral = defaults.ephemeral
+	}
+
+	get embeds(): Embed[] | null {
+		if (!this.rawData.message) return null
+		return this.rawData.message.embeds.map((embed) => new Embed(embed))
 	}
 
 	get message(): Message | null {
