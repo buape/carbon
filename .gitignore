@@ -13,3 +13,4 @@ build/
 .DS_Store
 packages/*/docs/
 website/content/*/api
+website/.source

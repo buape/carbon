@@ -1,0 +1,9 @@
+---
+title: Partials
+---
+
+Partials are a concept in the Discord API that allows the API to send only a subset of the data needed for a certain structure, such as only the ID of a user or the channel ID + message ID of a message. This is useful for reducing the amount of data that needs to be sent, and can improve performance.
+
+In Carbon, you may sometimes get partials on things such as `Interaction#message`. This is because the original data for that interaction only had a partial. Luckily, there is a `fetch()` method on all classes that may be partial (as well as a boolean `partial` property on all classes), which will fetch the full data of the class.
+
+Because of this, many properties on a structure, such as a `Message`, will be potentially undefined, and you should check for that before using them.

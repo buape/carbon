@@ -1,0 +1,30 @@
+---
+title: Client
+description: The main class that is used to use Carbon
+---
+
+The main class that is used to use Carbon is the [`Client`](/carbon/api/classes/Client) class. Everything all connects to this one class, and it is the main entry point for your bot.
+
+## Creating a Client
+
+To create a client, you need to provide it with your client's options, and a list of commands.
+
+```ts title="src/index.ts"
+const client = new Client({
+	clientId: "12345678901234567890",
+	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
+	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE",
+	mode: ClientMode.NodeJS
+}, [new PingCommand()])
+```
+
+Here we have created a client with the following options:
+
+- `clientId`: The client ID of your bot
+- `publicKey`: The public key of your bot
+- `token`: The token of your bot
+- `mode`: The mode of your bot, which is `ClientMode.NodeJS` in this case
+
+And we have also provided it with a list of commands, which in this case is just the `PingCommand` we created earlier.
+
+See the [Getting Started](/carbon/getting-started) guide for more information on how to create a client specific to your environment.

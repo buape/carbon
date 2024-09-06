@@ -55,3 +55,5 @@ const linkedRoles = new LinkedRoles(client, {
 
 Once you have your `LinkedRoles` instance, you need to set it on Discord so that users will use it for linked roles.
 [You can see where to add this by clicking here](/carbon/developer-portal/urls), and set the linked role to `<BASE_URL>/connect`, so for example, `https://my-carbon-worker.YOURNAME.workers.dev/connect`.
+You'll also need to add a redirect URL to your Discord application, so that users can be redirected to your website after they login.
+You can go to the OAuth tab on the dashboard and add a redirect URL there of `<BASE_URL>/connect/callback`, so for example, `https://my-carbon-worker.YOURNAME.workers.dev/connect/callback`.

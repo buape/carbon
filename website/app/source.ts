@@ -1,25 +1,18 @@
-import { readdirSync } from "node:fs"
-import { join } from "node:path"
-import { loader } from "fumadocs-core/source"
 import { createMDXSource } from "fumadocs-mdx"
-import { map } from "~/.map"
+import type { InferMetaType, InferPageType } from "fumadocs-core/source"
+import { loader } from "fumadocs-core/source"
+import { icons } from "lucide-react"
+import { create } from "~/components/icon"
+import { meta, docs } from "~/.source"
 
-const dirnameParts = __dirname.split("/")
-const docsDir = dirnameParts
-	.slice(0, dirnameParts.indexOf("docs") + 1)
-	.join("/")
-const contentDir = join(docsDir, "content")
+export const utils = loader({
+	baseUrl: "",
+	icon(icon) {
+		if (icon && icon in icons)
+			return create({ icon: icons[icon as keyof typeof icons] })
+	},
+	source: createMDXSource(docs, meta)
+})
 
-export const loaders: Map<
-	string,
-	ReturnType<typeof loader<{ source: ReturnType<typeof createMDXSource> }>>
-> = new Map(
-	readdirSync(contentDir).map((name) => [
-		name,
-		loader({
-			baseUrl: `/${name}`,
-			rootDir: name,
-			source: createMDXSource(map)
-		})
-	])
-)
+export type Page = InferPageType<typeof utils>
+export type Meta = InferMetaType<typeof utils>
