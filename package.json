@@ -27,7 +27,7 @@
 		"@turbo/gen": "2.1.1",
 		"tsc-watch": "6.2.0",
 		"turbo": "2.1.1",
-		"typedoc": "0.26.6",
+		"typedoc": "0.26.7",
 		"typedoc-plugin-frontmatter": "^1.0.0",
 		"typedoc-plugin-markdown": "^4.2.6",
 		"typedoc-plugin-mdn-links": "^3.2.11",
