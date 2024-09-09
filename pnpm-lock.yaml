@@ -71,8 +71,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/nodejs
       '@types/node':
-        specifier: 22.5.3
-        version: 22.5.3
+        specifier: 22.5.4
+        version: 22.5.4
 
   packages/carbon:
     dependencies:
@@ -107,8 +107,8 @@ importers:
         specifier: 1.12.2
         version: 1.12.2(hono@4.5.11)
       '@types/node':
-        specifier: 22.5.3
-        version: 22.5.3
+        specifier: 22.5.4
+        version: 22.5.4
       path:
         specifier: 0.12.7
         version: 0.12.7
@@ -1570,9 +1570,6 @@ packages:
 
   '@types/node@20.16.5':
     resolution: {integrity: sha512-VwYCweNo3ERajwy0IUlqqcyZ8/A7Zwa9ZP3MnENWcB11AejO+tLy3pu850goUW2FC/IJMdZUfKpX/yxL1gymCA==}
-
-  '@types/node@22.5.3':
-    resolution: {integrity: sha512-njripolh85IA9SQGTAqbmnNZTdxv7X/4OYGPz8tgy5JDr8MP+uDBa921GpYEoDDnwm0Hmn5ZPeJgiiSTPoOzkQ==}
 
   '@types/node@22.5.4':
     resolution: {integrity: sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==}
@@ -5188,11 +5185,11 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.5.4
+      '@types/node': 20.16.5
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.5.4
+      '@types/node': 20.16.5
 
   '@types/debug@4.1.12':
     dependencies:
@@ -5206,7 +5203,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.5':
     dependencies:
-      '@types/node': 22.5.4
+      '@types/node': 20.16.5
       '@types/qs': 6.9.15
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -5256,10 +5253,6 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
-  '@types/node@22.5.3':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@22.5.4':
     dependencies:
       undici-types: 6.19.8
@@ -5284,12 +5277,12 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.5.4
+      '@types/node': 20.16.5
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 22.5.4
+      '@types/node': 20.16.5
       '@types/send': 0.17.4
 
   '@types/through@0.0.33':
