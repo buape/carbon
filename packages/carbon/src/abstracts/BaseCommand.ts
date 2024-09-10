@@ -68,6 +68,9 @@ export abstract class BaseCommand {
 	 * @internal
 	 */
 	serialize() {
+		if (this.type === ApplicationCommandType.PrimaryEntryPoint) {
+			throw new Error("Primary Entry Point commands cannot be serialized")
+		}
 		// Only chat input commands can have descriptions
 		if (this.type === ApplicationCommandType.ChatInput) {
 			const data: RESTPostAPIApplicationCommandsJSONBody = {
