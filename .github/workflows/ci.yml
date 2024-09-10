@@ -79,4 +79,4 @@ jobs:
               run: pnpm build --filter={./packages/*}
 
             - name: Publish
-              run: pnpx pkg-pr-new publish './packages/*' --compact --comment=update --pnpm
+              run: pnpx pkg-pr-new publish './packages/*' --comment=update --pnpm
