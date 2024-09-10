@@ -21,7 +21,7 @@ jobs:
         steps:
             - uses: mscharley/dependency-changesets-action@v1.0.5
               with:
-                  token: ${{ secrets.BUAPEBOT_TOKEN }}
+                  token: ${{ secrets.BUAPEBOT_SECRET }}
                   changeset-folder: ".changeset"
                   use-conventional-commits: true
                   author-name: "BuapeBot"
