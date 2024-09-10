@@ -6,7 +6,7 @@
 	"access": "public",
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
-	"ignore": ["website", "test-*"],
+	"ignore": ["website", "demo-*"],
 	"changelog": [
 		"@changesets/changelog-github",
 		{ "repo": "t3-oss/create-t3-app" }

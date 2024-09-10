@@ -1,0 +1,30 @@
+name: Labeler
+
+on:
+    pull_request:
+        types: [opened, synchronize]
+
+jobs:
+    label:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+
+        steps:
+            - uses: actions/labeler@v5
+              with:
+                  repo-token: "${{ secrets.GITHUB_TOKEN }}"
+                  sync-labels: true
+
+    renovate-changeset:
+        runs-on: ubuntu-latest
+        if: ${{ github.actor == 'renovate[bot]' }}
+        steps:
+            - uses: mscharley/dependency-changesets-action@v1.0.11
+              with:
+                  token: ${{ secrets.BUAPEBOT_SECRET }}
+                  changeset-folder: ".changeset"
+                  use-conventional-commits: false
+                  author-name: "BuapeBot"
+                  author-email: "119761697+buapebot@users.noreply.github.com"

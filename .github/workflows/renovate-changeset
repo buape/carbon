@@ -1,20 +1,12 @@
-name: PR Cleanup
+name: Renovate Changesets
+
 on:
     pull_request:
         types: [opened, synchronize]
+        paths:
+            - "packages/**"
+
 jobs:
-    label:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            pull-requests: write
-
-        steps:
-            - uses: actions/labeler@v5
-              with:
-                  repo-token: "${{ secrets.GITHUB_TOKEN }}"
-                  sync-labels: true
-
     renovate-changeset:
         runs-on: ubuntu-latest
         if: ${{ github.actor == 'renovate[bot]' }}
