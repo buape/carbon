@@ -44,42 +44,48 @@ export class ComponentHandler extends Base {
 		if (component instanceof Button) {
 			const interaction = new ButtonInteraction(
 				this.client,
-				data as APIMessageComponentButtonInteraction
+				data as APIMessageComponentButtonInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)
 		} else if (component instanceof RoleSelectMenu) {
 			const interaction = new RoleSelectMenuInteraction(
 				this.client,
-				data as APIMessageComponentSelectMenuInteraction
+				data as APIMessageComponentSelectMenuInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)
 		} else if (component instanceof ChannelSelectMenu) {
 			const interaction = new ChannelSelectMenuInteraction(
 				this.client,
-				data as APIMessageComponentSelectMenuInteraction
+				data as APIMessageComponentSelectMenuInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)
 		} else if (component instanceof MentionableSelectMenu) {
 			const interaction = new MentionableSelectMenuInteraction(
 				this.client,
-				data as APIMessageComponentSelectMenuInteraction
+				data as APIMessageComponentSelectMenuInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)
 		} else if (component instanceof StringSelectMenu) {
 			const interaction = new StringSelectMenuInteraction(
 				this.client,
-				data as APIMessageComponentSelectMenuInteraction
+				data as APIMessageComponentSelectMenuInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)
 		} else if (component instanceof UserSelectMenu) {
 			const interaction = new UserSelectMenuInteraction(
 				this.client,
-				data as APIMessageComponentSelectMenuInteraction
+				data as APIMessageComponentSelectMenuInteraction,
+				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
 			await component.run(interaction)

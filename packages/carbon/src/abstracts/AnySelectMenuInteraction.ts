@@ -6,13 +6,18 @@ import {
 import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
 import { BaseComponentInteraction } from "./BaseComponentInteraction.js"
+import type { InteractionDefaults } from "./BaseInteraction.js"
 
 export abstract class AnySelectMenuInteraction extends BaseComponentInteraction {
 	customId: string = splitCustomId(
 		(this.rawData.data as APIMessageSelectMenuInteractionData).custom_id
 	)[0]
-	constructor(client: Client, data: APIMessageComponentSelectMenuInteraction) {
-		super(client, data)
+	constructor(
+		client: Client,
+		data: APIMessageComponentSelectMenuInteraction,
+		defaults: InteractionDefaults
+	) {
+		super(client, data, defaults)
 		if (!data.data)
 			throw new Error("Invalid interaction data was used to create this class")
 		if (data.type !== InteractionType.MessageComponent) {

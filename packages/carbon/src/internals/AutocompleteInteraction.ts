@@ -8,7 +8,10 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
-import { BaseInteraction } from "../abstracts/BaseInteraction.js"
+import {
+	BaseInteraction,
+	type InteractionDefaults
+} from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
 import { Command } from "../classes/Command.js"
 import { OptionsHandler } from "./OptionsHandler.js"
@@ -21,9 +24,10 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 	constructor(
 		client: Client,
 		data: APIApplicationCommandAutocompleteInteraction,
+		defaults: InteractionDefaults,
 		command?: BaseCommand
 	) {
-		super(client, data)
+		super(client, data, defaults)
 		if (data.type !== InteractionType.ApplicationCommandAutocomplete) {
 			throw new Error("Invalid interaction type was used to create this class")
 		}

@@ -7,13 +7,18 @@ import {
 import { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
+import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
 
 export class ButtonInteraction extends BaseComponentInteraction {
 	customId: string = splitCustomId(
 		(this.rawData.data as APIMessageButtonInteractionData).custom_id
 	)[0]
-	constructor(client: Client, data: APIMessageComponentButtonInteraction) {
-		super(client, data)
+	constructor(
+		client: Client,
+		data: APIMessageComponentButtonInteraction,
+		defaults: InteractionDefaults
+	) {
+		super(client, data, defaults)
 		if (!data.data)
 			throw new Error("Invalid interaction data was used to create this class")
 		if (data.type !== InteractionType.MessageComponent) {

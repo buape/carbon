@@ -90,6 +90,7 @@ export class CommandHandler extends Base {
 		const interaction = new CommandInteraction(
 			this.client,
 			rawInteraction,
+			{ ephemeral: command.ephemeral },
 			command
 		)
 
@@ -114,6 +115,7 @@ export class CommandHandler extends Base {
 		const interaction = new AutocompleteInteraction(
 			this.client,
 			rawInteraction,
+			{ ephemeral: command.ephemeral },
 			command
 		)
 

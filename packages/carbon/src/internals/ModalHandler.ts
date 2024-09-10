@@ -22,6 +22,6 @@ export class ModalHandler extends Base {
 		const modal = this.modals.find((x) => x.customId === data.data.custom_id)
 		if (!modal) return false
 
-		modal.run(new ModalInteraction(this.client, data))
+		modal.run(new ModalInteraction(this.client, data, {}))
 	}
 }

@@ -72,6 +72,10 @@ export type InteractionFileData = {
 	description?: string
 }
 
+export type InteractionDefaults = {
+	ephemeral?: boolean
+}
+
 /**
  * This is the base type interaction, all interaction types extend from this
  */
@@ -97,7 +101,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 
 	private defaultEphemeral = false
 
-	constructor(client: Client, data: T, defaults: { ephemeral?: boolean } = {}) {
+	constructor(client: Client, data: T, defaults: InteractionDefaults) {
 		super(client)
 		this.rawData = data
 		this.type = data.type
@@ -159,7 +163,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					body: {
 						...data,
 						embeds: data.embeds?.map((embed) => embed.serialize()),
-						components: data.components?.map((row) => row.serialize())
+						components: data.components?.map((row) => row.serialize()),
+						flags: options.ephemeral ? 64 : undefined
 					} as RESTPatchAPIInteractionOriginalResponseJSONBody,
 					files: options.files
 				}
