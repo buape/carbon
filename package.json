@@ -16,7 +16,7 @@
 		"start": "turbo run start --filter !cloudo",
 		"test": "vitest",
 		"web": "pnpm run web:docs && turbo run web:dev",
-		"web:build": "turbo run docs && turbo run web:build",
+		"web:build": "turbo run web:build",
 		"web:docs": "turbo run docs"
 	},
 	"dependencies": {

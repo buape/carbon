@@ -13,10 +13,12 @@
 		"dev": {
 			"persistent": true
 		},
-		"web:build": {},
+		"web:build": {
+			"dependsOn": ["build", "docs"]
+		},
 		"web:dev": {},
 		"docs": {
-			"dependsOn": ["^build", "^docs"],
+			"dependsOn": ["build", "^docs"],
 			"inputs": [
 				"src/**",
 				"typedoc.json",
