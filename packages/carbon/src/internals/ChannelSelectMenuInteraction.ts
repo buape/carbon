@@ -3,8 +3,8 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { AnySelectMenuInteraction } from "../abstracts/AnySelectMenuInteraction.js"
-import type { Client } from "../classes/Client.js"
 import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
+import type { Client } from "../classes/Client.js"
 
 export class ChannelSelectMenuInteraction extends AnySelectMenuInteraction {
 	constructor(
