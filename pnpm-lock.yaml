@@ -20,28 +20,28 @@ importers:
         version: 2.27.8
       '@turbo/gen':
         specifier: 2.1.1
-        version: 2.1.1(@types/node@22.5.4)(typescript@5.5.4)
+        version: 2.1.1(@types/node@22.5.4)(typescript@5.6.2)
       tsc-watch:
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.5.4)
+        version: 6.2.0(typescript@5.6.2)
       turbo:
         specifier: 2.1.1
         version: 2.1.1
       typedoc:
         specifier: 0.26.7
-        version: 0.26.7(typescript@5.5.4)
+        version: 0.26.7(typescript@5.6.2)
       typedoc-plugin-frontmatter:
         specifier: ^1.0.0
-        version: 1.0.0(typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.5.4)))
+        version: 1.0.0(typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.6.2)))
       typedoc-plugin-markdown:
         specifier: ^4.2.6
-        version: 4.2.7(typedoc@0.26.7(typescript@5.5.4))
+        version: 4.2.7(typedoc@0.26.7(typescript@5.6.2))
       typedoc-plugin-mdn-links:
         specifier: ^3.2.11
-        version: 3.2.12(typedoc@0.26.7(typescript@5.5.4))
+        version: 3.2.12(typedoc@0.26.7(typescript@5.6.2))
       typescript:
-        specifier: 5.5.4
-        version: 5.5.4
+        specifier: 5.6.2
+        version: 5.6.2
       vitest:
         specifier: 2.0.5
         version: 2.0.5(@types/node@22.5.4)(terser@5.31.6)
@@ -128,10 +128,10 @@ importers:
         version: 10.0.1(fumadocs-core@13.4.5(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       fumadocs-typescript:
         specifier: 2.1.0
-        version: 2.1.0(typescript@5.5.4)
+        version: 2.1.0(typescript@5.6.2)
       fumadocs-ui:
         specifier: 13.4.5
-        version: 13.4.5(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)))
+        version: 13.4.5(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2)))
       lucide-react:
         specifier: 0.438.0
         version: 0.438.0(react@18.3.1)
@@ -171,7 +171,7 @@ importers:
         version: 8.4.45
       tailwindcss:
         specifier: 3.4.10
-        version: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))
+        version: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2))
 
 packages:
 
@@ -3731,8 +3731,8 @@ packages:
     peerDependencies:
       typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x
 
-  typescript@5.5.4:
-    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+  typescript@5.6.2:
+    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -5125,13 +5125,13 @@ snapshots:
       '@swc/counter': 0.1.3
       tslib: 2.7.0
 
-  '@tailwindcss/typography@0.5.15(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)))':
+  '@tailwindcss/typography@0.5.15(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2)))':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))
+      tailwindcss: 3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2))
 
   '@tootallnate/quickjs-emscripten@0.23.0': {}
 
@@ -5143,7 +5143,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.1.1(@types/node@22.5.4)(typescript@5.5.4)':
+  '@turbo/gen@2.1.1(@types/node@22.5.4)(typescript@5.6.2)':
     dependencies:
       '@turbo/workspaces': 2.1.1
       commander: 10.0.1
@@ -5153,7 +5153,7 @@ snapshots:
       node-plop: 0.26.3
       picocolors: 1.0.1
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@types/node@22.5.4)(typescript@5.5.4)
+      ts-node: 10.9.2(@types/node@22.5.4)(typescript@5.6.2)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.1
     transitivePeerDependencies:
@@ -6025,18 +6025,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  fumadocs-typescript@2.1.0(typescript@5.5.4):
+  fumadocs-typescript@2.1.0(typescript@5.6.2):
     dependencies:
       fast-glob: 3.3.2
       hast-util-to-jsx-runtime: 2.3.0
       mdast-util-from-markdown: 2.0.1
       mdast-util-gfm: 3.0.0
       mdast-util-to-hast: 13.2.0
-      typescript: 5.5.4
+      typescript: 5.6.2
     transitivePeerDependencies:
       - supports-color
 
-  fumadocs-ui@13.4.5(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))):
+  fumadocs-ui@13.4.5(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2))):
     dependencies:
       '@radix-ui/react-accordion': 1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-collapsible': 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6045,7 +6045,7 @@ snapshots:
       '@radix-ui/react-popover': 1.1.1(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-scroll-area': 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-tabs': 1.1.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tailwindcss/typography': 0.5.15(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)))
+      '@tailwindcss/typography': 0.5.15(tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2)))
       class-variance-authority: 0.7.0
       cmdk: 1.0.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       fumadocs-core: 13.4.5(@types/react@18.3.5)(next@14.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -7256,13 +7256,13 @@ snapshots:
       camelcase-css: 2.0.1
       postcss: 8.4.45
 
-  postcss-load-config@4.0.2(postcss@8.4.45)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)):
+  postcss-load-config@4.0.2(postcss@8.4.45)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2)):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.5.1
     optionalDependencies:
       postcss: 8.4.45
-      ts-node: 10.9.2(@types/node@22.5.4)(typescript@5.5.4)
+      ts-node: 10.9.2(@types/node@22.5.4)(typescript@5.6.2)
 
   postcss-nested@6.2.0(postcss@8.4.45):
     dependencies:
@@ -7762,7 +7762,7 @@ snapshots:
 
   tailwind-merge@2.5.2: {}
 
-  tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4)):
+  tailwindcss@3.4.10(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2)):
     dependencies:
       '@alloc/quick-lru': 5.2.0
       arg: 5.0.2
@@ -7781,7 +7781,7 @@ snapshots:
       postcss: 8.4.45
       postcss-import: 15.1.0(postcss@8.4.45)
       postcss-js: 4.0.1(postcss@8.4.45)
-      postcss-load-config: 4.0.2(postcss@8.4.45)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4))
+      postcss-load-config: 4.0.2(postcss@8.4.45)(ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2))
       postcss-nested: 6.2.0(postcss@8.4.45)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.8
@@ -7843,7 +7843,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-node@10.9.2(@types/node@22.5.4)(typescript@5.5.4):
+  ts-node@10.9.2(@types/node@22.5.4)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -7857,17 +7857,17 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.5.4
+      typescript: 5.6.2
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
-  tsc-watch@6.2.0(typescript@5.5.4):
+  tsc-watch@6.2.0(typescript@5.6.2):
     dependencies:
       cross-spawn: 7.0.3
       node-cleanup: 2.1.2
       ps-tree: 1.2.0
       string-argv: 0.3.2
-      typescript: 5.5.4
+      typescript: 5.6.2
 
   tslib@1.14.1: {}
 
@@ -7902,29 +7902,29 @@ snapshots:
 
   type-fest@0.21.3: {}
 
-  typedoc-plugin-frontmatter@1.0.0(typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.5.4))):
+  typedoc-plugin-frontmatter@1.0.0(typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.6.2))):
     dependencies:
-      typedoc-plugin-markdown: 4.2.7(typedoc@0.26.7(typescript@5.5.4))
+      typedoc-plugin-markdown: 4.2.7(typedoc@0.26.7(typescript@5.6.2))
       yaml: 2.5.0
 
-  typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.5.4)):
+  typedoc-plugin-markdown@4.2.7(typedoc@0.26.7(typescript@5.6.2)):
     dependencies:
-      typedoc: 0.26.7(typescript@5.5.4)
+      typedoc: 0.26.7(typescript@5.6.2)
 
-  typedoc-plugin-mdn-links@3.2.12(typedoc@0.26.7(typescript@5.5.4)):
+  typedoc-plugin-mdn-links@3.2.12(typedoc@0.26.7(typescript@5.6.2)):
     dependencies:
-      typedoc: 0.26.7(typescript@5.5.4)
+      typedoc: 0.26.7(typescript@5.6.2)
 
-  typedoc@0.26.7(typescript@5.5.4):
+  typedoc@0.26.7(typescript@5.6.2):
     dependencies:
       lunr: 2.3.9
       markdown-it: 14.1.0
       minimatch: 9.0.5
       shiki: 1.16.2
-      typescript: 5.5.4
+      typescript: 5.6.2
       yaml: 2.5.1
 
-  typescript@5.5.4: {}
+  typescript@5.6.2: {}
 
   uc.micro@2.1.0: {}
 
