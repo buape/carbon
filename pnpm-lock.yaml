@@ -95,13 +95,13 @@ importers:
   packages/linked-roles:
     dependencies:
       '@buape/carbon':
-        specifier: workspace:^
+        specifier: workspace:^0.3
         version: link:../carbon
 
   packages/nodejs:
     dependencies:
       '@buape/carbon':
-        specifier: workspace:^
+        specifier: workspace:^0.3
         version: link:../carbon
       '@hono/node-server':
         specifier: 1.12.2
