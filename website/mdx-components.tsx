@@ -2,7 +2,7 @@ import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 import { ImageZoom } from "fumadocs-ui/components/image-zoom"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import defaultComponents from "fumadocs-ui/mdx"
-import { CirclePlay, Code, Library, Heart } from "lucide-react"
+import { CirclePlay, Code, Heart, Library } from "lucide-react"
 
 import type { MDXComponents } from "mdx/types"
 

@@ -1,8 +1,8 @@
+import { RootToggle } from "fumadocs-ui/components/layout/root-toggle"
+import type { HomeLayoutProps } from "fumadocs-ui/home-layout"
 import type { DocsLayoutProps } from "fumadocs-ui/layout"
 import { BookIcon, Heart, LayoutTemplateIcon } from "lucide-react"
 import Image from "next/image"
-import { RootToggle } from "fumadocs-ui/components/layout/root-toggle"
-import type { HomeLayoutProps } from "fumadocs-ui/home-layout"
 import { utils } from "~/app/source"
 import { modes } from "~/modes"
 

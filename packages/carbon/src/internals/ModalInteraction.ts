@@ -1,8 +1,8 @@
 import {
+	type APIModalSubmitInteraction,
 	InteractionResponseType,
-	Routes,
 	type RESTPostAPIInteractionCallbackJSONBody,
-	type APIModalSubmitInteraction
+	Routes
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../index.js"

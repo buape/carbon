@@ -1,17 +1,17 @@
+import { DocsLayout } from "fumadocs-ui/layout"
 import {
-	DocsPage,
 	DocsBody,
-	DocsTitle,
+	DocsCategory,
 	DocsDescription,
-	DocsCategory
+	DocsPage,
+	DocsTitle
 } from "fumadocs-ui/page"
 import { notFound } from "next/navigation"
+import type { ReactElement } from "react"
 import { utils } from "~/app/source"
 import { useMDXComponents } from "~/mdx-components"
-import type { ReactElement } from "react"
-import { DocsLayout } from "fumadocs-ui/layout"
-import { Toggle } from "./toggle"
 import { baseOptions, docsOptions } from "../layout.config"
+import { Toggle } from "./toggle"
 
 interface Param {
 	slug: string[]

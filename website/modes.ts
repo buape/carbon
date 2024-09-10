@@ -2,8 +2,8 @@ import {
 	Brackets,
 	Computer,
 	Link,
-	Package,
-	type LucideIcon
+	type LucideIcon,
+	Package
 } from "lucide-react"
 
 export interface Mode {

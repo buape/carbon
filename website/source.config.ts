@@ -1,7 +1,7 @@
 import {
+	defineCollections,
 	defineConfig,
 	defineDocs,
-	defineCollections,
 	frontmatterSchema,
 	metaSchema
 } from "fumadocs-mdx/config"
