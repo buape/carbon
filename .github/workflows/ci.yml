@@ -12,6 +12,9 @@ jobs:
         steps:
             - name: Check out code
               uses: actions/checkout@v4
+              with:
+                  ref: ${{github.event.pull_request.head.ref}}
+                  repository: ${{github.event.pull_request.head.repo.full_name}}
 
             - name: Setup
               uses: ./.github/actions/setup
@@ -26,6 +29,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  ref: ${{github.event.pull_request.head.ref}}
+                  repository: ${{github.event.pull_request.head.repo.full_name}}
             - name: Setup Biome
               uses: biomejs/setup-biome@v2
             - name: Run Biome
@@ -38,6 +44,9 @@ jobs:
         steps:
             - name: Check out code
               uses: actions/checkout@v4
+              with:
+                  ref: ${{github.event.pull_request.head.ref}}
+                  repository: ${{github.event.pull_request.head.repo.full_name}}
 
             - name: Setup
               uses: ./.github/actions/setup
@@ -54,6 +63,9 @@ jobs:
         steps:
             - name: Check out code
               uses: actions/checkout@v4
+              with:
+                  ref: ${{github.event.pull_request.head.ref}}
+                  repository: ${{github.event.pull_request.head.repo.full_name}}
 
             - name: Setup
               uses: ./.github/actions/setup
