@@ -13,9 +13,11 @@ export default class ButtonCommand extends Command {
 	description = "A simple command with a button!"
 	defer = true
 
+	components = [PingButton]
+
 	async run(interaction: CommandInteraction) {
 		await interaction.reply({
-			content: "Pong <:caughtIn4k:1145473115703496816>",
+			content: "Pong!",
 			components: [new Row([new PingButton(), new Link()])]
 		})
 	}

@@ -148,11 +148,6 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		data: InteractionReplyData,
 		options: InteractionReplyOptions = {}
 	) {
-		data.components?.map((row) => {
-			row.components.map((component) => {
-				this.client.componentHandler.registerComponent(component)
-			})
-		})
 		if (this._deferred) {
 			await this.client.rest.patch(
 				Routes.webhookMessage(
@@ -214,7 +209,6 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	async showModal(modal: Modal) {
 		if (this._deferred)
 			throw new Error("You cannot defer an interaction that shows a modal")
-		this.client.modalHandler.registerModal(modal)
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{

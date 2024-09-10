@@ -7,6 +7,7 @@ import SelectCommand from "./commands/testing/every_select.js"
 import Options from "./commands/testing/options.js"
 import Subc from "./commands/testing/subcommand.js"
 import SubcG from "./commands/testing/subcommandgroup.js"
+import ModalCommand from "./commands/testing/modal.js"
 
 type Env = {
 	CLIENT_ID: string
@@ -29,7 +30,8 @@ export default {
 				new PingCommand(),
 				new SelectCommand(),
 				new Subc(),
-				new SubcG()
+				new SubcG(),
+				new ModalCommand()
 			]
 		)
 		if (request.url.endsWith("/deploy")) {

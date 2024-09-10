@@ -69,7 +69,6 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 			value: string
 		}[]
 	) {
-		console.log(choices)
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{

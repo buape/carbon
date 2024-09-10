@@ -19,16 +19,25 @@ export default class SelectCommand extends Command {
 	description = "Send every select menu"
 	defer = true
 
+	components = [
+		StringSelect,
+		RoleSelect,
+		MentionableSelect,
+		ChannelSelect,
+		UserSelect
+	]
+
 	async run(interaction: CommandInteraction) {
+		const row = new Row()
+		row.addComponent(new StringSelect())
+		row.addComponent(new RoleSelect())
+		row.addComponent(new MentionableSelect())
+		row.addComponent(new ChannelSelect())
+		row.addComponent(new UserSelect())
+
 		interaction.reply({
-			content: "Select menus! <:caughtIn4k:1145473115703496816>",
-			components: [
-				new Row([new StringSelect()]),
-				new Row([new RoleSelect()]),
-				new Row([new MentionableSelect()]),
-				new Row([new ChannelSelect()]),
-				new Row([new UserSelect()])
-			]
+			content: "Select menus!!",
+			components: [row]
 		})
 	}
 }

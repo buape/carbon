@@ -76,6 +76,11 @@ export type ClientOptions = {
 	 * Whether the commands should be deployed to Discord automatically.
 	 */
 	autoDeploy?: boolean
+	/**
+	 * Whether components and modals should be registered automatically.
+	 * If you don't want to do this (e.g. you are changing them at runtime), you can manually call {@link ComponentHandler#registerComponent} and {@link ModalHandler#registerModal} on the client.
+	 */
+	autoRegister?: boolean
 }
 
 /**
@@ -125,6 +130,16 @@ export class Client {
 		if (!options.token) throw new Error("Missing token")
 		this.options = options
 		this.commands = commands
+		if (this.options.autoRegister) {
+			this.commands.map((command) => {
+				command.components.map((component) => {
+					this.componentHandler.registerComponent(new component())
+				})
+				command.modals.map((modal) => {
+					this.modalHandler.registerModal(new modal())
+				})
+			})
+		}
 		const routerData =
 			this.options.mode === ClientMode.Bun && this.options.port
 				? { port: this.options.port }
