@@ -11,10 +11,15 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@buape/carbon": "workspace:^0.3",
 		"@hono/node-server": "1.12.2",
 		"@types/node": "22.5.4",
 		"path": "0.12.7"
+	},
+	"peerDependencies": {
+		"@buape/carbon": "workspace:^0.3"
+	},
+	"devDependencies": {
+		"@buape/carbon": "workspace:*"
 	},
 	"files": [
 		"dist",

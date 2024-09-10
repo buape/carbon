@@ -13,6 +13,9 @@
 	"peerDependencies": {
 		"@buape/carbon": "workspace:^0.3"
 	},
+	"devDependencies": {
+		"@buape/carbon": "workspace:*"
+	},
 	"files": [
 		"dist",
 		"LICENSE"
