@@ -18,9 +18,10 @@ export class CommandHandler extends Base {
 			| APIApplicationCommandAutocompleteInteraction
 			| APIApplicationCommandInteraction
 	): Command {
-		const command = this.client.commands.find(
+		let command = this.client.commands.find(
 			(x) => x.name === rawInteraction.data.name
 		)
+		if (!command) command = this.client.commands.find((x) => x.name === "*")
 		if (!command) throw new Error("Command not found")
 
 		if (command instanceof CommandWithSubcommandGroups) {

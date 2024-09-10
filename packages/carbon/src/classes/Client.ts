@@ -160,9 +160,11 @@ export class Client {
 	 */
 	async deployCommands() {
 		try {
-			const commands = this.commands.map((command) => {
-				return command.serialize()
-			})
+			const commands = this.commands
+				.filter((x) => x.name !== "*")
+				.map((command) => {
+					return command.serialize()
+				})
 			await this.rest.put(Routes.applicationCommands(this.options.clientId), {
 				body: commands
 			})
