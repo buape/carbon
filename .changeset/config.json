@@ -7,8 +7,5 @@
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
 	"ignore": ["website", "demo-*"],
-	"changelog": [
-		"@changesets/changelog-github",
-		{ "repo": "t3-oss/create-t3-app" }
-	]
+	"changelog": ["@changesets/changelog-git", { "repo": "t3-oss/create-t3-app" }]
 }
