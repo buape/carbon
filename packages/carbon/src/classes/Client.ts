@@ -128,18 +128,14 @@ export class Client {
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
 		if (!options.token) throw new Error("Missing token")
+
 		this.options = options
 		this.commands = commands
-		if (this.options.autoRegister) {
-			this.commands.map((command) => {
-				command.components.map((component) => {
-					this.componentHandler.registerComponent(new component())
-				})
-				command.modals.map((modal) => {
-					this.modalHandler.registerModal(new modal())
-				})
-			})
-		}
+
+		this.commandHandler = new CommandHandler(this)
+		this.componentHandler = new ComponentHandler(this)
+		this.modalHandler = new ModalHandler(this)
+
 		const routerData =
 			this.options.mode === ClientMode.Bun && this.options.port
 				? { port: this.options.port }
@@ -147,11 +143,17 @@ export class Client {
 		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 		this.router = AutoRouter<IRequestStrict, any[], Response>(routerData)
 		this.rest = new RequestClient(options.token, options.requestOptions)
-		this.componentHandler = new ComponentHandler(this)
-		this.commandHandler = new CommandHandler(this)
-		this.modalHandler = new ModalHandler(this)
-		this.setupRoutes()
+
+		if (this.options.autoRegister) {
+			for (const command of commands) {
+				for (const component of command.components)
+					this.componentHandler.registerComponent(new component())
+				for (const modal of command.modals)
+					this.modalHandler.registerModal(new modal())
+			}
+		}
 		if (this.options.autoDeploy) this.deployCommands()
+		this.setupRoutes()
 	}
 
 	/**
