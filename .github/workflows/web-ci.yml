@@ -1,0 +1,23 @@
+name: Web CI
+
+permissions: write-all
+
+on:
+    pull_request:
+        types: [opened, synchronize]
+        paths:
+            - "website/**"
+
+jobs:
+    test-docs:
+        name: Test Docs
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Setup
+              uses: ./.github/actions/setup
+
+            - name: Test build website
+              run: pnpm run web:build

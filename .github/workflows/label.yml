@@ -14,3 +14,15 @@ jobs:
               with:
                   repo-token: "${{ secrets.GITHUB_TOKEN }}"
                   sync-labels: true
+
+    dep-changeset:
+        runs-on: ubuntu-latest
+        if: ${{ github.actor == 'renovate[bot]' }}
+        steps:
+            - uses: mscharley/dependency-changesets-action@v1.0.5
+              with:
+                  token: ${{ secrets.BUAPEBOT_TOKEN }}
+                  changeset-folder: ".changeset"
+                  use-conventional-commits: true
+                  author-name: "BuapeBot"
+                  author-email: "119761697+buapebot@users.noreply.github.com"

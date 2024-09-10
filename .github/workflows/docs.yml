@@ -23,7 +23,6 @@ jobs:
               uses: peaceiris/actions-gh-pages@v4
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  # Build output to publish to the `gh-pages` branch:
                   publish_dir: ./website/out
                   user_name: buapebot
                   user_email: 119761697+buapebot@users.noreply.github.com
