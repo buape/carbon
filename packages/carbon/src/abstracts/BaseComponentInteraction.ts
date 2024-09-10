@@ -37,5 +37,6 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
+		this._deferred = true
 	}
 }

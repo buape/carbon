@@ -36,5 +36,6 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
+		this._deferred = true
 	}
 }
