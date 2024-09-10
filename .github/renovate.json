@@ -3,13 +3,11 @@
 	"extends": [
 		":disableDependencyDashboard",
 		":ignoreModulesAndTests",
-		":semanticPrefixFixDepsChoreOthers",
 		"group:monorepos",
 		"group:recommended",
 		"replacements:all",
 		"workarounds:all",
-		"helpers:disableTypesNodeMajor",
-		"schedule:earlyMondays"
+		"helpers:disableTypesNodeMajor"
 	],
 	"assigneesFromCodeOwners": true,
 	"automerge": true,
@@ -18,11 +16,7 @@
 	"platformAutomerge": true,
 	"packageRules": [
 		{
-			"matchDepTypes": ["devDependencies"],
-			"groupName": "devDependencies"
-		},
-		{
-			"matchFileNames": ["apps/website/**"],
+			"matchFileNames": ["website/**"],
 			"groupName": "web"
 		}
 	],
