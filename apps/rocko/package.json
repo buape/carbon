@@ -1,5 +1,5 @@
 {
-	"name": "rocko",
+	"name": "test-app-rocko",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"private": "true",
