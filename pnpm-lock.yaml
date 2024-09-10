@@ -83,8 +83,8 @@ importers:
         specifier: '20'
         version: 20.16.5
       discord-api-types:
-        specifier: 0.37.99
-        version: 0.37.99
+        specifier: 0.37.100
+        version: 0.37.100
       discord-verify:
         specifier: 1.2.0
         version: 1.2.0
@@ -2021,8 +2021,8 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
-  discord-api-types@0.37.99:
-    resolution: {integrity: sha512-aQtiAeLF1RHh8iYC2manEQQwsCjeDTA/Y+vhL7TRcRu+8z8nKTd5fGquDG7nbBqOkw0zU3YsZBO5evHx240VVw==}
+  discord-api-types@0.37.100:
+    resolution: {integrity: sha512-a8zvUI0GYYwDtScfRd/TtaNBDTXwP5DiDVX7K5OmE+DRT57gBqKnwtOC5Ol8z0mRW8KQfETIgiB8U0YZ9NXiCA==}
 
   discord-verify@1.2.0:
     resolution: {integrity: sha512-8qlrMROW8DhpzWWzgNq9kpeLDxKanWa4EDVoj/ASVv2nr+dSr4JPmu2tFSydf3hAGI/OIJTnZyD0JulMYIxx4w==}
@@ -5706,7 +5706,7 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  discord-api-types@0.37.99: {}
+  discord-api-types@0.37.100: {}
 
   discord-verify@1.2.0:
     dependencies:
