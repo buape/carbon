@@ -240,7 +240,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					embeds: reply.embeds?.map((embed) => embed.serialize()),
 					components: reply.components?.map((row) => row.serialize()),
 					flags: options.ephemeral ? 64 : undefined
-				} as RESTPostAPIInteractionFollowupJSONBody
+				} as RESTPostAPIInteractionFollowupJSONBody,
+				files: options.files
 			}
 		)
 	}
