@@ -11,7 +11,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@buape/carbon": "workspace:^",
+		"@buape/carbon": "workspace:^0.4",
 		"@hono/node-server": "1.12.2",
 		"@types/node": "22.5.4",
 		"path": "0.12.7"

@@ -10,8 +10,8 @@
 		"docs": "typedoc"
 	},
 	"license": "MIT",
-	"dependencies": {
-		"@buape/carbon": "workspace:^"
+	"peerDependencies": {
+		"@buape/carbon": "workspace:^0.4"
 	},
 	"files": [
 		"dist",
