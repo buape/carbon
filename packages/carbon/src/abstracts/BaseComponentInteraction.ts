@@ -7,7 +7,12 @@ import {
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { splitCustomId } from "../utils.js"
-import { BaseInteraction, type InteractionDefaults } from "./BaseInteraction.js"
+import {
+	BaseInteraction,
+	type InteractionDefaults,
+	type InteractionReplyData,
+	type InteractionReplyOptions
+} from "./BaseInteraction.js"
 
 export class BaseComponentInteraction extends BaseInteraction<APIMessageComponentInteraction> {
 	customId: string
@@ -38,5 +43,28 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 			}
 		)
 		this._deferred = true
+	}
+
+	/**
+	 * Update the original message of the component
+	 */
+	async update(
+		data: InteractionReplyData,
+		options: Pick<InteractionReplyOptions, "files"> = {}
+	) {
+		await this.client.rest.post(
+			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			{
+				body: {
+					type: InteractionResponseType.UpdateMessage,
+					data: {
+						...data,
+						embeds: data.embeds?.map((embed) => embed.serialize()),
+						components: data.components?.map((row) => row.serialize())
+					}
+				} as RESTPostAPIInteractionCallbackJSONBody,
+				files: options.files
+			}
+		)
 	}
 }

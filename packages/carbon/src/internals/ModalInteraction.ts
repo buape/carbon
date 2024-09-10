@@ -5,6 +5,10 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
+import type {
+	InteractionReplyData,
+	InteractionReplyOptions
+} from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
 import { FieldsHandler } from "./FieldsHandler.js"
 
@@ -37,5 +41,29 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 			}
 		)
 		this._deferred = true
+	}
+
+	/**
+	 * Update the original message of the component.
+	 * This can only be used for modals triggered from components
+	 */
+	async update(
+		data: InteractionReplyData,
+		options: Pick<InteractionReplyOptions, "files"> = {}
+	) {
+		await this.client.rest.post(
+			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			{
+				body: {
+					type: InteractionResponseType.UpdateMessage,
+					data: {
+						...data,
+						embeds: data.embeds?.map((embed) => embed.serialize()),
+						components: data.components?.map((row) => row.serialize())
+					}
+				} as RESTPostAPIInteractionCallbackJSONBody,
+				files: options.files
+			}
+		)
 	}
 }
