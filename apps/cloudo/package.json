@@ -4,7 +4,8 @@
 	"main": "./dist/src/index.js",
 	"private": true,
 	"scripts": {
-		"build": "wrangler deploy",
+		"build": "wrangler deploy --dry-run",
+		"deploy": "wrangler deploy",
 		"dev": "wrangler deploy && wrangler tail"
 	},
 	"dependencies": {
