@@ -1,3 +1,4 @@
 * @buape/carbon-maintainers
 website/ @thewilloftheshadow
 website/content @buape/carbon-maintainers
+.github/CODEOWNERS @buape/core

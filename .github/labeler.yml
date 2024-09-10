@@ -1,6 +1,13 @@
 "dependencies":
     - changed-files:
-          - any-glob-to-any-file: ["pnpm-lock.yaml"]
+          - any-glob-to-any-file:
+                [
+                    "pnpm-lock.yaml",
+                    "package.json",
+                    "packages/*/package.json",
+                    "website/package.json",
+                    "apps/*/package.json",
+                ]
 "p:carbon":
     - changed-files:
           - any-glob-to-any-file: ["packages/carbon/**"]
