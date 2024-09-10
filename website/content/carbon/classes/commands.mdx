@@ -63,3 +63,24 @@ The `components` property is used to set the components of the command. You need
 
 The `defer` property is used to set whether the command should be deferred automatically. When a command is deferred, it will show a Loading state to the user, and you have 15 minutes to reply after that.
 
+## Wildcard Commands
+
+You can also create a wildcard command, which will be called when no command is found. This is useful for when you want to have a default command that is called when no other command is found, or for something like a maintenance mode for another bot that you can switch to.
+
+To create a wildcard command, you just have to create a command like normal, but set the name to `"*"`. This will be called when no other command is found.
+
+```ts title="src/commands/_maintenance.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+
+export default class MaintenanceCommand extends Command {
+	name = "*"
+	description = "Maintenance mode"
+	defer = false
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "The bot is currently under maintenance. Please try again later."
+		})
+	}
+}
+```

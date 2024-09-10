@@ -3,6 +3,7 @@
 	"version": "0.1.7",
 	"type": "module",
 	"main": "./dist/src/index.js",
+	"repository": "github:buape/carbon",
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc -w",
