@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon-nodejs",
-	"version": "0.1.7",
+	"version": "1.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"repository": "github:buape/carbon",
@@ -16,7 +16,7 @@
 		"path": "0.12.7"
 	},
 	"peerDependencies": {
-		"@buape/carbon": "workspace:^0.3"
+		"@buape/carbon": "workspace:^0.4.0"
 	},
 	"devDependencies": {
 		"@buape/carbon": "workspace:*"
