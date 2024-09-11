@@ -23,14 +23,16 @@ export function useMDXComponents(): MDXComponents {
 		CommandTabs: ({
 			args,
 			command,
-			executer = false
+			executer = false,
+			platforms = ["pnpm", "npm", "yarn"]
 		}: {
 			args: string[]
 			command: string
 			executer: boolean
+			platforms?: string[]
 		}) => (
-			<Tabs items={["pnpm", "bun", "npm", "yarn"]} id="package-manager">
-				{["pnpm", "bun", "npm", "yarn"].map((runner) => (
+			<Tabs items={platforms} id="package-manager">
+				{platforms.map((runner) => (
 					<Tab key={runner} value={runner}>
 						<CodeBlock allowCopy keepBackground>
 							<Pre>

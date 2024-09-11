@@ -4,3 +4,30 @@ description: Getting started with Carbon
 index: true
 icon: CirclePlay
 ---
+
+## Which runtime should I use?
+
+
+## Cloudflare Workers
+
+Cloudflare Workers is a quick and free option for hosting your bot, and is the primary runtime that we at Buape Studios use Carbon on. Just expose the `handle` method on the client, and you're good to go!
+
+## Node.js
+
+Node.js is a great choice if you want a bot that can run on any server. You simply install the `@buape/carbon-nodejs` package, and use the server provided there!
+
+## Next.js
+
+Next.js is a great choice if you want to make a bot that integrates with your Next.js app. Carbon will run on an API route, so you can have everything in one place.
+
+## Bun
+
+Bun is a fast and lightweight alternative to Node.js, and is a great option for running Carbon on a server. You just need to pass a port to Carbon, and it will use Bun's built-in HTTP server.
+
+## Other Runtimes
+
+If you want to use Carbon on a server that is not one of the above, you can use the `handle` method on the client. Check out the [Custom Router](/carbon/helpful-guides/custom-router) guide for more information on how to use it.
+
+## Ready to get started?
+
+Choose your runtime, and start building your bot!

@@ -1,5 +1,126 @@
 ---
 title: Next.js
+description: Getting started with Carbon on Next.js
 ---
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+import { LayoutDashboard, FolderGit } from 'lucide-react';
 
-Coming soon!
+
+Next.js is a great React framework for building web apps, and works great with Carbon. 
+
+## File Structure
+
+<Files>
+	<Folder name="app" defaultOpen>
+		<Folder name="discord" defaultOpen>
+			<File name="route.ts" />
+			<Folder name="commands" defaultOpen>
+				<File name="ping.ts" />
+			</Folder>
+			<Folder name="deploy" defaultOpen>
+				<File name="route.ts" />
+			</Folder>
+		</Folder>
+	</Folder>
+</Files>
+
+## Getting Started
+
+### Installation 
+First, we need to install Carbon.
+<CommandTabs command="add" args={["@buape/carbon"]} />
+
+We're going to assume that you already have a working Next.js app and that it's hosted on Vercel, so we'll just add Carbon on top of it.
+
+### Creating a Client
+
+Now let's start your `route.ts` file. The route.ts file is where Next.js will look for your API routes, and Carbon will be running on one of those.
+
+First, we need to import the Carbon client.
+```ts 
+// Import the Carbon client
+import { Client, ClientMode } from "@buape/carbon"
+```
+
+Now, let's add some code to actually use Carbon. First, we will create a new Carbon client. 
+
+```ts
+const client = new Client({
+	clientId: env.DISCORD_CLIENT_ID,
+	publicKey: env.DISCORD_PUBLIC_KEY,
+	token: env.DISCORD_TOKEN,
+	mode: ClientMode.Vercel,
+	redirectUrl: getBaseUrl()
+}, [])
+```
+
+### Adding Commands
+
+Now that we have our client, we can start adding commands to it. Let's create a new file called `ping.ts` in the `commands` folder.
+```ts title="app/discord/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+
+export class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = false
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "Pong!"
+		})
+	}
+}
+```
+
+This is a basic command, you set the name and description, and then add a run function that will be called when the command is used.
+
+Now, let's add this command to our client.
+```ts
+const client = new Client(
+	{
+		clientId: env.CLIENT_ID,
+		publicKey: env.PUBLIC_KEY,
+		token: env.DISCORD_TOKEN,
+		mode: ClientMode.Vercel
+	},
+	[
+		new PingCommand()
+	]
+)
+```
+
+Finally, we need to add a way to deploy your commands to Discord. We can do this by adding a deploy route to our client.
+Add this right above the `client.router.fetch` line:
+```ts title="app/discord/deploy/route.ts"
+import { client } from "../route"
+
+export function GET() {
+	client.deployCommands()
+	return new Response(null, {
+		status: 200
+	})
+}
+```
+
+
+And that's it! You now have a basic Carbon bot running on Cloudflare Workers.
+If you want to add more commands, just create more classes in the `commands` folder, and add them to the client in the `route.ts` file.
+
+
+Now you'll need to setup your bot on the [Discord Developer Portal](https://discord.com/developers/applications). Take a look at the following cards for more information.
+
+<Cards>
+  <Card
+    icon={<LayoutDashboard />}
+    href="/"
+    title="Discord Developer Portal"
+    description="Learn how to setup your bot on the Discord Developer Portal."
+  />
+  <Card
+    icon={<FolderGit />}
+    href="/"
+    title="Example Project"
+    description="See a full example project for Carbon on Cloudflare Workers."
+  />
+</Cards>

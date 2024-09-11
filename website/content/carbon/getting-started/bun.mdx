@@ -1,5 +1,140 @@
 ---
-title: Bun
+title: Node.js
+description: Getting started with Carbon on Node.js	
 ---
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+import { LayoutDashboard, FolderGit } from 'lucide-react';
 
-Coming soon!
+
+## File Structure
+
+<Files>
+	<Folder name="src" defaultOpen>
+		<File name="index.ts" />
+		<Folder name="commands" defaultOpen>
+			<File name="ping.ts" />
+		</Folder>
+	</Folder>
+	<File name=".env" />
+	<File name="package.json" />
+</Files>
+
+## Getting Started
+
+### Installation 
+First, we need to install Carbon and its NodeJS package, as well as env-cmd to help us set our environment variables, and the typings for node.
+<CommandTabs command="add" args={["@buape/carbon env-cmd"]} platforms={["bun"]} />
+
+### Setting up your .env
+
+Let's start by creating your `.env` file, which will contain the secrets and tokens for your app.
+
+```txt title=".env"
+CLIENT_ID=""
+PUBLIC_KEY=""
+DISCORD_TOKEN=""
+```
+
+Now, you need to get your client ID, public key, and token, and fill those out there. [You can learn more about these here.](/carbon/developer-portal/create-a-bot)
+
+### Creating a Client
+
+Now let's start your `index.ts` file. It will be the entry point for your worker, and the main file that will be executed when your worker is deployed.
+
+First, we need to import the Carbon client.
+```ts 
+// Import the Carbon client
+import { Client, ClientMode } from "@buape/carbon"
+```
+
+Now, let's make our Client.
+```
+const client = new Client(
+	{
+		clientId: process.env.CLIENT_ID,
+		publicKey: process.env.PUBLIC_KEY,
+		token: process.env.DISCORD_TOKEN,
+		mode: ClientMode.NodeJS,
+		port: 3000
+	},
+	[] // We'll add commands here later
+)
+```
+
+### Adding Commands
+
+Now that we have our client, we can start adding commands to it. Let's create a new file called `ping.ts` in the `src/commands` folder.
+```ts title="src/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = false
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "Pong!"
+		})
+	}
+}
+```
+
+This is a basic command, you set the name and description, and then add a run function that will be called when the command is used.
+
+Now, let's add this command to our client. 
+```ts title="src/index.ts"
+import { PingCommand } from "./commands/ping.js"
+const client = new Client(
+	{
+		clientId: env.CLIENT_ID,
+		publicKey: env.PUBLIC_KEY,
+		token: env.DISCORD_TOKEN,
+		mode: ClientMode.NodeJS,
+	},
+	[new PingCommand()]
+)
+```
+
+And that's it! You now have a basic Carbon bot running on Bun.
+If you want to add more commands, just create more classes in the `src/commands` folder, and add them to the client in the `src/index.ts` file.
+
+## Running
+
+To run your bot, let's add some scripts to your `package.json` file. 
+
+
+Let's also add some scripts to our `package.json` file.
+```json title="package.json"
+{
+	// ...
+
+	"scripts": {
+		"start": "bun run index.ts"
+	},
+
+	// ...
+}
+```
+
+Then you can use this command:
+<CommandTabs platforms={["bun"]} multiLine command="start" args={[]} />
+
+This will compile your code, and run your bot with the environment variables from your `.env` file.
+
+Now you'll need to setup your bot on the [Discord Developer Portal](https://discord.com/developers/applications). Take a look at the following cards for more information.
+
+<Cards>
+  <Card
+    icon={<LayoutDashboard />}
+    href="/"
+    title="Discord Developer Portal"
+    description="Learn how to setup your bot on the Discord Developer Portal."
+  />
+  <Card
+    icon={<FolderGit />}
+    href="/"
+    title="Example Project"
+    description="See a full example project for Carbon on NodeJS."
+  />
+</Cards>
