@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.4.1
+
+### Patch Changes
+
+- 5fdd006: fix: `ModalHandler` not awaiting modal run
+
 ## 0.4.0
 
 ### Minor Changes
