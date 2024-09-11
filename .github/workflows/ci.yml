@@ -53,6 +53,7 @@ jobs:
         needs: [build, biome, test]
         permissions:
             pull-requests: write
+            contents: read
         steps:
             - name: Check out code
               uses: actions/checkout@v4
