@@ -1,5 +1,24 @@
 # @buape/carbon-nodejs
 
+## 0.2.0
+
+### Minor Changes
+
+- 07b0817: fix: make side packages use peer dependencies
+
+### Patch Changes
+
+- Updated dependencies [558b73c]
+- Updated dependencies [28f252f]
+- Updated dependencies [50e360e]
+- Updated dependencies [4475a84]
+- Updated dependencies [29f8493]
+- Updated dependencies [5bc4b84]
+- Updated dependencies [6239590]
+- Updated dependencies [0a22fa8]
+- Updated dependencies [9456bf0]
+  - @buape/carbon@0.4.0
+
 ## 0.1.7
 
 ### Patch Changes

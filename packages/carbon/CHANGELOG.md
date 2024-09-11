@@ -1,5 +1,22 @@
 # @buape/carbon
 
+## 0.4.0
+
+### Minor Changes
+
+- 28f252f: feat: wildcard command
+- 50e360e: feat: new message properties and methods
+
+### Patch Changes
+
+- 558b73c: fix: `Client` constructor trying to use handlers being they have been initialized
+- 4475a84: fix: set deferred to true in `acknowledge` methods
+- 29f8493: fix: don't let new entry point commands block
+- 5bc4b84: fix: actually pass `followUp` files to api
+- 6239590: fix: component registering
+- 0a22fa8: feat: add component interaction `update` method
+- 9456bf0: fix: use defaultEphemeral for commands and components
+
 ## 0.3.2
 
 ### Patch Changes
