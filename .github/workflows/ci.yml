@@ -5,6 +5,9 @@ on:
         types:
             - opened
             - synchronize
+        branches:
+            - "*"
+            - "!changeset-release/main"
 
 jobs:
     build:
