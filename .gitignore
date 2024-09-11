@@ -3,7 +3,6 @@ dist
 .turbo
 .pnpm-store
 .env
-wrangler.toml
 .map.ts
 .contentlayer
 .content-collections
