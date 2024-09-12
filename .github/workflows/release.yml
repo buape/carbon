@@ -24,6 +24,7 @@ jobs:
               with:
                   publish: pnpm run publish
                   title: "Pending Releases"
+                  commit: "chore: update changelog and release"
               env:
                   GITHUB_TOKEN: ${{ secrets.BUAPEBOT_SECRET }}
                   NPM_TOKEN: ${{ secrets.NPM_SECRET }}
