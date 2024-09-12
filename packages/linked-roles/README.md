@@ -8,4 +8,6 @@
 <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@buape/carbon?style=for-the-badge">
 </div>
 
-This package is part of the Carbon framework, check its README.md file for more details.
+This package is part of [the Carbon framework](https://github.com/buape/carbon), check it out for more details.
+
+You can find the documentation for this package [here](https://carbon.buape.com/docs/linked-roles).

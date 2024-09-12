@@ -8,38 +8,33 @@
 <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@buape/carbon?style=for-the-badge">
 </div>
 
-Carbon is a fully-featured framework for building HTTP Discord bots. It supports both Cloudflare Workers and Node.js, and provides a simple and intuitive API for creating commands and handling interactions.
+Carbon is a fully-featured framework for building HTTP Discord bots, built in TypeScript and designed to be easy to use and understand.
 
 ## Features
 
 - Fully up to date with the Discord API
-- Integrates with Discord's Monetization
-- Easy to use component framework
-- Built in pagination support
-- More to come!
+- Build to be both flexible and powerful
+- Easy to use class-based system for reusability
+- Built in pagination support (Soon!)
+- Integration with Discord's Monetization (Soon!)
 
 ## Why Carbon?
 
 Carbon is designed to be easy to use and understand, while still providing the flexibility and power needed to build complex bots.
-You can deploy it to many services and serverless platforms, and it's easy to integrate with other frameworks and libraries.
+With Carbon, you can deploy it to many platforms, both physical and serverless, and it's easy to integrate with other frameworks and libraries.
 
 ## Installation
 
-To get started with Carbon, you can install it via your package manager of choice:
-
-```bash
-npm install @buape/carbon
-```
+To get started with Carbon, you can check out the [Getting Started](https://carbon.buape.com/docs/getting-started) guides for your preferred platform.
 
 ## Useful Links
 
-- [Website](https://carbon.buape.com) ([Source](https://github.com/buape/carbon/tree/main/apps/website))
 - [Documentation](https://carbon.buape.com/docs)
 - [Discord](https://go.buape.com/carbon)
 - [NPM](https://www.npmjs.com/package/@buape/carbon)
+- [Cloudflare Workers Demo](https://github.com/buape/carbon/tree/main/apps/cloudo)
+- [Node.js Demo](https://github.com/buape/carbon/tree/main/apps/rocko)
 
+## Contributing
 
-## Examples
-
-- [Cloudflare Workers](https://github.com/buape/carbon/tree/main/apps/cloudo)
-- [Node.js](https://github.com/buape/carbon/tree/main/apps/rocko)
+We welcome contributions to Carbon! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/docs/helpful-guides/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
