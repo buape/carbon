@@ -17,12 +17,12 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { channelFactory } from "../factories/channelFactory.js"
-import { GuildThreadChannel } from "./GuildThreadChannel.js"
-import { User } from "./User.js"
 import { Embed } from "../classes/Embed.js"
 import type { Row } from "../classes/Row.js"
+import { channelFactory } from "../factories/channelFactory.js"
+import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Role } from "./Role.js"
+import { User } from "./User.js"
 
 export class Message extends Base {
 	/**
