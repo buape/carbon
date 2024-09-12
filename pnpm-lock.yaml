@@ -95,6 +95,12 @@ importers:
         specifier: 5.0.18
         version: 5.0.18
 
+  packages/create-carbon:
+    dependencies:
+      '@buape/carbon':
+        specifier: workspace:^0.4.2
+        version: link:../carbon
+
   packages/linked-roles:
     devDependencies:
       '@buape/carbon':
