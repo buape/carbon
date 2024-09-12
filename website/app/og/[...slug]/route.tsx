@@ -32,6 +32,8 @@ export function GET(
 				src={`${baseUrl}/${Logo.src}`}
 				alt="Carbon Logo"
 				className="rounded-lg"
+				width={100}
+				height={100}
 			/>
 		),
 		description: page.data.description,
