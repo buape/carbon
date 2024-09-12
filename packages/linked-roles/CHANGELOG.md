@@ -1,5 +1,13 @@
 # @buape/carbon-linked-roles
 
+## 0.2.1
+
+### Patch Changes
+
+- 6b73575: chore: readme cleanups
+- Updated dependencies [6b73575]
+  - @buape/carbon@0.4.2
+
 ## 0.2.0
 
 ### Minor Changes

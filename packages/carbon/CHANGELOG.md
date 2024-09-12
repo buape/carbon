@@ -1,5 +1,13 @@
 # @buape/carbon
 
+## 0.4.2
+
+### Patch Changes
+
+- 6b73575: chore: readme cleanups
+- Updated dependencies [6b73575]
+  - @buape/carbon-request@0.1.1
+
 ## 0.4.1
 
 ### Patch Changes
