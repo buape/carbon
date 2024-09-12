@@ -1,4 +1,5 @@
 import { DocsLayout } from "fumadocs-ui/layout"
+import { getImageMeta } from "fumadocs-ui/og"
 import {
 	DocsBody,
 	DocsCategory,
@@ -6,13 +7,12 @@ import {
 	DocsPage,
 	DocsTitle
 } from "fumadocs-ui/page"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { ReactElement } from "react"
 import { utils } from "~/app/source"
 import { useMDXComponents } from "~/mdx-components"
 import { docsOptions } from "../layout.config"
-import { getImageMeta } from "fumadocs-ui/og"
-import type { Metadata } from "next"
 import { createMetadata } from "../og/[...slug]/metadata"
 
 interface Param {

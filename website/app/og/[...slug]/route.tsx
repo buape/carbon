@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs"
 import { generateOGImage } from "fumadocs-ui/og"
+import { notFound } from "next/navigation"
 import type { ImageResponse } from "next/og"
 import type { NextRequest } from "next/server"
-import { notFound } from "next/navigation"
 import { utils } from "~/app/source"
 
 const font = readFileSync("./app/og/[...slug]/Rubik-Regular.ttf")
