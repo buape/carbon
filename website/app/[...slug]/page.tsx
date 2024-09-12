@@ -10,8 +10,10 @@ import { notFound } from "next/navigation"
 import type { ReactElement } from "react"
 import { utils } from "~/app/source"
 import { useMDXComponents } from "~/mdx-components"
-import { baseOptions, docsOptions } from "../layout.config"
-import { Toggle } from "./toggle"
+import { docsOptions } from "../layout.config"
+import { getImageMeta } from "fumadocs-ui/og"
+import type { Metadata } from "next"
+import { createMetadata } from "../og/[...slug]/metadata"
 
 interface Param {
 	slug: string[]
@@ -58,4 +60,27 @@ export function generateStaticParams(): Param[] {
 	return utils.getPages().map((page) => ({
 		slug: page.slugs
 	}))
+}
+
+export function generateMetadata({ params }: { params: Param }): Metadata {
+	const page = utils.getPage(params.slug)
+
+	if (!page) notFound()
+
+	const description =
+		page.data.description ?? "The library for building documentation sites"
+
+	const image = getImageMeta("og", page.slugs)
+
+	return createMetadata({
+		title: page.data.title,
+		description,
+		openGraph: {
+			url: `/${page.slugs.join("/")}`,
+			images: image
+		},
+		twitter: {
+			images: image
+		}
+	})
 }

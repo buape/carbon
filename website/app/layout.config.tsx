@@ -9,6 +9,7 @@ import { modes } from "~/modes"
 export const baseOptions: HomeLayoutProps = {
 	githubUrl: "https://github.com/fuma-nama/fumadocs",
 	nav: {
+		enableSearch: true,
 		title: (
 			<>
 				<Image
