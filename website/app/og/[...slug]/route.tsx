@@ -8,6 +8,7 @@ import { utils } from "~/app/source"
 const font = readFileSync("./app/og/[...slug]/Rubik-Regular.ttf")
 const fontBold = readFileSync("./app/og/[...slug]/Rubik-Bold.ttf")
 import Logo from "~/public/CarbonLogo.png"
+import { baseUrl } from "./metadata"
 
 export function GET(
 	_: NextRequest,
@@ -26,7 +27,13 @@ export function GET(
 		primaryTextColor: "rgb(240,240,240)",
 		primaryColor: "rgb(145,234,228)",
 		title: page.data.title,
-		icon: <img src={Logo.src} alt="Carbon Logo" className="rounded-lg" />,
+		icon: (
+			<img
+				src={`${baseUrl}/${Logo.src}`}
+				alt="Carbon Logo"
+				className="rounded-lg"
+			/>
+		),
 		description: page.data.description,
 		site: "Carbon",
 		fonts: [
