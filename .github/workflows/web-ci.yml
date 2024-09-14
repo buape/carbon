@@ -3,6 +3,10 @@ name: Web CI
 permissions: write-all
 
 on:
+    merge_group:
+        types: [checks_requested]
+        paths:
+            - "website/**"
     pull_request:
         types: [opened, synchronize]
         paths:
