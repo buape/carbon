@@ -1,5 +1,4 @@
 ---
-"demo-rocko": patch
 "@buape/carbon-nodejs": patch
 ---
 
