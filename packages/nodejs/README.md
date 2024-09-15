@@ -10,4 +10,4 @@
 
 This package is part of [the Carbon framework](https://github.com/buape/carbon), check it out for more details.
 
-You can find the documentation for this package [here](https://carbon.buape.com/docs/nodejs).
+You can find the documentation for this package [here](https://carbon.buape.com/carbon/nodejs).
