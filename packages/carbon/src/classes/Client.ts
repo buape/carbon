@@ -1,6 +1,11 @@
 import { RequestClient, type RequestClientOptions } from "@buape/carbon-request"
 import {
+	type APIChannel,
+	type APIGuild,
+	type APIGuildMember,
 	type APIInteraction,
+	type APIRole,
+	type APIUser,
 	InteractionResponseType,
 	InteractionType,
 	Routes
@@ -11,6 +16,11 @@ import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
+import { channelFactory } from "../factories/channelFactory.js"
+import { Guild } from "../structures/Guild.js"
+import { Role } from "../structures/Role.js"
+import { User } from "../structures/User.js"
+import { GuildMember } from "../structures/GuildMember.js"
 
 /**
  * The mode that the client is running in.
@@ -301,6 +311,63 @@ export class Client {
 			return false
 		}
 	}
+
+	// ======================== Begin Fetchers ================================================
+
+	/**
+	 * Fetch a user from the Discord API
+	 * @param id The ID of the user to fetch
+	 * @returns The user data
+	 */
+	async fetchUser(id: string) {
+		const user = (await this.rest.get(Routes.user(id))) as APIUser
+		return new User(this, user)
+	}
+
+	/**
+	 * Fetch a guild from the Discord API
+	 * @param id The ID of the guild to fetch
+	 * @returns The guild data
+	 */
+	async fetchGuild(id: string) {
+		const guild = (await this.rest.get(Routes.guild(id))) as APIGuild
+		return new Guild(this, guild)
+	}
+
+	/**
+	 * Fetch a channel from the Discord API
+	 * @param id The ID of the channel to fetch
+	 * @returns The channel data
+	 */
+	async fetchChannel(id: string) {
+		const channel = (await this.rest.get(Routes.channel(id))) as APIChannel
+		return channelFactory(this, channel)
+	}
+
+	/**
+	 * Fetch a role from the Discord API
+	 * @param id The ID of the role to fetch
+	 * @returns The role data
+	 */
+	async fetchRole(guildId: string, id: string) {
+		const role = (await this.rest.get(Routes.guildRole(guildId, id))) as APIRole
+		return new Role(this, role)
+	}
+
+	/**
+	 * Fetch a member from the Discord API
+	 * @param guildId The ID of the guild the member is in
+	 * @param id The ID of the member to fetch
+	 * @returns The member data
+	 */
+	async fetchMember(guildId: string, id: string) {
+		const member = (await this.rest.get(
+			Routes.guildMember(guildId, id)
+		)) as APIGuildMember
+		return new GuildMember(this, member, new Guild(this, guildId))
+	}
+
+	// ======================== End Fetchers ================================================
 }
 
 /**
