@@ -25,7 +25,7 @@ With Carbon, you can deploy it to many platforms, both physical and serverless, 
 
 ## Installation
 
-To get started with Carbon, you can check out the [Getting Started](https://carbon.buape.com/docs/getting-started) guides for your preferred platform.
+To get started with Carbon, you can check out the [Getting Started](https://carbon.buape.com/carbon/getting-started) guides for your preferred platform.
 
 ## Useful Links
 
