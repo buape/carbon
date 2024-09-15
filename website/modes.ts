@@ -15,7 +15,7 @@ export interface Mode {
 
 export const modes: Mode[] = [
 	{
-		param: "docs",
+		param: "carbon",
 		name: "Carbon",
 		description: "@buape/carbon",
 		icon: Package
