@@ -29,19 +29,13 @@ export const baseOptions: HomeLayoutProps = {
 	},
 	links: [
 		{
-			icon: <BookIcon />,
-			text: "Blog",
-			url: "/blog",
-			active: "nested-url"
-		},
-		{
 			text: "Showcase",
 			url: "/carbon/even-more/powered-by-carbon",
 			icon: <LayoutTemplateIcon />
 		},
 		{
 			text: "Sponsors",
-			url: "/sponsors",
+			url: "https://github.com/sponsors/buape",
 			icon: <Heart />
 		}
 	]
