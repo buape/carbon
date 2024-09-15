@@ -7,7 +7,7 @@ import { utils } from "~/app/source"
 import { modes } from "~/modes"
 
 export const baseOptions: HomeLayoutProps = {
-	githubUrl: "https://github.com/fuma-nama/fumadocs",
+	githubUrl: "https://github.com/buape/carbon",
 	nav: {
 		enableSearch: true,
 		title: (
@@ -36,7 +36,7 @@ export const baseOptions: HomeLayoutProps = {
 		},
 		{
 			text: "Showcase",
-			url: "/showcase",
+			url: "/carbon/even-more/powered-by-carbon",
 			icon: <LayoutTemplateIcon />
 		},
 		{
