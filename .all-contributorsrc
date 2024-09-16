@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "thewilloftheshadow",
+      "name": "Shadow",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35580099?v=4",
+      "profile": "https://inv.wtf/shadow",
+      "contributions": [
+        "code",
+        "business",
+        "review"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "carbon",
+  "projectOwner": "buape"
+}
