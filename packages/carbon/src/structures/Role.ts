@@ -6,96 +6,136 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import type { IfPartial } from "../utils.js"
 
-export class Role extends Base {
+export class Role<IsPartial extends boolean = false> extends Base {
+	constructor(
+		client: Client,
+		rawDataOrId: IsPartial extends true ? string : APIRole
+	) {
+		super(client)
+		if (typeof rawDataOrId === "string") {
+			this.id = rawDataOrId
+		} else {
+			this.rawData = rawDataOrId
+			this.id = rawDataOrId.id
+			this.setData(rawDataOrId)
+		}
+	}
+
+	private rawData: APIRole | null = null
+	private setData(data: typeof this.rawData) {
+		if (!data) throw new Error("Cannot set data without having data... smh")
+		this.rawData = data
+	}
+	private setField(key: keyof APIRole, value: unknown) {
+		if (!this.rawData)
+			throw new Error("Cannot set field without having data... smh")
+		Reflect.set(this.rawData, key, value)
+	}
+
 	/**
 	 * The ID of the role.
 	 */
-	id: string
-	/**
-	 * The name of the role.
-	 */
-	name?: string | null
-	/**
-	 * The color of the role.
-	 */
-	color?: number | null
-	/**
-	 * The icon hash of the role.
-	 * You can use {@link Role.iconUrl} to get the URL of the icon.
-	 */
-	icon?: string | null
-	/**
-	 * If this role is mentionable.
-	 */
-	mentionable?: boolean | null
-	/**
-	 * If this role is hoisted.
-	 */
-	hoisted?: boolean | null
-	/**
-	 * The position of the role.
-	 */
-	position?: number | null
-	/**
-	 * The permissions of the role.
-	 */
-	permissions?: string | null
-	/**
-	 * If this role is managed by an integration.
-	 */
-	managed?: boolean | null
-	/**
-	 * The unicode emoji for the role.
-	 */
-	unicodeEmoji?: string | null
-	/**
-	 * The flags of this role.
-	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-flags
-	 */
-	flags?: RoleFlags | null
-	/**
-	 * The tags of this role.
-	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure
-	 */
-	tags?: APIRoleTags | null
+	readonly id: string
 
 	/**
 	 * Whether the role is a partial role (meaning it does not have all the data).
 	 * If this is true, you should use {@link Role.fetch} to get the full data of the role.
 	 */
-	partial: boolean
-
-	private rawData: APIRole | null = null
-
-	constructor(client: Client, rawDataOrId: APIRole | string) {
-		super(client)
-		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
-			this.partial = true
-		} else {
-			this.rawData = rawDataOrId
-			this.id = rawDataOrId.id
-			this.partial = false
-			this.setData(rawDataOrId)
-		}
+	get partial(): IsPartial {
+		return (this.rawData === null) as never
 	}
 
-	private setData(data: typeof this.rawData) {
-		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
-		this.name = data.name
-		this.color = data.color
-		this.icon = data.icon
-		this.mentionable = data.mentionable
-		this.hoisted = data.hoist
-		this.position = data.position
-		this.permissions = data.permissions
-		this.managed = data.managed
-		this.unicodeEmoji = data.unicode_emoji
-		this.flags = data.flags
-		this.tags = data.tags
-		this.partial = false
+	/**
+	 * The name of the role.
+	 */
+	get name(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.name as never
+	}
+
+	/**
+	 * The color of the role.
+	 */
+	get color(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.color as never
+	}
+
+	/**
+	 * The icon hash of the role.
+	 * You can use {@link Role.iconUrl} to get the URL of the icon.
+	 */
+	get icon(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.icon as never
+	}
+
+	/**
+	 * If this role is mentionable.
+	 */
+	get mentionable(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.mentionable as never
+	}
+
+	/**
+	 * If this role is hoisted.
+	 */
+	get hoisted(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.hoist as never
+	}
+
+	/**
+	 * The position of the role.
+	 */
+	get position(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.position as never
+	}
+
+	/**
+	 * The permissions of the role.
+	 */
+	get permissions(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.permissions as never
+	}
+
+	/**
+	 * If this role is managed by an integration.
+	 */
+	get managed(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.managed as never
+	}
+
+	/**
+	 * The unicode emoji for the role.
+	 */
+	get unicodeEmoji(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.unicode_emoji as never
+	}
+
+	/**
+	 * The flags of this role.
+	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-flags
+	 */
+	get flags(): IfPartial<IsPartial, RoleFlags> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.flags as never
+	}
+
+	/**
+	 * The tags of this role.
+	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure
+	 */
+	get tags(): IfPartial<IsPartial, APIRoleTags> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.tags as never
 	}
 
 	/**
@@ -121,7 +161,7 @@ export class Role extends Base {
 				name
 			}
 		})
-		this.name = name
+		this.setField("name", name)
 	}
 
 	/**
@@ -131,7 +171,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { color }
 		})
-		this.color = color
+		this.setField("color", color)
 	}
 
 	/**
@@ -142,7 +182,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { icon }
 		})
-		this.icon = icon
+		this.setField("icon", icon)
 	}
 
 	/**
@@ -152,7 +192,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { mentionable }
 		})
-		this.mentionable = mentionable
+		this.setField("mentionable", mentionable)
 	}
 
 	/**
@@ -162,7 +202,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { hoist: hoisted }
 		})
-		this.hoisted = hoisted
+		this.setField("hoist", hoisted)
 	}
 
 	/**
@@ -172,7 +212,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { position }
 		})
-		this.position = position
+		this.setField("position", position)
 	}
 
 	/**
@@ -183,7 +223,7 @@ export class Role extends Base {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
 			body: { permissions }
 		})
-		this.permissions = permissions
+		this.setField("permissions", permissions)
 	}
 
 	async delete(guildId: string) {

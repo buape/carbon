@@ -4,70 +4,104 @@ import {
 	type ThreadChannelType
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
+import type { IfPartial } from "../utils.js"
 
 export class GuildThreadChannel<
-	Type extends ThreadChannelType
-> extends BaseGuildChannel<Type> {
+	Type extends ThreadChannelType,
+	IsPartial extends boolean = false
+> extends BaseGuildChannel<Type, IsPartial> {
+	// @ts-expect-error
+	declare rawData: APIThreadChannel | null
+
 	/**
 	 * Whether the thread is archived.
 	 */
-	archived?: boolean
+	get archived(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.archived as never
+	}
+
 	/**
 	 * The duration until the thread is auto archived.
 	 */
-	autoArchiveDuration?: number
+	get autoArchiveDuration(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.auto_archive_duration as never
+	}
+
 	/**
 	 * The timestamp of when the thread was archived.
 	 */
-	archiveTimestamp?: string
+	get archiveTimestamp(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.archive_timestamp as never
+	}
+
 	/**
 	 * Whether the thread is locked.
 	 */
-	locked?: boolean
+	get locked(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.locked as never
+	}
+
 	/**
 	 * Whether non-moderators can add other non-moderators to a thread; only available on private threads
 	 */
-	invitable?: boolean
+	get invitable(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.invitable as never
+	}
+
 	/**
 	 * The timestamp of when the thread was created.
 	 */
-	createTimestamp?: string
+	get createTimestamp(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.thread_metadata?.create_timestamp as never
+	}
+
 	/**
 	 * The number of messages in the thread.
 	 */
-	messageCount?: number
+	get messageCount(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.message_count as never
+	}
+
 	/**
 	 * The number of members in the thread.
 	 *
 	 * @remarks
 	 * This is only accurate until 50, after that, Discord stops counting.
 	 */
-	memberCount?: number
+	get memberCount(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.member_count as never
+	}
+
 	/**
 	 * The ID of the owner of the thread.
 	 */
-	ownerId?: string
+	get ownerId(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.owner_id as never
+	}
+
 	/**
 	 * The number of messages sent in the thread.
 	 */
-	totalMessageSent?: number
+	get totalMessageSent(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.total_message_sent as never
+	}
+
 	/**
 	 * The tags applied to the thread.
 	 */
-	appliedTags?: string[]
-
-	protected setSpecificData(data: APIThreadChannel) {
-		this.archived = data.thread_metadata?.archived
-		this.autoArchiveDuration = data.thread_metadata?.auto_archive_duration
-		this.archiveTimestamp = data.thread_metadata?.archive_timestamp
-		this.locked = data.thread_metadata?.locked
-		this.invitable = data.thread_metadata?.invitable
-		this.createTimestamp = data.thread_metadata?.create_timestamp
-		this.messageCount = data.message_count
-		this.memberCount = data.member_count
-		this.ownerId = data.owner_id
-		this.totalMessageSent = data.total_message_sent
-		this.appliedTags = data.applied_tags
+	get appliedTags(): IfPartial<IsPartial, string[]> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.applied_tags as never
 	}
 
 	/**
@@ -105,7 +139,7 @@ export class GuildThreadChannel<
 		await this.client.rest.patch(Routes.channel(this.id), {
 			body: { archive: true }
 		})
-		this.archived = true
+		Reflect.set(this.rawData?.thread_metadata ?? {}, "archived", true)
 	}
 
 	/**
@@ -115,7 +149,7 @@ export class GuildThreadChannel<
 		await this.client.rest.patch(Routes.channel(this.id), {
 			body: { archive: false }
 		})
-		this.archived = false
+		Reflect.set(this.rawData?.thread_metadata ?? {}, "archived", false)
 	}
 
 	/**
@@ -125,7 +159,11 @@ export class GuildThreadChannel<
 		await this.client.rest.patch(Routes.channel(this.id), {
 			body: { auto_archive_duration: duration }
 		})
-		this.autoArchiveDuration = duration
+		Reflect.set(
+			this.rawData?.thread_metadata ?? {},
+			"auto_archive_duration",
+			duration
+		)
 	}
 
 	/**
@@ -135,7 +173,7 @@ export class GuildThreadChannel<
 		await this.client.rest.put(Routes.channel(this.id), {
 			body: { locked: true }
 		})
-		this.locked = true
+		Reflect.set(this.rawData?.thread_metadata ?? {}, "locked", true)
 	}
 
 	/**
@@ -145,6 +183,6 @@ export class GuildThreadChannel<
 		await this.client.rest.put(Routes.channel(this.id), {
 			body: { locked: false }
 		})
-		this.locked = false
+		Reflect.set(this.rawData?.thread_metadata ?? {}, "locked", false)
 	}
 }

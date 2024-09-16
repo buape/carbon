@@ -4,17 +4,21 @@ import type {
 	ForumLayoutType
 } from "discord-api-types/v10"
 import { GuildThreadOnlyChannel } from "../abstracts/GuildThreadOnlyChannel.js"
+import type { IfPartial } from "../utils.js"
 
 /**
  * Represents a guild forum channel.
  */
-export class GuildForumChannel extends GuildThreadOnlyChannel<ChannelType.GuildForum> {
+export class GuildForumChannel<
+	IsPartial extends boolean = false
+> extends GuildThreadOnlyChannel<ChannelType.GuildForum, IsPartial> {
+	declare rawData: APIGuildForumChannel | null
+
 	/**
 	 * The default forum layout of the channel.
 	 */
-	defaultForumLayout?: ForumLayoutType
-
-	protected setMoreSpecificData(data: APIGuildForumChannel) {
-		this.defaultForumLayout = data.default_forum_layout
+	get defaultForumLayout(): IfPartial<IsPartial, ForumLayoutType | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_forum_layout as never
 	}
 }

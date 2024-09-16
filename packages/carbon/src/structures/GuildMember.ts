@@ -1,85 +1,140 @@
 import type { APIGuildMember, GuildMemberFlags } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import type { IfPartial } from "../utils.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
 
-export class GuildMember extends Base {
+export class GuildMember<
+	// This currently can never be partial, so we don't need to worry about it
+	IsPartial extends false = false,
+	IsGuildPartial extends boolean = false
+> extends Base {
+	constructor(
+		client: Client,
+		rawData: APIGuildMember,
+		guild: Guild<IsGuildPartial>
+	) {
+		super(client)
+		this.rawData = rawData
+		this.guild = guild
+		this.user = new User(client, rawData.user)
+		this.setData(rawData)
+	}
+
+	private rawData: APIGuildMember | null = null
+	private setData(data: typeof this.rawData) {
+		if (!data) throw new Error("Cannot set data without having data... smh")
+		this.rawData = data
+	}
+	private setField(key: keyof APIGuildMember, value: unknown) {
+		if (!this.rawData)
+			throw new Error("Cannot set field without having data... smh")
+		Reflect.set(this.rawData, key, value)
+	}
+
+	/**
+	 * The guild object of the member.
+	 */
+	guild: Guild<IsGuildPartial>
+
+	/**
+	 * The user object of the member.
+	 */
+	user: User
+
 	/**
 	 * The guild-specific nickname of the member.
 	 */
-	nickname?: string | null
+	get nickname(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.nick as never
+	}
+
 	/**
 	 * The guild-specific avatar hash of the member.
 	 * You can use {@link GuildMember.avatarUrl} to get the URL of the avatar.
 	 */
-	avatar?: string | null
+	get avatar(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.avatar as never
+	}
+
 	/**
 	 * Is this member muted in Voice Channels?
 	 */
-	mute?: boolean | null
+	get mute(): IfPartial<IsPartial, boolean | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.mute as never
+	}
+
 	/**
 	 * Is this member deafened in Voice Channels?
 	 */
-	deaf?: boolean | null
+	get deaf(): IfPartial<IsPartial, boolean | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.deaf as never
+	}
+
 	/**
 	 * The date since this member boosted the guild, if applicable.
 	 */
-	premiumSince?: string | null
+	get premiumSince(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.premium_since as never
+	}
+
 	/**
 	 * The flags of the member.
 	 * @see https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-flags
 	 */
-	flags?: GuildMemberFlags | null
+	get flags(): IfPartial<IsPartial, GuildMemberFlags | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.flags as never
+	}
+
 	/**
 	 * The roles of the member
 	 */
-	roles?: Role[] | null
+	get roles(): IfPartial<IsPartial, Role<true>[]> {
+		if (!this.rawData) return undefined as never
+		const roles = this.rawData.roles ?? []
+		return roles.map((role) => new Role<true>(this.client, role)) as never
+	}
+
 	/**
 	 * The joined date of the member
 	 */
-	joinedAt?: string | null
+	get joinedAt(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.joined_at as never
+	}
+
 	/**
 	 * The date when the member's communication privileges (timeout) will be reinstated
 	 */
-	communicationDisabledUntil?: string | null
+	get communicationDisabledUntil(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.communication_disabled_until as never
+	}
+
 	/**
 	 * Is this member yet to pass the guild's Membership Screening requirements?
 	 */
-	pending?: boolean | null
-	/**
-	 * The guild object of the member
-	 */
-	guild: Guild
-	/**
-	 * The user object of the member
-	 */
-	user?: User | null
-
-	private rawData: APIGuildMember | null = null
-
-	constructor(client: Client, rawData: APIGuildMember, guild: Guild) {
-		super(client)
-		this.rawData = rawData
-		this.guild = guild
-		this.setData(rawData)
+	get pending(): IfPartial<IsPartial, boolean | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.pending as never
 	}
 
-	private setData(data: typeof this.rawData) {
-		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
-		this.nickname = data.nick
-		this.avatar = data.avatar
-		this.mute = data.mute
-		this.deaf = data.deaf
-		this.premiumSince = data.premium_since
-		this.flags = data.flags
-		this.roles = data.roles?.map((roleId) => new Role(this.client, roleId))
-		this.joinedAt = data.joined_at
-		this.communicationDisabledUntil = data.communication_disabled_until
-		this.pending = data.pending
-		this.user = data.user ? new User(this.client, data.user) : null
+	/**
+	 * Get the URL of the member's guild-specific avatar
+	 */
+	get avatarUrl(): string | null {
+		if (!this.user) return null
+		return this.avatar
+			? `https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user?.id}/${this.avatar}.png`
+			: null
 	}
 
 	/**
@@ -94,7 +149,7 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.nickname = nickname
+		this.setField("nick", nickname)
 	}
 
 	/**
@@ -105,7 +160,7 @@ export class GuildMember extends Base {
 			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`,
 			{}
 		)
-		this.roles?.push(new Role(this.client, roleId))
+		this.roles?.push(new Role<true>(this.client, roleId))
 	}
 
 	/**
@@ -115,7 +170,8 @@ export class GuildMember extends Base {
 		await this.client.rest.delete(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`
 		)
-		this.roles = this.roles?.filter((role) => role.id !== roleId)
+		const roles = this.roles?.filter((role) => role.id !== roleId)
+		if (roles) this.setField("roles", roles)
 	}
 
 	/**
@@ -156,7 +212,7 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.mute = true
+		this.setField("mute", true)
 	}
 
 	/**
@@ -171,7 +227,7 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.mute = false
+		this.setField("mute", false)
 	}
 
 	/**
@@ -186,7 +242,7 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.deaf = true
+		this.setField("deaf", true)
 	}
 
 	/**
@@ -201,7 +257,7 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.deaf = false
+		this.setField("deaf", false)
 	}
 
 	/**
@@ -216,16 +272,6 @@ export class GuildMember extends Base {
 				}
 			}
 		)
-		this.communicationDisabledUntil = communicationDisabledUntil
-	}
-
-	/**
-	 * Get the URL of the member's guild-specific avatar
-	 */
-	get avatarUrl(): string | null {
-		if (!this.user) return null
-		return this.avatar
-			? `https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user?.id}/${this.avatar}.png`
-			: null
+		this.setField("communication_disabled_until", communicationDisabledUntil)
 	}
 }

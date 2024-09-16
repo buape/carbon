@@ -1,57 +1,79 @@
 import {
 	type APIGroupDMChannel,
-	ChannelType,
+	type ChannelType,
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
+import type { IfPartial } from "../utils.js"
 import { Message } from "./Message.js"
 import { User } from "./User.js"
 
 /**
  * Represents a group DM channel.
  */
-export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
+export class GroupDmChannel<
+	IsPartial extends boolean = false
+> extends BaseChannel<ChannelType.GroupDM, IsPartial> {
+	declare rawData: APIGroupDMChannel | null
+
 	/**
 	 * The name of the channel.
 	 */
-	name?: string | null
+	get name(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.name
+	}
+
 	/**
 	 * The recipients of the channel.
 	 */
-	recipients?: User[]
-	type: ChannelType.GroupDM = ChannelType.GroupDM
+	get recipients(): IfPartial<IsPartial, User<boolean>[]> {
+		if (!this.rawData) return undefined as never
+		const recipients = this.rawData.recipients ?? []
+		return recipients.map((u) => new User(this.client, u))
+	}
+
 	/**
 	 * The ID of the application that created the channel, if it was created by a bot.
 	 */
-	applicationId?: string | null
+	get applicationId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.application_id as never
+	}
+
 	/**
 	 * The icon hash of the channel.
 	 */
-	icon?: string | null
+	get icon(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.icon as never
+	}
+
 	/**
 	 * The ID of the user who created the channel.
 	 */
-	ownerId?: string | null
+	get ownerId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.owner_id as never
+	}
+
 	/**
 	 * The ID of the last message sent in the channel.
 	 *
 	 * @remarks
 	 * This might not always resolve to a message. The ID still stays a part of the channel's data, even if the message is deleted.
 	 */
-	lastMessageId?: string | null
+	get lastMessageId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.last_message_id as never
+	}
+
 	/**
 	 * Whether the channel is managed by an Oauth2 application.
 	 */
-	managed?: boolean | null
-
-	protected setSpecificData(data: APIGroupDMChannel) {
-		this.name = data.name
-		this.recipients = data.recipients?.map((x) => new User(this.client, x))
-		this.applicationId = data.application_id
-		this.icon = data.icon
-		this.ownerId = data.owner_id
-		this.lastMessageId = data.last_message_id
-		this.managed = data.managed
+	get managed(): IfPartial<IsPartial, boolean | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.managed as never
 	}
 
 	/**
@@ -66,9 +88,9 @@ export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
 	/**
 	 * Get the owner of the channel.
 	 */
-	get owner(): User {
+	get owner(): User<true> {
 		if (!this.ownerId) throw new Error("Cannot get owner without owner ID")
-		return new User(this.client, this.ownerId)
+		return new User<true>(this.client, this.ownerId)
 	}
 
 	/**
@@ -81,9 +103,9 @@ export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
 	 */
 	get lastMessage() {
 		if (!this.lastMessageId) return null
-		return new Message(this.client, {
+		return new Message<true>(this.client, {
 			id: this.lastMessageId,
-			channel_id: this.id
+			channelId: this.id
 		})
 	}
 
@@ -97,36 +119,26 @@ export class GroupDmChannel extends BaseChannel<ChannelType.GroupDM> {
 				name
 			}
 		})
-		this.name = name
+		this.setField("name", name)
 	}
 
-	async addRecipient(user: User | string) {
-		await this.client.rest.put(
-			Routes.channelRecipient(
-				this.id,
-				typeof user === "string" ? user : user.id
-			)
-		)
-		if (this.recipients)
-			this.recipients.push(
-				typeof user === "string" ? new User(this.client, user) : user
-			)
-		else
-			this.recipients = [
-				typeof user === "string" ? new User(this.client, user) : user
-			]
-	}
+	// TODO: Do these even work without access token?
 
-	async removeRecipient(user: User | string) {
-		await this.client.rest.delete(
-			Routes.channelRecipient(
-				this.id,
-				typeof user === "string" ? user : user.id
-			)
-		)
-		if (this.recipients)
-			this.recipients = this.recipients.filter(
-				(x) => x.id !== (typeof user === "string" ? user : user.id)
-			)
-	}
+	// async addRecipient(user: User | string) {
+	// 	await this.client.rest.put(
+	// 		Routes.channelRecipient(
+	// 			this.id,
+	// 			typeof user === "string" ? user : user.id
+	// 		)
+	// 	)
+	// }
+
+	// async removeRecipient(user: User | string) {
+	// 	await this.client.rest.delete(
+	// 		Routes.channelRecipient(
+	// 			this.id,
+	// 			typeof user === "string" ? user : user.id
+	// 		)
+	// 	)
+	// }
 }

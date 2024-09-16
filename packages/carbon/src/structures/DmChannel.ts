@@ -1,23 +1,27 @@
 import {
 	type APIDMChannel,
 	type APIMessage,
-	ChannelType,
+	type ChannelType,
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
+import type { IfPartial } from "../utils.js"
 
 /**
  * Represents a DM between two users.
  */
-export class DmChannel extends BaseChannel<ChannelType.DM> {
+export class DmChannel<IsPartial extends boolean = false> extends BaseChannel<
+	ChannelType.DM,
+	IsPartial
+> {
+	declare rawData: APIDMChannel | null
+
 	/**
 	 * The name of the channel. This is always null for DM channels.
 	 */
-	name?: null = null
-	type: ChannelType.DM = ChannelType.DM
-
-	protected setSpecificData(data: APIDMChannel) {
-		this.name = data.name
+	get name(): IfPartial<IsPartial, null> {
+		if (!this.rawData) return undefined as never
+		return null as never
 	}
 
 	/**

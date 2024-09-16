@@ -1,3 +1,5 @@
+export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
+
 export const splitCustomId = (
 	customId: string
 ): [string, Record<string, string>] => {

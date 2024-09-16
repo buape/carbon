@@ -120,9 +120,9 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		return new Message(this.client, this.rawData.message)
 	}
 
-	get guild(): Guild | null {
+	get guild(): Guild<true> | null {
 		if (!this.rawData.guild_id) return null
-		return new Guild(this.client, this.rawData.guild_id)
+		return new Guild<true>(this.client, this.rawData.guild_id)
 	}
 
 	get user(): User | null {
