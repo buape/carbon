@@ -52,7 +52,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/FinnyMarigold58"><img src="https://avatars.githubusercontent.com/u/59434139?v=4?s=100" width="100px;" alt="Finny"/><br /><sub><b>Finny</b></sub></a><br /><a href="https://github.com/buape/carbon/commits?author=FinnyMarigold58" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/FinnyMarigold58"><img src="https://avatars.githubusercontent.com/u/59434139?v=4?s=100" width="100px;" alt="Finny"/><br /><sub><b>Finny</b></sub></a><br /><a href="https://github.com/buape/carbon/commits?author=FinnyMarigold58" title="Documentation">📖</a> <a href="#ideas-FinnyMarigold58" title="Ideas, Planning, & Feedback">🤔</a></td>
     </tr>
   </tbody>
 </table>
