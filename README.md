@@ -1,4 +1,7 @@
 # Carbon
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <div align="center">
 <a href="https://go.buape.com/carbon"><img src="https://cdn.buape.com/CarbonWordmark.png" alt="Carbon Wordmark"></a>
@@ -42,6 +45,20 @@ We welcome contributions to Carbon! If you're interested in contributing, please
 ## Contributors
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://inv.wtf/shadow"><img src="https://avatars.githubusercontent.com/u/35580099?v=4?s=100" width="100px;" alt="Shadow"/><br /><sub><b>Shadow</b></sub></a><br /><a href="https://github.com/buape/carbon/commits?author=thewilloftheshadow" title="Code">💻</a> <a href="#business-thewilloftheshadow" title="Business development">💼</a> <a href="https://github.com/buape/carbon/pulls?q=is%3Apr+reviewed-by%3Athewilloftheshadow" title="Reviewed Pull Requests">👀</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 
