@@ -1,6 +1,6 @@
 ---
-title: Node.js
-description: Getting started with Carbon on Node.js	
+title: Bun
+description: Getting started with Carbon on Bun
 ---
 import { File, Folder, Files } from 'fumadocs-ui/components/files';
 import { LayoutDashboard, FolderGit } from 'lucide-react';
@@ -22,8 +22,8 @@ import { LayoutDashboard, FolderGit } from 'lucide-react';
 ## Getting Started
 
 ### Installation 
-First, we need to install Carbon and its NodeJS package, as well as env-cmd to help us set our environment variables, and the typings for node.
-<CommandTabs command="add" args={["@buape/carbon env-cmd"]} platforms={["bun"]} />
+First, we need to install Carbon.
+<CommandTabs command="add" args={["@buape/carbon"]} platforms={["bun"]} />
 
 ### Setting up your .env
 
@@ -35,7 +35,7 @@ PUBLIC_KEY=""
 DISCORD_TOKEN=""
 ```
 
-Now, you need to get your client ID, public key, and token, and fill those out there. [You can learn more about these here.](/carbon/developer-portal/create-a-bot)
+Now, you need to get your client ID, public key, and token, and fill those out there. [You can learn more about these here.](/carbon/helpful-guides/developer-portal/create-a-bot)
 
 ### Creating a Client
 
@@ -47,18 +47,28 @@ First, we need to import the Carbon client.
 import { Client, ClientMode } from "@buape/carbon"
 ```
 
-Now, let's make our Client.
+We also need to import the serve function from `bun`.
+```ts
+import { serve } from "bun"
 ```
+
+Now, let's make our Client.
+```ts
 const client = new Client(
 	{
+		mode: ClientMode.Bun, 
 		clientId: process.env.CLIENT_ID,
-		publicKey: process.env.PUBLIC_KEY,
+		publicKey: process.env.PUBLIC_KEY, 
 		token: process.env.DISCORD_TOKEN,
-		mode: ClientMode.NodeJS,
 		port: 3000
 	},
 	[] // We'll add commands here later
-)
+);
+```
+
+And finally, we need to host Carbon.
+```ts
+serve(client.router)
 ```
 
 ### Adding Commands
@@ -87,10 +97,11 @@ Now, let's add this command to our client.
 import { PingCommand } from "./commands/ping.js"
 const client = new Client(
 	{
-		clientId: env.CLIENT_ID,
-		publicKey: env.PUBLIC_KEY,
-		token: env.DISCORD_TOKEN,
-		mode: ClientMode.NodeJS,
+		clientId: process.env.CLIENT_ID,
+		publicKey: process.env.PUBLIC_KEY,
+		token: process.env.DISCORD_TOKEN,
+		mode: ClientMode.Bun,
+		port: 3000
 	},
 	[new PingCommand()]
 )
@@ -118,16 +129,16 @@ Let's also add some scripts to our `package.json` file.
 ```
 
 Then you can use this command:
-<CommandTabs platforms={["bun"]} multiLine command="start" args={[]} />
+<CommandTabs platforms={["bun"]} multiLine command="start" args={[""]} />
 
-This will compile your code, and run your bot with the environment variables from your `.env` file.
+This will run your bot with the environment variables from your `.env` file.
 
 Now you'll need to setup your bot on the [Discord Developer Portal](https://discord.com/developers/applications). Take a look at the following cards for more information.
 
 <Cards>
   <Card
     icon={<LayoutDashboard />}
-    href="/"
+    href="/carbon/helpful-guides/developer-portal/urls"
     title="Discord Developer Portal"
     description="Learn how to setup your bot on the Discord Developer Portal."
   />
@@ -135,6 +146,6 @@ Now you'll need to setup your bot on the [Discord Developer Portal](https://disc
     icon={<FolderGit />}
     href="/"
     title="Example Project"
-    description="See a full example project for Carbon on NodeJS."
+    description="See a full example project for Carbon on Bun."
   />
 </Cards>
