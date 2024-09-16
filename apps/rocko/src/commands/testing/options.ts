@@ -77,7 +77,7 @@ export default class Options extends Command {
 
 	async run(interaction: CommandInteraction) {
 		await interaction.reply({
-			content: `Errors: ${interaction.options?.errors}\nStr: ${interaction.options?.getString("str")}\nInt: ${interaction.options?.getInteger("int")}\nNum: ${interaction.options?.getNumber("num")}\nBool: ${interaction.options?.getBoolean("bool")}\nUser: ${interaction.options?.getUser("user")}\nChannel: ${interaction.options?.getChannel("channel")}\nRole: ${interaction.options?.getRole("role")}\nMentionable: ${interaction.options?.getMentionable("mentionable")}\nAutocomplete: ${interaction.options?.getString("autocomplete")}`
+			content: `Str: ${interaction.options.getString("str")}\nInt: ${interaction.options.getInteger("int")}\nNum: ${interaction.options.getNumber("num")}\nBool: ${interaction.options.getBoolean("bool")}\nUser: ${interaction.options.getUser("user")}\nChannel: ${interaction.options.getChannel("channel")}\nRole: ${interaction.options.getRole("role")}\nMentionable: ${interaction.options.getMentionable("mentionable")}\nAutocomplete: ${interaction.options.getString("autocomplete")}`
 		})
 	}
 
@@ -85,11 +85,11 @@ export default class Options extends Command {
 		await interaction.respond([
 			{
 				name: "That thing you said",
-				value: `${interaction.options?.getFocused() || "NONE"}`
+				value: `${interaction.options.getFocused() || "NONE"}`
 			},
 			{
 				name: "That thing you said but with a 4",
-				value: `4: ${interaction.options?.getFocused() || "NONE"}`
+				value: `4: ${interaction.options.getFocused() || "NONE"}`
 			}
 		])
 	}
