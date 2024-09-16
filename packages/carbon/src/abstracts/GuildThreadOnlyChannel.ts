@@ -1,7 +1,6 @@
 import type {
 	APIGuildForumDefaultReactionEmoji,
 	APIGuildForumTag,
-	APIMessage,
 	APIThreadOnlyChannel,
 	ChannelType,
 	SortOrderType,
@@ -10,6 +9,7 @@ import type {
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { IfPartial } from "../utils.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
+import type { MessagePayload } from "../types.js"
 
 export abstract class GuildThreadOnlyChannel<
 	Type extends ChannelType.GuildForum | ChannelType.GuildMedia,
@@ -83,7 +83,7 @@ export abstract class GuildThreadOnlyChannel<
 	 * @remarks
 	 * This is an alias for {@link GuildThreadChannel.send} that will fetch the channel, but if you already have the channel, you can use {@link GuildThreadChannel.send} instead.
 	 */
-	async sendToPost(message: APIMessage, postId: string): Promise<void> {
+	async sendToPost(message: MessagePayload, postId: string): Promise<void> {
 		const channel = new GuildThreadChannel<ThreadChannelType, true>(
 			this.client,
 			postId

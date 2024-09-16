@@ -29,7 +29,7 @@ class PingButton extends Button {
 	style = ButtonStyle.Primary
 
 	async run(interaction: ButtonInteraction) {
-		await interaction.reply({ content: "OMG YOU CLICKED THE BUTTON" })
+		await interaction.reply("OMG YOU CLICKED THE BUTTON")
 	}
 }
 
