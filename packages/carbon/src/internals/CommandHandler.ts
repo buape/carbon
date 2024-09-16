@@ -87,12 +87,9 @@ export class CommandHandler extends Base {
 		const command = this.getCommand(rawInteraction)
 		if (!command) return false
 
-		const interaction = new CommandInteraction(
-			this.client,
-			rawInteraction,
-			{ ephemeral: command.ephemeral },
-			command
-		)
+		const interaction = new CommandInteraction(this.client, rawInteraction, {
+			ephemeral: command.ephemeral
+		})
 
 		try {
 			const command = this.getCommand(rawInteraction)
@@ -115,8 +112,7 @@ export class CommandHandler extends Base {
 		const interaction = new AutocompleteInteraction(
 			this.client,
 			rawInteraction,
-			{ ephemeral: command.ephemeral },
-			command
+			{ ephemeral: command.ephemeral }
 		)
 
 		try {

@@ -7,25 +7,22 @@ import {
 	InteractionType,
 	Routes
 } from "discord-api-types/v10"
-import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import {
 	BaseInteraction,
 	type InteractionDefaults
 } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
-import { Command } from "../classes/Command.js"
 import { OptionsHandler } from "./OptionsHandler.js"
 
 export class AutocompleteInteraction extends BaseInteraction<APIApplicationCommandAutocompleteInteraction> {
 	/**
 	 * This is the options of the commands, parsed from the interaction data.
 	 */
-	options?: AutocompleteOptionsHandler
+	options: AutocompleteOptionsHandler
 	constructor(
 		client: Client,
 		data: APIApplicationCommandAutocompleteInteraction,
-		defaults: InteractionDefaults,
-		command?: BaseCommand
+		defaults: InteractionDefaults
 	) {
 		super(client, data, defaults)
 		if (data.type !== InteractionType.ApplicationCommandAutocomplete) {
@@ -34,20 +31,12 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 		if (data.data.type !== ApplicationCommandType.ChatInput) {
 			throw new Error("Invalid command type was used to create this class")
 		}
-		if (
-			command instanceof Command &&
-			!data.data.options?.find(
-				(x) =>
-					x.type === ApplicationCommandOptionType.Subcommand ||
-					x.type === ApplicationCommandOptionType.SubcommandGroup
-			)
-		) {
-			this.options = new AutocompleteOptionsHandler(
-				client,
-				(data.data.options ??
-					[]) as APIApplicationCommandInteractionDataBasicOption[]
-			)
-		}
+
+		this.options = new AutocompleteOptionsHandler(
+			client,
+			(data.data.options ??
+				[]) as APIApplicationCommandInteractionDataBasicOption[]
+		)
 	}
 
 	override async defer() {

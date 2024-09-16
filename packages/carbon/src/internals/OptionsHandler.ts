@@ -22,10 +22,6 @@ export class OptionsHandler extends Base {
 	 * The raw options that were in the interaction data, before they were parsed.
 	 */
 	readonly raw: APIApplicationCommandInteractionDataBasicOption[]
-	/**
-	 * The errors that were encountered while parsing the options.
-	 */
-	readonly errors: Array<string> = []
 
 	constructor(
 		client: Client,
