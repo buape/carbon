@@ -110,8 +110,8 @@ importers:
   packages/nodejs:
     dependencies:
       '@hono/node-server':
-        specifier: 1.12.2
-        version: 1.12.2(hono@4.6.1)
+        specifier: 1.13.0
+        version: 1.13.0(hono@4.6.1)
       '@types/node':
         specifier: 22.5.5
         version: 22.5.5
@@ -796,8 +796,8 @@ packages:
   '@formatjs/intl-localematcher@0.5.4':
     resolution: {integrity: sha512-zTwEpWOzZ2CiKcB93BLngUX59hQkuZjT2+SAQEscSm52peDW/getsawMcWF1rGRpMCX6D7nSJA3CzJ8gn13N/g==}
 
-  '@hono/node-server@1.12.2':
-    resolution: {integrity: sha512-xjzhqhSWUE/OhN0g3KCNVzNsQMlFUAL+/8GgPUr3TKcU7cvgZVBGswFofJ8WwGEHTqobzze1lDpGJl9ZNckDhA==}
+  '@hono/node-server@1.13.0':
+    resolution: {integrity: sha512-kz323qIQkNQElEGroo/E9MKPDuIR5pkuk/XEWd50K+cSEKdmdiYx0PKWUdaNY2ecJYngtF+njDMsMKplL6zfEg==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -4443,7 +4443,7 @@ snapshots:
     dependencies:
       tslib: 2.7.0
 
-  '@hono/node-server@1.12.2(hono@4.6.1)':
+  '@hono/node-server@1.13.0(hono@4.6.1)':
     dependencies:
       hono: 4.6.1
 
