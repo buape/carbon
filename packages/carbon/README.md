@@ -38,3 +38,15 @@ To get started with Carbon, you can check out the [Getting Started](https://carb
 ## Contributing
 
 We welcome contributions to Carbon! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/carbon/helpful-guides/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
+
+### All Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
