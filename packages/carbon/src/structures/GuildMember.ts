@@ -49,7 +49,7 @@ export class GuildMember<
 	 */
 	get nickname(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.nick as never
+		return this.rawData.nick ?? null
 	}
 
 	/**
@@ -58,23 +58,32 @@ export class GuildMember<
 	 */
 	get avatar(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.avatar as never
+		return this.rawData.avatar ?? null
+	}
+
+	/**
+	 * Get the URL of the member's guild-specific avatar
+	 */
+	get avatarUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.user || !this.avatar) return null
+		return `https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}/${this.avatar}.png`
 	}
 
 	/**
 	 * Is this member muted in Voice Channels?
 	 */
-	get mute(): IfPartial<IsPartial, boolean | null> {
+	get mute(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.mute as never
+		return this.rawData.mute
 	}
 
 	/**
 	 * Is this member deafened in Voice Channels?
 	 */
-	get deaf(): IfPartial<IsPartial, boolean | null> {
+	get deaf(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.deaf as never
+		return this.rawData.deaf
 	}
 
 	/**
@@ -82,16 +91,16 @@ export class GuildMember<
 	 */
 	get premiumSince(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.premium_since as never
+		return this.rawData.premium_since ?? null
 	}
 
 	/**
 	 * The flags of the member.
 	 * @see https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-flags
 	 */
-	get flags(): IfPartial<IsPartial, GuildMemberFlags | null> {
+	get flags(): IfPartial<IsPartial, GuildMemberFlags> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.flags as never
+		return this.rawData.flags
 	}
 
 	/**
@@ -100,15 +109,15 @@ export class GuildMember<
 	get roles(): IfPartial<IsPartial, Role<true>[]> {
 		if (!this.rawData) return undefined as never
 		const roles = this.rawData.roles ?? []
-		return roles.map((role) => new Role<true>(this.client, role)) as never
+		return roles.map((role) => new Role<true>(this.client, role))
 	}
 
 	/**
 	 * The joined date of the member
 	 */
-	get joinedAt(): IfPartial<IsPartial, string | null> {
+	get joinedAt(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.joined_at as never
+		return this.rawData.joined_at
 	}
 
 	/**
@@ -116,25 +125,15 @@ export class GuildMember<
 	 */
 	get communicationDisabledUntil(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.communication_disabled_until as never
+		return this.rawData.communication_disabled_until ?? null
 	}
 
 	/**
 	 * Is this member yet to pass the guild's Membership Screening requirements?
 	 */
-	get pending(): IfPartial<IsPartial, boolean | null> {
+	get pending(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.pending as never
-	}
-
-	/**
-	 * Get the URL of the member's guild-specific avatar
-	 */
-	get avatarUrl(): string | null {
-		if (!this.user) return null
-		return this.avatar
-			? `https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user?.id}/${this.avatar}.png`
-			: null
+		return this.rawData.pending ?? false
 	}
 
 	/**

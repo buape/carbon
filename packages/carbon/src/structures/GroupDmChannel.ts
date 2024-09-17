@@ -38,7 +38,7 @@ export class GroupDmChannel<
 	 */
 	get applicationId(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.application_id as never
+		return this.rawData.application_id ?? null
 	}
 
 	/**
@@ -46,7 +46,16 @@ export class GroupDmChannel<
 	 */
 	get icon(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.icon as never
+		return this.rawData.icon ?? null
+	}
+
+	/**
+	 * Get the URL of the channel's icon.
+	 */
+	get iconUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.icon) return null
+		return `https://cdn.discordapp.com/channel-icons/${this.id}/${this.icon}.png`
 	}
 
 	/**
@@ -54,7 +63,7 @@ export class GroupDmChannel<
 	 */
 	get ownerId(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.owner_id as never
+		return this.rawData.owner_id ?? null
 	}
 
 	/**
@@ -65,24 +74,15 @@ export class GroupDmChannel<
 	 */
 	get lastMessageId(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.last_message_id as never
+		return this.rawData.last_message_id ?? null
 	}
 
 	/**
 	 * Whether the channel is managed by an Oauth2 application.
 	 */
-	get managed(): IfPartial<IsPartial, boolean | null> {
+	get managed(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.managed as never
-	}
-
-	/**
-	 * Get the URL of the channel's icon.
-	 */
-	get iconUrl(): string | null {
-		return this.icon
-			? `https://cdn.discordapp.com/channel-icons/${this.id}/${this.icon}.png`
-			: null
+		return this.rawData.managed ?? false
 	}
 
 	/**

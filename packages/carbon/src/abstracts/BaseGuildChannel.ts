@@ -40,7 +40,7 @@ export abstract class BaseGuildChannel<
 	 */
 	get position(): IfPartial<IsPartial, number> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.position as never
+		return this.rawData.position
 	}
 
 	/**
@@ -48,7 +48,7 @@ export abstract class BaseGuildChannel<
 	 */
 	get parentId(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.parent_id as never
+		return this.rawData.parent_id ?? null
 	}
 
 	/**
@@ -56,13 +56,14 @@ export abstract class BaseGuildChannel<
 	 */
 	get nsfw(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.nsfw as never
+		return this.rawData.nsfw ?? false
 	}
 
 	/**
 	 * The guild this channel is in
 	 */
-	get guild() {
+	get guild(): IfPartial<IsPartial, Guild<true>> {
+		if (!this.rawData) return undefined as never
 		if (!this.guildId) throw new Error("Cannot get guild without guild ID")
 		return new Guild<true>(this.client, this.guildId)
 	}

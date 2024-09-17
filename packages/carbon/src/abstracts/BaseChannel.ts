@@ -1,5 +1,6 @@
 import {
 	type APIChannel,
+	type ChannelFlags,
 	type ChannelType,
 	Routes
 } from "discord-api-types/v10"
@@ -62,16 +63,16 @@ export abstract class BaseChannel<
 	 */
 	get type(): IfPartial<IsPartial, Type> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.type as never
+		return this.rawData.type
 	}
 
 	/**
 	 * The flags of the channel in a bitfield.
 	 * @see https://discord.com/developers/docs/resources/channel#channel-object-channel-flags
 	 */
-	get flags(): IfPartial<IsPartial, number | null> {
+	get flags(): IfPartial<IsPartial, ChannelFlags | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.flags as never
+		return this.rawData.flags
 	}
 
 	/**

@@ -21,7 +21,7 @@ export class DmChannel<IsPartial extends boolean = false> extends BaseChannel<
 	 */
 	get name(): IfPartial<IsPartial, null> {
 		if (!this.rawData) return undefined as never
-		return null as never
+		return null
 	}
 
 	/**

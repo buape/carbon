@@ -12,7 +12,7 @@ export class GuildTextChannel<
 	 */
 	get defaultAutoArchiveDuration(): IfPartial<IsPartial, number | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.default_auto_archive_duration as never
+		return this.rawData.default_auto_archive_duration ?? null
 	}
 
 	/**
@@ -20,6 +20,6 @@ export class GuildTextChannel<
 	 */
 	get defaultThreadRateLimitPerUser(): IfPartial<IsPartial, number | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.default_thread_rate_limit_per_user as never
+		return this.rawData.default_thread_rate_limit_per_user ?? null
 	}
 }

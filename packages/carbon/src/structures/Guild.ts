@@ -74,7 +74,16 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get icon(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.icon as never
+		return this.rawData.icon
+	}
+
+	/**
+	 * Get the URL of the guild's icon
+	 */
+	get iconUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.icon) return null
+		return `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.png`
 	}
 
 	/**
@@ -83,7 +92,16 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get splash(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.splash as never
+		return this.rawData.splash
+	}
+
+	/**
+	 * Get the URL of the guild's splash
+	 */
+	get splashUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.splash) return null
+		return `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
 	}
 
 	/**
@@ -91,34 +109,17 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get ownerId(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.owner_id as never
+		return this.rawData.owner_id
 	}
 
 	/**
 	 * Get all roles in the guild
 	 */
-	get roles() {
+	get roles(): IfPartial<IsPartial, Role[]> {
+		if (!this.rawData) return undefined as never
 		const roles = this.rawData?.roles
 		if (!roles) throw new Error("Cannot get roles without having data... smh")
 		return roles.map((role) => new Role(this.client, role))
-	}
-
-	/**
-	 * Get the URL of the guild's icon
-	 */
-	get iconUrl(): string | null {
-		return this.icon
-			? `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.png`
-			: null
-	}
-
-	/**
-	 * Get the URL of the guild's splash
-	 */
-	get splashUrl(): string | null {
-		return this.splash
-			? `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
-			: null
 	}
 
 	/**

@@ -54,7 +54,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get username(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.username as never
+		return this.rawData.username
 	}
 
 	/**
@@ -62,7 +62,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get globalName(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.global_name as never
+		return this.rawData.global_name
 	}
 
 	/**
@@ -70,7 +70,32 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get discriminator(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.discriminator as never
+		return this.rawData.discriminator
+	}
+
+	/**
+	 * Is this user a bot?
+	 */
+	get bot(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.bot ?? false
+	}
+
+	/**
+	 * Is this user a system user?
+	 */
+	get system(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.system ?? false
+	}
+
+	/**
+	 * The public flags of the user. (Bitfield)
+	 * @see https://discord.com/developers/docs/resources/user#user-object-user-flags
+	 */
+	get flags(): IfPartial<IsPartial, UserFlags | undefined> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.public_flags
 	}
 
 	/**
@@ -80,32 +105,16 @@ export class User<IsPartial extends boolean = false> extends Base {
 
 	get avatar(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.avatar as never
+		return this.rawData.avatar
 	}
 
 	/**
-	 * Is this user a bot?
+	 * Get the URL of the user's avatar
 	 */
-	get bot(): IfPartial<IsPartial, boolean> {
+	get avatarUrl(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.bot as never
-	}
-
-	/**
-	 * Is this user a system user?
-	 */
-	get system(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.system as never
-	}
-
-	/**
-	 * The public flags of the user. (Bitfield)
-	 * @see https://discord.com/developers/docs/resources/user#user-object-user-flags
-	 */
-	get flags(): IfPartial<IsPartial, UserFlags> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.flags as never
+		if (!this.avatar) return null
+		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
 	}
 
 	/**
@@ -114,7 +123,16 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get banner(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.banner as never
+		return this.rawData.banner ?? null
+	}
+
+	/**
+	 * Get the URL of the user's banner
+	 */
+	get bannerUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.banner) return null
+		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
 	}
 
 	/**
@@ -122,7 +140,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get accentColor(): IfPartial<IsPartial, number | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.accent_color as never
+		return this.rawData.accent_color ?? null
 	}
 
 	/**
@@ -165,23 +183,5 @@ export class User<IsPartial extends boolean = false> extends Base {
 			}
 		)) as APIMessage
 		return new Message(this.client, message)
-	}
-
-	/**
-	 * Get the URL of the user's avatar
-	 */
-	get avatarUrl(): string | null {
-		return this.avatar
-			? `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
-			: null
-	}
-
-	/**
-	 * Get the URL of the user's banner
-	 */
-	get bannerUrl(): string | null {
-		return this.banner
-			? `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
-			: null
 	}
 }

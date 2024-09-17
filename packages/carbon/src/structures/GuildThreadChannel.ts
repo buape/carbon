@@ -16,57 +16,57 @@ export class GuildThreadChannel<
 	/**
 	 * Whether the thread is archived.
 	 */
-	get archived(): IfPartial<IsPartial, boolean> {
+	get archived(): IfPartial<IsPartial, boolean | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.archived as never
+		return this.rawData.thread_metadata?.archived
 	}
 
 	/**
 	 * The duration until the thread is auto archived.
 	 */
-	get autoArchiveDuration(): IfPartial<IsPartial, number> {
+	get autoArchiveDuration(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.auto_archive_duration as never
+		return this.rawData.thread_metadata?.auto_archive_duration
 	}
 
 	/**
 	 * The timestamp of when the thread was archived.
 	 */
-	get archiveTimestamp(): IfPartial<IsPartial, string> {
+	get archiveTimestamp(): IfPartial<IsPartial, string | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.archive_timestamp as never
+		return this.rawData.thread_metadata?.archive_timestamp
 	}
 
 	/**
 	 * Whether the thread is locked.
 	 */
-	get locked(): IfPartial<IsPartial, boolean> {
+	get locked(): IfPartial<IsPartial, boolean | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.locked as never
+		return this.rawData.thread_metadata?.locked
 	}
 
 	/**
 	 * Whether non-moderators can add other non-moderators to a thread; only available on private threads
 	 */
-	get invitable(): IfPartial<IsPartial, boolean> {
+	get invitable(): IfPartial<IsPartial, boolean | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.invitable as never
+		return this.rawData.thread_metadata?.invitable
 	}
 
 	/**
 	 * The timestamp of when the thread was created.
 	 */
-	get createTimestamp(): IfPartial<IsPartial, string> {
+	get createTimestamp(): IfPartial<IsPartial, string | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.thread_metadata?.create_timestamp as never
+		return this.rawData.thread_metadata?.create_timestamp
 	}
 
 	/**
 	 * The number of messages in the thread.
 	 */
-	get messageCount(): IfPartial<IsPartial, number> {
+	get messageCount(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.message_count as never
+		return this.rawData.message_count
 	}
 
 	/**
@@ -75,25 +75,25 @@ export class GuildThreadChannel<
 	 * @remarks
 	 * This is only accurate until 50, after that, Discord stops counting.
 	 */
-	get memberCount(): IfPartial<IsPartial, number> {
+	get memberCount(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.member_count as never
+		return this.rawData.member_count
 	}
 
 	/**
 	 * The ID of the owner of the thread.
 	 */
-	get ownerId(): IfPartial<IsPartial, string> {
+	get ownerId(): IfPartial<IsPartial, string | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.owner_id as never
+		return this.rawData.owner_id
 	}
 
 	/**
 	 * The number of messages sent in the thread.
 	 */
-	get totalMessageSent(): IfPartial<IsPartial, number> {
+	get totalMessageSent(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.total_message_sent as never
+		return this.rawData.total_message_sent
 	}
 
 	/**
@@ -101,7 +101,7 @@ export class GuildThreadChannel<
 	 */
 	get appliedTags(): IfPartial<IsPartial, string[]> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.applied_tags as never
+		return this.rawData.applied_tags
 	}
 
 	/**

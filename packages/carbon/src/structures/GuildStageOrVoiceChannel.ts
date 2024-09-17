@@ -1,7 +1,7 @@
-import type {
-	APIGuildStageVoiceChannel,
-	APIGuildVoiceChannel,
-	ChannelType,
+import {
+	type APIGuildStageVoiceChannel,
+	type APIGuildVoiceChannel,
+	type ChannelType,
 	VideoQualityMode
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
@@ -17,17 +17,17 @@ export abstract class GuildStageOrVoiceChannel<
 	/**
 	 * The bitrate of the channel.
 	 */
-	get bitrate(): IfPartial<IsPartial, number> {
+	get bitrate(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.bitrate as never
+		return this.rawData.bitrate
 	}
 
 	/**
 	 * The user limit of the channel.
 	 */
-	get userLimit(): IfPartial<IsPartial, number> {
+	get userLimit(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.user_limit as never
+		return this.rawData.user_limit
 	}
 
 	/**
@@ -36,7 +36,7 @@ export abstract class GuildStageOrVoiceChannel<
 	 */
 	get rtcRegion(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.rtc_region as never
+		return this.rawData.rtc_region ?? null
 	}
 
 	/**
@@ -45,13 +45,17 @@ export abstract class GuildStageOrVoiceChannel<
 	 */
 	get videoQualityMode(): IfPartial<IsPartial, VideoQualityMode> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.video_quality_mode as never
+		return this.rawData.video_quality_mode ?? VideoQualityMode.Auto
 	}
 }
 
-export class GuildStageChannel extends BaseGuildChannel<ChannelType.GuildStageVoice> {
-	protected setSpecificData() {}
+export class GuildStageChannel<
+	IsPartial extends boolean = false
+> extends GuildStageOrVoiceChannel<ChannelType.GuildStageVoice, IsPartial> {
+	declare rawData: APIGuildStageVoiceChannel | null
 }
-export class GuildVoiceChannel extends BaseGuildChannel<ChannelType.GuildVoice> {
-	protected setSpecificData() {}
+export class GuildVoiceChannel<
+	IsPartial extends boolean = false
+> extends GuildStageOrVoiceChannel<ChannelType.GuildVoice, IsPartial> {
+	declare rawData: APIGuildVoiceChannel | null
 }

@@ -22,15 +22,23 @@ export abstract class GuildThreadOnlyChannel<
 	 */
 	get topic(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.topic as never
+		return this.rawData.topic ?? null
 	}
 
 	/**
 	 * The default auto archive duration of the channel.
 	 */
-	get defaultAutoArchiveDuration(): IfPartial<IsPartial, number> {
+	get defaultAutoArchiveDuration(): IfPartial<IsPartial, number | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.default_auto_archive_duration as never
+		return this.rawData.default_auto_archive_duration ?? null
+	}
+
+	/**
+	 * The default thread rate limit per user for the channel.
+	 */
+	get defaultThreadRateLimitPerUser(): IfPartial<IsPartial, number | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_thread_rate_limit_per_user ?? null
 	}
 
 	/**
@@ -38,15 +46,7 @@ export abstract class GuildThreadOnlyChannel<
 	 */
 	get availableTags(): IfPartial<IsPartial, APIGuildForumTag[]> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.available_tags as never
-	}
-
-	/**
-	 * The default thread rate limit per user for the channel.
-	 */
-	get defaultThreadRateLimitPerUser(): IfPartial<IsPartial, number> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.default_thread_rate_limit_per_user as never
+		return this.rawData.available_tags ?? []
 	}
 
 	/**
@@ -54,18 +54,18 @@ export abstract class GuildThreadOnlyChannel<
 	 */
 	get defaultReactionEmoji(): IfPartial<
 		IsPartial,
-		APIGuildForumDefaultReactionEmoji
+		APIGuildForumDefaultReactionEmoji | null
 	> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.default_reaction_emoji as never
+		return this.rawData.default_reaction_emoji
 	}
 
 	/**
 	 * The default sort order for the channel, by latest activity or by creation date.
 	 */
-	get defaultSortOrder(): IfPartial<IsPartial, SortOrderType> {
+	get defaultSortOrder(): IfPartial<IsPartial, SortOrderType | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.default_sort_order as never
+		return this.rawData.default_sort_order
 	}
 
 	/**

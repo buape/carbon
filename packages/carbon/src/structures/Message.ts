@@ -78,7 +78,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get applicationId(): IfPartial<IsPartial, string | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.application_id as never
+		return this.rawData.application_id
 	}
 
 	/**
@@ -86,15 +86,18 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get attachments(): IfPartial<IsPartial, APIAttachment[]> {
 		if (!this.rawData) return undefined as never
-		return (this.rawData.attachments ?? []) as never
+		return this.rawData.attachments ?? []
 	}
 
 	/**
 	 * The components of the message
 	 */
-	get components(): IfPartial<IsPartial, Row[]> {
+	get components(): IfPartial<
+		IsPartial,
+		NonNullable<APIMessage["components"]>
+	> {
 		if (!this.rawData) return undefined as never
-		return (this.rawData.components ?? []) as never
+		return this.rawData.components ?? []
 	}
 
 	/**
@@ -102,7 +105,13 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get content(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.content ?? ("" as never)
+		return this.rawData.content ?? ""
+	}
+
+	get embeds(): IfPartial<IsPartial, Embed[]> {
+		if (!this.rawData) return undefined as never
+		if (!this.rawData?.embeds) return []
+		return this.rawData.embeds.map((embed) => new Embed(embed))
 	}
 
 	/**
@@ -126,10 +135,10 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get interactionMetadata(): IfPartial<
 		IsPartial,
-		APIMessageInteractionMetadata
+		APIMessageInteractionMetadata | undefined
 	> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.interaction_metadata as never
+		return this.rawData.interaction_metadata
 	}
 
 	/**
@@ -137,15 +146,48 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get mentionedEveryone(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.mention_everyone as never
+		return this.rawData.mention_everyone
+	}
+
+	/**
+	 * The users mentioned in the message
+	 */
+	get mentionedUsers(): IfPartial<IsPartial, User[]> {
+		if (!this.rawData) return undefined as never
+		if (!this.rawData?.mentions) return []
+		return this.rawData.mentions.map(
+			(mention) => new User(this.client, mention)
+		)
+	}
+
+	/**
+	 * The roles mentioned in the message
+	 */
+	get mentionedRoles(): IfPartial<IsPartial, Role<true>[]> {
+		if (!this.rawData) return undefined as never
+		if (!this.rawData?.mention_roles) return []
+		return this.rawData.mention_roles.map(
+			(mention) => new Role<true>(this.client, mention)
+		)
 	}
 
 	/**
 	 * The data about the referenced message. You can use {@link Message.referencedMessage} to get the referenced message itself.
 	 */
-	get messageReference(): IfPartial<IsPartial, APIMessageReference> {
+	get messageReference(): IfPartial<
+		IsPartial,
+		APIMessageReference | undefined
+	> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.message_reference as never
+		return this.rawData.message_reference
+	}
+
+	/**
+	 * The referenced message itself
+	 */
+	get referencedMessage(): IfPartial<IsPartial, Message | null> {
+		if (!this.rawData?.referenced_message) return null as never
+		return new Message(this.client, this.rawData?.referenced_message)
 	}
 
 	/**
@@ -153,23 +195,23 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get pinned(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.pinned as never
+		return this.rawData.pinned
 	}
 
 	/**
 	 * The poll contained in the message
 	 */
-	get poll(): IfPartial<IsPartial, APIPoll> {
+	get poll(): IfPartial<IsPartial, APIPoll | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.poll as never
+		return this.rawData.poll
 	}
 
 	/**
 	 * The approximate position of the message in the channel
 	 */
-	get position(): IfPartial<IsPartial, number> {
+	get position(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.position as never
+		return this.rawData.position
 	}
 
 	/**
@@ -177,7 +219,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get reactions(): IfPartial<IsPartial, APIReaction[]> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.reactions as never
+		return this.rawData.reactions ?? []
 	}
 
 	/**
@@ -185,7 +227,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get stickers(): IfPartial<IsPartial, APIStickerItem[]> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.sticker_items as never
+		return this.rawData.sticker_items ?? []
 	}
 
 	/**
@@ -193,7 +235,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get timestamp(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.timestamp as never
+		return this.rawData.timestamp
 	}
 
 	/**
@@ -201,7 +243,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get tts(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.tts as never
+		return this.rawData.tts
 	}
 
 	/**
@@ -209,7 +251,35 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get type(): IfPartial<IsPartial, MessageType> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.type as never
+		return this.rawData.type
+	}
+
+	/**
+	 * Get the author of the message
+	 */
+	get author(): IfPartial<IsPartial, User | null> {
+		if (!this.rawData) return null as never
+		if (this.rawData?.webhook_id) return null as never // TODO: Add webhook user
+		return new User(this.client, this.rawData.author)
+	}
+
+	/**
+	 * Get the thread associated with this message, if there is one
+	 */
+	get thread(): IfPartial<
+		IsPartial,
+		GuildThreadChannel<
+			ChannelType.PublicThread | ChannelType.AnnouncementThread
+		> | null
+	> {
+		if (!this.rawData) return null as never
+		if (!this.rawData?.thread) return null
+		return channelFactory(
+			this.client,
+			this.rawData?.thread
+		) as GuildThreadChannel<
+			ChannelType.PublicThread | ChannelType.AnnouncementThread
+		>
 	}
 
 	/**
@@ -233,20 +303,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		return await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
-	}
-
-	/**
-	 * Get the author of the message
-	 */
-	get author(): User<boolean> | null {
-		if (this.rawData?.webhook_id) return null // TODO: Add webhook user
-		// Check if we have an additional property on the author object, in which case we have a full user object
-		if (this.rawData?.author.username)
-			return new User(this.client, this.rawData.author)
-		// This means we only have a partial user object
-		if (this.rawData?.author.id)
-			return new User<true>(this.client, this.rawData.author.id)
-		return null
 	}
 
 	/**
@@ -287,23 +343,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		return new GuildThreadChannel(this.client, thread)
 	}
 
-	get thread(): GuildThreadChannel<
-		ChannelType.PublicThread | ChannelType.AnnouncementThread
-	> | null {
-		if (!this.rawData?.thread) return null
-		return channelFactory(
-			this.client,
-			this.rawData?.thread
-		) as GuildThreadChannel<
-			ChannelType.PublicThread | ChannelType.AnnouncementThread
-		>
-	}
-
-	get embeds(): Embed[] {
-		if (!this.rawData?.embeds) return []
-		return this.rawData.embeds.map((embed) => new Embed(embed))
-	}
-
 	async edit(data: {
 		content?: string
 		embeds?: Embed[]
@@ -321,24 +360,5 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				}
 			}
 		)
-	}
-
-	get mentionedUsers(): User[] {
-		if (!this.rawData?.mentions) return []
-		return this.rawData.mentions.map(
-			(mention) => new User(this.client, mention)
-		)
-	}
-
-	get mentionedRoles(): Role<true>[] {
-		if (!this.rawData?.mention_roles) return []
-		return this.rawData.mention_roles.map(
-			(mention) => new Role<true>(this.client, mention)
-		)
-	}
-
-	get referencedMessage(): Message | null {
-		if (!this.rawData?.referenced_message) return null
-		return new Message(this.client, this.rawData?.referenced_message)
 	}
 }

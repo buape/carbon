@@ -25,21 +25,21 @@ export abstract class BaseGuildTextChannel<
 	 */
 	get lastMessageId(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.last_message_id as never
+		return this.rawData.last_message_id ?? null
 	}
 	/**
 	 * The timestamp of the last pin in the channel.
 	 */
 	get lastPinTimestamp(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.last_pin_timestamp as never
+		return this.rawData.last_pin_timestamp ?? null
 	}
 	/**
 	 * The rate limit per user for the channel, in seconds.
 	 */
-	get rateLimitPerUser(): IfPartial<IsPartial, number> {
+	get rateLimitPerUser(): IfPartial<IsPartial, number | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.rate_limit_per_user as never
+		return this.rawData.rate_limit_per_user
 	}
 
 	/**
@@ -50,7 +50,8 @@ export abstract class BaseGuildTextChannel<
 	 * This will always return a partial message, so you can use {@link Message.fetch} to get the full message data.
 	 *
 	 */
-	get lastMessage() {
+	get lastMessage(): IfPartial<IsPartial, Message<true> | null> {
+		if (!this.rawData) return undefined as never
 		if (!this.lastMessageId) return null
 		return new Message<true>(this.client, {
 			id: this.lastMessageId,
