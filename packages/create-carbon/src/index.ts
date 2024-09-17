@@ -129,12 +129,7 @@ writeFileSync(`${directory}/package.json`, packageJson)
 
 // ================================================ Copy in base Template ================================================
 
-const baseTemplateFolder = `${__dirname}/../../templates/_base`
-const baseTemplateFiles = getFiles(baseTemplateFolder, "")
-
-for (const file of baseTemplateFiles) {
-	writeFile(file, baseTemplateFolder, directory, replacers)
-}
+processFolder("_base", `${__dirname}/../../templates`, directory, replacers)
 
 // ================================================ Copy in mode template - root files ================================================
 
