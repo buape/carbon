@@ -11,6 +11,9 @@
 "p:carbon":
     - changed-files:
           - any-glob-to-any-file: ["packages/carbon/**"]
+"p:create-carbon":
+    - changed-files:
+          - any-glob-to-any-file: ["packages/create-carbon/**"]
 "p:discord-request":
     - changed-files:
           - any-glob-to-any-file: ["packages/discord-request/**"]
