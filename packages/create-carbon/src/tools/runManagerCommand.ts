@@ -1,5 +1,5 @@
-import { packageManager } from "../utils.js"
 import { execSync } from "node:child_process"
+import { packageManager } from "../utils.js"
 
 export const runPackageManagerCommand = async (
 	command: string,

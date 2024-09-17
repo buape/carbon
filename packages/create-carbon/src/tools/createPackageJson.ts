@@ -1,5 +1,5 @@
-import { ClientMode } from "@buape/carbon"
 import { readFileSync } from "node:fs"
+import { ClientMode } from "@buape/carbon"
 
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"

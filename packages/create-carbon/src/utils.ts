@@ -1,5 +1,5 @@
-import { ClientMode } from "@buape/carbon"
 import { existsSync, mkdirSync, readdirSync } from "node:fs"
+import { ClientMode } from "@buape/carbon"
 
 export const allModesPretty = Object.entries(ClientMode).map(
 	([key, _value]) => {

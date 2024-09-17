@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs"
-import { replacePlaceholders, getFiles } from "../utils.js"
+import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
+import { getFiles, replacePlaceholders } from "../utils.js"
 import { debug } from "./debug.js"
 
 export const doesDirectoryExist = (name: string) => {
