@@ -1,0 +1,21 @@
+import { Client, ClientMode } from "@buape/carbon";
+import PingCommand from "./commands/ping.js";
+import { serve } from "bun";
+
+if (!process.env.CLIENT_ID || !process.env.PUBLIC_KEY || !process.env.DISCORD_TOKEN) {
+    throw new Error("Missing environment variables");
+}
+
+const client = new Client(
+    {
+        mode: ClientMode.Bun,
+        clientId: process.env.CLIENT_ID,
+        publicKey: process.env.PUBLIC_KEY,
+        token: process.env.DISCORD_TOKEN,
+        port: {{port}}
+    },
+    [new PingCommand()]
+);
+
+const server = serve(client.router);
+console.log(`Listening on port ${server.port}`);

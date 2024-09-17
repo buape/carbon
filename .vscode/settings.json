@@ -15,10 +15,12 @@
 		"hono",
 		"invitable",
 		"lucide",
+		"outro",
 		"paginators",
 		"Rocko",
 		"Runtimes",
-		"whatwg"
+		"whatwg",
+		"yocto"
 	],
 	"editor.defaultFormatter": "biomejs.biome",
 	"[typescriptreact]": {
