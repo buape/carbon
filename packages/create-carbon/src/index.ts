@@ -42,11 +42,20 @@ if (p.isCancel(mode)) {
 	process.exit(1)
 }
 
+if (!doesDirectoryExist(`${__dirname}/../../templates/${mode}`)) {
+	p.outro(
+		`No template found for ${mode} - This is a bug! Please report it to https://github.com/buape/carbon/issues`
+	)
+	process.exit(1)
+}
+
 // ================================================ Per-Mode Options ================================================
 
 const replacers: Record<string, string> = {
 	name,
-	packageManager: packageManager()
+	packageManager: packageManager(),
+	// biome-ignore lint/style/noNonNullAssertion: dates don't just not exist
+	todaysDate: new Date().toISOString().split("T")[0]!
 }
 
 if (mode === ClientMode.Bun) {

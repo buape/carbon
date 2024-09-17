@@ -15,6 +15,7 @@
 	},
 	"files": [
 		"dist",
+		"templates",
 		"LICENSE"
 	],
 	"dependencies": {

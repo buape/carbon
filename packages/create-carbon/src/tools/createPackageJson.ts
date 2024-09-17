@@ -40,6 +40,21 @@ export const createPackageJson = (data: {
 				"@types/bun": "latest"
 			}
 			break
+		case ClientMode.CloudflareWorkers:
+			packageJson.main = "src/index.ts"
+			packageJson.scripts = {
+				build: "wrangler deploy --dry-run",
+				deploy: "wrangler deploy",
+				dev: "wrangler deploy && wrangler tail"
+			}
+			packageJson.dependencies = {
+				"@buape/carbon": getVersion("@buape/carbon")
+			}
+			packageJson.devDependencies = {
+				"@cloudflare/workers-types": "4.20240909.0",
+				wrangler: "3.78.4"
+			}
+			break
 	}
 
 	packageJson.carbonMetadata = {

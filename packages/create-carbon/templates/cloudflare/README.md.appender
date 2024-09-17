@@ -1,0 +1,38 @@
+## Setting Environment Variables
+
+Before you can deploy your bot, you need to set your tokens in your `.env` file.
+You can run each of these commands to set your tokens:
+```bash
+wrangler secret put CLIENT_ID
+wrangler secret put PUBLIC_KEY
+wrangler secret put DISCORD_TOKEN
+```
+
+## Running
+
+To deploy your bot, there are a few scripts in your `package.json` file.
+
+You can use the `build` script to build your bot for production, but don't actually deploy it, so you can test that everything works.
+
+```bash
+{{packageManager}} run build
+```
+
+The `deploy` script is used to deploy your bot to Cloudflare. You can run it with the following command:
+
+```bash
+{{packageManager}} run deploy
+```
+
+You can use the `dev` script to deploy your bot and then watch the logs in real time in your console.
+```bash
+{{packageManager}} run dev
+```
+
+On your worker, there is a `/deploy` route that the template set up, you can go to that route in your browser to deploy your commands.
+
+## What's Next?
+
+Now that you have your bot running, you can start adding commands to it. You can do this by creating a new file in the `src/commands` folder, and adding a new class that extends the `Command` class.
+
+For more information on how to create commands, check out the [Carbon documentation](https://carbon.buape.com/carbon/classes/commands).
