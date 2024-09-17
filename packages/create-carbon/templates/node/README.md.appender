@@ -1,0 +1,33 @@
+## Running
+
+To run your bot, there are a few scripts in your `package.json` file.
+
+### Development
+
+The `dev` script is used to run your bot in development mode. You can run it with the following command:
+
+```bash
+{{packageManager}} run dev
+```
+
+### Production
+
+To build your bot for production, you can run the `build` script. This will create a `dist` folder with your compiled code.
+
+```bash
+{{packageManager}} run build
+```
+
+The `start` script is used to run your bot in production mode. You can run it with the following command:
+
+```bash
+{{packageManager}} run start
+```
+
+This will start your bot with the environment variables from your `.env` file.
+
+## What's Next?
+
+Now that you have your bot running, you can start adding commands to it. You can do this by creating a new file in the `src/commands` folder, and adding a new class that extends the `Command` class.
+
+For more information on how to create commands, check out the [Carbon documentation](https://carbon.buape.com/carbon/classes/commands).

@@ -13,4 +13,5 @@ build/
 packages/*/docs/
 website/content/*/api
 website/.source
-_testingstuff
+#_testingstuff
+!packages/create-carbon/templates/**/.env*

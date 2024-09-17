@@ -1,17 +1,12 @@
 import process from "node:process"
 import { ClientMode } from "@buape/carbon"
 import * as p from "@clack/prompts"
-import {
-	allModesPretty,
-	getFiles,
-	replacePlaceholders,
-	sleep
-} from "./utils.js"
+import { allModesPretty, getFiles, packageManager, sleep } from "./utils.js"
 import yoctoSpinner from "yocto-spinner"
-import { doesDirectoryExist } from "./tools/doesDirectoryExist.js"
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import { mkdirSync, writeFileSync } from "node:fs"
 import { createPackageJson } from "./tools/createPackageJson.js"
 import { runPackageManagerCommand } from "./tools/runManagerCommand.js"
+import { processFolder, writeFile, doesDirectoryExist } from "./tools/files.js"
 
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -50,10 +45,36 @@ if (p.isCancel(mode)) {
 // ================================================ Per-Mode Options ================================================
 
 const replacers: Record<string, string> = {
-	name
+	name,
+	packageManager: packageManager()
 }
 
 if (mode === ClientMode.Bun) {
+	const options = await p.group(
+		{
+			port: async () =>
+				(
+					await p.text({
+						message: "What port do you want to run your bot on?",
+						placeholder: "3000",
+						validate: (value) => {
+							if (!Number.isSafeInteger(Number(value)))
+								return "Port must be a number!"
+							if (Number(value) < 1024) return "Port must be greater than 1024!"
+							if (Number(value) > 65535) return "Port must be less than 65535!"
+						}
+					})
+				).toString()
+		},
+		{
+			onCancel: () => {
+				p.outro("Cancelled")
+				process.exit(1)
+			}
+		}
+	)
+	replacers.port = options.port
+} else if (mode === ClientMode.NodeJS) {
 	const options = await p.group(
 		{
 			port: async () =>
@@ -97,42 +118,13 @@ if (!directory) {
 }
 writeFileSync(`${directory}/package.json`, packageJson)
 
-// ================================================ Setup copy ================================================
-
-const writeFile = (
-	file: string,
-	templateFolder: string,
-	outputDirectory: string
-) => {
-	console.log(`Copying ${file} to ${outputDirectory} from ${templateFolder}`)
-	const fileName = file.replace(".template", "")
-	const template = readFileSync(`${templateFolder}/${file}`, "utf-8")
-	const data = replacePlaceholders(template, replacers)
-	writeFileSync(`${outputDirectory}/${fileName}`, data)
-}
-const processFolder = (folder: string, root: string, outputRoot: string) => {
-	try {
-		mkdirSync(`${outputRoot}`)
-	} catch {}
-	const thisFolderPath = `${root}/${folder}`
-	const all = getFiles(thisFolderPath, "")
-	const folders = all.filter((x) => !x.includes("."))
-	const templates = all.filter((x) => x.endsWith(".template"))
-	for (const template of templates) {
-		writeFile(template, thisFolderPath, outputRoot)
-	}
-	for (const folder of folders) {
-		processFolder(folder, thisFolderPath, `${outputRoot}/${folder}`)
-	}
-}
-
 // ================================================ Copy in base Template ================================================
 
 const baseTemplateFolder = `${__dirname}/../../templates/_base`
 const baseTemplateFiles = getFiles(baseTemplateFolder, "")
 
 for (const file of baseTemplateFiles) {
-	writeFile(file, baseTemplateFolder, directory)
+	writeFile(file, baseTemplateFolder, directory, replacers)
 }
 
 // ================================================ Copy in mode template - root files ================================================
@@ -144,7 +136,7 @@ if (!allInTemplateFolder) {
 	process.exit(1)
 }
 
-processFolder(name, templateFolderPath, directory)
+processFolder(mode, `${__dirname}/../../templates`, directory, replacers)
 
 // ================================================ Copy in mode template - subfolders ================================================
 
@@ -153,7 +145,8 @@ for (const templateFolder of templateFolders) {
 	processFolder(
 		templateFolder,
 		templateFolderPath,
-		`${directory}/${templateFolder}`
+		`${directory}/${templateFolder}`,
+		replacers
 	)
 }
 
@@ -171,7 +164,7 @@ if (p.isCancel(doInstall)) {
 if (doInstall === true) {
 	const depsSpinner = yoctoSpinner({ text: "Installing dependencies..." })
 	depsSpinner.start()
-	await runPackageManagerCommand("install")
+	await runPackageManagerCommand("install", directory)
 	depsSpinner.stop()
 }
 

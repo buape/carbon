@@ -20,10 +20,11 @@ export const createPackageJson = (data: {
 				start: "node ."
 			}
 			packageJson.dependencies = {
-				"@buape/carbon": getCarbonVersion(),
-				"@types/node": "latest"
+				"@buape/carbon": getVersion("@buape/carbon"),
+				"@buape/carbon-nodejs": getVersion("@buape/carbon-nodejs")
 			}
 			packageJson.devDependencies = {
+				"@types/node": "latest",
 				typescript: "5.6.2"
 			}
 			break
@@ -33,7 +34,7 @@ export const createPackageJson = (data: {
 				start: "bun run ."
 			}
 			packageJson.dependencies = {
-				"@buape/carbon": getCarbonVersion()
+				"@buape/carbon": "^0.4.2" //getVersion("@buape/carbon"),
 			}
 			packageJson.devDependencies = {
 				"@types/bun": "latest"
@@ -56,9 +57,12 @@ export const getSelfPackageJson = () => {
 	return data
 }
 
-const getCarbonVersion = () => {
-	const pkg = getSelfPackageJson()
-	return pkg.peerDependencies ? pkg.peerDependencies["@buape/carbon"] : "latest"
+const getVersion = (_pkgName = "@buape/carbon") => {
+	// short circuit for testing
+	return "latest"
+
+	// const pkg = getSelfPackageJson()
+	// return pkg.peerDependencies ? pkg.peerDependencies[pkgName] : "latest"
 }
 
 const getSelfVersion = () => {

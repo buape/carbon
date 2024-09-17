@@ -11,6 +11,10 @@ export const allModesPretty = Object.entries(ClientMode).map(
 )
 
 export const packageManager = () => {
+	const versions = process.versions
+	if (versions.bun) {
+		return "bun"
+	}
 	const userAgent = process.env.npm_config_user_agent
 	if (userAgent) {
 		if (userAgent.startsWith("yarn")) return "yarn"
