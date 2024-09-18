@@ -202,10 +202,13 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		const user = new User(this.client, id)
-		await user.fetch().catch(() => {
+
+		try {
+			const user = new User(this.client, id)
+			await user.fetch()
+			return user
+		} catch {
 			return new Role(this.client, id)
-		})
-		return user
+		}
 	}
 }
