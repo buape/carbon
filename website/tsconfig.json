@@ -29,7 +29,8 @@
 		"**/*.ts",
 		"**/*.tsx",
 		".next/types/**/*.ts",
-		"postcss.config.cjs"
+		"postcss.config.cjs",
+		"content/carbon/plugins/index.mdx"
 	],
 	"exclude": ["node_modules"]
 }
