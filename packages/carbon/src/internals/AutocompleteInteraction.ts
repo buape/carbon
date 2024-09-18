@@ -1,6 +1,5 @@
 import {
 	type APIApplicationCommandAutocompleteInteraction,
-	type APIApplicationCommandInteractionDataBasicOption,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	InteractionResponseType,
@@ -34,8 +33,7 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 
 		this.options = new AutocompleteOptionsHandler(
 			client,
-			(data.data.options ??
-				[]) as APIApplicationCommandInteractionDataBasicOption[]
+			data.data.options ?? []
 		)
 	}
 
