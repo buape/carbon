@@ -6,7 +6,8 @@ import yoctoSpinner from "yocto-spinner"
 import { createPackageJson } from "./tools/createPackageJson.js"
 import { doesDirectoryExist, processFolder } from "./tools/files.js"
 import { runPackageManagerCommand } from "./tools/runManagerCommand.js"
-import { allModesPretty, getFiles, packageManager, sleep } from "./utils.js"
+import { type Mode, modes } from "./modes.js"
+import { getFiles, packageManager, sleep } from "./utils.js"
 
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -32,9 +33,9 @@ if (p.isCancel(name)) {
 	process.exit(1)
 }
 
-const mode = await p.select<typeof allModesPretty, ClientMode>({
+const mode = await p.select<typeof modes, Mode>({
 	message: "What mode do you want to use Carbon in?",
-	options: allModesPretty
+	options: modes
 })
 
 if (p.isCancel(mode)) {
@@ -115,7 +116,7 @@ if (mode === ClientMode.Bun) {
 const spinner = yoctoSpinner({ text: "Creating project..." })
 spinner.start()
 
-await sleep(1000)
+await sleep(1000) // Adding delay makes the user feel like it's actively working if it runs too fast
 
 // ================================================ Create folder and package.json ================================================
 

@@ -1,14 +1,4 @@
 import { existsSync, mkdirSync, readdirSync } from "node:fs"
-import { ClientMode } from "@buape/carbon"
-
-export const allModesPretty = Object.entries(ClientMode).map(
-	([key, _value]) => {
-		return {
-			label: key.replace(/([A-Z][a-z])/g, " $1").trim(),
-			value: ClientMode[key as keyof typeof ClientMode]
-		}
-	}
-)
 
 export const packageManager = () => {
 	const versions = process.versions
@@ -54,4 +44,10 @@ export const replacePlaceholders = (
 		result = result.replace(`{{${key}}}`, value.toString())
 	}
 	return result
+}
+
+export const titleCase = (str: string) => {
+	return str.replace(/\w\S*/g, (txt) => {
+		return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
+	})
 }

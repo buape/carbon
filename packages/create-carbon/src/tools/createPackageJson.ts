@@ -1,18 +1,19 @@
 import { readFileSync } from "node:fs"
-import { ClientMode } from "@buape/carbon"
 
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
 import type { PackageJson } from "type-fest"
+import type { Mode } from "../modes.js"
 
 export const createPackageJson = (data: {
 	name: string
-	mode: ClientMode
+	mode: Mode
 }) => {
 	const packageJson: Record<string, unknown> = {}
 	packageJson.name = data.name
+	packageJson.private = true
 	switch (data.mode) {
-		case ClientMode.NodeJS:
+		case "node":
 			packageJson.main = "./dist/src/index.js"
 			packageJson.scripts = {
 				build: "tsc",
@@ -25,10 +26,10 @@ export const createPackageJson = (data: {
 			}
 			packageJson.devDependencies = {
 				"@types/node": "latest",
-				typescript: "5.6.2"
+				typescript: "^5"
 			}
 			break
-		case ClientMode.Bun:
+		case "bun":
 			packageJson.main = "src/index.ts"
 			packageJson.scripts = {
 				start: "bun run ."
@@ -40,7 +41,7 @@ export const createPackageJson = (data: {
 				"@types/bun": "latest"
 			}
 			break
-		case ClientMode.CloudflareWorkers:
+		case "cloudflare":
 			packageJson.main = "src/index.ts"
 			packageJson.scripts = {
 				build: "wrangler deploy --dry-run",
@@ -53,6 +54,25 @@ export const createPackageJson = (data: {
 			packageJson.devDependencies = {
 				"@cloudflare/workers-types": "4.20240909.0",
 				wrangler: "3.78.4"
+			}
+			break
+		case "nextjs":
+			packageJson.scripts = {
+				dev: "next dev --turbo",
+				build: "next build",
+				start: "next start"
+			}
+			packageJson.dependencies = {
+				"@buape/carbon": "^0.4.2",
+				next: "14.2.12",
+				react: "^18",
+				"react-dom": "^18"
+			}
+			packageJson.devDependencies = {
+				"@types/node": "^20",
+				"@types/react": "^18",
+				"@types/react-dom": "^18",
+				typescript: "^5"
 			}
 			break
 	}

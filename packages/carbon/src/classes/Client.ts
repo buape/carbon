@@ -30,7 +30,8 @@ export enum ClientMode {
 	NodeJS = "node",
 	CloudflareWorkers = "cloudflare",
 	Bun = "bun",
-	Vercel = "vercel"
+	Vercel = "vercel",
+	Web = "web"
 }
 
 /**
