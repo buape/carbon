@@ -26,7 +26,7 @@ export default class ButtonCommand extends Command {
 class PingButton extends Button {
 	customId = "ping"
 	label = "Ping"
-	style = ButtonStyle.Primary as typeof Button.prototype.style
+	style = ButtonStyle.Primary
 
 	async run(interaction: ButtonInteraction) {
 		await interaction.reply({ content: "OMG YOU CLICKED THE BUTTON" })

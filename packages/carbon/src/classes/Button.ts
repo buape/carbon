@@ -37,14 +37,19 @@ abstract class BaseButton extends BaseComponent {
 }
 
 export abstract class Button extends BaseButton {
-	/**
-	 * The style of the button
-	 */
-	abstract style: Exclude<ButtonStyle, ButtonStyle.Link | ButtonStyle.Premium>
-
 	abstract run(interaction: ButtonInteraction): Promise<void>
 
 	serialize = (): APIButtonComponent => {
+		if (this.style === ButtonStyle.Link) {
+			throw new Error(
+				"Link buttons cannot be serialized. Are you using the right class?"
+			)
+		}
+		if (this.style === ButtonStyle.Premium) {
+			throw new Error(
+				"Premium buttons cannot be serialized. Are you using the right class?"
+			)
+		}
 		return {
 			type: ComponentType.Button,
 			style: this.style,
