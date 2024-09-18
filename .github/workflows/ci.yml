@@ -9,9 +9,7 @@ on:
             - synchronize
         branches:
             - "*"
-            - "!changeset-release/main"
             - "!renovate/web"
-            - "!all-contributors/**"
 
 jobs:
     build:
