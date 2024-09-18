@@ -1,5 +1,6 @@
 import {
 	type APIApplicationCommandInteractionDataBasicOption,
+	type APIApplicationCommandInteractionDataOption,
 	type APIChannel,
 	ApplicationCommandOptionType,
 	Routes
@@ -25,10 +26,27 @@ export class OptionsHandler extends Base {
 
 	constructor(
 		client: Client,
-		options: APIApplicationCommandInteractionDataBasicOption[]
+		options: APIApplicationCommandInteractionDataOption[]
 	) {
 		super(client)
-		this.raw = options
+		this.raw = []
+		for (const option of options) {
+			if (option.type === ApplicationCommandOptionType.Subcommand) {
+				for (const subOption of option.options ?? []) {
+					this.raw.push(subOption)
+				}
+			} else if (option.type === ApplicationCommandOptionType.SubcommandGroup) {
+				for (const subOption of option.options ?? []) {
+					if (subOption.options) {
+						for (const subSubOption of subOption.options ?? []) {
+							this.raw.push(subSubOption)
+						}
+					}
+				}
+			} else {
+				this.raw.push(option)
+			}
+		}
 	}
 
 	/**
