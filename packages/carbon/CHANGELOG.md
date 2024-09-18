@@ -1,5 +1,17 @@
 # @buape/carbon
 
+## 0.5.0
+
+### Minor Changes
+
+- 40f797b: feat: add fetchers to client
+
+### Patch Changes
+
+- 3bf77fb: fix: `OptionsHandler#getMentionable` always returning user even when invalid
+- d76feb7: fix: interaction#options should never be null
+- b29eefd: fix: correctly get options of subcommands and subcommandgroups
+
 ## 0.4.2
 
 ### Patch Changes
