@@ -4,7 +4,7 @@ import { ClientMode } from "@buape/carbon"
 import * as p from "@clack/prompts"
 import yoctoSpinner from "yocto-spinner"
 import { createPackageJson } from "./tools/createPackageJson.js"
-import { doesDirectoryExist, processFolder, writeFile } from "./tools/files.js"
+import { doesDirectoryExist, processFolder } from "./tools/files.js"
 import { runPackageManagerCommand } from "./tools/runManagerCommand.js"
 import { allModesPretty, getFiles, packageManager, sleep } from "./utils.js"
 
