@@ -4,50 +4,69 @@ import type {
 	APIMessage,
 	APIThreadOnlyChannel,
 	ChannelType,
-	SortOrderType
+	SortOrderType,
+	ThreadChannelType
 } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
+import type { IfPartial } from "../utils.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class GuildThreadOnlyChannel<
-	Type extends ChannelType.GuildForum | ChannelType.GuildMedia
-> extends BaseGuildChannel<Type> {
+	Type extends ChannelType.GuildForum | ChannelType.GuildMedia,
+	IsPartial extends boolean = false
+> extends BaseGuildChannel<Type, IsPartial> {
+	declare rawData: APIThreadOnlyChannel<Type> | null
+
 	/**
 	 * The topic of the channel.
 	 */
-	topic?: string | null
+	get topic(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.topic ?? null
+	}
+
 	/**
 	 * The default auto archive duration of the channel.
 	 */
-	defaultAutoArchiveDuration?: number | null
-	/**
-	 * The available tags to set on posts in the channel.
-	 */
-	availableTags?: APIGuildForumTag[]
+	get defaultAutoArchiveDuration(): IfPartial<IsPartial, number | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_auto_archive_duration ?? null
+	}
+
 	/**
 	 * The default thread rate limit per user for the channel.
 	 */
-	defaultThreadRateLimitPerUser?: number | null
+	get defaultThreadRateLimitPerUser(): IfPartial<IsPartial, number | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_thread_rate_limit_per_user ?? null
+	}
+
+	/**
+	 * The available tags to set on posts in the channel.
+	 */
+	get availableTags(): IfPartial<IsPartial, APIGuildForumTag[]> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.available_tags ?? []
+	}
+
 	/**
 	 * The default reaction emoji for the channel.
 	 */
-	defaultReactionEmoji?: APIGuildForumDefaultReactionEmoji | null
+	get defaultReactionEmoji(): IfPartial<
+		IsPartial,
+		APIGuildForumDefaultReactionEmoji | null
+	> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_reaction_emoji
+	}
+
 	/**
 	 * The default sort order for the channel, by latest activity or by creation date.
 	 */
-	defaultSortOrder?: SortOrderType | null
-
-	protected setSpecificData(data: APIThreadOnlyChannel<Type>): void {
-		this.topic = data.topic
-		this.defaultAutoArchiveDuration = data.default_auto_archive_duration
-		this.availableTags = data.available_tags
-		this.defaultThreadRateLimitPerUser = data.default_thread_rate_limit_per_user
-		this.defaultReactionEmoji = data.default_reaction_emoji
-		this.defaultSortOrder = data.default_sort_order
-		this.setMoreSpecificData(data)
+	get defaultSortOrder(): IfPartial<IsPartial, SortOrderType | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_sort_order
 	}
-
-	protected abstract setMoreSpecificData(data: APIThreadOnlyChannel<Type>): void
 
 	/**
 	 * You cannot send a message directly to a forum or media channel, so this method throws an error.
@@ -65,7 +84,10 @@ export abstract class GuildThreadOnlyChannel<
 	 * This is an alias for {@link GuildThreadChannel.send} that will fetch the channel, but if you already have the channel, you can use {@link GuildThreadChannel.send} instead.
 	 */
 	async sendToPost(message: APIMessage, postId: string): Promise<void> {
-		const channel = new GuildThreadChannel(this.client, postId)
+		const channel = new GuildThreadChannel<ThreadChannelType, true>(
+			this.client,
+			postId
+		)
 		await channel.send(message)
 	}
 }

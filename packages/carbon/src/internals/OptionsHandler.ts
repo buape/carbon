@@ -136,9 +136,9 @@ export class OptionsHandler extends Base {
 	 * @param required Whether the option is required.
 	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getUser(key: string, required?: false): User | undefined
-	public getUser(key: string, required: true): User
-	public getUser(key: string, required = false): User | undefined {
+	public getUser(key: string, required?: false): User<true> | undefined
+	public getUser(key: string, required: true): User<true>
+	public getUser(key: string, required = false): User<true> | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
 		)?.value
@@ -146,7 +146,7 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		return new User(this.client, id)
+		return new User<true>(this.client, id)
 	}
 
 	/**
@@ -184,9 +184,9 @@ export class OptionsHandler extends Base {
 	 * @param required Whether the option is required.
 	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getRole(key: string, required?: false): Role | undefined
-	public getRole(key: string, required: true): Role
-	public getRole(key: string, required = false): Role | undefined {
+	public getRole(key: string, required?: false): Role<true> | undefined
+	public getRole(key: string, required: true): Role<true>
+	public getRole(key: string, required = false): Role<true> | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Role
 		)?.value
@@ -194,7 +194,7 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		return new Role(this.client, id)
+		return new Role<true>(this.client, id)
 	}
 
 	/**
@@ -206,12 +206,15 @@ export class OptionsHandler extends Base {
 	public async getMentionable(
 		key: string,
 		required?: false
-	): Promise<User | Role | undefined>
-	public async getMentionable(key: string, required: true): Promise<User | Role>
+	): Promise<User | Role<true> | undefined>
+	public async getMentionable(
+		key: string,
+		required: true
+	): Promise<User | Role<true>>
 	public async getMentionable(
 		key: string,
 		required = false
-	): Promise<User | Role | undefined> {
+	): Promise<User | Role<true> | undefined> {
 		const id = this.raw.find(
 			(x) =>
 				x.name === key && x.type === ApplicationCommandOptionType.Mentionable
@@ -222,11 +225,11 @@ export class OptionsHandler extends Base {
 		} else if (!id || typeof id !== "string") return undefined
 
 		try {
-			const user = new User(this.client, id)
+			const user = new User<true>(this.client, id)
 			await user.fetch()
-			return user
+			return user as unknown as User<false>
 		} catch {
-			return new Role(this.client, id)
+			return new Role<true>(this.client, id)
 		}
 	}
 }

@@ -8,35 +8,39 @@ import {
 } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import { Message } from "../structures/Message.js"
+import type { IfPartial } from "../utils.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class BaseGuildTextChannel<
-	Type extends GuildTextChannelType
-> extends BaseGuildChannel<Type> {
+	Type extends GuildTextChannelType,
+	IsPartial extends boolean = false
+> extends BaseGuildChannel<Type, IsPartial> {
+	declare rawData: APIGuildTextChannel<Type> | null
+
 	/**
 	 * The ID of the last message sent in the channel.
 	 *
 	 * @remarks
 	 * This might not always resolve to a message. The ID still stays a part of the channel's data, even if the message is deleted.
 	 */
-	lastMessageId?: string | null
+	get lastMessageId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.last_message_id ?? null
+	}
 	/**
 	 * The timestamp of the last pin in the channel.
 	 */
-	lastPinTimestamp?: string | null
+	get lastPinTimestamp(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.last_pin_timestamp ?? null
+	}
 	/**
 	 * The rate limit per user for the channel, in seconds.
 	 */
-	rateLimitPerUser?: number | null
-
-	protected setSpecificData(data: APIGuildTextChannel<Type>): void {
-		this.lastMessageId = data.last_message_id
-		this.lastPinTimestamp = data.last_pin_timestamp
-		this.rateLimitPerUser = data.rate_limit_per_user
-		this.setMoreSpecificData(data)
+	get rateLimitPerUser(): IfPartial<IsPartial, number | undefined> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.rate_limit_per_user
 	}
-
-	protected abstract setMoreSpecificData(data: APIGuildTextChannel<Type>): void
 
 	/**
 	 * The last message sent in the channel.
@@ -46,11 +50,12 @@ export abstract class BaseGuildTextChannel<
 	 * This will always return a partial message, so you can use {@link Message.fetch} to get the full message data.
 	 *
 	 */
-	get lastMessage() {
+	get lastMessage(): IfPartial<IsPartial, Message<true> | null> {
+		if (!this.rawData) return undefined as never
 		if (!this.lastMessageId) return null
-		return new Message(this.client, {
+		return new Message<true>(this.client, {
 			id: this.lastMessageId,
-			channel_id: this.id
+			channelId: this.id
 		})
 	}
 

@@ -9,67 +9,117 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { channelFactory } from "../factories/channelFactory.js"
+import type { IfPartial } from "../utils.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"
 
-export class Guild extends Base {
+export class Guild<IsPartial extends boolean = false> extends Base {
+	constructor(
+		client: Client,
+		rawDataOrId: IsPartial extends true ? string : APIGuild
+	) {
+		super(client)
+		if (typeof rawDataOrId === "string") {
+			this.id = rawDataOrId
+		} else {
+			this.rawData = rawDataOrId
+			this.id = rawDataOrId.id
+			this.setData(rawDataOrId)
+		}
+	}
+
+	private rawData: APIGuild | null = null
+	private setData(data: typeof this.rawData) {
+		if (!data) throw new Error("Cannot set data without having data... smh")
+		this.rawData = data
+	}
+	// private setField(key: keyof APIGuild, value: unknown) {
+	// 	if (!this.rawData)
+	// 		throw new Error("Cannot set field without having data... smh")
+	// 	Reflect.set(this.rawData, key, value)
+	// }
+
 	/**
 	 * The ID of the guild
 	 */
-	id: string
-	/**
-	 * The name of the guild.
-	 */
-	name?: string
-	/**
-	 * The description of the guild.
-	 */
-	description?: string | null
-	/**
-	 * The icon hash of the guild.
-	 * You can use {@link Guild.iconUrl} to get the URL of the icon.
-	 */
-	icon?: string | null
-	/**
-	 * The splash hash of the guild.
-	 * You can use {@link Guild.splashUrl} to get the URL of the splash.
-	 */
-	splash?: string | null
-	/**
-	 * The ID of the owner of the guild.
-	 */
-	ownerId?: string
+	readonly id: string
 
 	/**
 	 * Whether the guild is a partial guild (meaning it does not have all the data).
 	 * If this is true, you should use {@link Guild.fetch} to get the full data of the guild.
 	 */
-	partial: boolean
-
-	private rawData: APIGuild | null = null
-
-	constructor(client: Client, rawDataOrId: APIGuild | string) {
-		super(client)
-		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
-			this.partial = true
-		} else {
-			this.rawData = rawDataOrId
-			this.id = rawDataOrId.id
-			this.partial = false
-			this.setData(rawDataOrId)
-		}
+	get partial(): IfPartial<IsPartial, false, true> {
+		return (this.rawData === null) as never
 	}
 
-	private setData(data: typeof this.rawData) {
-		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
-		this.name = data.name
-		this.description = data.description
-		this.icon = data.icon
-		this.splash = data.splash
-		this.ownerId = data.owner_id
-		this.partial = false
+	/**
+	 * The name of the guild.
+	 */
+	get name(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.name as never
+	}
+
+	/**
+	 * The description of the guild.
+	 */
+	get description(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.description as never
+	}
+
+	/**
+	 * The icon hash of the guild.
+	 * You can use {@link Guild.iconUrl} to get the URL of the icon.
+	 */
+	get icon(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.icon
+	}
+
+	/**
+	 * Get the URL of the guild's icon
+	 */
+	get iconUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.icon) return null
+		return `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.png`
+	}
+
+	/**
+	 * The splash hash of the guild.
+	 * You can use {@link Guild.splashUrl} to get the URL of the splash.
+	 */
+	get splash(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.splash
+	}
+
+	/**
+	 * Get the URL of the guild's splash
+	 */
+	get splashUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.splash) return null
+		return `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
+	}
+
+	/**
+	 * The ID of the owner of the guild.
+	 */
+	get ownerId(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.owner_id
+	}
+
+	/**
+	 * Get all roles in the guild
+	 */
+	get roles(): IfPartial<IsPartial, Role[]> {
+		if (!this.rawData) return undefined as never
+		const roles = this.rawData?.roles
+		if (!roles) throw new Error("Cannot get roles without having data... smh")
+		return roles.map((role) => new Role(this.client, role))
 	}
 
 	/**
@@ -113,33 +163,6 @@ export class Guild extends Base {
 			Routes.guildMember(this.id, memberId)
 		)) as APIGuildMember
 		return new GuildMember(this.client, member, this)
-	}
-
-	/**
-	 * Get the URL of the guild's icon
-	 */
-	get iconUrl(): string | null {
-		return this.icon
-			? `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.png`
-			: null
-	}
-
-	/**
-	 * Get the URL of the guild's splash
-	 */
-	get splashUrl(): string | null {
-		return this.splash
-			? `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
-			: null
-	}
-
-	/**
-	 * Get all roles in the guild
-	 */
-	get roles() {
-		const roles = this.rawData?.roles
-		if (!roles) throw new Error("Cannot get roles without having data... smh")
-		return roles.map((role) => new Role(this.client, role))
 	}
 
 	/**

@@ -1,5 +1,4 @@
 import {
-	type APIChannel,
 	type APIGuildChannel,
 	type APIMessage,
 	type GuildChannelType,
@@ -10,49 +9,63 @@ import {
 } from "discord-api-types/v10"
 import { Guild } from "../structures/Guild.js"
 import type { GuildCategoryChannel } from "../structures/GuildCategoryChannel.js"
+import type { IfPartial } from "../utils.js"
 import { BaseChannel } from "./BaseChannel.js"
 
 export abstract class BaseGuildChannel<
-	Type extends GuildChannelType
-> extends BaseChannel<Type> {
+	Type extends GuildChannelType,
+	IsPartial extends boolean = false
+> extends BaseChannel<Type, IsPartial> {
+	// @ts-expect-error
+	declare rawData: APIGuildChannel<Type> | null
+
 	/**
 	 * The name of the channel.
 	 */
-	name?: string
+	get name(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.name as never
+	}
+
 	/**
 	 * The ID of the guild this channel is in
 	 */
-	guildId?: string
+	get guildId(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.guild_id as never
+	}
+
 	/**
 	 * The position of the channel in the channel list.
 	 */
-	position?: number
+	get position(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.position
+	}
+
 	/**
 	 * The ID of the parent category for the channel.
 	 */
-	parentId?: string | null
+	get parentId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.parent_id ?? null
+	}
+
 	/**
 	 * Whether the channel is marked as nsfw.
 	 */
-	nsfw?: boolean
+	get nsfw(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.nsfw ?? false
+	}
 
 	/**
 	 * The guild this channel is in
 	 */
-	get guild() {
+	get guild(): IfPartial<IsPartial, Guild<true>> {
+		if (!this.rawData) return undefined as never
 		if (!this.guildId) throw new Error("Cannot get guild without guild ID")
-		return new Guild(this.client, this.guildId)
-	}
-
-	protected override setData(data: APIGuildChannel<Type>): void {
-		this.rawData = data as Extract<APIChannel, { type: Type }> | null
-		this.partial = false
-		this.name = data.name
-		this.guildId = data.guild_id
-		this.position = data.position
-		this.parentId = data.parent_id
-		this.nsfw = data.nsfw
-		this.setSpecificData(data as Extract<APIChannel, { type: Type }>)
+		return new Guild<true>(this.client, this.guildId)
 	}
 
 	/**
@@ -65,7 +78,7 @@ export abstract class BaseGuildChannel<
 				name
 			}
 		})
-		this.name = name
+		this.setField("name", name)
 	}
 
 	/**
@@ -78,7 +91,7 @@ export abstract class BaseGuildChannel<
 				position
 			}
 		})
-		this.position = position
+		this.setField("position", position)
 	}
 
 	/**
@@ -92,14 +105,14 @@ export abstract class BaseGuildChannel<
 					parent_id: parent
 				}
 			})
-			this.parentId = parent
+			this.setField("parent_id", parent)
 		} else {
 			await this.client.rest.patch(Routes.channel(this.id), {
 				body: {
 					parent_id: parent.id
 				}
 			})
-			this.parentId = parent.id
+			this.setField("parent_id", parent.id)
 		}
 	}
 
@@ -113,7 +126,7 @@ export abstract class BaseGuildChannel<
 				nsfw
 			}
 		})
-		this.nsfw = nsfw
+		this.setField("nsfw", nsfw)
 	}
 
 	/**

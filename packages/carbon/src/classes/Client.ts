@@ -364,7 +364,7 @@ export class Client {
 		const member = (await this.rest.get(
 			Routes.guildMember(guildId, id)
 		)) as APIGuildMember
-		return new GuildMember(this, member, new Guild(this, guildId))
+		return new GuildMember(this, member, new Guild<true>(this, guildId))
 	}
 
 	// ======================== End Fetchers ================================================

@@ -1,46 +1,61 @@
-import type {
-	APIGuildStageVoiceChannel,
-	APIGuildVoiceChannel,
-	ChannelType,
+import {
+	type APIGuildStageVoiceChannel,
+	type APIGuildVoiceChannel,
+	type ChannelType,
 	VideoQualityMode
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
+import type { IfPartial } from "../utils.js"
 
 export abstract class GuildStageOrVoiceChannel<
-	Type extends ChannelType.GuildStageVoice | ChannelType.GuildVoice
-> extends BaseGuildChannel<Type> {
+	Type extends ChannelType.GuildStageVoice | ChannelType.GuildVoice,
+	IsPartial extends boolean = false
+> extends BaseGuildChannel<Type, IsPartial> {
+	// @ts-expect-error
+	declare rawData: APIGuildStageVoiceChannel | APIGuildVoiceChannel | null
+
 	/**
 	 * The bitrate of the channel.
 	 */
-	bitrate?: number | null
+	get bitrate(): IfPartial<IsPartial, number | undefined> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.bitrate
+	}
+
 	/**
 	 * The user limit of the channel.
 	 */
-	userLimit?: number | null
+	get userLimit(): IfPartial<IsPartial, number | undefined> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.user_limit
+	}
+
 	/**
 	 * The RTC region of the channel.
 	 * This is automatic when set to `null`.
 	 */
-	rtcRegion?: string | null
+	get rtcRegion(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.rtc_region ?? null
+	}
+
 	/**
 	 * The video quality mode of the channel.
 	 * 1 when not present.
 	 */
-	videoQualityMode?: VideoQualityMode | null
-
-	protected setSpecificData(
-		data: APIGuildStageVoiceChannel | APIGuildVoiceChannel
-	) {
-		this.bitrate = data.bitrate
-		this.userLimit = data.user_limit
-		this.rtcRegion = data.rtc_region
-		this.videoQualityMode = data.video_quality_mode
+	get videoQualityMode(): IfPartial<IsPartial, VideoQualityMode> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.video_quality_mode ?? VideoQualityMode.Auto
 	}
 }
 
-export class GuildStageChannel extends BaseGuildChannel<ChannelType.GuildStageVoice> {
-	protected setSpecificData() {}
+export class GuildStageChannel<
+	IsPartial extends boolean = false
+> extends GuildStageOrVoiceChannel<ChannelType.GuildStageVoice, IsPartial> {
+	declare rawData: APIGuildStageVoiceChannel | null
 }
-export class GuildVoiceChannel extends BaseGuildChannel<ChannelType.GuildVoice> {
-	protected setSpecificData() {}
+export class GuildVoiceChannel<
+	IsPartial extends boolean = false
+> extends GuildStageOrVoiceChannel<ChannelType.GuildVoice, IsPartial> {
+	declare rawData: APIGuildVoiceChannel | null
 }
