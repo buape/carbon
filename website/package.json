@@ -5,10 +5,10 @@
 	"type": "module",
 	"scripts": {
 		"postinstall": "fumadocs-mdx",
-		"web:build": "./copy-api.sh && next build",
-		"web:dev": "./copy-api.sh && next dev",
-		"web:start": "./copy-api.sh && next start",
-		"web:export": "./copy-api.sh && next export"
+		"web:build": "sh ./copy-api.sh && next build",
+		"web:dev": "sh ./copy-api.sh && next dev",
+		"web:start": "sh ./copy-api.sh && next start",
+		"web:export": "sh ./copy-api.sh && next export"
 	},
 	"dependencies": {
 		"class-variance-authority": "0.7.0",

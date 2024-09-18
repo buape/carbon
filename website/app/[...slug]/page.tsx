@@ -68,7 +68,8 @@ export function generateMetadata({ params }: { params: Param }): Metadata {
 	if (!page) notFound()
 
 	const description =
-		page.data.description ?? "The library for building documentation sites"
+		page.data.description ??
+		"A modern and powerful framework for building HTTP Discord bots"
 
 	const image = getImageMeta("og", page.slugs)
 

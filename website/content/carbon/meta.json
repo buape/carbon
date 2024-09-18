@@ -4,6 +4,7 @@
 	"pages": [
 		"index",
 		"getting-started",
+		"http-bot",
 		"...",
 		"--- Usage ---",
 		"classes",
