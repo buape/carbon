@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url"
 import { Client, ClientMode } from "@buape/carbon"
 import { loadCommands, serve } from "@buape/carbon-nodejs"
 const __dirname = dirname(fileURLToPath(import.meta.url))
+{{linkedRolesImport}}
 
 if (
 	!process.env.CLIENT_ID ||
@@ -22,5 +23,6 @@ const client = new Client(
 	},
 	await loadCommands("commands", __dirname)
 )
+{{linkedRoles}}
 
 serve(client, { port: {{port}} })

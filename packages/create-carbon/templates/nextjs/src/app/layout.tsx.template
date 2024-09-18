@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
 
 export const metadata: Metadata = {
 	title: "Create Carbon NextJS",
@@ -14,5 +14,5 @@ export default function RootLayout({
 		<html lang="en">
 			<body>{children}</body>
 		</html>
-	);
+	)
 }

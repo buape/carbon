@@ -11,6 +11,7 @@ import { getFiles, packageManager, sleep } from "./utils.js"
 
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
+import { debug } from "./tools/debug.js"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // ================================================ Intro ================================================
@@ -111,16 +112,88 @@ if (mode === ClientMode.Bun) {
 	replacers.port = options.port
 }
 
+const linkedRoles = await p.confirm({
+	message: "Would you like to add Linked Roles to your bot?"
+})
+
+if (p.isCancel(linkedRoles)) {
+	p.outro("Cancelled")
+	process.exit(1)
+}
+
+if (linkedRoles) {
+	replacers.linkedRolesImport = `import { LinkedRoles } from "@buape/carbon-linked-roles"\n`
+	replacers.linkedRolesCfEnv = `
+	CLIENT_SECRET: string
+	BASE_URL: string
+`
+	replacers.linkedRoles =
+		mode === "cloudflare"
+			? `
+		const isAllowed = ["439223656200273932"]
+		new LinkedRoles(client, {
+			clientSecret: env.CLIENT_SECRET,
+			baseUrl: env.BASE_URL,
+			metadata: [
+			{
+				key: "is_staff",
+				name: "Verified Staff",
+				description: "Whether the user is a verified staff member",
+				type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			},
+			],
+			metadataCheckers: {
+				is_allowed: async (userId) => {
+					if (isAllowed.includes(userId)) return true
+					return false
+				}
+			}
+		})`
+			: `const isAllowed = ["439223656200273932"]
+
+const linkedRoles = new LinkedRoles(client, {
+	clientSecret: process.env.CLIENT_SECRET,
+	baseUrl: process.env.BASE_URL,
+	metadata: [
+		{
+			key: "is_staff",
+			name: "Verified Staff",
+			description: "Whether the user is a verified staff member",
+			type: ApplicationRoleConnectionMetadataType.BooleanEqual
+		},
+	],
+	metadataCheckers: {
+		is_allowed: async (userId) => {
+			if (isAllowed.includes(userId)) return true
+			return false
+		}
+	}
+})`
+	replacers.linkedRolesEnv = `CLIENT_SECRET=""\nBASE_URL=""`
+	replacers.linkedRolesReadme = `\n\n## Linked Roles
+
+Since you added Linked Roles to your bot, make sure that you add the \`CLIENT_SECRET\` and \`BASE_URL\` env variables as well!
+
+Once you have your LinkedRoles instance, you need to set it on Discord so that users will use it for linked roles. You can see where to add this by clicking here, and set the linked role to <BASE_URL>/connect, so for example, https://my-carbon-worker.YOURNAME.workers.dev/connect. You'll also need to add a redirect URL to your Discord application, so that users can be redirected to your website after they login. You can go to the OAuth tab on the dashboard and add a redirect URL there of <BASE_URL>/connect/callback, so for example, https://my-carbon-worker.YOURNAME.workers.dev/connect/callback.\n`
+} else {
+	replacers.linkedRolesImport = ""
+	replacers.linkedRoles = ""
+	replacers.linkedRolesEnv = ""
+	replacers.linkedRolesReadme = ""
+}
+
 // ================================================ Create Project ================================================
 
 const spinner = yoctoSpinner({ text: "Creating project..." })
 spinner.start()
 
+debug(`Replacers: ${JSON.stringify(replacers, null, 2)}`)
+
 await sleep(1000) // Adding delay makes the user feel like it's actively working if it runs too fast
 
 // ================================================ Create folder and package.json ================================================
 
-const packageJson = createPackageJson({ name, mode })
+const packageJson = createPackageJson({ replacers, mode })
 const directory = mkdirSync(`${process.cwd()}/${name}`, { recursive: true })
 if (!directory) {
 	p.outro("Failed to create project folder")

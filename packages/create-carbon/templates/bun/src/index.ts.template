@@ -1,7 +1,8 @@
-import { Client, ClientMode } from "@buape/carbon";
-import PingCommand from "./commands/ping.js";
-import ButtonCommand from "./commands/button.js";
-import { serve } from "bun";
+import { Client, ClientMode } from "@buape/carbon"
+import PingCommand from "./commands/ping.js"
+import ButtonCommand from "./commands/button.js"
+import { serve } from "bun"
+{{linkedRolesImport}}
 
 if (!process.env.CLIENT_ID || !process.env.PUBLIC_KEY || !process.env.DISCORD_TOKEN) {
     throw new Error("Missing environment variables");
@@ -17,7 +18,8 @@ const client = new Client(
         port: {{port}}
     },
     [new PingCommand(), new ButtonCommand()]
-);
+)
+{{linkedRoles}}
 
 const server = serve(client.router);
 console.log(`Listening on port ${server.port}`);

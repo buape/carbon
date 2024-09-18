@@ -5,14 +5,17 @@ import { fileURLToPath } from "node:url"
 import type { PackageJson } from "type-fest"
 import type { Mode } from "../modes.js"
 
-export const createPackageJson = (data: {
-	name: string
+export const createPackageJson = ({
+	mode,
+	replacers
+}: {
 	mode: Mode
+	replacers: Record<string, string>
 }) => {
 	const packageJson: Record<string, unknown> = {}
-	packageJson.name = data.name
+	packageJson.name = replacers.name
 	packageJson.private = true
-	switch (data.mode) {
+	switch (mode) {
 		case "node":
 			packageJson.main = "./dist/src/index.js"
 			packageJson.scripts = {

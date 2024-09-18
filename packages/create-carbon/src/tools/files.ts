@@ -1,4 +1,11 @@
-import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
+import {
+	mkdirSync,
+	readFileSync,
+	rmdirSync,
+	statSync,
+	unlinkSync,
+	writeFileSync
+} from "node:fs"
 import { getFiles, replacePlaceholders } from "../utils.js"
 import { debug } from "./debug.js"
 
@@ -37,11 +44,15 @@ export const processFolder = (
 	const folders = all.filter((x) => !x.includes("."))
 	const templates = all.filter((x) => x.endsWith(".template"))
 	const appenders = all.filter((x) => x.endsWith(".appender"))
+	const excludes = all.filter((x) => x.endsWith(".exclude"))
 	for (const template of templates) {
 		writeFile(template, thisFolderPath, outputRoot, replacers)
 	}
 	for (const appender of appenders) {
 		appendFile(appender, thisFolderPath, outputRoot, replacers)
+	}
+	for (const exclude of excludes) {
+		excludeFile(exclude, thisFolderPath, outputRoot)
 	}
 	for (const folder of folders) {
 		processFolder(folder, thisFolderPath, `${outputRoot}/${folder}`, replacers)
@@ -60,4 +71,20 @@ export const appendFile = (
 	const newTemplate = `${original}\n${template}`
 	const data = replacePlaceholders(newTemplate, replacers)
 	writeFileSync(`${outputDirectory}/${fileName}`, data)
+}
+export const excludeFile = (
+	file: string,
+	templateFolder: string,
+	outputDirectory: string
+) => {
+	debug(
+		`Deleting ${file} from ${outputDirectory} because of exclude in ${templateFolder}`
+	)
+	const fileName = file.replace(".exclude", "")
+	try {
+		rmdirSync(`${outputDirectory}/${fileName}`, { recursive: true })
+		unlinkSync(`${outputDirectory}/${fileName}`)
+	} catch {
+		debug(`Exclude ${outputDirectory}/${fileName} not found`)
+	}
 }
