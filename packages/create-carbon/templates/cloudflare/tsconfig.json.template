@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"outDir": "dist",
+		"rootDir": ".",
+		"lib": ["ES2022"],
+		"types": ["@cloudflare/workers-types"]
+	},
+	"include": [
+		"src"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}

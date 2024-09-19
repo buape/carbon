@@ -8,6 +8,7 @@
 		"changeset": "changeset add",
 		"ci": "pnpm build --filter !demo-cloudo --filter !demo-rocko --filter !website",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter demo-cloudo",
+		"cli": "cd packages/create-carbon && pnpm cli",
 		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !demo-cloudo",
 		"generate": "turbo gen package",
 		"lint": "biome check . --write",
@@ -33,6 +34,7 @@
 		"typedoc-plugin-frontmatter": "1.0.0",
 		"typedoc-plugin-markdown": "4.2.7",
 		"typedoc-plugin-mdn-links": "3.2.12",
+		"type-fest": "^4.26.1",
 		"typescript": "5.6.2",
 		"vitest": "2.1.1"
 	},

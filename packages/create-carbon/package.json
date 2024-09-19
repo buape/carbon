@@ -5,15 +5,25 @@
 	"main": "./dist/src/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc -w",
-		"docs": "typedoc"
+		"cli": "tsc && node .",
+		"dev": "tsc -w"
 	},
 	"license": "MIT",
 	"peerDependencies": {
-		"@buape/carbon": "workspace:^0.4.2"
+		"@buape/carbon": "workspace:^0.4.2",
+		"@buape/carbon-nodejs": "workspace:^0.2.1"
 	},
 	"files": [
 		"dist",
+		"templates",
 		"LICENSE"
-	]
+	],
+	"dependencies": {
+		"@clack/prompts": "0.7.0",
+		"yocto-spinner": "^0.1.0"
+	},
+	"bin": "./dist/src/index.js",
+	"devDependencies": {
+		"@types/node": "^22.5.5"
+	}
 }

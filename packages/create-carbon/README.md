@@ -25,3 +25,4 @@ This will create a new directory called `my-project` with a basic Carbon project
 ## Contributing
 
 We welcome contributions to `create-carbon`! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/carbon/helpful-guides/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
+

@@ -1,18 +1,14 @@
 import { Client, ClientMode } from "@buape/carbon"
 import type { ExecutionContext } from "@cloudflare/workers-types"
+{{linkedRolesImport}}
 
 import PingCommand from "./commands/ping.js"
-import ButtonCommand from "./commands/testing/button.js"
-import SelectCommand from "./commands/testing/every_select.js"
-import ModalCommand from "./commands/testing/modal.js"
-import Options from "./commands/testing/options.js"
-import Subc from "./commands/testing/subcommand.js"
-import SubcG from "./commands/testing/subcommandgroup.js"
+import ButtonCommand from "./commands/button.js"
 
 type Env = {
 	CLIENT_ID: string
 	PUBLIC_KEY: string
-	DISCORD_TOKEN: string
+	DISCORD_TOKEN: string{{linkedRolesCfEnv}}
 }
 
 export default {
@@ -24,16 +20,9 @@ export default {
 				token: _env.DISCORD_TOKEN,
 				mode: ClientMode.CloudflareWorkers
 			},
-			[
-				new ButtonCommand(),
-				new Options(),
-				new PingCommand(),
-				new SelectCommand(),
-				new Subc(),
-				new SubcG(),
-				new ModalCommand()
-			]
+			[new ButtonCommand(), new PingCommand()]
 		)
+		{{linkedRoles}}
 		if (request.url.endsWith("/deploy")) {
 			await client.deployCommands()
 			return new Response("Deployed commands")
