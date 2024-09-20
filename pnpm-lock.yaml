@@ -11,9 +11,6 @@ importers:
       '@net-tech-/env-cmd':
         specifier: 1.0.3
         version: 1.0.3
-      type-fest:
-        specifier: ^4.26.1
-        version: 4.26.1
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.2
@@ -33,6 +30,9 @@ importers:
       turbo:
         specifier: 2.1.2
         version: 2.1.2
+      type-fest:
+        specifier: ^4.26.1
+        version: 4.26.1
       typedoc:
         specifier: 0.26.7
         version: 0.26.7(typescript@5.6.2)
@@ -103,6 +103,9 @@ importers:
       '@buape/carbon':
         specifier: workspace:^0.4.2
         version: link:../carbon
+      '@buape/carbon-nodejs':
+        specifier: workspace:^0.2.1
+        version: link:../nodejs
       '@clack/prompts':
         specifier: 0.7.0
         version: 0.7.0
