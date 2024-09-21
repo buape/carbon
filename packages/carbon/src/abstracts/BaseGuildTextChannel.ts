@@ -18,6 +18,14 @@ export abstract class BaseGuildTextChannel<
 	declare rawData: APIGuildTextChannel<Type> | null
 
 	/**
+	 * The topic of the channel.
+	 */
+	get topic(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.topic ?? null
+	}
+
+	/**
 	 * The ID of the last message sent in the channel.
 	 *
 	 * @remarks
