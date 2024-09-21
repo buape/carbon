@@ -5,12 +5,11 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
-import type {
-	InteractionReplyData,
-	InteractionReplyOptions
-} from "../abstracts/BaseInteraction.js"
+import type { InteractionReplyOptions } from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
 import { FieldsHandler } from "./FieldsHandler.js"
+import type { MessagePayload } from "../types.js"
+import { serializePayload } from "../utils.js"
 
 export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction> {
 	customId: string
@@ -48,18 +47,17 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 	 * This can only be used for modals triggered from components
 	 */
 	async update(
-		data: InteractionReplyData,
+		data: MessagePayload,
 		options: Pick<InteractionReplyOptions, "files"> = {}
 	) {
+		const serialized = serializePayload(data)
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.UpdateMessage,
 					data: {
-						...data,
-						embeds: data.embeds?.map((embed) => embed.serialize()),
-						components: data.components?.map((row) => row.serialize())
+						...serialized
 					}
 				} as RESTPostAPIInteractionCallbackJSONBody,
 				files: options.files
