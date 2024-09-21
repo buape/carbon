@@ -1,5 +1,13 @@
 # @buape/carbon-nodejs
 
+## 0.2.2
+
+### Patch Changes
+
+- 9543dda: chore(deps): update dependency @hono/node-server to v1.13.0
+- 6451788: chore(deps): update dependency @hono/node-server to v1.13.1
+- ed0501d: chore(deps): update dependency @types/node to v22.5.5
+
 ## 0.2.1
 
 ### Patch Changes

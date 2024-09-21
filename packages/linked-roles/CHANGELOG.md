@@ -1,5 +1,12 @@
 # @buape/carbon-linked-roles
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [63a6d07]
+  - @buape/carbon@0.5.0
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon-linked-roles",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"repository": "github:buape/carbon",
@@ -11,7 +11,7 @@
 	},
 	"license": "MIT",
 	"peerDependencies": {
-		"@buape/carbon": "workspace:^0.4.2"
+		"@buape/carbon": "workspace:^0.5.0"
 	},
 	"devDependencies": {
 		"@buape/carbon": "workspace:*"
