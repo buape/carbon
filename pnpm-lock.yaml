@@ -11,9 +11,6 @@ importers:
       '@net-tech-/env-cmd':
         specifier: 1.0.3
         version: 1.0.3
-      type-fest:
-        specifier: ^4.26.1
-        version: 4.26.1
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.2
@@ -33,6 +30,9 @@ importers:
       turbo:
         specifier: 2.1.2
         version: 2.1.2
+      type-fest:
+        specifier: ^4.26.1
+        version: 4.26.1
       typedoc:
         specifier: 0.26.7
         version: 0.26.7(typescript@5.6.2)
@@ -103,6 +103,9 @@ importers:
       '@buape/carbon':
         specifier: workspace:^0.4.2
         version: link:../carbon
+      '@buape/carbon-nodejs':
+        specifier: workspace:^0.2.1
+        version: link:../nodejs
       '@clack/prompts':
         specifier: 0.7.0
         version: 0.7.0
@@ -123,8 +126,8 @@ importers:
   packages/nodejs:
     dependencies:
       '@hono/node-server':
-        specifier: 1.13.0
-        version: 1.13.0(hono@4.6.1)
+        specifier: 1.13.1
+        version: 1.13.1(hono@4.6.1)
       '@types/node':
         specifier: 22.5.5
         version: 22.5.5
@@ -817,8 +820,8 @@ packages:
   '@formatjs/intl-localematcher@0.5.4':
     resolution: {integrity: sha512-zTwEpWOzZ2CiKcB93BLngUX59hQkuZjT2+SAQEscSm52peDW/getsawMcWF1rGRpMCX6D7nSJA3CzJ8gn13N/g==}
 
-  '@hono/node-server@1.13.0':
-    resolution: {integrity: sha512-kz323qIQkNQElEGroo/E9MKPDuIR5pkuk/XEWd50K+cSEKdmdiYx0PKWUdaNY2ecJYngtF+njDMsMKplL6zfEg==}
+  '@hono/node-server@1.13.1':
+    resolution: {integrity: sha512-TSxE6cT5RHnawbjnveexVN7H2Dpn1YaLxQrCOLCUwD+hFbqbFsnJBgdWcYtASqtWVjA+Qgi8uqFug39GsHjo5A==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -4490,7 +4493,7 @@ snapshots:
     dependencies:
       tslib: 2.7.0
 
-  '@hono/node-server@1.13.0(hono@4.6.1)':
+  '@hono/node-server@1.13.1(hono@4.6.1)':
     dependencies:
       hono: 4.6.1
 
