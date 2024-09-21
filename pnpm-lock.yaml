@@ -100,9 +100,6 @@ importers:
 
   packages/create-carbon:
     dependencies:
-      '@buape/carbon':
-        specifier: workspace:^0.4.2
-        version: link:../carbon
       '@buape/carbon-nodejs':
         specifier: workspace:^0.2.1
         version: link:../nodejs
@@ -113,6 +110,9 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
     devDependencies:
+      '@buape/carbon':
+        specifier: workspace:*
+        version: link:../carbon
       '@types/node':
         specifier: ^22.5.5
         version: 22.5.5

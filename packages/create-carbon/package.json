@@ -22,8 +22,9 @@
 		"@clack/prompts": "0.7.0",
 		"yocto-spinner": "^0.1.0"
 	},
-	"bin": "./dist/src/index.js",
 	"devDependencies": {
+		"@buape/carbon": "workspace:*",
 		"@types/node": "^22.5.5"
-	}
+	},
+	"bin": "./dist/src/index.js"
 }
