@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.1.1
+
+### Patch Changes
+
+- b122675: fix: adjust how create-carbon requires carbon
+
 ## 0.1.0
 
 ### Minor Changes
