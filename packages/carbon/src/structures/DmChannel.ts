@@ -4,8 +4,8 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import { serializePayload, type IfPartial } from "../utils.js"
 import type { MessagePayload } from "../types.js"
+import { type IfPartial, serializePayload } from "../utils.js"
 
 /**
  * Represents a DM between two users.

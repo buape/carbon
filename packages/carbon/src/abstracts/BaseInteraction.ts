@@ -19,8 +19,8 @@ import {
 	channelFactory
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
-import { serializePayload } from "../utils.js"
 import type { MessagePayload } from "../types.js"
+import { serializePayload } from "../utils.js"
 
 /**
  * Additional options for replying to an interaction

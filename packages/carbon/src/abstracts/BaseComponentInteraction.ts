@@ -6,13 +6,13 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
+import type { MessagePayload } from "../types.js"
 import { serializePayload, splitCustomId } from "../utils.js"
 import {
 	BaseInteraction,
 	type InteractionDefaults,
 	type InteractionReplyOptions
 } from "./BaseInteraction.js"
-import type { MessagePayload } from "../types.js"
 
 export class BaseComponentInteraction extends BaseInteraction<APIMessageComponentInteraction> {
 	customId: string

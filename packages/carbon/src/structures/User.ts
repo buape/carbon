@@ -7,10 +7,10 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial } from "../utils.js"
-import { Message } from "./Message.js"
-import { serializePayload } from "../utils.js"
 import type { MessagePayload } from "../types.js"
+import type { IfPartial } from "../utils.js"
+import { serializePayload } from "../utils.js"
+import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
 	constructor(
