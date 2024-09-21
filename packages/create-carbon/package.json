@@ -9,21 +9,18 @@
 		"dev": "tsc -w"
 	},
 	"license": "MIT",
-	"peerDependencies": {
-		"@buape/carbon": "workspace:^0.5.0",
-		"@buape/carbon-nodejs": "workspace:^0.2.2"
-	},
 	"files": [
 		"dist",
 		"templates",
 		"LICENSE"
 	],
 	"dependencies": {
+		"@buape/carbon": "workspace:^0.5.0",
+		"@buape/carbon-nodejs": "workspace:^0.2.2",
 		"@clack/prompts": "0.7.0",
 		"yocto-spinner": "^0.1.0"
 	},
 	"devDependencies": {
-		"@buape/carbon": "workspace:*",
 		"@types/node": "^22.5.5"
 	},
 	"bin": "./dist/src/index.js"
