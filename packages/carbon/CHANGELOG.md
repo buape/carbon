@@ -1,5 +1,22 @@
 # @buape/carbon
 
+## 0.5.0
+
+### Minor Changes
+
+- 9e087a2: feat: add MessagePayload for replies and message sending
+  This will allow you to pass just a string to reply with as the content, or the entire message payload.
+- 40f797b: feat: add fetchers to client
+- 63a6d07: feat: Add topic getter to all guild based text channels
+
+### Patch Changes
+
+- 3bf77fb: fix: `OptionsHandler#getMentionable` always returning user even when invalid
+- d76feb7: fix: interaction#options should never be null
+- 77b71ef: fix: don't require the user to cast types for button styles
+- b29eefd: fix: correctly get options of subcommands and subcommandgroups
+- a0074f0: refactor: add partial type parameters to structures to improve field types
+
 ## 0.4.2
 
 ### Patch Changes
