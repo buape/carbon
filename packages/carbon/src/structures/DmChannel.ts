@@ -1,11 +1,11 @@
 import {
 	type APIDMChannel,
-	type APIMessage,
 	type ChannelType,
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import type { IfPartial } from "../utils.js"
+import { serializePayload, type IfPartial } from "../utils.js"
+import type { MessagePayload } from "../types.js"
 
 /**
  * Represents a DM between two users.
@@ -27,9 +27,9 @@ export class DmChannel<IsPartial extends boolean = false> extends BaseChannel<
 	/**
 	 * Send a message to the channel
 	 */
-	async send(message: APIMessage) {
+	async send(message: MessagePayload) {
 		this.client.rest.post(Routes.channelMessages(this.id), {
-			body: { ...message }
+			body: serializePayload(message)
 		})
 	}
 }

@@ -2,7 +2,6 @@ import {
 	type APIDMChannel,
 	type APIMessage,
 	type APIUser,
-	type RESTPostAPIChannelMessageJSONBody,
 	Routes,
 	type UserFlags
 } from "discord-api-types/v10"
@@ -10,6 +9,8 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial } from "../utils.js"
 import { Message } from "./Message.js"
+import { serializePayload } from "../utils.js"
+import type { MessagePayload } from "../types.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -172,14 +173,12 @@ export class User<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Send a message to this user.
 	 */
-	async send(data: RESTPostAPIChannelMessageJSONBody) {
+	async send(data: MessagePayload) {
 		const dmChannel = await this.createDm(this.id)
 		const message = (await this.client.rest.post(
 			Routes.channelMessages(dmChannel.id),
 			{
-				body: {
-					...data
-				}
+				body: serializePayload(data)
 			}
 		)) as APIMessage
 		return new Message(this.client, message)

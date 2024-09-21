@@ -1,4 +1,5 @@
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
+import type { MessagePayload } from "./types.js"
 
 export const splitCustomId = (
 	customId: string
@@ -79,4 +80,14 @@ export function concatUint8Arrays(
 	merged.set(arr1)
 	merged.set(arr2, arr1.length)
 	return merged
+}
+
+export const serializePayload = (payload: MessagePayload) => {
+	return typeof payload === "string"
+		? { content: payload }
+		: {
+				...payload,
+				embeds: payload.embeds?.map((embed) => embed.serialize()),
+				components: payload.components?.map((row) => row.serialize())
+			}
 }
