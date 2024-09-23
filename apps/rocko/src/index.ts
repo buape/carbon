@@ -1,56 +1,42 @@
-import { dirname } from "node:path"
-import { fileURLToPath } from "node:url"
-import { Client, ClientMode } from "@buape/carbon"
-import { loadCommands, serve } from "@buape/carbon-nodejs"
-import {
-	ApplicationRoleConnectionMetadataType,
-	LinkedRoles
-} from "@buape/carbon/linked-roles"
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import { Client, createHandle } from "@buape/carbon"
+import { createServer } from "@buape/carbon/adapters/node"
+import PingCommand from "./commands/ping.js"
 
-if (
-	!process.env.CLIENT_ID ||
-	!process.env.PUBLIC_KEY ||
-	!process.env.DISCORD_TOKEN ||
-	!process.env.CLIENT_SECRET
-) {
-	throw new Error("Missing environment variables")
-}
-
-const client = new Client(
-	{
-		clientId: process.env.CLIENT_ID,
-		publicKey: process.env.PUBLIC_KEY,
-		token: process.env.DISCORD_TOKEN,
-		mode: ClientMode.NodeJS,
-		requestOptions: {
-			queueRequests: false
-		},
-		autoDeploy: true
-	},
-	await loadCommands("commands", __dirname)
-)
-
-serve(client, { port: 3000 })
-
-export const sleep = async (ms: number) => {
-	return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-new LinkedRoles(client, {
-	clientSecret: process.env.CLIENT_SECRET,
-	baseUrl: "http://localhost:3000",
-	metadata: [
+const handle = createHandle((env) => {
+	const client = new Client(
 		{
-			key: "is_shadow",
-			name: "Whether you are Shadow",
-			description: "You gotta be Shadow to get this one!",
-			type: ApplicationRoleConnectionMetadataType.BooleanEqual
-		}
-	],
-	metadataCheckers: {
-		is_shadow: async (userId) => {
-			return userId === "439223656200273932"
-		}
-	}
+			clientId: String(env.CLIENT_ID),
+			publicKey: String(env.PUBLIC_KEY),
+			token: String(env.DISCORD_TOKEN),
+			requestOptions: { queueRequests: false },
+			autoDeploy: false
+		},
+		// TODO: Add other commands
+		[new PingCommand()]
+	)
+
+	return [client]
+
+	// TODO: Test
+	// const linkedRoles = new LinkedRoles(client, {
+	// 	clientSecret: String(env.CLIENT_SECRET),
+	// 	baseUrl: "https://rocko.buape.dev",
+	// 	metadata: [
+	// 		{
+	// 			key: "is_shadow",
+	// 			name: "Whether you are Shadow",
+	// 			description: "You gotta be Shadow to get this one!",
+	// 			type: ApplicationRoleConnectionMetadataType.BooleanEqual
+	// 		}
+	// 	],
+	// 	metadataCheckers: {
+	// 		is_shadow: async (userId) => {
+	// 			return userId === "439223656200273932"
+	// 		}
+	// 	}
+	// })
+
+	// return [client, linkedRoles]
 })
+
+createServer(handle, { port: 3000, relativePath: '/rocko' })
