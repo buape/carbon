@@ -1,5 +1,6 @@
 ---
 title: Linked Roles
+description: Linked Roles are a handy feature of Discord that allows you to create roles that users have to meet certain criteria in order to claim those roles.
 ---
 
 Linked Roles are a handy feature of Discord that allows you to create roles that users have to meet certain criteria in order to claim those roles.
@@ -17,13 +18,13 @@ Then, create a new instance of the `LinkedRoles` class, and pass it your metadat
 
 ### Installation
 
-<CommandTabs command="install" args={["@buape/carbon @buape/carbon-linked-roles"]} />
+<CommandTabs command="install" args={["@buape/carbon"]} />
 
 ### Example
 
 ```ts title="src/index.ts"
 import { Client } from "@buape/carbon"
-import { LinkedRoles } from "@buape/carbon-linked-roles"
+import { LinkedRoles } from "@buape/carbon/linked-roles"
 
 const client = new Client({
 	clientId: "12345678901234567890",

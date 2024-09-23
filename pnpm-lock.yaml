@@ -70,9 +70,6 @@ importers:
       '@buape/carbon':
         specifier: workspace:*
         version: link:../../packages/carbon
-      '@buape/carbon-linked-roles':
-        specifier: workspace:*
-        version: link:../../packages/linked-roles
       '@buape/carbon-nodejs':
         specifier: workspace:*
         version: link:../../packages/nodejs
@@ -116,12 +113,6 @@ importers:
       '@types/node':
         specifier: ^22.5.5
         version: 22.5.5
-
-  packages/linked-roles:
-    devDependencies:
-      '@buape/carbon':
-        specifier: workspace:*
-        version: link:../carbon
 
   packages/nodejs:
     dependencies:

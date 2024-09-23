@@ -1,10 +1,4 @@
-import {
-	Brackets,
-	Computer,
-	Link,
-	type LucideIcon,
-	Package
-} from "lucide-react"
+import { Computer, Link, type LucideIcon, Package } from "lucide-react"
 
 export interface Mode {
 	param: string
@@ -19,12 +13,6 @@ export const modes: Mode[] = [
 		name: "Carbon",
 		description: "@buape/carbon",
 		icon: Package
-	},
-	{
-		param: "linked-roles",
-		name: "Linked Roles",
-		description: "@buape/carbon-linked-roles",
-		icon: Brackets
 	},
 	{
 		param: "nodejs",

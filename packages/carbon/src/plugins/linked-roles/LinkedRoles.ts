@@ -1,4 +1,4 @@
-import type { Client } from "@buape/carbon"
+import type { Client } from "../../classes/Client.js"
 import {
 	ApplicationRoleConnectionMetadataType,
 	type LinkedRolesOptions

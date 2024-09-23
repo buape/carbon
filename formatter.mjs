@@ -1,4 +1,4 @@
-import { dirname, relative } from "node:path"
+import { dirname, relative, sep } from "node:path"
 // @ts-check
 import { fileURLToPath } from "node:url"
 import { MarkdownPageEvent } from "typedoc-plugin-markdown"
@@ -27,7 +27,7 @@ export function load(app) {
 		(page) => {
 			if (!page.contents) return
 			const rel = relative(root, dirname(page.filename))
-			const parts = rel.split("/")
+			const parts = rel.split(sep)
 			const pkg = parts[1]
 			const dirParts = parts.slice(3)
 			const dir = dirParts.length ? `${dirParts.join("/")}/` : ""

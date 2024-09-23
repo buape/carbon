@@ -1,11 +1,11 @@
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
 import { Client, ClientMode } from "@buape/carbon"
+import { loadCommands, serve } from "@buape/carbon-nodejs"
 import {
 	ApplicationRoleConnectionMetadataType,
 	LinkedRoles
-} from "@buape/carbon-linked-roles"
-import { loadCommands, serve } from "@buape/carbon-nodejs"
+} from "@buape/carbon/linked-roles"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 if (
