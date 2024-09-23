@@ -1,3 +1,5 @@
+export * from "./createHandle.js"
+
 // ----- Abstracts -----
 export * from "./abstracts/AnySelectMenu.js"
 export * from "./abstracts/AnySelectMenuInteraction.js"

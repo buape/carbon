@@ -1,3 +1,4 @@
+import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import {
 	ApplicationRoleConnectionMetadataType,
@@ -48,62 +49,74 @@ type Tokens = {
  * })
  * ```
  */
-export class LinkedRoles {
+export class LinkedRoles extends Plugin {
 	client: Client
 	options: Required<LinkedRolesOptions>
 
+	// TODO: I would like to remove the need to pass the client here
+	// Client is only used to grab the env variables, which could be passed directly, or another way
+	// This would allow the user to not have to create a client if all they want is linked roles
 	constructor(client: Client, options: LinkedRolesOptions) {
+		super()
+
 		this.client = client
 		this.options = { ...options }
-		this.setupRoutes()
 		this.setMetadata(this.options.metadata)
-		console.log(
-			`Linked roles initialized\nRedirect URL: ${this.options.baseUrl}/connect/callback\nVerification URL: ${this.options.baseUrl}/connect`
-		)
+		this.appendRoutes()
 	}
 
-	private setupRoutes() {
-		this.client.router.get("/connect", () => {
-			const response = new Response(null, {
-				status: 302
-			})
-			response.headers.set(
-				"Location",
-				`https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
-			)
-			return response
+	private appendRoutes() {
+		this.routes.push({
+			method: "GET",
+			path: "/connect",
+			handler: this.handleConnectRequest.bind(this)
 		})
+		this.routes.push({
+			method: "GET",
+			path: "/connect/callback",
+			handler: this.handleConnectCallbackRequest.bind(this)
+		})
+	}
 
-		this.client.router.get("/connect/callback", async (req) => {
-			try {
-				const code = req.query.code
-
-				const tokens = await this.getOAuthTokens(code as string)
-				const authData = await (
-					await fetch("https://discord.com/api/v10/oauth2/@me", {
-						headers: {
-							Authorization: `Bearer ${tokens.access_token}`
-						}
-					})
-				).json()
-				if (!authData.user)
-					return new Response("", {
-						status: 307,
-						headers: {
-							Location: `${this.options.baseUrl}/connect`
-						}
-					})
-
-				const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
-
-				await this.updateMetadata(authData.user?.id, newMetadata, tokens)
-
-				return new Response("You can now close this tab.")
-			} catch (e) {
-				console.error(e)
-				return new Response("Error", { status: 500 })
+	public async handleConnectRequest() {
+		return new Response(null, {
+			status: 302,
+			headers: {
+				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
 			}
 		})
+	}
+
+	public async handleConnectCallbackRequest(req: Request) {
+		try {
+			const url = new URL(req.url)
+			const code = String(url.searchParams.get("code"))
+
+			const tokens = await this.getOAuthTokens(code as string)
+			const authData = await (
+				await fetch("https://discord.com/api/v10/oauth2/@me", {
+					headers: {
+						Authorization: `Bearer ${tokens.access_token}`
+					}
+				})
+			).json()
+			if (!authData.user)
+				return new Response("", {
+					status: 307,
+					headers: {
+						Location: `${this.options.baseUrl}/connect`
+					}
+				})
+
+			const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
+
+			await this.updateMetadata(authData.user?.id, newMetadata, tokens)
+
+			return new Response("You can now close this tab.")
+		} catch (e) {
+			console.error(e)
+			return new Response("Error", { status: 500 })
+		}
 	}
 
 	private async getMetadataFromCheckers(userId: string) {
