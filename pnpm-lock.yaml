@@ -79,6 +79,9 @@ importers:
       '@buape/carbon-request':
         specifier: workspace:*
         version: link:../request
+      '@cloudflare/workers-types':
+        specifier: 4.20240919.0
+        version: 4.20240919.0
       '@types/node':
         specifier: ^20
         version: 20.16.11
