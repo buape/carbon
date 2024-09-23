@@ -61,17 +61,19 @@ export class Embed {
 	/**
 	 * Create an embed from an API embed
 	 */
-	constructor(embed: APIEmbed) {
-		this.title = embed.title
-		this.description = embed.description
-		this.url = embed.url
-		this.timestamp = embed.timestamp
-		this.color = embed.color
-		this.footer = embed.footer
-		this.image = embed.image?.url
-		this.thumbnail = embed.thumbnail?.url
-		this.author = embed.author
-		this.fields = embed.fields
+	constructor(embed?: APIEmbed) {
+		if (embed) {
+			this.title = embed.title
+			this.description = embed.description
+			this.url = embed.url
+			this.timestamp = embed.timestamp
+			this.color = embed.color
+			this.footer = embed.footer
+			this.image = embed.image?.url
+			this.thumbnail = embed.thumbnail?.url
+			this.author = embed.author
+			this.fields = embed.fields
+		}
 	}
 
 	/**
