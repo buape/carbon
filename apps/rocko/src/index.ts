@@ -39,4 +39,4 @@ const handle = createHandle((env) => {
 	// return [client, linkedRoles]
 })
 
-createServer(handle, { port: 3000, relativePath: '/rocko' })
+createServer(handle, { port: 3000 })

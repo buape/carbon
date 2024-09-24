@@ -8,11 +8,11 @@ export function createHandle(factory: (env: PartialEnv) => Plugin[]) {
 
 		return async (req: Request, ctx?: Context) => {
 			let routeMatched = false
-            for (const route of routes) {
+			for (const route of routes) {
 				if (route.path !== new URL(req.url).pathname) continue
 				routeMatched = true
-                if (route.method !== req.method) continue
-                return await route.handler(req, ctx)
+				if (route.method !== req.method) continue
+				return await route.handler(req, ctx)
 			}
 
 			if (routeMatched) return new Response(null, { status: 405 })

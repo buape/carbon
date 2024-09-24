@@ -1,16 +1,16 @@
 import {
-	readdirSync,
-	readFileSync,
-	statSync,
 	mkdirSync,
+	readFileSync,
+	readdirSync,
+	statSync,
 	writeFileSync
 } from "node:fs"
-import Handlebars from "handlebars"
-import matter from "gray-matter"
 import { dirname, resolve } from "node:path"
-import { getDependencyVersions } from "./npmHelpers.js"
+import matter from "gray-matter"
+import Handlebars from "handlebars"
 import type { Runtime } from "../runtimes.js"
 import { debug } from "./consoleDebug.js"
+import { getDependencyVersions } from "./npmHelpers.js"
 
 // a == b
 Handlebars.registerHelper(
@@ -26,7 +26,7 @@ Handlebars.registerHelper(
 // k ? o[k] : undefined
 Handlebars.registerHelper(
 	"get", //
-	(o, k) => k ? o[k] : undefined
+	(o, k) => (k ? o[k] : undefined)
 )
 
 interface TemplateContext {

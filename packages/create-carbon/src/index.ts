@@ -1,12 +1,12 @@
 import * as p from "@clack/prompts"
+import yoctoSpinner from "yocto-spinner"
 import { type Runtime, runtimes } from "./runtimes.js"
 import { doesDirectoryExist } from "./tools/fileSystem.js"
-import yoctoSpinner from "yocto-spinner"
-import { processTemplate } from "./tools/templateCreator.js"
 import {
 	getPackageManager,
 	runPackageManagerCommand
 } from "./tools/packageManager.js"
+import { processTemplate } from "./tools/templateCreator.js"
 
 // ================================================ Intro ================================================
 
@@ -37,11 +37,11 @@ if (p.isCancel(runtime)) {
 	process.exit(1)
 }
 
-const enableLinkedRoles = await p.confirm({
-	message: "Would you like to enable linked roles?",
+const linkedRoles = await p.confirm({
+	message: "Would you like to add linked roles to your app?",
 	initialValue: false
 })
-if (p.isCancel(enableLinkedRoles)) {
+if (p.isCancel(linkedRoles)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
@@ -53,10 +53,10 @@ spinner.start()
 
 const packageManager = getPackageManager()
 await processTemplate({
-	name: name,
-	runtime: runtime,
-	packageManager: packageManager,
-	plugins: { linkedRoles: enableLinkedRoles }
+	name,
+	runtime,
+	packageManager,
+	plugins: { linkedRoles }
 })
 
 spinner.stop()

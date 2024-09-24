@@ -11,6 +11,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
+import { type Context, Plugin } from "../abstracts/Plugin.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
@@ -20,7 +21,6 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
-import { type Context, Plugin } from "../abstracts/Plugin.js"
 
 /**
  * The options used for initializing the client
@@ -123,21 +123,19 @@ export class Client extends Plugin {
 
 	private appendRoutes() {
 		this.routes.push({
-			method: 'GET',
-			path: '/deploy',
+			method: "GET",
+			path: "/deploy",
 			handler: this.handleDeployCommandsRequest.bind(this)
 		})
 		this.routes.push({
-			method: 'POST',
-			path: '/interactions',
+			method: "POST",
+			path: "/interactions",
 			handler: this.handleInteractionRequest.bind(this)
 		})
 	}
 
 	public async handleDeployCommandsRequest() {
 		// TODO: Protect this route somehow (e.g. with a secret)
-
-		console.trace('i was called?', arguments)
 
 		const commands = this.commands
 			.filter((c) => c.name !== "*")
