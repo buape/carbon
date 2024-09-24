@@ -42,12 +42,22 @@ export const loadCommands = async (folderPath: string, dirname: string) => {
 		folder.endsWith(".js")
 	)
 
+	const loadedFiles = new Set<string>()
+
 	for await (const fileName of parentFolderFiles) {
 		const filePath = path.join(mainFolderPath, fileName)
 		const fileUrl = `file://${filePath.replace(/\\/g, "/")}`
-		const file = await import(fileUrl)
-		const cmd = new file.default()
-		commands.push(cmd)
+		try {
+			const file = await import(fileUrl)
+			if (!file.default) {
+				throw new Error(`No default export found in ${filePath}`)
+			}
+			const cmd = new file.default()
+			commands.push(cmd)
+			loadedFiles.add(filePath)
+		} catch (error) {
+			throw new Error(`Error loading command from ${filePath}: ${error}`)
+		}
 	}
 
 	for (const parentFolder of parentFolders) {
@@ -55,9 +65,20 @@ export const loadCommands = async (folderPath: string, dirname: string) => {
 		for await (const fileName of files) {
 			const filePath = path.join(mainFolderPath, parentFolder, fileName)
 			const fileUrl = `file://${filePath.replace(/\\/g, "/")}`
-			const file = await import(fileUrl)
-			const cmd = new file.default()
-			commands.push(cmd)
+			if (loadedFiles.has(filePath)) {
+				throw new Error(`Circular dependency detected: ${filePath}`)
+			}
+			try {
+				const file = await import(fileUrl)
+				if (!file.default) {
+					throw new Error(`No default export found in ${filePath}`)
+				}
+				const cmd = new file.default()
+				commands.push(cmd)
+				loadedFiles.add(filePath)
+			} catch (error) {
+				throw new Error(`Error loading command from ${filePath}: ${error}`)
+			}
 		}
 	}
 	return commands
