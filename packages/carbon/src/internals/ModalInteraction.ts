@@ -7,9 +7,9 @@ import {
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { InteractionReplyOptions } from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
-import { FieldsHandler } from "./FieldsHandler.js"
 import type { MessagePayload } from "../types.js"
 import { serializePayload } from "../utils.js"
+import { FieldsHandler } from "./FieldsHandler.js"
 
 export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction> {
 	customId: string
