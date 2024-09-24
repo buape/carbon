@@ -74,8 +74,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/nodejs
       '@types/node':
-        specifier: 22.5.5
-        version: 22.5.5
+        specifier: ^20
+        version: 20.16.5
 
   packages/carbon:
     dependencies:
@@ -83,11 +83,11 @@ importers:
         specifier: workspace:*
         version: link:../request
       '@types/node':
-        specifier: '20'
+        specifier: ^20
         version: 20.16.5
       discord-api-types:
-        specifier: 0.37.100
-        version: 0.37.100
+        specifier: 0.37.101
+        version: 0.37.101
       discord-verify:
         specifier: 1.2.0
         version: 1.2.0
@@ -111,8 +111,8 @@ importers:
         version: 0.1.0
     devDependencies:
       '@types/node':
-        specifier: ^22.5.5
-        version: 22.5.5
+        specifier: ^20
+        version: 20.16.5
 
   packages/nodejs:
     dependencies:
@@ -120,8 +120,8 @@ importers:
         specifier: 1.13.1
         version: 1.13.1(hono@4.6.1)
       '@types/node':
-        specifier: 22.5.5
-        version: 22.5.5
+        specifier: ^20
+        version: 20.16.5
       path:
         specifier: 0.12.7
         version: 0.12.7
@@ -2054,8 +2054,8 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
-  discord-api-types@0.37.100:
-    resolution: {integrity: sha512-a8zvUI0GYYwDtScfRd/TtaNBDTXwP5DiDVX7K5OmE+DRT57gBqKnwtOC5Ol8z0mRW8KQfETIgiB8U0YZ9NXiCA==}
+  discord-api-types@0.37.101:
+    resolution: {integrity: sha512-2wizd94t7G3A8U5Phr3AiuL4gSvhqistDwWnlk1VLTit8BI1jWUncFqFQNdPbHqS3661+Nx/iEyIwtVjPuBP3w==}
 
   discord-verify@1.2.0:
     resolution: {integrity: sha512-8qlrMROW8DhpzWWzgNq9kpeLDxKanWa4EDVoj/ASVv2nr+dSr4JPmu2tFSydf3hAGI/OIJTnZyD0JulMYIxx4w==}
@@ -5255,7 +5255,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.5.5
+      '@types/node': 20.16.5
 
   '@types/hast@3.0.4':
     dependencies:
@@ -5282,7 +5282,7 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.5.5
+      '@types/node': 20.16.5
 
   '@types/node@12.20.55': {}
 
@@ -5314,7 +5314,7 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.5.5
+      '@types/node': 20.16.5
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -5324,7 +5324,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 22.5.5
+      '@types/node': 20.16.5
 
   '@types/tinycolor2@1.4.6': {}
 
@@ -5744,7 +5744,7 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  discord-api-types@0.37.100: {}
+  discord-api-types@0.37.101: {}
 
   discord-verify@1.2.0:
     dependencies:
