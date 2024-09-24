@@ -1,0 +1,68 @@
+---
+path: package.json
+---
+
+{
+    "name": "{{name}}",
+    "private": true,
+    {{#if (eq runtime "node")}}
+    "main": "./dist/src/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "start": "node ."
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}"
+    },
+    "devDependencies": {
+        "@types/node": "{{get versions "@types/node"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{else if (eq runtime "bun")}}
+    "main": "./src/index.ts",
+    "scripts": {
+        "start": "bun run ."
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}"
+    },
+    "devDependencies": {
+        "@types/bun": "{{get versions "@types/bun"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{else if (eq runtime "cloudflare")}}
+    "main": "./src/index.ts",
+    "scripts": {
+        "build": "wrangler build --dry-run",
+		"deploy": "wrangler deploy",
+        "dev": "wrangler dev"
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}",
+        "typescript": "{{get versions "typescript"}}",
+        "wrangler": "{{get versions "wrangler"}}"
+    }
+    {{else if (eq runtime "nextjs")}}
+    "scripts": {
+        "build": "next build",
+        "dev": "next dev",
+        "start": "next start"
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}",
+        "next": "{{get versions "next"}}",
+        "react": "{{get versions "react"}}",
+        "react-dom": "{{get versions "react-dom"}}"
+    },
+    "devDependencies": {
+        "@types/node": "{{get versions "@types/node"}}",
+        "@types/react": "{{get versions "@types/react"}}",
+        "@types/react-dom": "{{get versions "@types/react-dom"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{/if}}
+}

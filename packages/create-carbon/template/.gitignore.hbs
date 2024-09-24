@@ -1,0 +1,12 @@
+---
+path: .gitignore
+---
+
+node_modules/
+{{#if (eq runtime "nextjs")}}
+.next/
+.env.local
+{{else}}
+dist/
+.env
+{{/if}}

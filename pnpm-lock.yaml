@@ -98,12 +98,15 @@ importers:
 
   packages/create-carbon:
     dependencies:
-      '@buape/carbon':
-        specifier: workspace:^0.5.0
-        version: link:../carbon
       '@clack/prompts':
-        specifier: 0.7.0
+        specifier: ^0.7.0
         version: 0.7.0
+      gray-matter:
+        specifier: ^4.0.3
+        version: 4.0.3
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
       yocto-spinner:
         specifier: ^0.1.0
         version: 0.1.0

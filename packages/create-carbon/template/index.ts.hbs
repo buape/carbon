@@ -1,0 +1,69 @@
+---
+{{#if (eq runtime "nextjs")}}
+path: src/app/api/discord/[...slug]/route.ts
+{{else}}
+path: src/index.ts
+{{/if}}
+---
+
+import { Client, createHandle } from "@buape/carbon"
+{{#if plugins.linkedRoles}}
+import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
+{{/if}}
+{{#if (eq runtime "node")}}
+import { createServer } from "@buape/carbon/adapters/node"
+{{else if (eq runtime "bun") }}
+import { createServer } from "@buape/carbon/adapters/bun"
+{{else if (eq runtime "cloudflare") }}
+import { createHandler } from "@buape/carbon/adapters/cloudflare"
+{{else if (eq runtime "nextjs") }}
+import { createHandler } from "@buape/carbon/adapters/nextjs"
+{{/if}}
+import PingCommand from "~/commands/ping"
+import ButtonCommand from "~/commands/button"
+
+const handle = createHandle((env) => {
+    const client = new Client(
+        {
+            clientId: String(env.DISCORD_CLIENT_ID),
+            publicKey: String(env.DISCORD_PUBLIC_KEY),
+            token: String(env.DISCORD_BOT_TOKEN)
+        },
+        [
+            new PingCommand(),
+            new ButtonCommand()
+        ]
+    )
+    {{#if plugins.linkedRoles}}
+    const linkedRoles = new LinkedRoles(client, {
+        clientSecret: String(env.CLIENT_SECRET),
+        baseUrl: String(env.BASE_URL),
+        metadata: [
+            {
+                key: "is_staff",
+                name: "Verified Staff",
+                description: "Whether the user is a verified staff member",
+                type: ApplicationRoleConnectionMetadataType.BooleanEqual
+            },
+        ],
+        metadataCheckers: {
+            is_allowed: async (userId) => {
+                const isAllowed = ["439223656200273932"]
+                if (isAllowed.includes(userId)) return true
+                return false
+            }
+        }
+    })
+    {{/if}}
+    return [client{{#if plugins.linkedRoles}}, linkedRoles{{/if}}]
+})
+
+{{#if (or (eq runtime "node") (eq runtime "bun"))}}
+createServer(handle, { port: 3000 })
+{{else if (eq runtime "cloudflare")}}
+const handler = createHandler(handle, {})
+export default { fetch: handler }
+{{else if (eq runtime "nextjs")}}
+const handler = createHandler(handle, {})
+export { handler as GET, handler as POST }
+{{/if}}

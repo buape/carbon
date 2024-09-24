@@ -1,8 +1,0 @@
-import { client } from "../client.ts.template"
-
-export function GET() {
-	client.deployCommands()
-	return new Response(null, {
-		status: 200
-	})
-}
