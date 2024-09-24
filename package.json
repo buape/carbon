@@ -32,7 +32,7 @@
 		"turbo": "2.1.2",
 		"typedoc": "0.26.7",
 		"typedoc-plugin-frontmatter": "1.0.0",
-		"typedoc-plugin-markdown": "4.2.7",
+		"typedoc-plugin-markdown": "4.2.8",
 		"typedoc-plugin-mdn-links": "3.3.0",
 		"type-fest": "^4.26.1",
 		"typescript": "5.6.2",
