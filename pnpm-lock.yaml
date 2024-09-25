@@ -98,10 +98,10 @@ importers:
   packages/create-carbon:
     dependencies:
       '@buape/carbon':
-        specifier: workspace:^
+        specifier: workspace:^0.5.0
         version: link:../carbon
       '@buape/carbon-nodejs':
-        specifier: workspace:^
+        specifier: workspace:^0.2.2
         version: link:../nodejs
       '@clack/prompts':
         specifier: 0.7.0
