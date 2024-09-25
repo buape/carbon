@@ -23,39 +23,39 @@ import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
 
 const handle = createHandle((env) => {
-    const client = new Client(
-        {
-            clientId: String(env.DISCORD_CLIENT_ID),
-            publicKey: String(env.DISCORD_PUBLIC_KEY),
-            token: String(env.DISCORD_BOT_TOKEN)
-        },
-        [
-            new PingCommand(),
-            new ButtonCommand()
-        ]
-    )
-    {{#if plugins.linkedRoles}}
-    const linkedRoles = new LinkedRoles(client, {
-        clientSecret: String(env.CLIENT_SECRET),
-        baseUrl: String(env.BASE_URL),
-        metadata: [
-            {
-                key: "is_staff",
-                name: "Verified Staff",
-                description: "Whether the user is a verified staff member",
-                type: ApplicationRoleConnectionMetadataType.BooleanEqual
-            },
-        ],
-        metadataCheckers: {
-            is_allowed: async (userId) => {
-                const isAllowed = ["439223656200273932"]
-                if (isAllowed.includes(userId)) return true
-                return false
-            }
-        }
-    })
-    {{/if}}
-    return [client{{#if plugins.linkedRoles}}, linkedRoles{{/if}}]
+	const client = new Client(
+		{
+			clientId: String(env.DISCORD_CLIENT_ID),
+			publicKey: String(env.DISCORD_PUBLIC_KEY),
+			token: String(env.DISCORD_BOT_TOKEN)
+		},
+		[
+			new PingCommand(),
+			new ButtonCommand()
+		]
+	)
+	{{#if plugins.linkedRoles}}
+	const linkedRoles = new LinkedRoles(client, {
+		clientSecret: String(env.CLIENT_SECRET),
+		baseUrl: String(env.BASE_URL),
+		metadata: [
+			{
+				key: "is_staff",
+				name: "Verified Staff",
+				description: "Whether the user is a verified staff member",
+				type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			},
+		],
+		metadataCheckers: {
+			is_allowed: async (userId) => {
+				const isAllowed = ["439223656200273932"]
+				if (isAllowed.includes(userId)) return true
+				return false
+			}
+		}
+	})
+	{{/if}}
+	return [client{{#if plugins.linkedRoles}}, linkedRoles{{/if}}]
 })
 
 {{#if (or (eq runtime "node") (eq runtime "bun"))}}
