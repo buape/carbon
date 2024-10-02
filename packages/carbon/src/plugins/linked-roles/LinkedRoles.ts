@@ -1,5 +1,4 @@
 import { Plugin } from "../../abstracts/Plugin.js"
-import type { Client } from "../../classes/Client.js"
 import {
 	ApplicationRoleConnectionMetadataType,
 	type LinkedRolesOptions
@@ -13,23 +12,23 @@ type Tokens = {
 	scope: string
 }
 
+// TODO: IMO, the metadata for this should be handled similarly to the client and its commands
+// That is passing an array of connection instances as the second argument to the constructor
+// That is, maybe, for another pr though
+
 /**
  * This class is the main class that is used for the linked roles feature of Carbon.
  * It handles all the additional routes and oauth.
  *
  * @example
  * ```ts
- * import { Client, LinkedRoles } from "@buape/carbon"
- *
- * const client = new Client({
- * 	clientId: "12345678901234567890",
- * 	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
- * 	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE"
- * })
+ * import { LinkedRoles } from "@buape/carbon/linked-roles"
  *
  * const allStaff = ["439223656200273932"]
  *
- * const linkedRoles = new LinkedRoles(client, {
+ * const linkedRoles = new LinkedRoles({
+ *  clientId: "12345678901234567890",
+ *  token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE"
  * 	clientSecret: "Bb7aZcvRN-BhrhY2qrUO6QzOK4SeqonG",
  * 	baseUrl: "https://example.com",
  * 	metadata: [
@@ -50,17 +49,14 @@ type Tokens = {
  * ```
  */
 export class LinkedRoles extends Plugin {
-	client: Client
 	options: Required<LinkedRolesOptions>
 
-	// TODO: I would like to remove the need to pass the client here
-	// Client is only used to grab the env variables, which could be passed directly, or another way
-	// This would allow the user to not have to create a client if all they want is linked roles
-	constructor(client: Client, options: LinkedRolesOptions) {
+	constructor(options: LinkedRolesOptions) {
 		super()
 
-		this.client = client
 		this.options = { ...options }
+		// TODO: This makes a request to Discord on every instance creation
+		// This is not ideal, maybe this can have its own /deploy endpoint like the client commands deploy endpoint
 		this.setMetadata(this.options.metadata)
 		this.appendRoutes()
 	}
@@ -82,7 +78,7 @@ export class LinkedRoles extends Plugin {
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
+				Location: `https://discord.com/oauth2/authorize?client_id=${this.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
 			}
 		})
 	}
@@ -155,7 +151,7 @@ export class LinkedRoles extends Plugin {
 	private async getOAuthTokens(code: string) {
 		const url = "https://discord.com/api/v10/oauth2/token"
 		const body = new URLSearchParams({
-			client_id: this.client.options.clientId,
+			client_id: this.options.clientId,
 			client_secret: this.options.clientSecret,
 			grant_type: "authorization_code",
 			code,
@@ -185,7 +181,7 @@ export class LinkedRoles extends Plugin {
 		metadata: Record<string, unknown>,
 		tokens: Tokens
 	) {
-		const url = `https://discord.com/api/v10/users/@me/applications/${this.client.options.clientId}/role-connection`
+		const url = `https://discord.com/api/v10/users/@me/applications/${this.options.clientId}/role-connection`
 		const response = await fetch(url, {
 			method: "PUT",
 			body: JSON.stringify({ metadata }),
@@ -205,13 +201,13 @@ export class LinkedRoles extends Plugin {
 
 	private async setMetadata(data: typeof this.options.metadata) {
 		const response = await fetch(
-			`https://discord.com/api/v10/applications/${this.client.options.clientId}/role-connections/metadata`,
+			`https://discord.com/api/v10/applications/${this.options.clientId}/role-connections/metadata`,
 			{
 				method: "PUT",
 				body: JSON.stringify(data),
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bot ${this.client.options.token}`
+					Authorization: `Bot ${this.options.token}`
 				}
 			}
 		)

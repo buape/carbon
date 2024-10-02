@@ -41,6 +41,14 @@ export enum ApplicationRoleConnectionMetadataType {
  */
 export type LinkedRolesOptions = {
 	/**
+	 * The client ID of the bot
+	 */
+	clientId: string
+	/**
+	 * The token of the bot
+	 */
+	token: string
+	/**
 	 * The client secret for the bot
 	 */
 	clientSecret: string

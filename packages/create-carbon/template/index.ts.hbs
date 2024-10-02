@@ -35,8 +35,10 @@ const handle = createHandle((env) => {
 		]
 	)
 	{{#if plugins.linkedRoles}}
-	const linkedRoles = new LinkedRoles(client, {
-		clientSecret: String(env.CLIENT_SECRET),
+	const linkedRoles = new LinkedRoles({
+		clientId: String(env.DISCORD_CLIENT_ID),
+		token: String(env.DISCORD_BOT_TOKEN),
+		clientSecret: String(env.DISCORD_CLIENT_SECRET),
 		baseUrl: String(env.BASE_URL),
 		metadata: [
 			{

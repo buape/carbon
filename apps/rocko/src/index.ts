@@ -18,7 +18,9 @@ const handle = createHandle((env) => {
 	return [client]
 
 	// TODO: Test
-	// const linkedRoles = new LinkedRoles(client, {
+	// const linkedRoles = new LinkedRoles({
+	//  clientId: String(env.CLIENT_ID),
+	//  token: String(env.DISCORD_TOKEN),
 	// 	clientSecret: String(env.CLIENT_SECRET),
 	// 	baseUrl: "https://rocko.buape.dev",
 	// 	metadata: [
