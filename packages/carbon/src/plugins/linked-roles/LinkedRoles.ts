@@ -13,6 +13,10 @@ type Tokens = {
 	scope: string
 }
 
+// TODO: IMO, the metadata for this should be handled similarly to the client and its commands
+// That is passing an array of connection instances as the second argument to the constructor
+// That is, maybe, for another pr though
+
 /**
  * This class is the main class that is used for the linked roles feature of Carbon.
  * It handles all the additional routes and oauth.
@@ -61,6 +65,8 @@ export class LinkedRoles extends Plugin {
 
 		this.client = client
 		this.options = { ...options }
+		// TODO: This makes a request to Discord on every instance creation
+		// This is not ideal, maybe this can have its own /deploy endpoint like the client commands deploy endpoint
 		this.setMetadata(this.options.metadata)
 		this.appendRoutes()
 	}
@@ -78,6 +84,10 @@ export class LinkedRoles extends Plugin {
 		})
 	}
 
+	/**
+	 * Handle the connect request
+	 * @returns A response
+	 */
 	public async handleConnectRequest() {
 		return new Response(null, {
 			status: 302,
@@ -87,6 +97,11 @@ export class LinkedRoles extends Plugin {
 		})
 	}
 
+	/**
+	 * Handle the connect callback request 
+	 * @param req The request
+	 * @returns A response
+	 */
 	public async handleConnectCallbackRequest(req: Request) {
 		try {
 			const url = new URL(req.url)

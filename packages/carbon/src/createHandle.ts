@@ -1,6 +1,19 @@
 import type { Context, Plugin } from "./abstracts/Plugin.js"
 import type { PartialEnv } from "./adapters/shared.js"
 
+/**
+ * Creates a handle function that can be used to handle requests
+ * @param factory The factory function that creates the plugins
+ * @returns The handle function
+ * @example
+ * ```ts
+ * const handle = createHandle((env) => {
+ *  const client = new Client({ ... }, [ ... ])
+ *  const linkedRoles = new LinkedRoles(client, { ... })
+ *  return [client, linkedRoles]
+ * })
+ * ```
+ */
 export function createHandle(factory: (env: PartialEnv) => Plugin[]) {
 	return (env: PartialEnv) => {
 		const plugins = factory(env)

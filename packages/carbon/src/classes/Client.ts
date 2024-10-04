@@ -134,6 +134,10 @@ export class Client extends Plugin {
 		})
 	}
 
+	/**
+	 * Handle a request to deploy the commands to Discord
+	 * @returns A response
+	 */
 	public async handleDeployCommandsRequest() {
 		// TODO: Protect this route somehow (e.g. with a secret)
 
@@ -147,6 +151,12 @@ export class Client extends Plugin {
 		return new Response(null, { status: 204 })
 	}
 
+	/**
+	 * Handle an interaction request from Discord
+	 * @param req The request to handle
+	 * @param ctx The context for the request
+	 * @returns A response
+	 */
 	public async handleInteractionRequest(req: Request, ctx: Context) {
 		const isValid = await this.validateInteractionRequest(req)
 		if (!isValid) return new Response(null, { status: 401 })
