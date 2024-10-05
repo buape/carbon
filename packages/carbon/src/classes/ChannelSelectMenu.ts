@@ -11,11 +11,13 @@ export abstract class ChannelSelectMenu extends AnySelectMenu {
 	defaultValues?: APIChannelSelectComponent["default_values"]
 	abstract run(interaction: ChannelSelectMenuInteraction): Promise<void>
 
-	serializeOptions() {
+	serializeExtra() {
 		return {
-			type: this.type,
-			default_values: this.defaultValues,
-			channel_types: this.channelTypes
+			option: {
+				type: this.type,
+				default_values: this.defaultValues,
+				channel_types: this.channelTypes
+			}
 		}
 	}
 }

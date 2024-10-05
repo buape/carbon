@@ -23,13 +23,21 @@ export abstract class CommandWithSubcommands extends BaseCommand {
 	/**
 	 * @internal
 	 */
-	serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"] {
-		return this.subcommands.map((subcommand) => ({
-			name: subcommand.name,
-			description: subcommand.description,
-			type: ApplicationCommandOptionType.Subcommand,
-			options:
-				subcommand.serializeOptions() as APIApplicationCommandBasicOption[]
-		})) as APIApplicationCommandSubcommandOption[]
+
+	serializeExtra() {
+		const options: RESTPostAPIApplicationCommandsJSONBody["options"] =
+			this.subcommands.map((subcommand) => {
+				const serialized = subcommand.serializeExtra()
+				return {
+					name: subcommand.name,
+					description: subcommand.description,
+					type: ApplicationCommandOptionType.Subcommand,
+					options: serialized.options as APIApplicationCommandBasicOption[]
+				}
+			}) satisfies APIApplicationCommandSubcommandOption[]
+
+		return {
+			options,
+		}
 	}
 }

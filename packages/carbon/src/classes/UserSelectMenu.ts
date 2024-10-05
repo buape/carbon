@@ -13,7 +13,8 @@ export abstract class UserSelectMenu extends AnySelectMenu {
 	serializeOptions() {
 		return {
 			type: this.type,
-			default_values: this.defaultValues
+			default_values: this.defaultValues,
+			permissions: null
 		}
 	}
 }

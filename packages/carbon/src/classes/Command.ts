@@ -1,7 +1,7 @@
 import {
 	type APIApplicationCommandBasicOption,
 	ApplicationCommandType,
-	type Permissions
+	type PermissionFlagsBits
 } from "discord-api-types/v10"
 import {
 	type AutocompleteInteraction,
@@ -10,6 +10,7 @@ import {
 } from "../index.js"
 
 export type CommandOptions = APIApplicationCommandBasicOption[]
+export type PermissionFlags = keyof typeof PermissionFlagsBits
 
 /**
  * Represents a standard command that the user creates
@@ -22,7 +23,7 @@ export abstract class Command extends BaseCommand {
 	/**
 	 *  The default permissions a user must have to see and use the command in Discord
 	 */
-	permissions?: Permissions | null
+	permissions?: PermissionFlags
 	/**
 	 * The type of command, either ChatInput, User, or Message. User and Message are context menu commands.
 	 * @default ChatInput
@@ -49,14 +50,7 @@ export abstract class Command extends BaseCommand {
 	/**
 	 * @internal
 	 */
-	serializeOptions() {
-		return this.options
-	}
-
-	/**
-	 * @internal
-	 */
-	serializePermissions() {
-		return this.permissions
+	serializeExtra() {
+		return { options: this.options, permissions: this.permissions }
 	}
 }

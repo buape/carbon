@@ -10,10 +10,12 @@ export abstract class RoleSelectMenu extends AnySelectMenu {
 	defaultValues?: APIRoleSelectComponent["default_values"]
 	abstract run(interaction: RoleSelectMenuInteraction): Promise<void>
 
-	serializeOptions() {
+	serializeExtra() {
 		return {
-			type: this.type,
-			default_values: this.defaultValues
+			option: {
+				type: this.type,
+				default_values: this.defaultValues
+			}
 		}
 	}
 }
