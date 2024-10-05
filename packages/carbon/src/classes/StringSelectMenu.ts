@@ -13,7 +13,8 @@ export abstract class StringSelectMenu extends AnySelectMenu {
 	serializeOptions() {
 		return {
 			type: this.type,
-			options: this.options
+			options: this.options,
+			permissions: null
 		}
 	}
 }

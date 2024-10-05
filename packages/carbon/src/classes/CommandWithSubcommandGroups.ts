@@ -25,23 +25,29 @@ export abstract class CommandWithSubcommandGroups extends CommandWithSubcommands
 	/**
 	 * @internal
 	 */
-	serializeOptions() {
-		const subcommands = this.subcommands.map((subcommand) => ({
-			name: subcommand.name,
-			description: subcommand.description,
-			type: ApplicationCommandOptionType.Subcommand,
-			options:
-				subcommand.serializeOptions() as APIApplicationCommandBasicOption[]
-		})) as APIApplicationCommandSubcommandOption[]
+	serializeExtra() {
+		const subcommands = this.subcommands.map((subcommand) => {
+			const serialized = subcommand.serializeExtra()
+			return {
+				name: subcommand.name,
+				description: subcommand.description,
+				type: ApplicationCommandOptionType.Subcommand,
+				options: serialized.options as APIApplicationCommandBasicOption[]
+			}
+		}) satisfies APIApplicationCommandSubcommandOption[]
 
-		const subcommandGroups = this.subcommandGroups.map((subcommandGroup) => ({
-			name: subcommandGroup.name,
-			description: subcommandGroup.description,
-			type: ApplicationCommandOptionType.SubcommandGroup,
-			options:
-				subcommandGroup.serializeOptions() as APIApplicationCommandSubcommandOption[]
-		})) as APIApplicationCommandSubcommandGroupOption[]
+		const subcommandGroups = this.subcommandGroups.map((subcommandGroup) => {
+			const serialized = subcommandGroup.serializeExtra()
+			return {
+				name: subcommandGroup.name,
+				description: subcommandGroup.description,
+				type: ApplicationCommandOptionType.SubcommandGroup,
+				options: serialized.options as APIApplicationCommandSubcommandOption[]
+			}
+		}) satisfies APIApplicationCommandSubcommandGroupOption[]
 
-		return [...subcommands, ...subcommandGroups]
+		return {
+			options: [...subcommands, ...subcommandGroups]
+		}
 	}
 }

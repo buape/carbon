@@ -10,10 +10,12 @@ export abstract class MentionableSelectMenu extends AnySelectMenu {
 	defaultValues?: APIMentionableSelectComponent["default_values"]
 	abstract run(interaction: MentionableSelectMenuInteraction): Promise<void>
 
-	serializeOptions() {
+	serializeExtra() {
 		return {
-			type: this.type,
-			default_values: this.defaultValues
+			option: {
+				type: this.type,
+				default_values: this.defaultValues
+			}
 		}
 	}
 }
