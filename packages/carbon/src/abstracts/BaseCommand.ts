@@ -77,6 +77,7 @@ export abstract class BaseCommand {
 				name: this.name,
 				type: this.type,
 				description: this.description,
+				default_member_permissions: this.serializePermissions(),
 				options: this.serializeOptions(),
 				integration_types: this.integrationTypes,
 				contexts: this.contexts
@@ -100,4 +101,10 @@ export abstract class BaseCommand {
 	 * @internal
 	 */
 	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
+
+	/**
+	 * Serializes the permissions of the command into a JSON object that can be sent to Discord
+	 * @internal
+	 */
+	abstract serializePermissions(): RESTPostAPIApplicationCommandsJSONBody["default_member_permissions"]
 }
