@@ -1,6 +1,7 @@
 import {
 	type APIApplicationCommandBasicOption,
-	ApplicationCommandType
+	ApplicationCommandType,
+	type Permissions
 } from "discord-api-types/v10"
 import {
 	type AutocompleteInteraction,
@@ -18,19 +19,20 @@ export abstract class Command extends BaseCommand {
 	 * The options that the user passes along with the command in Discord
 	 */
 	options?: CommandOptions
-
+	/**
+	 *  The default permissions a user must have to see and use the command in Discord
+	 */
+	permissions?: Permissions | null
 	/**
 	 * The type of command, either ChatInput, User, or Message. User and Message are context menu commands.
 	 * @default ChatInput
 	 */
 	type: ApplicationCommandType = ApplicationCommandType.ChatInput
-
 	/**
 	 * The function that is called when the command is ran
 	 * @param interaction The interaction that triggered the command
 	 */
 	abstract run(interaction: CommandInteraction): Promise<void>
-
 	/**
 	 * The function that is called when the command's autocomplete is triggered.
 	 * @param interaction The interaction that triggered the autocomplete
@@ -49,5 +51,12 @@ export abstract class Command extends BaseCommand {
 	 */
 	serializeOptions() {
 		return this.options
+	}
+
+	/**
+	 * @internal
+	 */
+	serializePermissions() {
+		return this.permissions
 	}
 }
