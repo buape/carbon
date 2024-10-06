@@ -10,11 +10,12 @@ export abstract class UserSelectMenu extends AnySelectMenu {
 	defaultValues?: APIUserSelectComponent["default_values"]
 	abstract run(interaction: UserSelectMenuInteraction): Promise<void>
 
-	serializeOptions() {
+	serializeExtra() {
 		return {
+			options: {
 			type: this.type,
 			default_values: this.defaultValues,
-			permissions: null
+			}
 		}
 	}
 }
