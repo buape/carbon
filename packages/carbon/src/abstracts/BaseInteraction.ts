@@ -3,6 +3,7 @@ import {
 	type APIInteraction,
 	InteractionResponseType,
 	type InteractionType,
+	MessageFlags,
 	type RESTPatchAPIInteractionOriginalResponseJSONBody,
 	type RESTPostAPIInteractionCallbackJSONBody,
 	type RESTPostAPIInteractionFollowupJSONBody,
@@ -154,10 +155,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					body: {
 						type: InteractionResponseType.ChannelMessageWithSource,
 						data: {
-							...serializePayload(data),
-							flags: options.ephemeral
-								? 64 | ("flags" in serialized ? (serialized.flags ?? 0) : 0)
-								: undefined
+							...serialized,
+							flags:
+								options.ephemeral || this.defaultEphemeral
+									? MessageFlags.Ephemeral |
+										("flags" in serialized ? (serialized.flags ?? 0) : 0)
+									: undefined
 						}
 					} as RESTPostAPIInteractionCallbackJSONBody,
 					files: options.files
@@ -171,7 +174,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 * If the interaction is already deferred, this will do nothing.
 	 * @internal
 	 */
-	async defer() {
+	async defer({ ephemeral = false } = {}) {
 		if (this._deferred) return
 		this._deferred = true
 		await this.client.rest.post(
@@ -179,8 +182,13 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			{
 				body: {
 					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					flags: this.defaultEphemeral ? 64 : undefined
-				} as RESTPostAPIInteractionCallbackJSONBody
+					data: {
+						flags:
+							ephemeral || this.defaultEphemeral
+								? MessageFlags.Ephemeral
+								: undefined
+					}
+				} satisfies RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}
@@ -198,7 +206,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				body: {
 					type: InteractionResponseType.Modal,
 					data: modal.serialize()
-				} as RESTPostAPIInteractionCallbackJSONBody
+				} satisfies RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}
@@ -214,7 +222,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				body: {
 					...serialized,
 					flags: options.ephemeral
-						? 64 | ("flags" in serialized ? (serialized.flags ?? 0) : 0)
+						? MessageFlags.Ephemeral |
+							("flags" in serialized ? (serialized.flags ?? 0) : 0)
 						: undefined
 				} as RESTPostAPIInteractionFollowupJSONBody,
 				files: options.files

@@ -82,12 +82,20 @@ export function concatUint8Arrays(
 	return merged
 }
 
-export const serializePayload = (payload: MessagePayload) => {
-	return typeof payload === "string"
-		? { content: payload }
-		: {
-				...payload,
-				embeds: payload.embeds?.map((embed) => embed.serialize()),
-				components: payload.components?.map((row) => row.serialize())
-			}
+export const serializePayload = (
+	payload: MessagePayload,
+	defaultEphemeral = false
+) => {
+	if (typeof payload === "string") {
+		return { content: payload, flags: defaultEphemeral ? 64 : undefined }
+	}
+	const data = {
+		...payload,
+		embeds: payload.embeds?.map((embed) => embed.serialize()),
+		components: payload.components?.map((row) => row.serialize())
+	}
+	if (defaultEphemeral) {
+		data.flags = 64
+	}
+	return data
 }
