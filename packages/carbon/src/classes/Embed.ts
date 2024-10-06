@@ -50,6 +50,7 @@ export class Embed {
 	author?: {
 		name: string
 		url?: string
+		icon_url?: string
 	}
 
 	fields?: {
