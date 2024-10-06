@@ -13,7 +13,7 @@ export abstract class ChannelSelectMenu extends AnySelectMenu {
 
 	serializeExtra() {
 		return {
-			option: {
+			options: {
 				type: this.type,
 				default_values: this.defaultValues,
 				channel_types: this.channelTypes

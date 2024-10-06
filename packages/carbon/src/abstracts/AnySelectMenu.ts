@@ -45,34 +45,29 @@ export abstract class AnySelectMenu extends BaseComponent {
 					channel_types: APIChannelSelectComponent["channel_types"]
 					default_values: APIChannelSelectComponent["default_values"]
 				}
-				permissions?: null
 		  }
 		| {
 				options: {
 					type: ComponentType.StringSelect
 					options: APIStringSelectComponent["options"]
 				}
-				permissions?: null
 		  }
 		| {
 				options: {
 					type: ComponentType.RoleSelect
 					default_values: APIRoleSelectComponent["default_values"]
 				}
-				permissions?: null
 		  }
 		| {
 				options: {
 					type: ComponentType.UserSelect
 					default_values: APIUserSelectComponent["default_values"]
 				}
-				permissions?: null
 		  }
 		| {
 				options: {
 					type: ComponentType.MentionableSelect
 					default_values: APIMentionableSelectComponent["default_values"]
 				}
-				permissions?: null
 		  }
 }

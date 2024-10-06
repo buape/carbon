@@ -10,11 +10,12 @@ export abstract class StringSelectMenu extends AnySelectMenu {
 	abstract options: APIStringSelectComponent["options"]
 	abstract run(interaction: StringSelectMenuInteraction): Promise<void>
 
-	serializeOptions() {
+	serializeExtra() {
 		return {
-			type: this.type,
-			options: this.options,
-			permissions: null
+			options: {
+				type: this.type,
+				options:  this.options,
+			}
 		}
 	}
 }

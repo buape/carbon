@@ -12,7 +12,7 @@ export abstract class MentionableSelectMenu extends AnySelectMenu {
 
 	serializeExtra() {
 		return {
-			option: {
+			options: {
 				type: this.type,
 				default_values: this.defaultValues
 			}
