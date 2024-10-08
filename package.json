@@ -19,7 +19,8 @@
 		"test": "vitest",
 		"web": "pnpm run web:docs && turbo run web:dev",
 		"web:build": "turbo run web:build",
-		"web:docs": "turbo run docs"
+		"web:docs": "turbo run docs",
+		"web:start": "turbo run web:start"
 	},
 	"dependencies": {
 		"@net-tech-/env-cmd": "1.0.3"
