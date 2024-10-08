@@ -18,13 +18,19 @@ jobs:
             - name: Setup
               uses: ./.github/actions/setup
 
-            - name: Create Release Pull Request or Publish to npm
+            - name: Process Changesets
               id: changesets
               uses: changesets/action@v1
               with:
                   publish: pnpm run publish
                   title: "Pending Releases"
                   commit: "chore: update changelog and release"
+              env:
+                  GITHUB_TOKEN: ${{ secrets.BUAPEBOT_SECRET }}
+                  NPM_TOKEN: ${{ secrets.NPM_SECRET }}
+
+            - name: Publish Beta
+              run: pnpm run publish:snapshot
               env:
                   GITHUB_TOKEN: ${{ secrets.BUAPEBOT_SECRET }}
                   NPM_TOKEN: ${{ secrets.NPM_SECRET }}
