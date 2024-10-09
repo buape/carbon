@@ -27,7 +27,7 @@ export abstract class AnySelectMenu extends BaseComponent {
 	placeholder?: string
 
 	serialize = (): APISelectMenuComponent => {
-		const options = this.serializeOptions()
+		const options = this.serializeExtra().options
 		return {
 			...options,
 			custom_id: this.customId,
@@ -38,26 +38,36 @@ export abstract class AnySelectMenu extends BaseComponent {
 		}
 	}
 
-	abstract serializeOptions():
+	abstract serializeExtra():
 		| {
-				type: ComponentType.ChannelSelect
-				channel_types: APIChannelSelectComponent["channel_types"]
-				default_values: APIChannelSelectComponent["default_values"]
+				options: {
+					type: ComponentType.ChannelSelect
+					channel_types: APIChannelSelectComponent["channel_types"]
+					default_values: APIChannelSelectComponent["default_values"]
+				}
 		  }
 		| {
-				type: ComponentType.StringSelect
-				options: APIStringSelectComponent["options"]
+				options: {
+					type: ComponentType.StringSelect
+					options: APIStringSelectComponent["options"]
+				}
 		  }
 		| {
-				type: ComponentType.RoleSelect
-				default_values: APIRoleSelectComponent["default_values"]
+				options: {
+					type: ComponentType.RoleSelect
+					default_values: APIRoleSelectComponent["default_values"]
+				}
 		  }
 		| {
-				type: ComponentType.UserSelect
-				default_values: APIUserSelectComponent["default_values"]
+				options: {
+					type: ComponentType.UserSelect
+					default_values: APIUserSelectComponent["default_values"]
+				}
 		  }
 		| {
-				type: ComponentType.MentionableSelect
-				default_values: APIMentionableSelectComponent["default_values"]
+				options: {
+					type: ComponentType.MentionableSelect
+					default_values: APIMentionableSelectComponent["default_values"]
+				}
 		  }
 }
