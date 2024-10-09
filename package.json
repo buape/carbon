@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "turbo run build",
 		"changeset": "changeset add",
-		"ci": "pnpm build --filter !demo-cloudo --filter !demo-rocko --filter !website",
+		"ci": "pnpm build --filter !website",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter demo-cloudo",
 		"cli": "cd packages/create-carbon && pnpm cli",
 		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !demo-cloudo",
