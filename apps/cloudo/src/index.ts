@@ -18,5 +18,4 @@ const handle = createHandle((env) => {
 })
 
 const handler = createHandler(handle, {})
-// TODO: Bruh, why does this need a reference to adapters/shared reeeee
 export default { fetch: handler }

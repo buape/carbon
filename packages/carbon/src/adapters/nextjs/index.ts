@@ -1,7 +1,20 @@
 import type { Handle } from "../../createHandle.js"
 import { type HandlerOptions, patchRequest } from "../shared.js"
 
-export function createHandler(handle: Handle, options: HandlerOptions) {
+export type Handler = (req: Request) => Promise<Response>
+
+/**
+ * Creates a Next.js handler function using the provided handle and handler options
+ * @param handle - The handle function to process requests
+ * @param options - The handler options including any necessary configurations
+ * @returns The created handler function
+ * @example
+ * ```ts
+ * const handler = createHandler(handle, { ... })
+ * export { handler as GET, handler as POST }
+ * ```
+ */
+export function createHandler(handle: Handle, options: HandlerOptions): Handler {
 	return (req: Request) => {
 		const fetch = handle(process.env)
 		return fetch(patchRequest(req, options))

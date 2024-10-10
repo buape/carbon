@@ -14,8 +14,10 @@ import type { PartialEnv } from "./adapters/shared.js"
  * })
  * ```
  */
-export function createHandle(factory: (env: PartialEnv) => Plugin[]) {
-	return (env: PartialEnv) => {
+export function createHandle<Env extends PartialEnv = PartialEnv>(
+	factory: (env: Env) => Plugin[]
+) {
+	return (env: Env) => {
 		const plugins = factory(env)
 		const routes = plugins.flatMap((plugin) => plugin.routes)
 
