@@ -31,6 +31,10 @@ export type ClientOptions = {
 	 */
 	clientId: string
 	/**
+	 * The client secret of the bot, used for protecting routes and plugins
+	 */
+	clientSecret: string
+	/**
 	 * The public key of the bot, used for interaction verification
 	 */
 	publicKey: string
@@ -125,7 +129,8 @@ export class Client extends Plugin {
 		this.routes.push({
 			method: "GET",
 			path: "/deploy",
-			handler: this.handleDeployCommandsRequest.bind(this)
+			handler: this.handleDeployCommandsRequest.bind(this),
+			protected: true
 		})
 		this.routes.push({
 			method: "POST",
@@ -139,8 +144,6 @@ export class Client extends Plugin {
 	 * @returns A response
 	 */
 	public async handleDeployCommandsRequest() {
-		// TODO: Protect this route somehow (e.g. with a secret)
-
 		const commands = this.commands
 			.filter((c) => c.name !== "*")
 			.map((c) => c.serialize())
@@ -148,7 +151,7 @@ export class Client extends Plugin {
 			Routes.applicationCommands(this.options.clientId), //
 			{ body: commands }
 		)
-		return new Response(null, { status: 204 })
+		return new Response("OK", { status: 204 })
 	}
 
 	/**
@@ -159,7 +162,7 @@ export class Client extends Plugin {
 	 */
 	public async handleInteractionRequest(req: Request, ctx: Context) {
 		const isValid = await this.validateInteractionRequest(req)
-		if (!isValid) return new Response(null, { status: 401 })
+		if (!isValid) return new Response("Unauthorized", { status: 401 })
 
 		const interaction = (await req.json()) as APIInteraction
 
@@ -193,7 +196,7 @@ export class Client extends Plugin {
 		}
 
 		const status = ctx && "waitUntil" in ctx ? 202 : 204
-		return new Response(null, { status })
+		return new Response("OK", { status })
 	}
 
 	/**

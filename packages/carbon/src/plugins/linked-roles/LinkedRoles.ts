@@ -16,6 +16,7 @@ type Tokens = {
 // TODO: IMO, the metadata for this should be handled similarly to the client and its commands
 // That is passing an array of connection instances as the second argument to the constructor
 // That is, maybe, for another pr though
+// TODO: Improve the response messages
 
 /**
  * This class is the main class that is used for the linked roles feature of Carbon.
@@ -27,6 +28,7 @@ type Tokens = {
  *
  * const client = new Client({
  * 	clientId: "12345678901234567890",
+ * 	clientSecret: "Bb7aZcvRN-BhrhY2qrUO6QzOK4SeqonG",
  * 	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
  * 	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE"
  * })
@@ -34,7 +36,6 @@ type Tokens = {
  * const allStaff = ["439223656200273932"]
  *
  * const linkedRoles = new LinkedRoles(client, {
- * 	clientSecret: "Bb7aZcvRN-BhrhY2qrUO6QzOK4SeqonG",
  * 	baseUrl: "https://example.com",
  * 	metadata: [
  * 		{
@@ -89,7 +90,7 @@ export class LinkedRoles extends Plugin {
 	 * @returns A response
 	 */
 	public async handleConnectRequest() {
-		return new Response(null, {
+		return new Response("Found", {
 			status: 302,
 			headers: {
 				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
@@ -98,7 +99,7 @@ export class LinkedRoles extends Plugin {
 	}
 
 	/**
-	 * Handle the connect callback request 
+	 * Handle the connect callback request
 	 * @param req The request
 	 * @returns A response
 	 */
@@ -127,10 +128,11 @@ export class LinkedRoles extends Plugin {
 
 			await this.updateMetadata(authData.user?.id, newMetadata, tokens)
 
+			// IDEA: Maybe we can redirect to a success page instead of just a message
 			return new Response("You can now close this tab.")
 		} catch (e) {
 			console.error(e)
-			return new Response("Error", { status: 500 })
+			return new Response("Internal Error", { status: 500 })
 		}
 	}
 
@@ -171,7 +173,7 @@ export class LinkedRoles extends Plugin {
 		const url = "https://discord.com/api/v10/oauth2/token"
 		const body = new URLSearchParams({
 			client_id: this.client.options.clientId,
-			client_secret: this.options.clientSecret,
+			client_secret: this.client.options.clientSecret,
 			grant_type: "authorization_code",
 			code,
 			redirect_uri: `${this.options.baseUrl}/connect/callback`

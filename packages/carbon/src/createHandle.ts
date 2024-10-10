@@ -1,5 +1,6 @@
-import type { Context, Plugin } from "./abstracts/Plugin.js"
+import type { Context, Plugin, Route } from "./abstracts/Plugin.js"
 import type { PartialEnv } from "./adapters/shared.js"
+import type { Client } from "./classes/Client.js"
 
 /**
  * Creates a handle function that can be used to handle requests
@@ -15,23 +16,34 @@ import type { PartialEnv } from "./adapters/shared.js"
  * ```
  */
 export function createHandle<Env extends PartialEnv = PartialEnv>(
-	factory: (env: Env) => Plugin[]
+	factory: (env: Env) => [Client, ...Plugin[]]
 ) {
 	return (env: Env) => {
-		const plugins = factory(env)
-		const routes = plugins.flatMap((plugin) => plugin.routes)
+		const [client, ...plugins] = factory(env)
+		const routes = [client, ...plugins].flatMap((plugin) => plugin.routes)
 
 		return async (req: Request, ctx?: Context) => {
-			let routeMatched = false
-			for (const route of routes) {
-				if (route.path !== new URL(req.url).pathname) continue
-				routeMatched = true
-				if (route.method !== req.method) continue
-				return await route.handler(req, ctx)
+			const [method, url] = [req.method, new URL(req.url)]
+
+			const matchedRoutesByPath = //
+				routes.filter((r) => r.path === url.pathname)
+			const matchedRoutesByMethod = //
+				matchedRoutesByPath.filter((r) => r.method === method)
+
+			if (matchedRoutesByMethod.length === 0) {
+				if (matchedRoutesByPath.length > 0)
+					return new Response("Method Not Allowed", { status: 405 })
+				return new Response("Not Found", { status: 404 })
 			}
 
-			if (routeMatched) return new Response(null, { status: 405 })
-			return new Response(null, { status: 404 })
+			// Use the last matched route by method to allow for overriding
+			const route = matchedRoutesByMethod.at(-1) as Route
+
+			const passedSecret = url.searchParams.get("secret")
+			if (route.protected && client.options.clientSecret !== passedSecret)
+				return new Response("Unauthorized", { status: 401 })
+
+			return await route.handler(req, ctx)
 		}
 	}
 }

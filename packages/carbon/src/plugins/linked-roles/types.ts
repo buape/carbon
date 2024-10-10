@@ -40,10 +40,7 @@ export enum ApplicationRoleConnectionMetadataType {
  * The options for the linked roles package
  */
 export type LinkedRolesOptions = {
-	/**
-	 * The client secret for the bot
-	 */
-	clientSecret: string
+	// IDEA: I think this might benefit from being moved to the client options
 	/**
 	 * The base URL of where you are hosting your bot.
 	 * This is used for redirect URLs to and from Discord's OAuth2 flow.

@@ -6,6 +6,7 @@ export interface Route {
 	method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 	path: `/${string}`
 	handler(req: Request, ctx?: Context): Response | Promise<Response>
+	protected?: boolean
 }
 
 export interface Context {
