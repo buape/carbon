@@ -55,6 +55,16 @@ export type ClientOptions = {
 	 * If you don't want to do this (e.g. you are changing them at runtime), you can manually call {@link ComponentHandler#registerComponent} and {@link ModalHandler#registerModal} on the client.
 	 */
 	autoRegister?: boolean
+	/**
+	 * Whether the deploy route should be disabled.
+	 * @default false
+	 */
+	disableDeployRoute?: boolean
+	/**
+	 * Whether the interactions route should
+	 * @default false
+	 */
+	disableInteractionsRoute?: boolean
 }
 
 /**
@@ -130,12 +140,14 @@ export class Client extends Plugin {
 			method: "GET",
 			path: "/deploy",
 			handler: this.handleDeployCommandsRequest.bind(this),
-			protected: true
+			protected: true,
+			disabled: this.options.disableDeployRoute
 		})
 		this.routes.push({
 			method: "POST",
 			path: "/interactions",
-			handler: this.handleInteractionRequest.bind(this)
+			handler: this.handleInteractionsRequest.bind(this),
+			disabled: this.options.disableInteractionsRoute
 		})
 	}
 
@@ -160,7 +172,7 @@ export class Client extends Plugin {
 	 * @param ctx The context for the request
 	 * @returns A response
 	 */
-	public async handleInteractionRequest(req: Request, ctx: Context) {
+	public async handleInteractionsRequest(req: Request, ctx: Context) {
 		const isValid = await this.validateInteractionRequest(req)
 		if (!isValid) return new Response("Unauthorized", { status: 401 })
 

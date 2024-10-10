@@ -56,7 +56,7 @@ type Tokens = {
  */
 export class LinkedRoles extends Plugin {
 	client: Client
-	options: Required<LinkedRolesOptions>
+	options: LinkedRolesOptions
 
 	// TODO: I would like to remove the need to pass the client here
 	// Client is only used to grab the env variables, which could be passed directly, or another way
@@ -76,12 +76,14 @@ export class LinkedRoles extends Plugin {
 		this.routes.push({
 			method: "GET",
 			path: "/connect",
-			handler: this.handleConnectRequest.bind(this)
+			handler: this.handleConnectRequest.bind(this),
+			disabled: this.options.disableConnectRoute,
 		})
 		this.routes.push({
 			method: "GET",
 			path: "/connect/callback",
-			handler: this.handleConnectCallbackRequest.bind(this)
+			handler: this.handleConnectCallbackRequest.bind(this),
+			disabled: this.options.disableConnectCallbackRoute,
 		})
 	}
 

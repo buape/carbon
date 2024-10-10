@@ -26,7 +26,7 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 			const [method, url] = [req.method, new URL(req.url)]
 
 			const matchedRoutesByPath = //
-				routes.filter((r) => r.path === url.pathname)
+				routes.filter((r) => r.path === url.pathname && !r.disabled)
 			const matchedRoutesByMethod = //
 				matchedRoutesByPath.filter((r) => r.method === method)
 

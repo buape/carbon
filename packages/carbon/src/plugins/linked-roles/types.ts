@@ -60,6 +60,16 @@ export type LinkedRolesOptions = {
 	metadataCheckers: {
 		[name: string]: (userId: string) => Promise<number | boolean>
 	}
+	/**
+	 * Whether the connect route should be disabled.
+	 * @default false
+	 */
+	disableConnectRoute?: boolean
+	/**
+	 * Whether the connect callback route should
+	 * @default false
+	 */
+	disableConnectCallbackRoute?: boolean
 }
 
 /**

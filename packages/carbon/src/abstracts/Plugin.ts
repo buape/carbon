@@ -7,6 +7,7 @@ export interface Route {
 	path: `/${string}`
 	handler(req: Request, ctx?: Context): Response | Promise<Response>
 	protected?: boolean
+	disabled?: boolean
 }
 
 export interface Context {
