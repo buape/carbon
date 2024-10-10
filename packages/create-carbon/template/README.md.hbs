@@ -2,6 +2,7 @@
 path: README.md
 ---
 
+{{!-- INTRODUCTION --}}
 # {{name}}
 
 This is a bot made using [Carbon](https://carbon.buape.com) and generated with the [`create-carbon`](https://github.com/buape/carbon/tree/main/packages/create-carbon) CLI tool.
@@ -9,10 +10,10 @@ This is a bot made using [Carbon](https://carbon.buape.com) and generated with t
 If you need any assistance, you can join our [Discord](https://go.buape.com/carbon) and ask in the `#support` channel.
 
 {{!-- SETTING ENVIRONMENT VARIABLES --}}
-{{#if (eq runtime "cloudflare")}}
 ## Setting Environment Variables
 
-Before you can deploy your bot, you need to set your tokens in your `.env` file.
+Before you can start your bot, you will need to set your environment variables in your `.env` file.
+{{#if (eq runtime "cloudflare")}}
 You can run each of these commands to set your tokens:
 
 ```bash
@@ -27,7 +28,6 @@ wrangler secret put BASE_URL
 {{/if}}
 ```
 {{/if}}
-
 
 {{!-- RUNNING --}}
 ## Running
@@ -77,6 +77,14 @@ The `deploy` script is used to deploy your bot to Cloudflare. You can run it wit
 ```
 
 You can use the `dev` script to deploy your bot and then watch the logs in real time in your console.
+```bash
+{{packageManager}} run dev
+```
+{{else if (eq runtime "nextjs")}}
+To run your bot, there are a few scripts in your `package.json` file that you can use:
+
+You can use the `dev` script to run your bot in development mode, which will automatically restart your bot when you make changes to your code. To run your bot in development mode, you can use the following command:
+
 ```bash
 {{packageManager}} run dev
 ```

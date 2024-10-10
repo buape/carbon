@@ -85,6 +85,8 @@ path: src/app/page.module.css
 }
 
 a.primary {
+	--foreground: #8298e0;
+	--background: #ffffff;
 	background: var(--foreground);
 	color: var(--background);
 	gap: 8px;
@@ -114,6 +116,7 @@ a.secondary {
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
 	a.primary:hover {
+		--button-primary-hover: #8089d9;
 		background: var(--button-primary-hover);
 		border-color: transparent;
 	}
@@ -161,11 +164,5 @@ a.secondary {
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: center;
-	}
-}
-
-@media (prefers-color-scheme: dark) {
-	.logo {
-		filter: invert();
 	}
 }

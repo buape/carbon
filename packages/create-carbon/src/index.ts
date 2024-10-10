@@ -6,7 +6,7 @@ import {
 	getPackageManager,
 	runPackageManagerCommand
 } from "./tools/packageManager.js"
-import { processTemplate } from "./tools/templateCreator.js"
+import { processTemplate } from "./tools/templateProcessor.js"
 
 // ================================================ Intro ================================================
 

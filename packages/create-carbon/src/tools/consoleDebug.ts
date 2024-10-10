@@ -6,5 +6,6 @@ const isTruthy = (value: string | undefined) =>
  * @param args The arguments to log to the console.
  */
 export const debug = (...args: unknown[]) => {
-	if (isTruthy(process.env.DEBUG)) console.log(...args)
+	if (isTruthy(process.env.DEBUG) || process.env.NODE_ENV === "development")
+		console.log(...args)
 }
