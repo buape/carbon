@@ -77,13 +77,13 @@ export class LinkedRoles extends Plugin {
 			method: "GET",
 			path: "/connect",
 			handler: this.handleConnectRequest.bind(this),
-			disabled: this.options.disableConnectRoute,
+			disabled: this.options.disableConnectRoute
 		})
 		this.routes.push({
 			method: "GET",
 			path: "/connect/callback",
 			handler: this.handleConnectCallbackRequest.bind(this),
-			disabled: this.options.disableConnectCallbackRoute,
+			disabled: this.options.disableConnectCallbackRoute
 		})
 	}
 

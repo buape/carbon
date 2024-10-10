@@ -6,7 +6,11 @@ import {
 	patchRequest
 } from "../shared.js"
 
-export type Handler = (req: Request, env: PartialEnv, ctx: ExecutionContext) => Promise<Response>
+export type Handler = (
+	req: Request,
+	env: PartialEnv,
+	ctx: ExecutionContext
+) => Promise<Response>
 
 /**
  * Creates a Cloudflare handler function using the provided handle and handler options
@@ -19,7 +23,10 @@ export type Handler = (req: Request, env: PartialEnv, ctx: ExecutionContext) => 
  * export default { fetch: handler }
  * ```
  */
-export function createHandler(handle: Handle, options: HandlerOptions): Handler {
+export function createHandler(
+	handle: Handle,
+	options: HandlerOptions
+): Handler {
 	return (req: Request, env: PartialEnv, ctx: ExecutionContext) => {
 		const fetch = handle(env)
 		return fetch(patchRequest(req, options), ctx)

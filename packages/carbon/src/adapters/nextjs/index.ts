@@ -14,7 +14,10 @@ export type Handler = (req: Request) => Promise<Response>
  * export { handler as GET, handler as POST }
  * ```
  */
-export function createHandler(handle: Handle, options: HandlerOptions): Handler {
+export function createHandler(
+	handle: Handle,
+	options: HandlerOptions
+): Handler {
 	return (req: Request) => {
 		const fetch = handle(process.env)
 		return fetch(patchRequest(req, options))
