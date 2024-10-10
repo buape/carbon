@@ -43,7 +43,12 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 			if (route.protected && client.options.clientSecret !== passedSecret)
 				return new Response("Unauthorized", { status: 401 })
 
-			return await route.handler(req, ctx)
+			try {
+				return await route.handler(req, ctx)
+			} catch (error) {
+				console.error(error)
+				return new Response("Internal Server Error", { status: 500 })
+			}
 		}
 	}
 }

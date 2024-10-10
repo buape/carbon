@@ -116,36 +116,31 @@ export class LinkedRoles extends Plugin {
 	 * @returns A response
 	 */
 	public async handleConnectCallbackRequest(req: Request) {
-		try {
-			const url = new URL(req.url)
-			const code = String(url.searchParams.get("code"))
+		const url = new URL(req.url)
+		const code = String(url.searchParams.get("code"))
 
-			const tokens = await this.getOAuthTokens(code as string)
-			const authData = await (
-				await fetch("https://discord.com/api/v10/oauth2/@me", {
-					headers: {
-						Authorization: `Bearer ${tokens.access_token}`
-					}
-				})
-			).json()
-			if (!authData.user)
-				return new Response("", {
-					status: 307,
-					headers: {
-						Location: `${this.options.baseUrl}/connect`
-					}
-				})
+		const tokens = await this.getOAuthTokens(code as string)
+		const authData = await (
+			await fetch("https://discord.com/api/v10/oauth2/@me", {
+				headers: {
+					Authorization: `Bearer ${tokens.access_token}`
+				}
+			})
+		).json()
+		if (!authData.user)
+			return new Response("", {
+				status: 307,
+				headers: {
+					Location: `${this.options.baseUrl}/connect`
+				}
+			})
 
-			const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
+		const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
 
-			await this.updateMetadata(authData.user?.id, newMetadata, tokens)
+		await this.updateMetadata(authData.user?.id, newMetadata, tokens)
 
-			// IDEA: Maybe we can redirect to a success page instead of just a message
-			return new Response("You can now close this tab.")
-		} catch (e) {
-			console.error(e)
-			return new Response("Internal Error", { status: 500 })
-		}
+		// IDEA: Maybe we can redirect to a success page instead of just a message
+		return new Response("You can now close this tab.")
 	}
 
 	private async getMetadataFromCheckers(userId: string) {
