@@ -10,7 +10,6 @@
 	},
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
-		"@buape/carbon-nodejs": "workspace:*",
 		"@types/node": "^20"
 	},
 	"license": "MIT"
