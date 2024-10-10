@@ -61,12 +61,17 @@ export type LinkedRolesOptions = {
 		[name: string]: (userId: string) => Promise<number | boolean>
 	}
 	/**
+	 * Whether the deploy route should be disabled.
+	 * @default false
+	 */
+	disableDeployRoute?: boolean
+	/**
 	 * Whether the connect route should be disabled.
 	 * @default false
 	 */
 	disableConnectRoute?: boolean
 	/**
-	 * Whether the connect callback route should
+	 * Whether the connect callback route should be disabled.
 	 * @default false
 	 */
 	disableConnectCallbackRoute?: boolean

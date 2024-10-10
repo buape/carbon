@@ -58,33 +58,43 @@ export class LinkedRoles extends Plugin {
 	client: Client
 	options: LinkedRolesOptions
 
-	// TODO: I would like to remove the need to pass the client here
-	// Client is only used to grab the env variables, which could be passed directly, or another way
-	// This would allow the user to not have to create a client if all they want is linked roles
 	constructor(client: Client, options: LinkedRolesOptions) {
 		super()
 
 		this.client = client
 		this.options = { ...options }
-		// TODO: This makes a request to Discord on every instance creation
-		// This is not ideal, maybe this can have its own /deploy endpoint like the client commands deploy endpoint
-		this.setMetadata(this.options.metadata)
 		this.appendRoutes()
 	}
 
 	private appendRoutes() {
 		this.routes.push({
 			method: "GET",
-			path: "/connect",
+			path: "/linked-roles/deploy",
+			handler: this.handleDeployRequest.bind(this),
+			protected: true,
+			disabled: this.options.disableDeployRoute
+		})
+		this.routes.push({
+			method: "GET",
+			path: "/linked-roles/connect",
 			handler: this.handleConnectRequest.bind(this),
 			disabled: this.options.disableConnectRoute
 		})
 		this.routes.push({
 			method: "GET",
-			path: "/connect/callback",
+			path: "/linked-roles/connect/callback",
 			handler: this.handleConnectCallbackRequest.bind(this),
 			disabled: this.options.disableConnectCallbackRoute
 		})
+	}
+
+	/**
+	 * Handle a request to deploy the linked roles to Discord
+	 * @returns A response
+	 */
+	public async handleDeployRequest() {
+		await this.setMetadata(this.options.metadata)
+		return new Response("OK")
 	}
 
 	/**
@@ -224,7 +234,7 @@ export class LinkedRoles extends Plugin {
 
 	private async setMetadata(data: typeof this.options.metadata) {
 		const response = await fetch(
-			`https://discord.com/api/v10/applications/${this.client.options.clientId}/role-connections/metadata`,
+			`https://discord.com/api/v10/applications/${this.client.options.clientId}/linked-roles/metadata`,
 			{
 				method: "PUT",
 				body: JSON.stringify(data),

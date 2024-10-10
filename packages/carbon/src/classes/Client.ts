@@ -130,8 +130,7 @@ export class Client extends Plugin {
 			}
 		}
 		if (this.options.autoDeploy) {
-			// If this ever requires req/ctx, this will need to change
-			this.handleDeployCommandsRequest()
+			this.handleDeployRequest()
 		}
 	}
 
@@ -139,7 +138,7 @@ export class Client extends Plugin {
 		this.routes.push({
 			method: "GET",
 			path: "/deploy",
-			handler: this.handleDeployCommandsRequest.bind(this),
+			handler: this.handleDeployRequest.bind(this),
 			protected: true,
 			disabled: this.options.disableDeployRoute
 		})
@@ -155,7 +154,7 @@ export class Client extends Plugin {
 	 * Handle a request to deploy the commands to Discord
 	 * @returns A response
 	 */
-	public async handleDeployCommandsRequest() {
+	public async handleDeployRequest() {
 		const commands = this.commands
 			.filter((c) => c.name !== "*")
 			.map((c) => c.serialize())
