@@ -5,8 +5,9 @@ path: package.json
 {
     "name": "{{name}}",
     "private": true,
+    "type": "module",
     {{#if (eq runtime "node")}}
-    "main": "./dist/src/index.js",
+    "main": "./dist/index.js",
     "scripts": {
         "build": "tsc",
         "dev": "tsc --watch",

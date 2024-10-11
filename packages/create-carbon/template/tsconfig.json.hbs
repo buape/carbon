@@ -9,16 +9,14 @@ path: tsconfig.json
 		"strict": true,
 		"skipLibCheck": true,
 		{{#if (eq runtime "nextjs")}}
-		"lib": ["dom", "dom.iterable", "esnext"],
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		{{else}}
 		"lib": ["es2022"],
 		{{/if}}
-		"baseUrl": ".",
-		"outDir": "dist",
 		{{#if (eq runtime "nextjs")}}
 		"noEmit": true,
-		"module": "esnext",
-		"moduleResolution": "bundler",
+		"module": "NodeNext",
+		"moduleResolution": "Bundler",
 		"allowJs": true,
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
@@ -26,7 +24,12 @@ path: tsconfig.json
 		"plugins": [{ "name": "next" }],
 		"jsx": "preserve",
 		"incremental": true,
+		"paths": { "~/*": ["src/*"] },
+		{{else}}
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		{{/if}}
-		"paths": { "~/*": ["src/*"] }
+		"baseUrl": "src",
+		"outDir": "dist"
 	}
 }

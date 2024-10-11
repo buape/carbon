@@ -22,8 +22,13 @@ import { createHandler } from "@buape/carbon/adapters/cloudflare"
 {{else if (eq runtime "nextjs") }}
 import { createHandler } from "@buape/carbon/adapters/nextjs"
 {{/if}}
+{{#if (eq runtime "nextjs")}}
 import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
+{{else}}
+import PingCommand from "./commands/ping.js"
+import ButtonCommand from "./commands/button.js"
+{{/if}}
 
 const handle = createHandle((env) => {
 	const client = new Client(
