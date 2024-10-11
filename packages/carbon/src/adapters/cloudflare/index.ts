@@ -1,10 +1,6 @@
 import type { ExecutionContext } from "@cloudflare/workers-types"
 import type { Handle } from "../../createHandle.js"
-import {
-	type HandlerOptions,
-	type PartialEnv,
-	patchRequest
-} from "../shared.js"
+import type { HandlerOptions, PartialEnv } from "../shared.js"
 
 export type Handler = (
 	req: Request,
@@ -25,10 +21,10 @@ export type Handler = (
  */
 export function createHandler(
 	handle: Handle,
-	options: HandlerOptions
+	_options?: HandlerOptions
 ): Handler {
 	return (req: Request, env: PartialEnv, ctx: ExecutionContext) => {
 		const fetch = handle(env)
-		return fetch(patchRequest(req, options), ctx)
+		return fetch(req, ctx)
 	}
 }

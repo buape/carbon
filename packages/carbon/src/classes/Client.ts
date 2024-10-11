@@ -27,15 +27,19 @@ import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
  */
 export type ClientOptions = {
 	/**
-	 * The client ID of the bot
+	 * The base URL of the app
+	 */
+	baseUrl: string
+	/**
+	 * The client ID of the app
 	 */
 	clientId: string
 	/**
-	 * The client secret of the bot, used for protecting routes and plugins
+	 * The client secret of the app, used for protecting routes and plugins
 	 */
 	clientSecret: string
 	/**
-	 * The public key of the bot, used for interaction verification
+	 * The public key of the app, used for interaction verification
 	 */
 	publicKey: string
 	/**
@@ -109,6 +113,8 @@ export class Client extends Plugin {
 	constructor(options: ClientOptions, commands: BaseCommand[]) {
 		super()
 
+		if (!options.baseUrl) throw new Error("Missing base URL")
+		if (!options.clientSecret) throw new Error("Missing client secret")
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
 		if (!options.token) throw new Error("Missing token")

@@ -40,12 +40,6 @@ export enum ApplicationRoleConnectionMetadataType {
  * The options for the linked roles package
  */
 export type LinkedRolesOptions = {
-	// IDEA: I think this might benefit from being moved to the client options
-	/**
-	 * The base URL of where you are hosting your bot.
-	 * This is used for redirect URLs to and from Discord's OAuth2 flow.
-	 */
-	baseUrl: string
 	/**
 	 * The metadata that you want to check for, and that should show to the end-user on Discord.
 	 */

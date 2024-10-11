@@ -1,5 +1,5 @@
 import type { Handle } from "../../createHandle.js"
-import { type HandlerOptions, patchRequest } from "../shared.js"
+import type { HandlerOptions } from "../shared.js"
 
 export type Handler = (req: Request) => Promise<Response>
 
@@ -16,10 +16,10 @@ export type Handler = (req: Request) => Promise<Response>
  */
 export function createHandler(
 	handle: Handle,
-	options: HandlerOptions
+	_options?: HandlerOptions
 ): Handler {
 	return (req: Request) => {
 		const fetch = handle(process.env)
-		return fetch(patchRequest(req, options))
+		return fetch(req)
 	}
 }

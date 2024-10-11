@@ -33,6 +33,7 @@ import ButtonCommand from "./commands/button.js"
 const handle = createHandle((env) => {
 	const client = new Client(
 		{
+			baseUrl: String(env.BASE_URL),
 			clientId: String(env.DISCORD_CLIENT_ID),
 			clientSecret: String(env.DISCORD_CLIENT_SECRET),
 			publicKey: String(env.DISCORD_PUBLIC_KEY),
@@ -45,7 +46,6 @@ const handle = createHandle((env) => {
 	)
 	{{#if plugins.linkedRoles}}
 	const linkedRoles = new LinkedRoles(client, {
-		baseUrl: String(env.BASE_URL),
 		metadata: [
 			{
 				key: "is_staff",
@@ -69,9 +69,9 @@ const handle = createHandle((env) => {
 {{#if (or (eq runtime "node") (eq runtime "bun"))}}
 createServer(handle, { port: 3000 })
 {{else if (eq runtime "cloudflare")}}
-const handler = createHandler(handle, {})
+const handler = createHandler(handle)
 export default { fetch: handler }
 {{else if (eq runtime "nextjs")}}
-const handler = createHandler(handle, {})
+const handler = createHandler(handle)
 export { handler as GET, handler as POST }
 {{/if}}

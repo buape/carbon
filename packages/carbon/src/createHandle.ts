@@ -23,10 +23,14 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 		const routes = [client, ...plugins].flatMap((plugin) => plugin.routes)
 
 		return async (req: Request, ctx?: Context) => {
-			const [method, url] = [req.method, new URL(req.url)]
+			const method = req.method
+			const url = new URL(req.url)
+			const pathname = //
+				resolveRequestPathname(new URL(client.options.baseUrl), url)
+			if (!pathname) return new Response("Not Found", { status: 404 })
 
 			const matchedRoutesByPath = //
-				routes.filter((r) => r.path === url.pathname && !r.disabled)
+				routes.filter((r) => r.path === pathname && !r.disabled)
 			const matchedRoutesByMethod = //
 				matchedRoutesByPath.filter((r) => r.method === method)
 
@@ -51,6 +55,13 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 			}
 		}
 	}
+}
+
+function resolveRequestPathname(baseUrl: URL, reqUrl: URL) {
+	const cleanBaseUrl = `${baseUrl.host}${baseUrl.pathname}`.replace(/\/$/, "")
+	const cleanReqUrl = `${reqUrl.host}${reqUrl.pathname}`.replace(/\/$/, "")
+	if (!cleanReqUrl.startsWith(cleanBaseUrl)) return null
+	return cleanReqUrl.slice(cleanBaseUrl.length)
 }
 
 export type Handle = ReturnType<typeof createHandle>

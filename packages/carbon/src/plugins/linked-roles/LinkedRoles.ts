@@ -105,7 +105,7 @@ export class LinkedRoles extends Plugin {
 		return new Response("Found", {
 			status: 302,
 			headers: {
-				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
+				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.client.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
 			}
 		})
 	}
@@ -131,7 +131,7 @@ export class LinkedRoles extends Plugin {
 			return new Response("", {
 				status: 307,
 				headers: {
-					Location: `${this.options.baseUrl}/connect`
+					Location: `${this.client.options.baseUrl}/connect`
 				}
 			})
 
@@ -183,7 +183,7 @@ export class LinkedRoles extends Plugin {
 			client_secret: this.client.options.clientSecret,
 			grant_type: "authorization_code",
 			code,
-			redirect_uri: `${this.options.baseUrl}/connect/callback`
+			redirect_uri: `${this.client.options.baseUrl}/linked-roles/connect/callback`
 		})
 
 		const response = await fetch(url, {

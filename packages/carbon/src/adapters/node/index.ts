@@ -1,6 +1,6 @@
 import * as Hono from "@hono/node-server"
 import type { Handle } from "../../createHandle.js"
-import { type ServerOptions, patchRequest } from "../shared.js"
+import type { ServerOptions } from "../shared.js"
 
 export type Server = ReturnType<typeof Hono.serve>
 
@@ -17,7 +17,7 @@ export type Server = ReturnType<typeof Hono.serve>
 export function createServer(handle: Handle, options: ServerOptions): Server {
 	const fetch = handle(process.env)
 	return Hono.serve({
-		fetch: (r) => fetch(patchRequest(r, options), {}),
+		fetch: (req) => fetch(req, {}),
 		port: options.port,
 		hostname: options.hostname
 	})

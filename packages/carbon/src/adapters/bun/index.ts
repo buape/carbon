@@ -1,6 +1,6 @@
 import Bun from "bun"
 import type { Handle } from "../../createHandle.js"
-import { type ServerOptions, patchRequest } from "../shared.js"
+import type { ServerOptions } from "../shared.js"
 
 export type Server = ReturnType<typeof Bun.serve>
 
@@ -17,7 +17,7 @@ export type Server = ReturnType<typeof Bun.serve>
 export function createServer(handle: Handle, options: ServerOptions): Server {
 	const fetch = handle(process.env)
 	return Bun.serve({
-		fetch: (r) => fetch(patchRequest(r, options), {}),
+		fetch: (req) => fetch(req, {}),
 		port: options.port,
 		hostname: options.hostname
 	})
