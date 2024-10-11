@@ -100,7 +100,10 @@ const compileHbsFile = (path: string, context: TemplateContext) => {
 	const template = Handlebars.compile(source)
 	const body = template(context)
 	const { content, data } = matter(body)
-	return { body: content, meta: data as FrontMatter }
+	return {
+		body: content.trim().replace(/\n{3,}/g, "\n\n"),
+		meta: data as FrontMatter
+	}
 }
 
 const compileJsonFile = (path: string, context: TemplateContext) => {
