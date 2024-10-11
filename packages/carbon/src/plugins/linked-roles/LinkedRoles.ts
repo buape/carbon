@@ -94,7 +94,7 @@ export class LinkedRoles extends Plugin {
 	 */
 	public async handleDeployRequest() {
 		await this.setMetadata(this.options.metadata)
-		return new Response("OK")
+		return new Response("OK", { status: 202 })
 	}
 
 	/**

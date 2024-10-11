@@ -162,7 +162,7 @@ export class Client extends Plugin {
 			Routes.applicationCommands(this.options.clientId), //
 			{ body: commands }
 		)
-		return new Response("OK", { status: 204 })
+		return new Response("OK", { status: 202 })
 	}
 
 	/**
@@ -206,8 +206,7 @@ export class Client extends Plugin {
 			else await promise
 		}
 
-		const status = ctx && "waitUntil" in ctx ? 202 : 204
-		return new Response("OK", { status })
+		return new Response("OK", { status: 202 })
 	}
 
 	/**
