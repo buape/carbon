@@ -48,13 +48,15 @@ export type ClientOptions = {
 	requestOptions?: RequestClientOptions
 	/**
 	 * Whether the commands should be deployed to Discord automatically.
+	 * @default false
 	 */
 	autoDeploy?: boolean
 	/**
-	 * Whether components and modals should be registered automatically.
-	 * If you don't want to do this (e.g. you are changing them at runtime), you can manually call {@link ComponentHandler#registerComponent} and {@link ModalHandler#registerModal} on the client.
+	 * Whether components and modals should not be registered automatically.
+	 * If you want you register components yourself (e.g. you are changing them at runtime), you can manually call {@link ComponentHandler#registerComponent} and {@link ModalHandler#registerModal} on the client.
+	 * @default false
 	 */
-	autoRegister?: boolean
+	disableAutoRegister?: boolean
 	/**
 	 * Whether the deploy route should be disabled.
 	 * @default false
@@ -121,7 +123,7 @@ export class Client extends Plugin {
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
 
-		if (this.options.autoRegister) {
+		if (!this.options.disableAutoRegister) {
 			for (const command of commands) {
 				for (const component of command.components)
 					this.componentHandler.registerComponent(new component())
