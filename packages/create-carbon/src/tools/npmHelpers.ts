@@ -46,6 +46,7 @@ const dependencies = {
 	"@types/node": undefined,
 	"@cloudflare/workers-types": undefined,
 	"@types/bun": undefined,
+	dotenv: undefined,
 	typescript: undefined,
 	next: undefined,
 	react: undefined,
@@ -54,7 +55,7 @@ const dependencies = {
 	"@types/react-dom": undefined,
 	wrangler: undefined
 } as const satisfies Record<string, string | number | undefined>
-type Package = keyof typeof dependencies
+type Dependency = keyof typeof dependencies
 
 /**
  * Get the versions of the dependencies used in the project
@@ -68,9 +69,9 @@ export const getDependencyVersions = async () => {
 		}
 	)
 
-	const versions = {} as Record<Package, string>
+	const versions = {} as Record<Dependency, string>
 	const resolvedVersions = await Promise.all(versionPromises)
 	for (const [pkg, version] of resolvedVersions)
-		versions[pkg as Package] = version
+		versions[pkg as Dependency] = version
 	return versions
 }

@@ -6,6 +6,9 @@ path: src/index.ts
 {{/if}}
 ---
 
+{{#if (eq runtime "node")}}
+import 'dotenv/config';
+{{/if}}
 import { Client, createHandle } from "@buape/carbon"
 {{#if plugins.linkedRoles}}
 import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
