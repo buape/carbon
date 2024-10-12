@@ -63,12 +63,12 @@ export type LinkedRolesOptions = {
 	 * Whether the connect route should be disabled.
 	 * @default false
 	 */
-	disableConnectRoute?: boolean
+	disableVerifyUserRoute?: boolean
 	/**
 	 * Whether the connect callback route should be disabled.
 	 * @default false
 	 */
-	disableConnectCallbackRoute?: boolean
+	disableVerifyUserCallbackRoute?: boolean
 }
 
 /**

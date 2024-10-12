@@ -76,15 +76,15 @@ export class LinkedRoles extends Plugin {
 		})
 		this.routes.push({
 			method: "GET",
-			path: "/linked-roles/connect",
-			handler: this.handleConnectRequest.bind(this),
-			disabled: this.options.disableConnectRoute
+			path: "/linked-roles/verify-user",
+			handler: this.handleUserVerificationRequest.bind(this),
+			disabled: this.options.disableVerifyUserRoute
 		})
 		this.routes.push({
 			method: "GET",
-			path: "/linked-roles/connect/callback",
-			handler: this.handleConnectCallbackRequest.bind(this),
-			disabled: this.options.disableConnectCallbackRoute
+			path: "/linked-roles/verify-user/callback",
+			handler: this.handleUserVerificationCallbackRequest.bind(this),
+			disabled: this.options.disableVerifyUserCallbackRoute
 		})
 	}
 
@@ -98,24 +98,24 @@ export class LinkedRoles extends Plugin {
 	}
 
 	/**
-	 * Handle the connect request
+	 * Handle the verify user request
 	 * @returns A response
 	 */
-	public async handleConnectRequest() {
+	public async handleUserVerificationRequest() {
 		return new Response("Found", {
 			status: 302,
 			headers: {
-				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.client.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
+				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.client.options.baseUrl}/linked-roles/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
 			}
 		})
 	}
 
 	/**
-	 * Handle the connect callback request
+	 * Handle the verify user callback request
 	 * @param req The request
 	 * @returns A response
 	 */
-	public async handleConnectCallbackRequest(req: Request) {
+	public async handleUserVerificationCallbackRequest(req: Request) {
 		const url = new URL(req.url)
 		const code = String(url.searchParams.get("code"))
 
@@ -209,7 +209,7 @@ export class LinkedRoles extends Plugin {
 		metadata: Record<string, unknown>,
 		tokens: Tokens
 	) {
-		const url = `https://discord.com/api/v10/users/@me/applications/${this.client.options.clientId}/role-connection`
+		const url = `https://discord.com/api/v10/users/@me/applications/${this.client.options.clientId}/role-connections/metadata`
 		const response = await fetch(url, {
 			method: "PUT",
 			body: JSON.stringify({ metadata }),
