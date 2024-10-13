@@ -86,8 +86,8 @@ const processFile = (path: string, context: TemplateContext) => {
 	if (ext === "hbs") result = compileHbsFile(path, context)
 	else if (ext === "json") result = compileJsonFile(path, context)
 	else return debug(`Ignoring file ${path}`)
+	if (!result.meta.path) return debug(`Skipping file ${path}`)
 
-	if (!result.meta.path) return // Skip files without a path
 	const outPath = resolve(process.cwd(), context.name, result.meta.path)
 	mkdirSync(dirname(outPath), { recursive: true })
 	debug(`Writing file to ${outPath}`)

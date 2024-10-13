@@ -17,7 +17,7 @@ import type { Client } from "./classes/Client.js"
  */
 export function createHandle<Env extends PartialEnv = PartialEnv>(
 	factory: (env: Env) => [Client, ...Plugin[]]
-) {
+): Handle<Env> {
 	return (env: Env) => {
 		const [client, ...plugins] = factory(env)
 		const routes = [client, ...plugins].flatMap((plugin) => plugin.routes)
@@ -64,5 +64,5 @@ function resolveRequestPathname(baseUrl: URL, reqUrl: URL) {
 	return cleanReqUrl.slice(cleanBaseUrl.length)
 }
 
-export type Handle = ReturnType<typeof createHandle>
-export type Fetch = ReturnType<Handle>
+export type Fetch = (req: Request, ctx?: Context) => Promise<Response>
+export type Handle<Env extends PartialEnv = PartialEnv> = (env: Env) => Fetch
