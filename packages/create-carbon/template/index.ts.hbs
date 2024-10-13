@@ -55,7 +55,7 @@ const handle = createHandle((env) => {
 			},
 		],
 		metadataCheckers: {
-			is_allowed: async (userId) => {
+			is_staff: async (userId) => {
 				const isAllowed = ["439223656200273932"]
 				if (isAllowed.includes(userId)) return true
 				return false
