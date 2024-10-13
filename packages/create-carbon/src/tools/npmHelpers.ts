@@ -43,17 +43,22 @@ export const getNpmPackageVersion = async (
 const dependencies = {
 	"@buape/carbon":
 		process.env.NODE_ENV === "development" ? "workspace" : undefined,
+	typescript: undefined,
+	// Node
 	"@types/node": undefined,
-	"@cloudflare/workers-types": undefined,
+	"tsc-watch": undefined,
+	// Bun
 	"@types/bun": undefined,
 	dotenv: undefined,
-	typescript: undefined,
+	// Cloudflare
+	wrangler: undefined,
+	"@cloudflare/workers-types": undefined,
+	// Next.js
 	next: undefined,
 	react: undefined,
 	"react-dom": undefined,
 	"@types/react": undefined,
-	"@types/react-dom": undefined,
-	wrangler: undefined
+	"@types/react-dom": undefined
 } as const satisfies Record<string, string | number | undefined>
 type Dependency = keyof typeof dependencies
 

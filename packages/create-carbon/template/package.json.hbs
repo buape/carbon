@@ -10,7 +10,7 @@ path: package.json
     "main": "./dist/index.js",
     "scripts": {
         "build": "tsc",
-        "dev": "tsc --watch",
+        "dev": "tsc-watch --onSuccess \"node .\"",
         "start": "node ."
     },
     "dependencies": {
@@ -19,11 +19,13 @@ path: package.json
     },
     "devDependencies": {
         "@types/node": "{{get versions "@types/node"}}",
+        "tsc-watch": "{{get versions "tsc-watch"}}",
         "typescript": "{{get versions "typescript"}}"
     }
     {{else if (eq runtime "bun")}}
     "main": "./src/index.ts",
     "scripts": {
+        "dev": "bun run . --watch",
         "start": "bun run ."
     },
     "dependencies": {
@@ -37,8 +39,8 @@ path: package.json
     "main": "./src/index.ts",
     "scripts": {
         "build": "wrangler build --dry-run",
-		"deploy": "wrangler deploy",
-        "dev": "wrangler dev"
+        "dev": "wrangler dev",
+		"deploy": "wrangler deploy"
     },
     "dependencies": {
         "@buape/carbon": "{{get versions "@buape/carbon"}}"
