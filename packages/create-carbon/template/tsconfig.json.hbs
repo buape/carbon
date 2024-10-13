@@ -15,7 +15,7 @@ path: tsconfig.json
 		{{/if}}
 		{{#if (eq runtime "nextjs")}}
 		"noEmit": true,
-		"module": "NodeNext",
+		"module": "ESNext",
 		"moduleResolution": "Bundler",
 		"allowJs": true,
 		"resolveJsonModule": true,
@@ -29,7 +29,7 @@ path: tsconfig.json
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		{{/if}}
-		"baseUrl": "src",
+		"baseUrl": ".",
 		"outDir": "dist"
 	}
 }
