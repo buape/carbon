@@ -58,10 +58,11 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 }
 
 function resolveRequestPathname(baseUrl: URL, reqUrl: URL) {
-	const cleanBaseUrl = `${baseUrl.host}${baseUrl.pathname}`.replace(/\/$/, "")
-	const cleanReqUrl = `${reqUrl.host}${reqUrl.pathname}`.replace(/\/$/, "")
-	if (!cleanReqUrl.startsWith(cleanBaseUrl)) return null
-	return cleanReqUrl.slice(cleanBaseUrl.length)
+	// Need to use pathname only due to host name being different in Cloudflare Tunnel
+	const basePathname = baseUrl.pathname.replace(/\/$/, "")
+	const reqPathname = reqUrl.pathname.replace(/\/$/, "")
+	if (!reqPathname.startsWith(basePathname)) return null
+	return reqPathname.slice(basePathname.length)
 }
 
 export type Fetch = (req: Request, ctx?: Context) => Promise<Response>
