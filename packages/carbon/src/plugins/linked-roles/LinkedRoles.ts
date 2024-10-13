@@ -229,7 +229,7 @@ export class LinkedRoles extends Plugin {
 
 	private async setMetadata(data: typeof this.options.metadata) {
 		const response = await fetch(
-			`https://discord.com/api/v10/applications/${this.client.options.clientId}/linked-roles/metadata`,
+			`https://discord.com/api/v10/applications/${this.client.options.clientId}/role-connections/metadata`,
 			{
 				method: "PUT",
 				body: JSON.stringify(data),
