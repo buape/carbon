@@ -2,104 +2,97 @@
 path: README.md
 ---
 
-{{!-- INTRODUCTION --}}
 # {{name}}
 
-This is a bot made using [Carbon](https://carbon.buape.com) and generated with the [`create-carbon`](https://github.com/buape/carbon/tree/main/packages/create-carbon) CLI tool.
+## Getting Started in Development
 
-If you need any assistance, you can join our [Discord](https://go.buape.com/carbon) and ask in the `#support` channel.
+### Setting Environment Variables
 
-{{!-- SETTING ENVIRONMENT VARIABLES --}}
-## Setting Environment Variables
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "nextjs")}}`.env.local`{{else}}`.env`{{/if}} file.
 
-Before you can start your bot, you will need to set your environment variables in your `.env` file.
-{{#if (eq runtime "cloudflare")}}
-You can run each of these commands to set your tokens:
+### Start a Proxy
 
-```bash
-wrangler secret put DISCORD_CLIENT_ID
-{{#if plugins.linkedRoles}}
-wrangler secret put DISCORD_CLIENT_SECRET
-{{/if}}
-wrangler secret put DISCORD_PUBLIC_KEY
-wrangler secret put DISCORD_BOT_TOKEN
-{{#if plugins.linkedRoles}}
-wrangler secret put BASE_URL
-{{/if}}
-```
-{{/if}}
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`npx localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, set it as `BASE_URL="<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}"` in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "nextjs")}}`.env.local`{{else}}`.env`{{/if}} file.
 
-{{!-- RUNNING --}}
-## Running
+> [!TIP]
+> You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+
+### Configuring Portal URLs
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL"  to `<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}/interactions`{{#if plugins.linkedRoles}} and the "Linked Roles Verification URL" to `<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}/linked-roles/verify-user`{{/if}}.
+
+### Invite your App
+
+You'll need to invite your app to your server to interact with it. To do so navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+### Running the Bot
+
+You're all set! You can now run your bot using `{{packageManager}} run dev`.
+
+## Deploying to Production
+
 {{#if (eq runtime "node")}}
-To run your bot, there are a few scripts in your `package.json` file that you can use:
+### Prepare a Server
 
-### Development
+Since you're deploying a Node.js project, you'll need a server to host your bot. You'll also need to set up [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) on your server.
 
-The `dev` script is used to run your bot in development mode, which will automatically restart your bot when you make changes to your code. To run your bot in development mode, you can use the following command:
+### initialize a Git Repository
 
-```bash
-{{packageManager}} run dev
-```
+You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
 
-### Production
+> [!IMPORTANT]
+> Make sure not to commit your `.env` file or any secrets to your repository.
 
-To build your bot for production, you can run the `build` script. This will create a `dist` folder with your bot's code transpiled to JavaScript. To build your bot, you can use the following command:
+### Preparing Environment
 
-```bash
-{{packageManager}} run build
-```
+Almost there! Now just like in development, you'll need to set up a proxy, configure your environment variables and set up your Discord app's URLs. Additionally you'll need to install your dependencies using `{{packageManager}} install`.
 
-After building your bot, you can run the `start` script to start your bot in production mode. To start your bot in production mode, you can use the following command:
+### Build and Start the Bot
 
-```bash
-{{packageManager}} run start
-```
+Now that you've prepared your environment, you can finally build and start your bot using `{{packageManager}} run build` and `{{packageManager}} start` respectively. You may also want to set up a process manager like [PM2](https://npmjs.com/package/pm2) to keep your bot running in the background.
+
 {{else if (eq runtime "bun")}}
-To run your bot, there is a `start` script in your `package.json` file. You can run it with the following command:
+### Prepare a Server
 
-```bash
-bun run start
-```
+Since you're deploying a Bun project, you'll need a server to host your bot. You'll also need to set up [Bun](https://bun.sh/) and [Git](https://git-scm.com/) on your server.
+
+### Transfer Project Files (Git)
+
+You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
+
+> [!IMPORTANT]
+> Make sure not to commit your `.env` file or any secrets to your repository.
+
+### Preparing Environment
+
+Almost there! Now just like in development, you'll need to set up a proxy, configure your environment variables and set up your Discord app's URLs. Additionally you'll need to install your dependencies using `{{packageManager}} install`.
+
+### Start the Bot
+
+Now that you've prepared your environment, you can finally start your bot using `bun start`. You may also want to set up a process manager like [PM2](https://bun.sh/guides/ecosystem/pm2) to keep your bot running in the background.
+
 {{else if (eq runtime "cloudflare")}}
-To deploy your bot, there are a few scripts in your `package.json` file.
+### Preparing Environment
 
-You can use the `build` script to build your bot for production, but don't actually deploy it, so you can test that everything works.
-
-```bash
-{{packageManager}} run build
-```
-
-The `deploy` script is used to deploy your bot to Cloudflare. You can run it with the following command:
+Before deploying your bot, you'll need to set your environment variables. This can be done using the Wrangler CLI.
 
 ```bash
-{{packageManager}} run deploy
+{{packageManager}} run wrangler secret put BASE_URL # e.g. https://{{name}}.<ACCOUNT_NAME>.workers.dev
+{{packageManager}} run wrangler secret put DISCORD_PUBLIC_KEY
+{{packageManager}} run wrangler secret put DISCORD_CLIENT_ID
+{{packageManager}} run wrangler secret put DISCORD_CLIENT_SECRET
+{{packageManager}} run wrangler secret put DISCORD_BOT_TOKEN
 ```
 
-You can use the `dev` script to deploy your bot and then watch the logs in real time in your console.
-```bash
-{{packageManager}} run dev
-```
+### Deploy to Cloudflare
+
+Once you've set your environment variables, you can deploy your bot with the following command `{{packageManager}} run deploy`.
+
+
 {{else if (eq runtime "nextjs")}}
-To run your bot, there are a few scripts in your `package.json` file that you can use:
-
-You can use the `dev` script to run your bot in development mode, which will automatically restart your bot when you make changes to your code. To run your bot in development mode, you can use the following command:
-
-```bash
-{{packageManager}} run dev
-```
+Your new app can be deployed anywhere you can run a Next.js app. For detailed instructions, refer to the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
 {{/if}}
 
-{{!-- LINKED ROLES --}}
-{{#if plugins.linkedRoles}}
-## Linked Roles
-
-Since you added Linked Roles to your bot, make sure that you add the \`CLIENT_SECRET\` and \`BASE_URL\` env variables as well!
-
-Once you have your LinkedRoles instance, you need to set it on Discord so that users will use it for linked roles. You can see where to add this by clicking here, and set the linked role to <BASE_URL>/connect, so for example, https://my-carbon-worker.YOURNAME.workers.dev/connect. You'll also need to add a redirect URL to your Discord application, so that users can be redirected to your website after they login. You can go to the OAuth tab on the dashboard and add a redirect URL there of <BASE_URL>/connect/callback, so for example, https://my-carbon-worker.YOURNAME.workers.dev/connect/callback.
-{{/if}}
-
-{{!-- WHATS NEXT --}}
 ## What's Next?
 
 Now that you have your bot running, you can start adding commands to it. You can do this by creating a new file in the `src/commands` folder, and adding a new class that extends the `Command` class.
