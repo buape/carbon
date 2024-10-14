@@ -3,7 +3,10 @@ path: .gitignore
 ---
 
 node_modules/
-{{#if (eq runtime "nextjs")}}
+{{#if (eq runtime "cloudflare")}}
+.wrangler/
+.dev.vars
+{{else if (eq runtime "nextjs")}}
 .next/
 .env.local
 {{else}}

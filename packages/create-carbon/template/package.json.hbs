@@ -38,8 +38,7 @@ path: package.json
     {{else if (eq runtime "cloudflare")}}
     "main": "./src/index.ts",
     "scripts": {
-        "build": "wrangler build --dry-run",
-        "dev": "wrangler dev",
+        "dev": "wrangler dev --port 3000",
 		"deploy": "wrangler deploy"
     },
     "dependencies": {

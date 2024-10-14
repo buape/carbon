@@ -1,0 +1,9 @@
+---
+{{#if (eq runtime "cloudflare")}}
+path: wrangler.toml
+{{/if}}
+---
+
+name = "{{name}}"
+main = "src/index.ts"
+compatibility_date = "{{todaysDate}}"

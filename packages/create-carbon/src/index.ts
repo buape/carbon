@@ -56,6 +56,7 @@ await processTemplate({
 	name,
 	runtime,
 	packageManager,
+	todaysDate: new Date().toISOString().split("T")[0] ?? "",
 	plugins: { linkedRoles }
 })
 
