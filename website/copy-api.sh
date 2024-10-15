@@ -56,8 +56,8 @@ process_subpackage() {
             local title="$(kebab_to_title_case "$pkg_name")"
         fi
 
-        escaped_name="${name//@/\\@}"
-        escaped_name="${escaped_name//\//\\/}"
+        escaped_name=$(echo "$name" | sed 's/@/\\@/g')
+        escaped_name=$(echo "$escaped_name" | sed 's/\//\\/g')
         sed -i -e "s/title: \(.*\)/title: \"$escaped_name\"/" "$dir/index.mdx"
         sed -i -e "s/## Index/ /" "$dir/index.mdx"
         echo "{ \"title\": \"$title\" }" >"$dir/meta.json"
