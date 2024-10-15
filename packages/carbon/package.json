@@ -23,7 +23,7 @@
 	"dependencies": {
 		"@buape/carbon-request": "workspace:*",
 		"@types/node": "^20",
-		"discord-api-types": "0.37.101",
+		"discord-api-types": "0.37.102",
 		"discord-verify": "1.2.0",
 		"itty-router": "5.0.18"
 	},
