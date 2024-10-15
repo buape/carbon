@@ -1,0 +1,15 @@
+---
+path: .gitignore
+---
+
+node_modules/
+{{#if (eq runtime "cloudflare")}}
+.wrangler/
+.dev.vars
+{{else if (eq runtime "next")}}
+.next/
+.env.local
+{{else}}
+dist/
+.env
+{{/if}}
