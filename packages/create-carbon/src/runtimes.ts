@@ -1,19 +1,19 @@
 export const runtimes = [
 	{
+		label: "Cloudflare Workers",
+		value: "cloudflare"
+	},
+	{
+		label: "Next.js",
+		value: "next"
+	},
+	{
 		label: "Node.js",
 		value: "node"
 	},
 	{
 		label: "Bun",
 		value: "bun"
-	},
-	{
-		label: "Cloudflare Workers",
-		value: "cloudflare"
-	},
-	{
-		label: "Next.js",
-		value: "nextjs"
 	}
 ] as const satisfies { label: string; value: string }[]
 

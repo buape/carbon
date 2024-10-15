@@ -50,7 +50,7 @@ path: package.json
         "typescript": "{{get versions "typescript"}}",
         "wrangler": "{{get versions "wrangler"}}"
     }
-    {{else if (eq runtime "nextjs")}}
+    {{else if (eq runtime "next")}}
     "scripts": {
         "build": "next build",
         "dev": "next dev --turbo",

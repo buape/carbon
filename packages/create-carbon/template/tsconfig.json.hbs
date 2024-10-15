@@ -3,17 +3,17 @@ path: tsconfig.json
 ---
 
 {
-	"include": ["src"{{#if (eq runtime "nextjs")}}, "next-env.d.ts", ".next/types/**/*.ts"{{/if}}],
-	"exclude": ["node_modules"{{#if (eq runtime "nextjs")}}, ".next"{{else}}, "dist"{{/if}}],
+	"include": ["src"{{#if (eq runtime "next")}}, "next-env.d.ts", ".next/types/**/*.ts"{{/if}}],
+	"exclude": ["node_modules"{{#if (eq runtime "next")}}, ".next"{{else}}, "dist"{{/if}}],
 	"compilerOptions": {
 		"strict": true,
 		"skipLibCheck": true,
-		{{#if (eq runtime "nextjs")}}
+		{{#if (eq runtime "next")}}
 		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		{{else}}
 		"lib": ["es2022"],
 		{{/if}}
-		{{#if (eq runtime "nextjs")}}
+		{{#if (eq runtime "next")}}
 		"noEmit": true,
 		"module": "ESNext",
 		"moduleResolution": "Bundler",

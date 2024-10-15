@@ -1,5 +1,5 @@
 {
-	"runtimeEquals": "nextjs",
+	"runtimeEquals": "next",
 	"templatePath": "carbon-wordmark.png",
 	"outputPath": "src/app/carbon-wordmark.png"
 }

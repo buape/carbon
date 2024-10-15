@@ -35,7 +35,7 @@ interface TemplateContext {
 	packageManager: string
 	todaysDate: string
 	plugins: Record<"linkedRoles", boolean>
-	versions: Record<string, string>,
+	versions: Record<string, string>
 }
 
 interface FrontMatter extends Record<string, string | undefined> {

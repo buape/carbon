@@ -5,7 +5,7 @@ import type { ServerOptions } from "../shared.js"
 export type Server = ReturnType<typeof Hono.serve>
 
 /**
- * Creates a Node server using the provided handle function and options
+ * Creates a Node.js server using the provided handle function and options
  * @param handle The handle function created by {@link createHandle}
  * @param options The server options including the port and hostname
  * @returns The created server instance

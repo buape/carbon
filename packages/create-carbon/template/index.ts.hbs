@@ -1,5 +1,5 @@
 ---
-{{#if (eq runtime "nextjs")}}
+{{#if (eq runtime "next")}}
 path: src/app/api/discord/[...slug]/route.ts
 {{else}}
 path: src/index.ts
@@ -19,10 +19,10 @@ import { createServer } from "@buape/carbon/adapters/node"
 import { createServer } from "@buape/carbon/adapters/bun"
 {{else if (eq runtime "cloudflare") }}
 import { createHandler } from "@buape/carbon/adapters/cloudflare"
-{{else if (eq runtime "nextjs") }}
+{{else if (eq runtime "next") }}
 import { createHandler } from "@buape/carbon/adapters/nextjs"
 {{/if}}
-{{#if (eq runtime "nextjs")}}
+{{#if (eq runtime "next")}}
 import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
 {{else}}
@@ -71,7 +71,7 @@ createServer(handle, { port: 3000 })
 {{else if (eq runtime "cloudflare")}}
 const handler = createHandler(handle)
 export default { fetch: handler }
-{{else if (eq runtime "nextjs")}}
+{{else if (eq runtime "next")}}
 const handler = createHandler(handle)
 export { handler as GET, handler as POST }
 {{/if}}

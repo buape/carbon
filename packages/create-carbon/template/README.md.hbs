@@ -8,18 +8,18 @@ path: README.md
 
 ### Setting Environment Variables
 
-First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "nextjs")}}`.env.local`{{else}}`.env`{{/if}} file.
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "next")}}`.env.local`{{else}}`.env`{{/if}} file.
 
 ### Start a Proxy
 
-Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`npx localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, set it as `BASE_URL="<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}"` in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "nextjs")}}`.env.local`{{else}}`.env`{{/if}} file.
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`npx localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, set it as `BASE_URL="<PUBLIC_URL>{{#if (eq runtime "next")}}/api/discord{{/if}}"` in your {{#if (eq runtime "cloudflare")}}`.dev.vars`{{else if (eq runtime "next")}}`.env.local`{{else}}`.env`{{/if}} file.
 
 > [!TIP]
 > You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
 
 ### Configuring Portal URLs
 
-Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL"  to `<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}/interactions`{{#if plugins.linkedRoles}} and the "Linked Roles Verification URL" to `<PUBLIC_URL>{{#if (eq runtime "nextjs")}}/api/discord{{/if}}/linked-roles/verify-user`{{/if}}.
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL"  to `<PUBLIC_URL>{{#if (eq runtime "next")}}/api/discord{{/if}}/interactions`{{#if plugins.linkedRoles}} and the "Linked Roles Verification URL" to `<PUBLIC_URL>{{#if (eq runtime "next")}}/api/discord{{/if}}/linked-roles/verify-user`{{/if}}.
 
 ### Invite your App
 
@@ -36,7 +36,7 @@ You're all set! You can now run your bot using `{{packageManager}} run dev`.
 
 Since you're deploying a Node.js project, you'll need a server to host your bot. You'll also need to set up [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) on your server.
 
-### initialize a Git Repository
+### Initialize a Git Repository
 
 You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
 
@@ -56,7 +56,7 @@ Now that you've prepared your environment, you can finally build and start your 
 
 Since you're deploying a Bun project, you'll need a server to host your bot. You'll also need to set up [Bun](https://bun.sh/) and [Git](https://git-scm.com/) on your server.
 
-### Transfer Project Files (Git)
+### Initialize a Git Repository
 
 You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
 
@@ -89,7 +89,7 @@ Before deploying your bot, you'll need to set your environment variables. This c
 Once you've set your environment variables, you can deploy your bot with the following command `{{packageManager}} run deploy`.
 
 
-{{else if (eq runtime "nextjs")}}
+{{else if (eq runtime "next")}}
 Your new app can be deployed anywhere you can run a Next.js app. For detailed instructions, refer to the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
 {{/if}}
 
