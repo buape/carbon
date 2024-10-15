@@ -1,5 +1,11 @@
 # @buape/carbon-request
 
+## 0.2.0
+
+### Minor Changes
+
+- 407d4d2: feat: Bump required node version to v20
+
 ## 0.1.1
 
 ### Patch Changes
