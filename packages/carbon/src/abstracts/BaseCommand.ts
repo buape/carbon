@@ -77,7 +77,8 @@ export abstract class BaseCommand {
 				name: this.name,
 				type: this.type,
 				description: this.description,
-				options: this.serializeOptions(),
+				default_member_permissions: this.serializeExtra().permissions,
+				options: this.serializeExtra().options,
 				integration_types: this.integrationTypes,
 				contexts: this.contexts
 			}
@@ -87,7 +88,7 @@ export abstract class BaseCommand {
 		const data: RESTPostAPIApplicationCommandsJSONBody = {
 			name: this.name,
 			type: this.type,
-			options: this.serializeOptions(),
+			options: this.serializeExtra().options,
 			integration_types: this.integrationTypes,
 			contexts: this.contexts
 		}
@@ -96,8 +97,11 @@ export abstract class BaseCommand {
 	}
 
 	/**
-	 * Serializes the options of the command into a JSON object that can be sent to Discord
+	 * Serializes additional command properties into a JSON object that can be sent to Discord
 	 * @internal
 	 */
-	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
+	abstract serializeExtra(): {
+		options: RESTPostAPIApplicationCommandsJSONBody["options"]
+		permissions?: RESTPostAPIApplicationCommandsJSONBody["default_member_permissions"]
+	}
 }
