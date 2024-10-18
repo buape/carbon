@@ -38,7 +38,7 @@ Let's start by adding Carbon to your project:
 <Step>
 ### Create a Client and Handle Function
 
-Next, create a handle function by passing a client factory to the [`createHandle`](https://carbon.buape.com/carbon/functions/createhandle) function. The factory should return an array of plugins, the first being the client, and the rest being any other optional plugins you may want to add.
+Next, create a handle function by passing a client factory to the [`createHandle`](/api/functions/createhandle) function. The factory should return an array of plugins, the first being the client, and the rest being any other optional plugins you may want to add.
 
 ```ts title="src/index.ts"
 import { createHandle, Client } from "@buape/carbon";
@@ -106,22 +106,22 @@ You'll now need to set up an adapter to wrap your handle function to work with y
 <Cards>
     <Card
         title="Cloudflare Workers"
-        href="/carbon/adapters/cloudflare#manual-setup"
+        href="/adapters/cloudflare#manual-setup"
         description="Deploy your Carbon bot using Cloudflare Workers for a scalable, serverless environment."
     />
     <Card
         title="Next.js"
-        href="/carbon/adapters/next#manual-setup"
+        href="/adapters/next#manual-setup"
         description="Integrate your Carbon bot with a Next.js application for seamless server-side rendering."
     />
     <Card
         title="Node.js"
-        href="/carbon/adapters/node#manual-setup"
+        href="/adapters/node#manual-setup"
         description="Deploy your Carbon bot using Node.js for a flexible and robust server environment."
     />
     <Card
         title="Bun"
-        href="/carbon/adapters/bun#manual-setup"
+        href="/adapters/bun#manual-setup"
         description="Run your Carbon bot with Bun for a fast and lightweight alternative to Node.js."
     />
 </Cards>

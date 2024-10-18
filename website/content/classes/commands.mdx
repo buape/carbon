@@ -8,7 +8,7 @@ Commands are the main way to interact with your bot. They are used to handle use
 
 ## Creating a Command
 
-To create a command, you need to create a class that extends the [`Command`](/carbon/api/index/classes/Command) class. This class will handle the command and its functionality.
+To create a command, you need to create a class that extends the [`Command`](/api/index/classes/Command) class. This class will handle the command and its functionality.
 
 ```ts title="src/commands/ping.ts"
 import { Command, type CommandInteraction } from "@buape/carbon";
@@ -55,7 +55,7 @@ The `options` property is used to set the options of the command. These are only
 
 The `components` property is used to set the components of the command. You need to pass every component that you might use in the command, and they will be automatically registered.
 
-[See this page for more information about components.](/carbon/classes/components)
+[See this page for more information about components.](/classes/components)
 
 ### Automatic Defer
 

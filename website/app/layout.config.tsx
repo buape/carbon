@@ -28,7 +28,7 @@ export const baseOptions: HomeLayoutProps = {
 	links: [
 		{
 			text: "Showcase",
-			url: "/carbon/even-more/powered-by-carbon",
+			url: "/even-more/powered-by-carbon",
 			icon: <LayoutTemplateIcon />
 		},
 		{
