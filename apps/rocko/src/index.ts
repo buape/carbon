@@ -1,42 +1,66 @@
+import "dotenv/config"
 import { Client, createHandle } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
+import {
+	ApplicationRoleConnectionMetadataType,
+	LinkedRoles
+} from "@buape/carbon/linked-roles"
 import PingCommand from "./commands/ping.js"
+import AttachmentCommand from "./commands/testing/attachment.js"
+import ButtonCommand from "./commands/testing/button.js"
+import EphemeralCommand from "./commands/testing/ephemeral.js"
+import EverySelectCommand from "./commands/testing/every_select.js"
+import MessageCommand from "./commands/testing/message_command.js"
+import ModalCommand from "./commands/testing/modal.js"
+import OptionsCommand from "./commands/testing/options.js"
+import SubcommandsCommand from "./commands/testing/subcommand.js"
+import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
+import UserCommand from "./commands/testing/user_command.js"
 
 const handle = createHandle((env) => {
 	const client = new Client(
 		{
-			clientId: String(env.CLIENT_ID),
-			publicKey: String(env.PUBLIC_KEY),
-			token: String(env.DISCORD_TOKEN),
-			requestOptions: { queueRequests: false },
-			autoDeploy: false
+			baseUrl: String(env.BASE_URL),
+			deploySecret: String(env.DEPLOY_SECRET),
+			clientId: String(env.DISCORD_CLIENT_ID),
+			clientSecret: String(env.DISCORD_CLIENT_SECRET),
+			publicKey: String(env.DISCORD_PUBLIC_KEY),
+			token: String(env.DISCORD_BOT_TOKEN)
 		},
-		// TODO: Add other commands
-		[new PingCommand()]
+		[
+			// commands/*
+			new PingCommand(),
+			// commands/testing/*
+			new AttachmentCommand(),
+			new ButtonCommand(),
+			new EphemeralCommand(),
+			new EverySelectCommand(),
+			new MessageCommand(),
+			new ModalCommand(),
+			new OptionsCommand(),
+			new SubcommandsCommand(),
+			new SubcommandGroupsCommand(),
+			new UserCommand()
+		]
 	)
-
-	return [client]
-
-	// TODO: Test
-	// const linkedRoles = new LinkedRoles(client, {
-	// 	clientSecret: String(env.CLIENT_SECRET),
-	// 	baseUrl: "https://rocko.buape.dev",
-	// 	metadata: [
-	// 		{
-	// 			key: "is_shadow",
-	// 			name: "Whether you are Shadow",
-	// 			description: "You gotta be Shadow to get this one!",
-	// 			type: ApplicationRoleConnectionMetadataType.BooleanEqual
-	// 		}
-	// 	],
-	// 	metadataCheckers: {
-	// 		is_shadow: async (userId) => {
-	// 			return userId === "439223656200273932"
-	// 		}
-	// 	}
-	// })
-
-	// return [client, linkedRoles]
+	const linkedRoles = new LinkedRoles(client, {
+		metadata: [
+			{
+				key: "is_staff",
+				name: "Verified Staff",
+				description: "Whether the user is a verified staff member",
+				type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			}
+		],
+		metadataCheckers: {
+			is_staff: async (userId) => {
+				const isAllowed = ["439223656200273932"]
+				if (isAllowed.includes(userId)) return true
+				return false
+			}
+		}
+	})
+	return [client, linkedRoles]
 })
 
 createServer(handle, { port: 3000 })
