@@ -35,7 +35,11 @@ export type ClientOptions = {
 	 */
 	clientId: string
 	/**
-	 * The client secret of the app, used for protecting routes and plugins
+	 * The deploy secret of the app, used for protecting the deploy route
+	 */
+	deploySecret: string
+	/**
+	 * The client secret of the app
 	 */
 	clientSecret: string
 	/**

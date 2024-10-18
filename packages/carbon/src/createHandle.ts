@@ -44,7 +44,7 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 			const route = matchedRoutesByMethod.at(-1) as Route
 
 			const passedSecret = url.searchParams.get("secret")
-			if (route.protected && client.options.clientSecret !== passedSecret)
+			if (route.protected && client.options.deploySecret !== passedSecret)
 				return new Response("Unauthorized", { status: 401 })
 
 			try {
