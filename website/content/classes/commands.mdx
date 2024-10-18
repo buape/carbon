@@ -1,0 +1,84 @@
+---
+title: Commands
+description: Commands are the main way to interact with your bot, including Context Menu apps and slash commands.
+icon: SquareSlash
+---
+
+Commands are the main way to interact with your bot. They are used to handle user input and respond to it.
+
+## Creating a Command
+
+To create a command, you need to create a class that extends the [`Command`](/carbon/api/index/classes/Command) class. This class will handle the command and its functionality.
+
+```ts title="src/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+
+export default class PingCommand extends Command {
+    name = "ping"
+    description = "A simple ping command"
+
+    async run(interaction: CommandInteraction) {
+        await interaction.reply("Pong!")
+    }
+}
+```
+
+In this example, we have created a simple command that responds with "Pong" when the user runs the command.
+
+### Setting the Name and Description
+
+The `name` and `description` properties are used to set the name and description of the command. These are used in the help command and in the command list.
+
+### Setting the Type
+
+The `type` property is used to set the type of the command. This is used to determine which type of command it is. The available types are:
+
+-   `ChatInput`: This is a command that can be used in a chat input.
+-   `User`: This is a command that can be used in a user context.
+-   `Message`: This is a command that can be used in a message context.
+
+### Options
+
+The `options` property is used to set the options of the command. These are only used for chat input commands.
+
+-   `String`: Basic string input
+-   `Integer`: Integer input
+-   `Number`: Number input
+-   `Boolean`: Boolean input (with autocomplete to show True and False)
+-   `User`: User object (with autocomplete to show users in the server. Also accepts just an ID which will be resolved to a user object)
+-   `Channel`: Channel object (with autocomplete to show channels in the server. Also accepts just an ID which will be resolved to a channel object)
+-   `Role`: Role object (with autocomplete to show roles in the server. Also accepts just an ID which will be resolved to a role object)
+-   `Mentionable`: Mentionable object (with autocomplete to show both users and roles in the server)
+-   `Attachment`: File attachment
+
+### Adding your Components
+
+The `components` property is used to set the components of the command. You need to pass every component that you might use in the command, and they will be automatically registered.
+
+[See this page for more information about components.](/carbon/classes/components)
+
+### Automatic Defer
+
+The `defer` property is used to set whether the command should be deferred automatically. When a command is deferred, it will show a Loading state to the user, and you have 15 minutes to reply after that.
+
+## Wildcard Commands
+
+You can also create a wildcard command, which will be called when no command is found. This is useful for when you want to have a default command that is called when no other command is found, or for something like a maintenance mode for another bot that you can switch to.
+
+To create a wildcard command, you just have to create a command like normal, but set the name to `"*"`. This will be called when no other command is found.
+
+```ts title="src/commands/_maintenance.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+
+export default class MaintenanceCommand extends Command {
+    name = "*"
+    description = "Maintenance mode"
+    defer = false
+
+    async run(interaction: CommandInteraction) {
+        await interaction.reply(
+            "The bot is currently under maintenance. Please try again later."
+        )
+    }
+}
+```

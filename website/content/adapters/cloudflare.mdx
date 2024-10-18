@@ -1,0 +1,144 @@
+---
+title: Cloudflare Workers
+description: Learn how to set up and deploy your Carbon bot using Cloudflare Workers, including development and production environments.
+icon: Cloud
+---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Workflow, Server } from "lucide-react";
+
+## Setup
+
+<Cards>
+    <Card
+        icon={<Workflow />}
+        title="Automatic Setup"
+        href="/carbon/getting-started/basic-setup#automatic-setup"
+        description="Quickly set up your Carbon bot with minimal configuration using the automatic setup guide."
+    />
+    <Card
+        icon={<Server />}
+        title="Other Runtimes"
+        href="/carbon/adapters"
+        description="Explore how to set up and deploy your Carbon bot using different runtimes."
+    />
+</Cards>
+
+### Manual Setup
+
+This is a continuation of the [Basic Setup](/carbon/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
+
+<Steps>
+{/* Sync the step count with basic setup page */}
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+
+<Step>
+### Create a Handler
+
+Using the `@buape/carbon/adapters/cloudflare` package, you can create a handler that you can then export for Cloudflare Workers. This server will handle incoming interactions and route them to your bot.
+
+```ts
+import { createHandler } from '@buape/carbon/adapters/cloudflare'
+
+const handle = createHandle( ... )
+
+const handler = createHandler(handle)
+export default { fetch: handler }
+```
+
+</Step>
+</Steps>
+
+## Running in Development
+
+<Steps>
+<Step>
+### Set Environment Variables
+
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.dev.vars` file.
+
+</Step>
+
+<Step>
+### Start a Proxy
+
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, set it as `BASE_URL="<PUBLIC_URL>"` in your `.dev.vars` file.
+
+<PackageManager.Run executor scripts={["localtunnel"]} />
+
+<Callout type="info">
+You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+</Callout>
+</Step>
+
+<Step>
+### Configure Portal URLs
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
+
+</Step>
+
+<Step>
+### Invite your App
+
+You'll need to invite your app to your server to interact with it. To do so, navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+</Step>
+
+<Step>
+### Run the Bot
+
+You can now run your bot using:
+
+<PackageManager.Run scripts={["dev"]} />
+</Step>
+
+<Step>
+### Deploy Your Commands to Discord
+
+Finally, to deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This will send your command data to Discord to register them with your bot.
+</Step>
+
+</Steps>
+
+## Deploying to Production
+
+<Steps>
+<Step>
+### Prepare Environment
+
+Before deploying your bot, you'll need to set your environment variables. This can be done using the Wrangler CLI.
+
+<PackageManager.Run
+    executor
+    scripts={[
+        "wrangler secret put BASE_URL # e.g. https://<PROJECT_NAME>.<ACCOUNT_NAME>.workers.dev",
+        "wrangler secret put DISCORD_PUBLIC_KEY",
+        "wrangler secret put DISCORD_CLIENT_ID",
+        "wrangler secret put DISCORD_CLIENT_SECRET",
+        "wrangler secret put DISCORD_BOT_TOKEN",
+    ]}
+/>
+
+<Callout type="info">
+Remember to [configure your portal URLs](#configuring-portal-urls) to the URL of your Cloudflare Worker.
+</Callout>
+</Step>
+
+<Step>
+### Deploy to Cloudflare
+
+Once you've set your environment variables, you can deploy your bot with the following command:
+
+<PackageManager.Run executor scripts={["wrangler deploy"]} />
+</Step>
+
+<Callout type="info">
+Remember to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+</Callout>
+
+</Steps>

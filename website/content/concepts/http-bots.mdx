@@ -1,0 +1,35 @@
+---
+title: HTTP Bots
+description: Discover how HTTP bots work in Discord, their advantages and downsides, and how they enable compatibility with serverless environments.
+icon: Waypoints
+---
+
+If you've been active on Discord, you've likely encountered bots in various servers. These bots have been around almost since the beginning of Discord, and for the most part, they all rely on Discord's API Gateway (which runs over a WebSocket) for receiving events and interactions with the bot.
+
+However, there are some downsides to this approach for some applications, mainly that the API Gateway is, by nature, not compatible with serverless applications, as it requires a constant connection to be established. This makes it incompatible with serverless platforms like Vercel or Cloudflare Workers.
+
+This is where HTTP bots come into play. Instead of relying on a WebSocket connection, you can configure Discord to send interactions via HTTP. By adding an 'Interactions Endpoint URL' to your app's settings, you can opt-in to HTTP-based interactions, enabling compatibility with serverless environments.
+
+## How HTTP Bots Work
+
+HTTP bots operate by having Discord send a POST request to your interactions endpoint specifided in your app's settings. This request contains the interaction data that might have instead been sent over a websocket connection. The bot can then respond with a JSON object containing the response data.
+
+Although this method is slightly more complex than handling interactions directly, as it necessitates an additional request, it offers several benefits. For example, you can use platforms like Vercel to host your bot, which removes the need to manage WebSockets or other intricate setups.
+
+## Advantages of HTTP Bots
+
+-   Compatible with serverless applications and runtimes
+-   No need to worry about WebSockets
+-   Can be infinitely scalable through standard HTTP load balancing
+
+## Downsides of HTTP Bots
+
+HTTP bots have their own set of downsides, however, and the biggest one is that they will only work with interactions (slash commands, message components, modals, etc), and you don't get any of the other events such as GUILD_MEMBER_UPDATE or MESSAGE_CREATE.
+
+While this does mean you don't need to worry about intents or listening to events, it does mean that if you want to make a bot that interacts with other parts of Discord without users triggering your bot themselves, you'll need to use a Gateway-based bot.
+
+However, you can use a hybrid approach if you choose. You can have your bot use HTTP for all interactions, and use the Gateway for all other events. This way, you can still use HTTP for things like slash commands, but still have every other event that Discord gives you.
+
+## Learn More
+
+If you want to learn more about HTTP bots and how interactions work, you can check out the [Discord Developer Documentation](https://discord.com/developers/docs/interactions/overview) for more information.

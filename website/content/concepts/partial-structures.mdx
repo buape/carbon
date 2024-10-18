@@ -1,0 +1,11 @@
+---
+title: Partial Structures
+description: Learn about partial structures in the Discord API and how to handle them in Carbon, including retrieving full data and checking for undefined properties.
+icon: SquareDashed
+---
+
+Partials are a concept in the Discord API that allows the API to send only a subset of the data needed for a certain structure, such as just the ID of a user or the channel ID and message ID of a message. This helps reduce the amount of data transmitted, improving performance.
+
+In Carbon, you may sometimes encounter partials in elements like `Interaction#message`. This occurs because the original data for that interaction only included a partial. Fortunately, all classes that may be partial are correctly typed, and a boolean `partial` property, have a `fetch()` method that allows you to retrieve the full data for the class.
+
+Due to this, many properties on a structure, such as a `Message`, might be undefined. Therefore, you should always check for the presence of these properties before using them.

@@ -1,0 +1,39 @@
+---
+title: Replying vs Defering vs Achnowledging
+description: Understand the different ways to respond to Discord interactions, including replying, deferring, and acknowledging, and learn when to use each method.
+icon: MessageCircle
+---
+
+In the Discord interaction system, there are three ways to respond to an interaction:
+
+## 1. Replying
+
+This is the simplest way to respond to an interaction and is used for most commands. It can be done using the `reply` method on any interaction class. Keep in mind, an initial response, whether a reply or a defer, must be made within three seconds of receiving the interaction. If you don't respond within this time frame, the interaction will show an error as if you never replied.
+
+```ts
+async run(interaction: CommandInteraction) {
+    await interaction.reply({ content: "Hello, world!" })
+}
+```
+
+## 2. Deferring
+
+Deferring is used when you need more time to process an interaction. When you defer an interaction, the bot sends a loading state to the user. You then have up to 15 minutes to reply using the normal [reply](#1-replying) method.
+
+```ts
+async run(interaction: CommandInteraction) {
+    await interaction.defer()
+    // perform a time-consuming task
+    await interaction.reply({ content: "Hello, world!" })
+}
+```
+
+## 3. Acknowledging
+
+Acknowledging is used when you want to acknowledge an interaction without replying to it. This can only be used for message component-based interactions. It is useful for scenarios like game bots where you want to trigger an action and then only edit the original message.
+
+```ts
+async run(interaction: ButtonInteraction) {
+    await interaction.acknowledge()
+}
+```

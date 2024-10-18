@@ -28,7 +28,6 @@ export function load(app) {
 			if (!page.contents) return
 			const rel = relative(root, dirname(page.filename))
 			const parts = rel.split(sep)
-			const pkg = parts[1]
 			const dirParts = parts.slice(3)
 			const dir = dirParts.length ? `${dirParts.join("/")}/` : ""
 			page.contents = page.contents.replace(
@@ -36,7 +35,7 @@ export function load(app) {
 				(_, text, link) => {
 					let newLink = link
 					if (!link.includes("://")) {
-						const url = new URL(link, `http://e.com/${pkg}/api/${dir}`)
+						const url = new URL(link, `http://e.com/api/${dir}`)
 						newLink = `${url.pathname}${url.search}${url.hash}`
 						if (link.endsWith("/index")) {
 							newLink = link.slice(0, -6)

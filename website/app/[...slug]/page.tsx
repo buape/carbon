@@ -11,7 +11,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import type { ReactElement } from "react"
 import { utils } from "~/app/source"
-import { useMDXComponents } from "~/mdx-components"
+import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
 import { createMetadata } from "../og/[...slug]/metadata"
 

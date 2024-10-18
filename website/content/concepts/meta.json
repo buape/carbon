@@ -1,0 +1,5 @@
+{
+	"title": "Concepts & Guides",
+	"icon": "BookOpen",
+	"pages": ["http-bots", "interaction-responses", "partial-structures"]
+}
