@@ -1,5 +1,7 @@
-# Rocko
+## rocko
 
-Rocko is our test bot that runs for us to test our changes to the framework. It has implementations of every single feature of the framework somewhere in its code.
+This is a [Discord](https://discord.dev) app made with [Carbon](https://carbon.buape.com) and generated with the [`create-carbon`](https://npmjs.com/create-carbon) tool.
 
-To run it, copy the `.env.example` file to `.env` and fill in the values. Then run `pnpm dev`.
+To learn how to get started in development, deploy to production, or add commands, head over to the [documentation](https://carbon.buape.com/adapters/node) for your runtime.
+
+If you need any assistance, you can join our [Discord](https://go.buape.com/carbon) and ask in the [`#support`](https://discord.com/channels/1280628625904894072/1280630704308486174) channel.

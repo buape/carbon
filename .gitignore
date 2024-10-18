@@ -11,6 +11,5 @@ build/
 .next/
 .DS_Store
 packages/*/docs/
-website/content/*/api
+website/content/api
 website/.source
-!packages/create-carbon/templates/**/.env*

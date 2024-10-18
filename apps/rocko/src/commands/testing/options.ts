@@ -6,7 +6,7 @@ import {
 	type CommandOptions
 } from "@buape/carbon"
 
-export default class Options extends Command {
+export default class OptionsCommand extends Command {
 	name = "options"
 	description = "Options test"
 	defer = true
@@ -55,12 +55,6 @@ export default class Options extends Command {
 			required: false
 		},
 		{
-			name: "attachment",
-			type: ApplicationCommandOptionType.Attachment,
-			description: "DESCRIPTION",
-			required: false
-		},
-		{
 			name: "mentionable",
 			type: ApplicationCommandOptionType.Mentionable,
 			description: "DESCRIPTION",
@@ -75,22 +69,31 @@ export default class Options extends Command {
 		}
 	]
 
-	async run(interaction: CommandInteraction) {
-		await interaction.reply({
-			content: `Str: ${interaction.options.getString("str")}\nInt: ${interaction.options.getInteger("int")}\nNum: ${interaction.options.getNumber("num")}\nBool: ${interaction.options.getBoolean("bool")}\nUser: ${interaction.options.getUser("user")}\nChannel: ${interaction.options.getChannel("channel")}\nRole: ${interaction.options.getRole("role")}\nMentionable: ${interaction.options.getMentionable("mentionable")}\nAutocomplete: ${interaction.options.getString("autocomplete")}`
-		})
-	}
-
 	async autocomplete(interaction: AutocompleteInteraction) {
 		await interaction.respond([
 			{
 				name: "That thing you said",
-				value: `${interaction.options.getFocused() || "NONE"}`
+				value: String(interaction.options.getFocused()) || "No focused option"
 			},
 			{
-				name: "That thing you said but with a 4",
-				value: `4: ${interaction.options.getFocused() || "NONE"}`
+				name: "That thing you said but with a prefix",
+				value: `Prefix: ${String(interaction.options.getFocused())}`
 			}
 		])
+	}
+
+	async run(interaction: CommandInteraction) {
+		const str = interaction.options.getString("str")
+		const int = interaction.options.getInteger("int")
+		const num = interaction.options.getNumber("num")
+		const bool = interaction.options.getBoolean("bool")
+		const user = interaction.options.getUser("user")
+		const channel = await interaction.options.getChannel("channel")
+		const role = interaction.options.getRole("role")
+		const mentionable = await interaction.options.getMentionable("mentionable")
+
+		await interaction.reply(
+			`You provided the following options:\n str: ${str}\n int: ${int}\n num: ${num}\n bool: ${bool}\n user: ${user?.id}\n channel: ${channel?.id}\n role: ${role?.id}\n mentionable: ${mentionable?.id}`
+		)
 	}
 }

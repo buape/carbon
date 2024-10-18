@@ -4,30 +4,30 @@ import {
 	CommandWithSubcommands
 } from "@buape/carbon"
 
-class Sub1 extends Command {
-	name = "sub1"
+class Command1 extends Command {
+	name = "command1"
 	description = "Subcommand 1"
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({ content: "Subcommand 1" })
+		await interaction.reply({ content: "Subcommand 1" })
 	}
 }
 
-class Sub2 extends Command {
-	name = "sub2"
+class Command2 extends Command {
+	name = "command2"
 	description = "Subcommand 2"
 	defer = true
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({ content: "Subcommand 2" })
+		await interaction.reply({ content: "Subcommand 2" })
 	}
 }
 
-export default class Subc extends CommandWithSubcommands {
-	name = "subc"
+export default class SubcommandsCommand extends CommandWithSubcommands {
+	name = "subcommands"
 	description = "Subcommands!"
 	defer = true
 
-	subcommands = [new Sub1(), new Sub2()]
+	subcommands = [new Command1(), new Command2()]
 }

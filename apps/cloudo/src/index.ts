@@ -1,44 +1,64 @@
-import { Client, ClientMode } from "@buape/carbon"
-import type { ExecutionContext } from "@cloudflare/workers-types"
-
+import { Client, createHandle } from "@buape/carbon"
+import { createHandler } from "@buape/carbon/adapters/cloudflare"
+import {
+	ApplicationRoleConnectionMetadataType,
+	LinkedRoles
+} from "@buape/carbon/linked-roles"
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/testing/button.js"
-import SelectCommand from "./commands/testing/every_select.js"
+import EphemeralCommand from "./commands/testing/ephemeral.js"
+import EverySelectCommand from "./commands/testing/every_select.js"
+import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
-import Options from "./commands/testing/options.js"
-import Subc from "./commands/testing/subcommand.js"
-import SubcG from "./commands/testing/subcommandgroup.js"
+import OptionsCommand from "./commands/testing/options.js"
+import SubcommandsCommand from "./commands/testing/subcommand.js"
+import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
+import UserCommand from "./commands/testing/user_command.js"
 
-type Env = {
-	CLIENT_ID: string
-	PUBLIC_KEY: string
-	DISCORD_TOKEN: string
-}
-
-export default {
-	async fetch(request: Request, _env: Env, ctx: ExecutionContext) {
-		const client = new Client(
+const handle = createHandle((env) => {
+	const client = new Client(
+		{
+			baseUrl: String(env.BASE_URL),
+			deploySecret: String(env.DEPLOY_SECRET),
+			clientId: String(env.DISCORD_CLIENT_ID),
+			clientSecret: String(env.DISCORD_CLIENT_SECRET),
+			publicKey: String(env.DISCORD_PUBLIC_KEY),
+			token: String(env.DISCORD_BOT_TOKEN)
+		},
+		[
+			// commands/*
+			new PingCommand(),
+			// commands/testing/*
+			new ButtonCommand(),
+			new EphemeralCommand(),
+			new EverySelectCommand(),
+			new MessageCommand(),
+			new ModalCommand(),
+			new OptionsCommand(),
+			new SubcommandsCommand(),
+			new SubcommandGroupsCommand(),
+			new UserCommand()
+		]
+	)
+	const linkedRoles = new LinkedRoles(client, {
+		metadata: [
 			{
-				clientId: _env.CLIENT_ID,
-				publicKey: _env.PUBLIC_KEY,
-				token: _env.DISCORD_TOKEN,
-				mode: ClientMode.CloudflareWorkers
-			},
-			[
-				new ButtonCommand(),
-				new Options(),
-				new PingCommand(),
-				new SelectCommand(),
-				new Subc(),
-				new SubcG(),
-				new ModalCommand()
-			]
-		)
-		if (request.url.endsWith("/deploy")) {
-			await client.deployCommands()
-			return new Response("Deployed commands")
+				key: "is_staff",
+				name: "Verified Staff",
+				description: "Whether the user is a verified staff member",
+				type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			}
+		],
+		metadataCheckers: {
+			is_staff: async (userId) => {
+				const isAllowed = ["439223656200273932"]
+				if (isAllowed.includes(userId)) return true
+				return false
+			}
 		}
-		const response = await client.router.fetch(request, ctx)
-		return response
-	}
-}
+	})
+	return [client, linkedRoles]
+})
+
+const handler = createHandler(handle)
+export default { fetch: handler }

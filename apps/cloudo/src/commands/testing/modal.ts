@@ -31,10 +31,14 @@ class TestModal extends Modal {
 		new Row([new TextInputHeight()])
 	]
 
-	run(interaction: ModalInteraction) {
-		return interaction.reply({
-			content: `Hi ${interaction.fields.getText("name")}, you are ${interaction.fields.getText("age")} years old, and your favorite color is ${interaction.fields.getText("color")}. You are ${interaction.fields.getText("height") || "not"} tall.`
-		})
+	async run(interaction: ModalInteraction) {
+		const name = interaction.fields.getText("name")
+		const age = interaction.fields.getText("age")
+		const color = interaction.fields.getText("color")
+		const height = interaction.fields.getText("height") || "not"
+		await interaction.reply(
+			`Hi ${name}, you are ${age} years old, and your favorite color is ${color}. You are ${height} tall.`
+		)
 	}
 }
 

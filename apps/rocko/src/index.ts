@@ -1,56 +1,66 @@
-import { dirname } from "node:path"
-import { fileURLToPath } from "node:url"
-import { Client, ClientMode } from "@buape/carbon"
-import { loadCommands, serve } from "@buape/carbon-nodejs"
+import "dotenv/config"
+import { Client, createHandle } from "@buape/carbon"
+import { createServer } from "@buape/carbon/adapters/node"
 import {
 	ApplicationRoleConnectionMetadataType,
 	LinkedRoles
 } from "@buape/carbon/linked-roles"
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import PingCommand from "./commands/ping.js"
+import AttachmentCommand from "./commands/testing/attachment.js"
+import ButtonCommand from "./commands/testing/button.js"
+import EphemeralCommand from "./commands/testing/ephemeral.js"
+import EverySelectCommand from "./commands/testing/every_select.js"
+import MessageCommand from "./commands/testing/message_command.js"
+import ModalCommand from "./commands/testing/modal.js"
+import OptionsCommand from "./commands/testing/options.js"
+import SubcommandsCommand from "./commands/testing/subcommand.js"
+import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
+import UserCommand from "./commands/testing/user_command.js"
 
-if (
-	!process.env.CLIENT_ID ||
-	!process.env.PUBLIC_KEY ||
-	!process.env.DISCORD_TOKEN ||
-	!process.env.CLIENT_SECRET
-) {
-	throw new Error("Missing environment variables")
-}
-
-const client = new Client(
-	{
-		clientId: process.env.CLIENT_ID,
-		publicKey: process.env.PUBLIC_KEY,
-		token: process.env.DISCORD_TOKEN,
-		mode: ClientMode.NodeJS,
-		requestOptions: {
-			queueRequests: false
-		},
-		autoDeploy: true
-	},
-	await loadCommands("commands", __dirname)
-)
-
-serve(client, { port: 3000 })
-
-export const sleep = async (ms: number) => {
-	return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-new LinkedRoles(client, {
-	clientSecret: process.env.CLIENT_SECRET,
-	baseUrl: "http://localhost:3000",
-	metadata: [
+const handle = createHandle((env) => {
+	const client = new Client(
 		{
-			key: "is_shadow",
-			name: "Whether you are Shadow",
-			description: "You gotta be Shadow to get this one!",
-			type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			baseUrl: String(env.BASE_URL),
+			deploySecret: String(env.DEPLOY_SECRET),
+			clientId: String(env.DISCORD_CLIENT_ID),
+			clientSecret: String(env.DISCORD_CLIENT_SECRET),
+			publicKey: String(env.DISCORD_PUBLIC_KEY),
+			token: String(env.DISCORD_BOT_TOKEN)
+		},
+		[
+			// commands/*
+			new PingCommand(),
+			// commands/testing/*
+			new AttachmentCommand(),
+			new ButtonCommand(),
+			new EphemeralCommand(),
+			new EverySelectCommand(),
+			new MessageCommand(),
+			new ModalCommand(),
+			new OptionsCommand(),
+			new SubcommandsCommand(),
+			new SubcommandGroupsCommand(),
+			new UserCommand()
+		]
+	)
+	const linkedRoles = new LinkedRoles(client, {
+		metadata: [
+			{
+				key: "is_staff",
+				name: "Verified Staff",
+				description: "Whether the user is a verified staff member",
+				type: ApplicationRoleConnectionMetadataType.BooleanEqual
+			}
+		],
+		metadataCheckers: {
+			is_staff: async (userId) => {
+				const isAllowed = ["439223656200273932"]
+				if (isAllowed.includes(userId)) return true
+				return false
+			}
 		}
-	],
-	metadataCheckers: {
-		is_shadow: async (userId) => {
-			return userId === "439223656200273932"
-		}
-	}
+	})
+	return [client, linkedRoles]
 })
+
+createServer(handle, { port: 3000 })

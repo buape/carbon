@@ -11,6 +11,6 @@ export default class MessageCommand extends Command {
 	type = ApplicationCommandType.Message
 
 	async run(interaction: CommandInteraction) {
-		interaction.reply({ content: "Message command" })
+		await interaction.reply({ content: "Message command" })
 	}
 }

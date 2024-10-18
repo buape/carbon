@@ -1,8 +1,8 @@
 {
 	"name": "demo-rocko",
+	"private": true,
 	"type": "module",
-	"main": "./dist/src/index.js",
-	"private": "true",
+	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc-watch --onSuccess \"node .\"",
@@ -10,8 +10,11 @@
 	},
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
-		"@buape/carbon-nodejs": "workspace:*",
-		"@types/node": "^20"
+		"dotenv": "16.4.5"
 	},
-	"license": "MIT"
+	"devDependencies": {
+		"@types/node": "22.7.6",
+		"tsc-watch": "6.2.0",
+		"typescript": "5.6.3"
+	}
 }

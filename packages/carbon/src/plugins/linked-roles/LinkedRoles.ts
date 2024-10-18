@@ -1,3 +1,4 @@
+import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import {
 	ApplicationRoleConnectionMetadataType,
@@ -12,98 +13,129 @@ type Tokens = {
 	scope: string
 }
 
+// TODO: IMO, the metadata for this should be handled similarly to the client and its commands
+// That is passing an array of connection instances as the second argument to the constructor
+// That is, maybe, for another pr though
+// TODO: Improve the response messages
+
 /**
  * This class is the main class that is used for the linked roles feature of Carbon.
  * It handles all the additional routes and oauth.
  *
  * @example
  * ```ts
- * import { Client, LinkedRoles } from "@buape/carbon"
- *
- * const client = new Client({
- * 	clientId: "12345678901234567890",
- * 	publicKey: "c1a2f941ae8ce6d776f7704d0bb3d46b863e21fda491cdb2bdba6b8bc5fe7269",
- * 	token: "MTA4NjEwNTYxMDUxMDE1NTg1Nw.GNt-U8.OSHy-g-5FlfESnu3Z9MEEMJLHiRthXajiXNwiE"
- * })
- *
- * const allStaff = ["439223656200273932"]
- *
- * const linkedRoles = new LinkedRoles(client, {
- * 	clientSecret: "Bb7aZcvRN-BhrhY2qrUO6QzOK4SeqonG",
- * 	baseUrl: "https://example.com",
- * 	metadata: [
- * 		{
- * 			key: "is_staff",
- * 			name: "Verified Staff",
- * 			description: "Whether the user is a verified staff member",
- * 			type: ApplicationRoleConnectionMetadataType.BooleanEqual
- * 		},
- * 	],
- * 	metadataCheckers: {
- * 		is_staff: async (userId) => {
- * 			if (allStaff.includes(userId)) return true
- * 			return false
- * 		}
- * 	}
- * })
+* import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
+* import { LinkedRoles } from "@buape/carbon/linked-roles"
+*
+* const handle = createHandle((env) => {
+*     const client = new Client({ ... }, [ ... ])
+*     const linkedRoles = new LinkedRoles(client, {
+*         metadata: [
+*             {
+*                 key: 'is_staff',
+*                 name: 'Verified Staff',
+*                 description: 'Whether the user is a verified staff member',
+*                 type: ApplicationRoleConnectionMetadataType.BooleanEqual
+*             }
+*         ],
+*         metadataCheckers: {
+*             is_staff: async (userId) => {
+*                 const allStaff = ["439223656200273932"]
+*                 return allStaff.includes(userId)
+*             }
+*         }
+*     })
+*     return [client, linkedRoles]
+* })
  * ```
  */
-export class LinkedRoles {
+export class LinkedRoles extends Plugin {
 	client: Client
-	options: Required<LinkedRolesOptions>
+	options: LinkedRolesOptions
 
 	constructor(client: Client, options: LinkedRolesOptions) {
+		super()
+
 		this.client = client
 		this.options = { ...options }
-		this.setupRoutes()
-		this.setMetadata(this.options.metadata)
-		console.log(
-			`Linked roles initialized\nRedirect URL: ${this.options.baseUrl}/connect/callback\nVerification URL: ${this.options.baseUrl}/connect`
-		)
+		this.appendRoutes()
 	}
 
-	private setupRoutes() {
-		this.client.router.get("/connect", () => {
-			const response = new Response(null, {
-				status: 302
-			})
-			response.headers.set(
-				"Location",
-				`https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.options.baseUrl}/connect/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
-			)
-			return response
+	private appendRoutes() {
+		this.routes.push({
+			method: "GET",
+			path: "/linked-roles/deploy",
+			handler: this.handleDeployRequest.bind(this),
+			protected: true,
+			disabled: this.options.disableDeployRoute
 		})
+		this.routes.push({
+			method: "GET",
+			path: "/linked-roles/verify-user",
+			handler: this.handleUserVerificationRequest.bind(this),
+			disabled: this.options.disableVerifyUserRoute
+		})
+		this.routes.push({
+			method: "GET",
+			path: "/linked-roles/verify-user/callback",
+			handler: this.handleUserVerificationCallbackRequest.bind(this),
+			disabled: this.options.disableVerifyUserCallbackRoute
+		})
+	}
 
-		this.client.router.get("/connect/callback", async (req) => {
-			try {
-				const code = req.query.code
+	/**
+	 * Handle a request to deploy the linked roles to Discord
+	 * @returns A response
+	 */
+	public async handleDeployRequest() {
+		await this.setMetadata(this.options.metadata)
+		return new Response("OK", { status: 202 })
+	}
 
-				const tokens = await this.getOAuthTokens(code as string)
-				const authData = await (
-					await fetch("https://discord.com/api/v10/oauth2/@me", {
-						headers: {
-							Authorization: `Bearer ${tokens.access_token}`
-						}
-					})
-				).json()
-				if (!authData.user)
-					return new Response("", {
-						status: 307,
-						headers: {
-							Location: `${this.options.baseUrl}/connect`
-						}
-					})
-
-				const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
-
-				await this.updateMetadata(authData.user?.id, newMetadata, tokens)
-
-				return new Response("You can now close this tab.")
-			} catch (e) {
-				console.error(e)
-				return new Response("Error", { status: 500 })
+	/**
+	 * Handle the verify user request
+	 * @returns A response
+	 */
+	public async handleUserVerificationRequest() {
+		return new Response("Found", {
+			status: 302,
+			headers: {
+				Location: `https://discord.com/oauth2/authorize?client_id=${this.client.options.clientId}&redirect_uri=${encodeURIComponent(`${this.client.options.baseUrl}/linked-roles/verify-user/callback`)}&response_type=code&scope=identify+role_connections.write&prompt=none`
 			}
 		})
+	}
+
+	/**
+	 * Handle the verify user callback request
+	 * @param req The request
+	 * @returns A response
+	 */
+	public async handleUserVerificationCallbackRequest(req: Request) {
+		const url = new URL(req.url)
+		const code = String(url.searchParams.get("code"))
+
+		const tokens = await this.getOAuthTokens(code as string)
+		const authData = await (
+			await fetch("https://discord.com/api/v10/oauth2/@me", {
+				headers: {
+					Authorization: `Bearer ${tokens.access_token}`
+				}
+			})
+		).json()
+		if (!authData.user)
+			return new Response("", {
+				status: 307,
+				headers: {
+					Location: `${this.client.options.baseUrl}/connect`
+				}
+			})
+
+		const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
+
+		await this.updateMetadata(authData.user?.id, newMetadata, tokens)
+
+		// IDEA: Maybe we can redirect to a success page instead of just a message
+		return new Response("You can now close this tab.")
 	}
 
 	private async getMetadataFromCheckers(userId: string) {
@@ -143,10 +175,10 @@ export class LinkedRoles {
 		const url = "https://discord.com/api/v10/oauth2/token"
 		const body = new URLSearchParams({
 			client_id: this.client.options.clientId,
-			client_secret: this.options.clientSecret,
+			client_secret: this.client.options.clientSecret,
 			grant_type: "authorization_code",
 			code,
-			redirect_uri: `${this.options.baseUrl}/connect/callback`
+			redirect_uri: `${this.client.options.baseUrl}/linked-roles/verify-user/callback`
 		})
 
 		const response = await fetch(url, {

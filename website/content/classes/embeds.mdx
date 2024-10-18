@@ -1,0 +1,53 @@
+---
+title: Embeds
+description: Embeds are used to display rich content in messages.
+icon: SquareMenu
+---
+
+Embeds are used to display rich content in messages. They are created by extending the [`Embed`](/api/index/classes/Embed) class, and adding a `title`, `description`, and `url` property.
+
+```ts
+class TestEmbed extends Embed {
+    title = "Embed Test";
+    description = "This is an embed test";
+    url = "https://buape.com";
+}
+```
+
+Here we have created an embed with a title, description, and URL. You can use this embed in a message by using the [`Embed`](/api/index/classes/Embed) class.
+
+## Example Embed
+
+Here is an example embed with all the properties you can use:
+
+```ts
+class TestEmbed extends Embed {
+    title = "Embed Test"
+    description = "This is an embed test"
+    url = "https://carbon.buape.com"
+    timestamp = new Date().toString()
+    color = 16711680;
+    footer = {
+        text: "Footer Text",
+        icon: "https://cdn.buape.com/CarbonWordmark.png",
+    };
+    image = "https://cdn.buape.com/CarbonWordmark.png";
+    thumbnail = "https://cdn.buape.com/CarbonWordmark.png";
+    author = {
+        name: "Author Name",
+        icon: "https://buape.com",
+    };
+    fields = [
+        {
+            name: "Field 1",
+            value: "Value 1",
+            inline: true,
+        },
+        {
+            name: "Field 2",
+            value: "Value 2",
+            inline: true,
+        },
+    ];
+}
+```

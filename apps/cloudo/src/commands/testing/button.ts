@@ -13,27 +13,27 @@ export default class ButtonCommand extends Command {
 	description = "A simple command with a button!"
 	defer = true
 
-	components = [PingButton]
+	components = [ClickMeButton]
 
 	async run(interaction: CommandInteraction) {
 		await interaction.reply({
-			content: "Pong!",
-			components: [new Row([new PingButton(), new Link()])]
+			content: "Look at this button!",
+			components: [new Row([new ClickMeButton(), new DocsButton()])]
 		})
 	}
 }
 
-class PingButton extends Button {
-	customId = "ping"
-	label = "Ping"
-	style = ButtonStyle.Primary as typeof Button.prototype.style
+class ClickMeButton extends Button {
+	customId = "click-me"
+	label = "Click me!"
+	style = ButtonStyle.Primary
 
 	async run(interaction: ButtonInteraction) {
-		await interaction.reply({ content: "OMG YOU CLICKED THE BUTTON" })
+		await interaction.reply("You clicked the button!")
 	}
 }
 
-class Link extends LinkButton {
-	label = "Link"
-	url = "https://buape.com"
+class DocsButton extends LinkButton {
+	label = "Carbon Documentation"
+	url = "https://carbon.buape.com"
 }

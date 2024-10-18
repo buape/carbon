@@ -1,0 +1,72 @@
+---
+path: package.json
+---
+
+{
+    "name": "{{name}}",
+    "private": true,
+    "type": "module",
+    {{#if (eq runtime "node")}}
+    "main": "./dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc-watch --onSuccess \"node .\"",
+        "start": "node ."
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}",
+        "dotenv": "{{get versions "dotenv"}}"
+    },
+    "devDependencies": {
+        "@types/node": "{{get versions "@types/node"}}",
+        "tsc-watch": "{{get versions "tsc-watch"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{else if (eq runtime "bun")}}
+    "main": "./src/index.ts",
+    "scripts": {
+        "dev": "bun run . --watch",
+        "start": "bun run ."
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}"
+    },
+    "devDependencies": {
+        "@types/bun": "{{get versions "@types/bun"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{else if (eq runtime "cloudflare")}}
+    "main": "./src/index.ts",
+    "scripts": {
+        "dev": "wrangler dev --port 3000",
+        "deploy": "wrangler deploy",
+		"wrangler": "wrangler"
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}"
+    },
+    "devDependencies": {
+        "@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}",
+        "typescript": "{{get versions "typescript"}}",
+        "wrangler": "{{get versions "wrangler"}}"
+    }
+    {{else if (eq runtime "next")}}
+    "scripts": {
+        "build": "next build",
+        "dev": "next dev --turbo",
+        "start": "next start"
+    },
+    "dependencies": {
+        "@buape/carbon": "{{get versions "@buape/carbon"}}",
+        "next": "{{get versions "next"}}",
+        "react": "{{get versions "react"}}",
+        "react-dom": "{{get versions "react-dom"}}"
+    },
+    "devDependencies": {
+        "@types/node": "{{get versions "@types/node"}}",
+        "@types/react": "{{get versions "@types/react"}}",
+        "@types/react-dom": "{{get versions "@types/react-dom"}}",
+        "typescript": "{{get versions "typescript"}}"
+    }
+    {{/if}}
+}
