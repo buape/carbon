@@ -56,11 +56,9 @@ export function valueToUint8Array(
 
 		return new TextEncoder().encode(value)
 	}
-	try {
-		if (Buffer.isBuffer(value)) {
-			return new Uint8Array(value)
-		}
-	} catch (_) {}
+	if (Buffer.isBuffer(value)) {
+		return new Uint8Array(value)
+	}
 	if (value instanceof ArrayBuffer) {
 		return new Uint8Array(value)
 	}
