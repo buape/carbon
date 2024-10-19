@@ -37,6 +37,12 @@ This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide.
 <div class="step" style={{ display: 'hidden' }} />
 
 <Step>
+### Move Handle File
+
+Ensure the file where you export your handler is placed at `src/app/api/discord/[...slug]/route.ts`. The catch all slug is necessary for handling each of the routes Carbon creates.
+</Step>
+
+<Step>
 ### Create a Handler
 
 Using the `@buape/carbon/adapters/next` package, you can create a handler that you can then export for Next.js API routes. This server will handle incoming interactions and route them to your bot.
