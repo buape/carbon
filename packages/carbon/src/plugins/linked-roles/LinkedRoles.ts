@@ -24,29 +24,29 @@ type Tokens = {
  *
  * @example
  * ```ts
-* import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
-* import { LinkedRoles } from "@buape/carbon/linked-roles"
-*
-* const handle = createHandle((env) => {
-*     const client = new Client({ ... }, [ ... ])
-*     const linkedRoles = new LinkedRoles(client, {
-*         metadata: [
-*             {
-*                 key: 'is_staff',
-*                 name: 'Verified Staff',
-*                 description: 'Whether the user is a verified staff member',
-*                 type: ApplicationRoleConnectionMetadataType.BooleanEqual
-*             }
-*         ],
-*         metadataCheckers: {
-*             is_staff: async (userId) => {
-*                 const allStaff = ["439223656200273932"]
-*                 return allStaff.includes(userId)
-*             }
-*         }
-*     })
-*     return [client, linkedRoles]
-* })
+ * import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
+ * import { LinkedRoles } from "@buape/carbon/linked-roles"
+ *
+ * const handle = createHandle((env) => {
+ *     const client = new Client({ ... }, [ ... ])
+ *     const linkedRoles = new LinkedRoles(client, {
+ *         metadata: [
+ *             {
+ *                 key: 'is_staff',
+ *                 name: 'Verified Staff',
+ *                 description: 'Whether the user is a verified staff member',
+ *                 type: ApplicationRoleConnectionMetadataType.BooleanEqual
+ *             }
+ *         ],
+ *         metadataCheckers: {
+ *             is_staff: async (userId) => {
+ *                 const allStaff = ["439223656200273932"]
+ *                 return allStaff.includes(userId)
+ *             }
+ *         }
+ *     })
+ *     return [client, linkedRoles]
+ * })
  * ```
  */
 export class LinkedRoles extends Plugin {
