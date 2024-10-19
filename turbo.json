@@ -14,8 +14,10 @@
 			"persistent": true
 		},
 		"web:build": {
-			"dependsOn": ["build", "docs"]
+			"dependsOn": ["build", "docs"],
+			"outputs": ["website/.next/**"]
 		},
+		"web:start": {},
 		"web:dev": {},
 		"docs": {
 			"dependsOn": ["build", "^docs"],

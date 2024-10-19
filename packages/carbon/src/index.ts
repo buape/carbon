@@ -12,6 +12,7 @@ export * from "./abstracts/BaseGuildChannel.js"
 export * from "./abstracts/BaseGuildTextChannel.js"
 export * from "./abstracts/BaseInteraction.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
+export * from "./abstracts/Plugin.js"
 
 // ----- Classes -----
 export * from "./classes/Button.js"
@@ -39,6 +40,7 @@ export * from "./internals/ChannelSelectMenuInteraction.js"
 export * from "./internals/CommandHandler.js"
 export * from "./internals/CommandInteraction.js"
 export * from "./internals/ComponentHandler.js"
+export * from "./internals/FieldsHandler.js"
 export * from "./internals/MentionableSelectMenuInteraction.js"
 export * from "./internals/ModalHandler.js"
 export * from "./internals/ModalInteraction.js"
@@ -63,5 +65,9 @@ export * from "./structures/Message.js"
 export * from "./structures/Role.js"
 export * from "./structures/User.js"
 
-// ----- Types -----
+// ----- Misc -----
 export * from "discord-api-types/v10"
+export * from "./adapters/shared.js"
+export * from "./createHandle.js"
+export * from "./types.js"
+export * from "./utils.js"
