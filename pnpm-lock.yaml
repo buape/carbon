@@ -23,10 +23,10 @@ importers:
         version: 2.27.9
       '@turbo/gen':
         specifier: 2.1.3
-        version: 2.1.3(@types/node@22.7.6)(typescript@5.6.2)
+        version: 2.1.3(@types/node@22.7.6)(typescript@5.6.3)
       tsc-watch:
         specifier: 6.2.0
-        version: 6.2.0(typescript@5.6.2)
+        version: 6.2.0(typescript@5.6.3)
       turbo:
         specifier: 2.1.3
         version: 2.1.3
@@ -35,19 +35,19 @@ importers:
         version: 4.26.1
       typedoc:
         specifier: 0.26.8
-        version: 0.26.8(typescript@5.6.2)
+        version: 0.26.8(typescript@5.6.3)
       typedoc-plugin-frontmatter:
         specifier: 1.0.0
-        version: 1.0.0(typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.2)))
+        version: 1.0.0(typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.3)))
       typedoc-plugin-markdown:
         specifier: 4.2.9
-        version: 4.2.9(typedoc@0.26.8(typescript@5.6.2))
+        version: 4.2.9(typedoc@0.26.8(typescript@5.6.3))
       typedoc-plugin-mdn-links:
         specifier: 3.3.2
-        version: 3.3.2(typedoc@0.26.8(typescript@5.6.2))
+        version: 3.3.2(typedoc@0.26.8(typescript@5.6.3))
       typescript:
-        specifier: 5.6.2
-        version: 5.6.2
+        specifier: 5.6.3
+        version: 5.6.3
       vitest:
         specifier: 2.1.2
         version: 2.1.2(@types/node@22.7.6)
@@ -3712,11 +3712,6 @@ packages:
     peerDependencies:
       typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x || 5.0.x || 5.1.x || 5.2.x || 5.3.x || 5.4.x || 5.5.x || 5.6.x
 
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
@@ -5157,7 +5152,7 @@ snapshots:
 
   '@tsconfig/node16@1.0.4': {}
 
-  '@turbo/gen@2.1.3(@types/node@22.7.6)(typescript@5.6.2)':
+  '@turbo/gen@2.1.3(@types/node@22.7.6)(typescript@5.6.3)':
     dependencies:
       '@turbo/workspaces': 2.1.3
       commander: 10.0.1
@@ -5167,7 +5162,7 @@ snapshots:
       node-plop: 0.26.3
       picocolors: 1.0.1
       proxy-agent: 6.4.0
-      ts-node: 10.9.2(@types/node@22.7.6)(typescript@5.6.2)
+      ts-node: 10.9.2(@types/node@22.7.6)(typescript@5.6.3)
       update-check: 1.5.4
       validate-npm-package-name: 5.0.1
     transitivePeerDependencies:
@@ -7829,7 +7824,7 @@ snapshots:
       yn: 3.1.1
     optional: true
 
-  ts-node@10.9.2(@types/node@22.7.6)(typescript@5.6.2):
+  ts-node@10.9.2(@types/node@22.7.6)(typescript@5.6.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -7843,17 +7838,9 @@ snapshots:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 5.6.2
+      typescript: 5.6.3
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
-
-  tsc-watch@6.2.0(typescript@5.6.2):
-    dependencies:
-      cross-spawn: 7.0.3
-      node-cleanup: 2.1.2
-      ps-tree: 1.2.0
-      string-argv: 0.3.2
-      typescript: 5.6.2
 
   tsc-watch@6.2.0(typescript@5.6.3):
     dependencies:
@@ -7898,29 +7885,27 @@ snapshots:
 
   type-fest@4.26.1: {}
 
-  typedoc-plugin-frontmatter@1.0.0(typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.2))):
+  typedoc-plugin-frontmatter@1.0.0(typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.3))):
     dependencies:
-      typedoc-plugin-markdown: 4.2.9(typedoc@0.26.8(typescript@5.6.2))
+      typedoc-plugin-markdown: 4.2.9(typedoc@0.26.8(typescript@5.6.3))
       yaml: 2.5.1
 
-  typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.2)):
+  typedoc-plugin-markdown@4.2.9(typedoc@0.26.8(typescript@5.6.3)):
     dependencies:
-      typedoc: 0.26.8(typescript@5.6.2)
+      typedoc: 0.26.8(typescript@5.6.3)
 
-  typedoc-plugin-mdn-links@3.3.2(typedoc@0.26.8(typescript@5.6.2)):
+  typedoc-plugin-mdn-links@3.3.2(typedoc@0.26.8(typescript@5.6.3)):
     dependencies:
-      typedoc: 0.26.8(typescript@5.6.2)
+      typedoc: 0.26.8(typescript@5.6.3)
 
-  typedoc@0.26.8(typescript@5.6.2):
+  typedoc@0.26.8(typescript@5.6.3):
     dependencies:
       lunr: 2.3.9
       markdown-it: 14.1.0
       minimatch: 9.0.5
       shiki: 1.18.0
-      typescript: 5.6.2
+      typescript: 5.6.3
       yaml: 2.5.1
-
-  typescript@5.6.2: {}
 
   typescript@5.6.3: {}
 
