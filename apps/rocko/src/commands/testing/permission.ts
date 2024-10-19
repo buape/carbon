@@ -1,10 +1,14 @@
-import { Command, PermissionFlagsBits, type CommandInteraction } from "@buape/carbon"
+import {
+	Command,
+	PermissionFlags,
+	PermissionFlagsBits,
+	type CommandInteraction
+} from "@buape/carbon"
 
 export default class PermissionCommand extends Command {
 	name = "permission"
 	description = "A simple command to check permission"
-    permissions = PermissionFlagsBits.Administrator
-	defer = false
+	permissions = PermissionFlagsBits.Administrator
 
 	async run(interaction: CommandInteraction) {
 		return interaction.reply({

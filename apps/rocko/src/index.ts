@@ -12,6 +12,7 @@ import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
+import PermissionCommand from "./commands/testing/permission.js"
 import OptionsCommand from "./commands/testing/options.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
@@ -38,6 +39,7 @@ const handle = createHandle((env) => {
 			new MessageCommand(),
 			new ModalCommand(),
 			new OptionsCommand(),
+			new PermissionCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),
 			new UserCommand()
