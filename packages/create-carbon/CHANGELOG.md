@@ -1,5 +1,12 @@
 # create-carbon
 
+## 0.2.0
+
+### Minor Changes
+
+- 407d4d2: feat: Bump required node version to v20
+- 8b489db: New Architecture
+
 ## 0.1.1
 
 ### Patch Changes
