@@ -18,7 +18,7 @@
 		"start": "turbo run start --filter !demo-cloudo",
 		"test": "vitest",
 		"web": "pnpm run web:docs && turbo run web:dev",
-		"web:build": "turbo run web:build",
+		"web:build": "pnpm run web:docs && turbo run web:build",
 		"web:docs": "turbo run docs",
 		"web:start": "turbo run web:start"
 	},
