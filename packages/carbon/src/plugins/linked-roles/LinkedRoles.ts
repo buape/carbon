@@ -13,6 +13,19 @@ type Tokens = {
 	scope: string
 }
 
+declare module "../../classes/Client.d.ts" {
+	interface ClientOptions {
+		/**
+		 * The base URL of the app
+		 */
+		baseUrl: string
+		/**
+		 * The client secret of the app, used for OAuth
+		 */
+		clientSecret: string
+	}
+}
+
 // TODO: IMO, the metadata for this should be handled similarly to the client and its commands
 // That is passing an array of connection instances as the second argument to the constructor
 // That is, maybe, for another pr though
@@ -55,6 +68,11 @@ export class LinkedRoles extends Plugin {
 
 	constructor(client: Client, options: LinkedRolesOptions) {
 		super()
+
+		if (!client.options.baseUrl) throw new Error("Missing base URL")
+		if (!client.options.clientSecret) throw new Error("Missing client secret")
+		if (!client.options.deploySecret && !options.disableDeployRoute)
+			throw new Error("Missing deploy secret")
 
 		this.client = client
 		this.options = { ...options }

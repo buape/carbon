@@ -25,11 +25,7 @@ import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
 /**
  * The options used for initializing the client
  */
-export type ClientOptions = {
-	/**
-	 * The base URL of the app
-	 */
-	baseUrl: string
+export interface ClientOptions {
 	/**
 	 * The client ID of the app
 	 */
@@ -37,11 +33,7 @@ export type ClientOptions = {
 	/**
 	 * The deploy secret of the app, used for protecting the deploy route
 	 */
-	deploySecret: string
-	/**
-	 * The client secret of the app
-	 */
-	clientSecret: string
+	deploySecret?: string
 	/**
 	 * The public key of the app, used for interaction verification
 	 */
@@ -117,11 +109,11 @@ export class Client extends Plugin {
 	constructor(options: ClientOptions, commands: BaseCommand[]) {
 		super()
 
-		if (!options.baseUrl) throw new Error("Missing base URL")
-		if (!options.clientSecret) throw new Error("Missing client secret")
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
 		if (!options.token) throw new Error("Missing token")
+		if (!options.deploySecret && !options.disableDeployRoute) 
+			throw new Error("Missing deploy secret")
 
 		this.options = options
 		this.commands = commands
@@ -133,7 +125,7 @@ export class Client extends Plugin {
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
 
-		if (!this.options.disableAutoRegister) {
+		if (!options.disableAutoRegister) {
 			for (const command of commands) {
 				for (const component of command.components)
 					this.componentHandler.registerComponent(new component())
@@ -141,7 +133,7 @@ export class Client extends Plugin {
 					this.modalHandler.registerModal(new modal())
 			}
 		}
-		if (this.options.autoDeploy) {
+		if (options.autoDeploy) {
 			this.handleDeployRequest()
 		}
 	}
