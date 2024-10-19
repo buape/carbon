@@ -1,0 +1,40 @@
+---
+title: Modals
+description: Modals are popup forms that can be used to collect user input.
+icon: Captions
+---
+
+Modals are popup forms that can be used to collect user input. They are created by extending the [`Modal`](/api/index/classes/Modal) class, and adding a `title` and `components` property. All the components must be [`TextInput`](/api/index/classes/TextInput) classes.
+
+```ts title="src/commands/modal.ts"
+class ModalCommand extends Modal {
+    title = "Test Modal"
+    customId = "test-modal"
+
+	components = [
+		new Row([new TextInputHi()]),
+		new Row([new TextInputAge()])
+	]
+
+    async run(interaction: ModalInteraction) {
+        const name = interaction.fields.getText("name")
+        const age = interaction.fields.getText("age")
+        const color = interaction.fields.getText("color")
+        const height = interaction.fields.getText("height") || "not";
+        await interaction.reply(
+            `Hi ${name}, you are ${age} years old, and your favorite color is ${color}. You are ${height} tall.`
+        )
+    }
+}
+class TextInputHi extends TextInput {
+    label = "Tell me about your life"
+    customId = "life"
+    style = TextInputStyle.Paragraph
+}
+
+class TextInputAge extends TextInput {
+    label = "How old are you?"
+    customId = "age"
+    style = TextInputStyle.Short
+}
+```

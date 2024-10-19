@@ -1,7 +1,11 @@
 {
 	"$schema": "https://typedoc.org/schema.json",
 	"extends": ["../../typedoc.json"],
-	"entryPoints": ["src/index.ts", "src/plugins/*/index.ts"],
+	"entryPoints": [
+		"src/index.ts",
+		"src/plugins/*/index.ts",
+		"src/adapters/*/index.ts"
+	],
 	"name": "@buape/carbon",
 	"out": "docs",
 	"excludeExternals": true,

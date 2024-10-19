@@ -1,0 +1,14 @@
+{
+	"title": "Carbon Docs",
+	"root": true,
+	"pages": [
+		"getting-started",
+		"concepts",
+		"classes",
+		"adapters",
+		"plugins",
+		"even-more",
+		"--- API Reference ---",
+		"...api"
+	]
+}

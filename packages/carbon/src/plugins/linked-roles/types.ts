@@ -41,15 +41,6 @@ export enum ApplicationRoleConnectionMetadataType {
  */
 export type LinkedRolesOptions = {
 	/**
-	 * The client secret for the bot
-	 */
-	clientSecret: string
-	/**
-	 * The base URL of where you are hosting your bot.
-	 * This is used for redirect URLs to and from Discord's OAuth2 flow.
-	 */
-	baseUrl: string
-	/**
 	 * The metadata that you want to check for, and that should show to the end-user on Discord.
 	 */
 	metadata: LinkedRoleCriteria[]
@@ -63,6 +54,21 @@ export type LinkedRolesOptions = {
 	metadataCheckers: {
 		[name: string]: (userId: string) => Promise<number | boolean>
 	}
+	/**
+	 * Whether the deploy route should be disabled.
+	 * @default false
+	 */
+	disableDeployRoute?: boolean
+	/**
+	 * Whether the connect route should be disabled.
+	 * @default false
+	 */
+	disableVerifyUserRoute?: boolean
+	/**
+	 * Whether the connect callback route should be disabled.
+	 * @default false
+	 */
+	disableVerifyUserCallbackRoute?: boolean
 }
 
 /**

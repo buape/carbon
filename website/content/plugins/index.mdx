@@ -1,0 +1,9 @@
+---
+title: Plugins
+index: true
+---
+
+
+Plugins in Carbon are modular components that extend the functionality of the core system. They allow for the addition of specific features or integrations separate from the client itself. Each plugin encapsulates a distinct piece of functionality, such as handling specific types of requests, managing user roles, or integrating with external services.
+
+In Carbon, plugins are implemented as classes that extend the base [`Plugin`](/api/index/classes/Plugin) class, [`Client`](/api/index/classes/Client) itself is really a plugin. They can be instantiated and configured with various options to tailor their behavior to the needs of the application. For example, the [`LinkedRoles`](/api/index/plugins/linked-roles) plugin manages user roles and OAuth routes, providing a way to verify and assign roles based on specific criteria.

@@ -1,0 +1,129 @@
+---
+title: Basic Usage
+description: How to set up and configure a Carbon project, including both automatic and manual setup methods.
+icon: SwatchBook
+---
+
+## Automatic Setup
+
+We recommend starting a new Carbon project using [`create-carbon`](https://npmjs.com/package/create-carbon), which will set everything up automatically for you. To create a project, run:
+
+<PackageManager.Run executor scripts={["create-carbon@latest"]} />
+
+You'll be prompted to enter a project name, select a runtime, and configure some other options. Once you've answered all the questions, `create-carbon` will generate a new project for you.
+
+## Manual Setup
+
+If you prefer to set up a Carbon project manually, follow the steps below:
+
+import { Steps, Step } from "fumadocs-ui/components/steps";
+
+<Steps>
+
+<Step>
+### Set Up a TypeScript Project
+
+First, set up a new TypeScript project. You can follow the official [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html) for detailed instructions on how to get started.
+
+</Step>
+
+<Step>
+### Install the Package
+
+Let's start by adding Carbon to your project:
+
+<PackageManager.Install packages={["@buape/carbon"]} />
+</Step>
+
+<Step>
+### Create a Client and Handle Function
+
+Next, create a handle function by passing a client factory to the [`createHandle`](/api/functions/createhandle) function. The factory should return an array of plugins, the first being the client, and the rest being any other optional plugins you may want to add.
+
+```ts title="src/index.ts"
+import { createHandle, Client } from "@buape/carbon";
+
+const handle = createHandle((env) => {
+    const client = new Client(
+        {
+            baseUrl: String(env.BASE_URL),
+            clientId: String(env.DISCORD_CLIENT_ID),
+            clientSecret: String(env.DISCORD_CLIENT_SECRET),
+            publicKey: String(env.DISCORD_PUBLIC_KEY),
+            token: String(env.DISCORD_TOKEN),
+        },
+        []
+    )
+    return [client];
+});
+```
+
+<Callout type="info">
+    Setting environment variables will be covered in a later step.
+</Callout>
+
+</Step>
+
+<Step>
+### Create a Command
+
+Now we'll create a simple command that responds with "Hello!" when invoked. This command will serve as a basic example to demonstrate how to set up and handle interactions with your bot.
+
+```ts title="src/commands/hello.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+
+export default class HelloCommand extends Command {
+    name = "hello";
+    description = "Say hello to the bot";
+
+    async run(interaction: CommandInteraction) {
+        await interaction.reply("Hello!");
+    }
+}
+```
+
+Then, mount the command to your client to make it available for use. This step involves importing the command and adding it to the client's configuration.
+
+```ts title="src/index.ts"
+import HelloCommand from './commands/hello'
+
+const handle = createHandle((env) => {
+    const client = new Client(
+        { ... },
+        [HelloCommand]
+    )
+    return [client]
+})
+```
+
+</Step>
+
+<Step>
+### Use an Adapter
+
+You'll now need to set up an adapter to wrap your handle function to work with your runtime, pick an adapter from the list below to continue.
+
+<Cards>
+    <Card
+        title="Cloudflare Workers"
+        href="/adapters/cloudflare#manual-setup"
+        description="Deploy your Carbon bot using Cloudflare Workers for a scalable, serverless environment."
+    />
+    <Card
+        title="Next.js"
+        href="/adapters/next#manual-setup"
+        description="Integrate your Carbon bot with a Next.js application for seamless server-side rendering."
+    />
+    <Card
+        title="Node.js"
+        href="/adapters/node#manual-setup"
+        description="Deploy your Carbon bot using Node.js for a flexible and robust server environment."
+    />
+    <Card
+        title="Bun"
+        href="/adapters/bun#manual-setup"
+        description="Run your Carbon bot with Bun for a fast and lightweight alternative to Node.js."
+    />
+</Cards>
+</Step>
+</Steps>

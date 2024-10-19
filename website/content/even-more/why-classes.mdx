@@ -1,0 +1,104 @@
+---
+title: Why Classes?
+icon: Shapes
+---
+
+Hi, I'm Shadow, and I'm the designer and original developer of Carbon.
+
+When you compare Carbon to other frameworks, you may notice that Carbon is a bit different. While other frameworks are built around objects for commands and running functions for everything, Carbon is built around classes. Let's dig into the history and explore why I made this design decision when Carbon started in early 2024.
+
+## History of Carbon
+
+### Beginnings
+
+When I started making Discord bots for public use instead of for my personal servers, I created a library that I used based on other bots that I had worked on, as well as some of my own ideas (which can still be found at [`@buape/lib`](https://npm.im/@buape/lib). However, it felt very hard to use sometimes. If we wanted to add any features such as cooldowns or implementing permission checks at the command level, we had to modify the lib itself to support that, and it slowed down development time a lot. In fact, for [Kiai](https://kiai.app), we ended up forking the library into Kiai's repo itself so we could make those modifications, meaning any changes we made would have to be manually upstreamed to the library later on. As you can imagine, this development process often felt very slow and clunky.
+
+### CrossBuild
+
+After using that library for a while, I decided to make my own library and publish it, and I called it [CrossBuild](https://github.com/crossbuildjs/crossbuild). CrossBuild was "a library that empowers bot developers to build bots for Discord and Guilded at the same time."
+CrossBuild was designed around the concept of a base set of classes and then several extension plugins for each platform that CrossBuild supported, such as Discord Interactions and Guilded.
+
+However, several of the platforms I wanted to support, such as Guilded, had very incomplete or buggy APIs, and I grew increasingly frustrated with trying to use them. (For example, if you pass certain markdown strings to Guilded's API, such as `* * *`, codeblocks, or even the string `[object Object]`, the API would crash and give you a HTTP 500 error.)
+
+So, CrossBuild was archived, and I went back to working on other projects.
+
+### Buape Studio's Internal Bot
+
+At Buape Studios, we have an internal bot that handles all our emails, staff management, internal API, and several other tasks. It runs fully on Cloudflare Workers, and was my first time building out a full HTTP-based Discord bot from scratch. I didn't use any frameworks to build it, only the raw Discord API and typings from [`discord-api-types`](https://npm.im/discord-api-types). It was a really good experience. The code may have been messy, but it worked well and had several QOL features for me to use.
+
+Here are some snippets from the original version of the bot:
+
+```ts
+abstract class BaseCommand {
+    abstract name: string;
+    abstract description: string;
+    abstract guildOnly?: boolean;
+    abstract defer?: boolean;
+}
+
+export abstract class Command extends BaseCommand {
+    abstract run(
+        interaction: APIApplicationCommandInteraction,
+        env: Env
+    ): Promise<APIInteractionResponse | undefined>;
+}
+
+export abstract class CommandWithOptions extends Command {
+    abstract options: APIApplicationCommandBasicOption[];
+}
+
+export abstract class CommandWithAutocomplete extends CommandWithOptions {
+    abstract autocomplete(
+        interaction: APIApplicationCommandAutocompleteInteraction,
+        env: Env
+    ): Promise<APIApplicationCommandAutocompleteResponse | undefined>;
+}
+```
+
+```ts
+export default class Cmd implements CommandWithSubcommands {
+    name = "staff";
+    description = "Staff management commands";
+    guildOnly = true;
+
+    subcommands = [
+        new AddStaff(),
+        new RemoveStaff(),
+        new SyncStaff(),
+        new SetTimeZone(),
+    ];
+}
+
+class SyncStaff implements Command {
+    name = "sync";
+    description = "Sync staff roles with the database";
+    defer = true;
+
+    async run(
+        _interaction: APIApplicationCommandInteraction,
+        env: Env
+    ): Promise<APIInteractionResponse | undefined> {
+        await syncAllStaff(env);
+        return {
+            type: InteractionResponseType.ChannelMessageWithSource,
+            data: {
+                content: "Synced staff roles with the database",
+            },
+        };
+    }
+}
+```
+
+As you can see, this setup is very similar to how Carbon works today, and this concept of creating Commands through classes and extending them as needed was where Carbon's idea first started.
+
+### Carbon
+
+Now we get to Carbon. I spent about 5 months (off and on) designing and building the initial version of Carbon, bouncing feedback and ideas off of Codeize, and it was a lot different than building out our internal bot's methods, but used the same concepts and ideas. Whenever I added a new feature, extendability and modularity were always a priority, and I wanted to make sure that Carbon was as easy to use as possible.
+
+Every part of Carbon is built to be extendable. Want to add something to the client yourself? Just extend the client with your own properties and methods! Want to add extra properties to commands? Just extend them and add a custom constructor!
+
+## Feedback
+
+I've been using Carbon for a while now, and I've noticed that it's not perfect. We're always open to feedback and suggestions, so if you have any, please let me know! I'd love to hear about any bugs you find, or any features you'd like to see added.
+
+If you're interested in contributing to Carbon, you can check out the [Contributing Guide](/even-more/contributing) for more information, and join our [Discord](https://go.buape.com/Carbon) to get involved!

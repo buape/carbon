@@ -12,6 +12,10 @@
 		"./*": {
 			"types": "./dist/src/plugins/*/index.d.ts",
 			"import": "./dist/src/plugins/*/index.js"
+		},
+		"./adapters/*": {
+			"types": "./dist/src/adapters/*/index.d.ts",
+			"import": "./dist/src/adapters/*/index.js"
 		}
 	},
 	"scripts": {
@@ -23,9 +27,12 @@
 	"dependencies": {
 		"@buape/carbon-request": "workspace:*",
 		"@types/node": "^20",
-		"discord-api-types": "0.37.101",
-		"discord-verify": "1.2.0",
-		"itty-router": "5.0.18"
+		"discord-api-types": "0.37.101"
+	},
+	"optionalDependencies": {
+		"@cloudflare/workers-types": "4.20240919.0",
+		"@hono/node-server": "1.13.1",
+		"@types/bun": "^1.1.10"
 	},
 	"files": [
 		"dist",

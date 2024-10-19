@@ -1,0 +1,149 @@
+---
+title: Bun
+description: Learn how to set up and deploy your Carbon bot using the Bun runtime, including development and production environments.
+icon: Dessert
+---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Workflow, Server } from "lucide-react";
+
+## Setup
+
+<Cards>
+    <Card
+        icon={<Workflow />}
+        title="Automatic Setup"
+        href="/getting-started/basic-setup#automatic-setup"
+        description="Quickly set up your Carbon bot with minimal configuration using the automatic setup guide."
+    />
+    <Card
+        icon={<Server />}
+        title="Other Runtimes"
+        href="/adapters"
+        description="Explore how to set up and deploy your Carbon bot using different runtimes."
+    />
+</Cards>
+
+### Manual Setup
+
+This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
+
+<Steps>
+{/* Sync the step count with basic setup page */}
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+<div class="step" style={{ display: 'hidden' }} />
+
+<Step>
+### Create a Server
+
+Using the `@buape/carbon/adapters/bun` package, you can create a server to host your bot. This server will handle incoming interactions and route them to your bot.
+
+```ts
+import { createServer } from '@buape/carbon/adapters/bun'
+
+const handle = createHandle( ... )
+
+createServer(handle, { port: 3000 })
+```
+
+</Step>
+</Steps>
+
+## Running in Development
+
+<Steps>
+<Step>
+### Set Environment Variables
+
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.env` file.
+
+</Step>
+
+<Step>
+### Set Up a Proxy
+
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, set it as `BASE_URL="<PUBLIC_URL>"` in your `.env` file.
+
+<PackageManager.Run executor scripts={["localtunnel"]} />
+
+<Callout type="info">
+You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+</Callout>
+</Step>
+
+<Step>
+### Configure Portal URLs
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
+
+</Step>
+
+<Step>
+### Invite your App
+
+You'll need to invite your app to your server to interact with it. To do so, navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+</Step>
+
+<Step>
+### Run the Bot
+
+You can now run your bot using:
+
+<PackageManager.Run scripts={["dev"]} />
+</Step>
+
+<Step>
+### Deploy Your Commands to Discord
+
+Finally, to deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This will send your command data to Discord to register them with your bot.
+</Step>
+</Steps>
+
+## Deploying to Production
+
+<Steps>
+<Step>
+### Prepare a Server
+
+Since you're deploying a Bun project, you'll need a server to host your bot. You'll also need to set up [Bun](https://bun.sh/) and [Git](https://git-scm.com/) on your server.
+
+</Step>
+
+<Step>
+### Initialize a Git Repository
+
+You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
+
+<Callout type="warn">
+Make sure not to commit your `.env` file or any secrets to your repository.
+</Callout>
+</Step>
+
+<Step>
+### Prepare Environment
+
+Almost there! Now just like in development, you'll need to set up a proxy, configure your environment variables and set up your Discord app's URLs. Additionally, you'll need to install your dependencies using:
+
+<PackageManager.Install packages={[]} />
+</Step>
+
+<Step>
+### Start the Bot
+
+Now that you've prepared your environment, you can finally build and start your bot using:
+
+<PackageManager.Run scripts={["build", "start"]} />
+
+You may also want to set up a process manager like [PM2](https://npmjs.com/package/pm2) to keep your bot running in the background.
+
+</Step>
+
+<Callout type="info">
+Reminder to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+</Callout>
+
+</Steps>

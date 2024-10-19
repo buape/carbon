@@ -1,0 +1,35 @@
+---
+path: tsconfig.json
+---
+
+{
+	"include": ["src"{{#if (eq runtime "next")}}, "next-env.d.ts", ".next/types/**/*.ts"{{/if}}],
+	"exclude": ["node_modules"{{#if (eq runtime "next")}}, ".next"{{else}}, "dist"{{/if}}],
+	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
+		{{#if (eq runtime "next")}}
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		{{else}}
+		"lib": ["es2022"],
+		{{/if}}
+		{{#if (eq runtime "next")}}
+		"noEmit": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"allowJs": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"plugins": [{ "name": "next" }],
+		"jsx": "preserve",
+		"incremental": true,
+		"paths": { "~/*": ["src/*"] },
+		{{else}}
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		{{/if}}
+		"baseUrl": ".",
+		"outDir": "dist"
+	}
+}

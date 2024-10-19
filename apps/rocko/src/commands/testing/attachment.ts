@@ -1,14 +1,14 @@
 import { readFileSync } from "node:fs"
 import { Command, type CommandInteraction } from "@buape/carbon"
 
-export default class Attachment extends Command {
+export default class AttachmentCommand extends Command {
 	name = "attachment"
 	description = "Attachment test"
 	defer = true
 
 	async run(interaction: CommandInteraction) {
 		const file = new Blob([readFileSync("./kiai.png")])
-		interaction.reply(
+		await interaction.reply(
 			{
 				content: "Testing"
 			},

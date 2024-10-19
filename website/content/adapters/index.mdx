@@ -1,0 +1,66 @@
+---
+title: Adapters
+description: Explore the different runtimes supported by Carbon, including serverless options like Cloudflare Workers and traditional server environments like Node.js and Bun.
+---
+
+import { Cloud, PanelsTopLeft, Hexagon, Dessert } from "lucide-react";
+
+Carbon is designed to be flexible and adaptable to different server environments. Whether you prefer a serverless runtime like Cloudflare Workers, a traditional server environment like Node.js, or a lightweight alternative like Bun, Carbon functions the same across all runtimes. This means you can choose the runtime that best fits your needs without worrying about compatibility. Below, we compare serverless and traditional server environments to help you make an informed decision:
+
+-   **Serverless**: Serverless runtimes are a great choice if you want a bot that can scale automatically and handle a large number of interactions with low latency. Keep in mind that serverless runtimes may have limitations on execution time and memory usage, so make sure to choose a runtime that fits your bot's requirements.
+
+-   **Server**: Traditional server environments are a great choice if you want full control over your server environment and the ability to deploy your bot on any server. Keep in mind that you will need to manage your server environment, including scaling, monitoring, and maintenance.
+
+## Serverless Runtimes
+
+### Cloudflare Workers
+
+Cloudflare Workers is a quick and free option for hosting your bot, and is the primary runtime that we at Buape use Carbon on. It provides a scalable and globally distributed platform, ideal for handling a large number of interactions with low latency.
+
+### Next.js
+
+Next.js allows you to integrate your bot with your Next.js app, running Carbon on an API route, and can be deployed on Vercel. This is perfect for managing both your bot and web app in a single project.
+
+<Cards>
+    <Card
+        icon={<Cloud />}
+        title="Cloudflare Workers"
+        href="/adapters/cloudflare"
+        description="Deploy your Carbon bot using Cloudflare Workers for a scalable, serverless environment."
+    />
+    <Card
+        icon={<PanelsTopLeft />}
+        title="Next.js"
+        href="/adapters/next"
+        description="Integrate your Carbon bot with a Next.js application for seamless ingration with your website."
+    />
+</Cards>
+
+## Servers
+
+### Node.js
+
+Node.js is a flexible choice for running your bot on any server. It supports various hosting providers and offers full control over your server environment.
+
+### Bun
+
+Bun is a fast and lightweight alternative to Node.js, designed for improved performance and lower resource usage. It is ideal for developers prioritizing performance.
+
+<Cards>
+    <Card
+        icon={<Hexagon />}
+        title="Node.js"
+        href="/adapters/node"
+        description="Deploy your Carbon bot using Node.js for a flexible and robust server environment."
+    />
+    <Card
+        icon={<Dessert />}
+        title="Bun"
+        href="/adapters/bun"
+        description="Run your Carbon bot with Bun for a fast and lightweight alternative to Node.js."
+    />
+</Cards>
+
+## Other Runtimes
+
+If your preferred runtime is not listed, you can use the `handle` method to integrate Carbon with any server environment.
