@@ -112,7 +112,7 @@ export class Client extends Plugin {
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
 		if (!options.token) throw new Error("Missing token")
-		if (!options.deploySecret && !options.disableDeployRoute) 
+		if (!options.deploySecret && !options.disableDeployRoute)
 			throw new Error("Missing deploy secret")
 
 		this.options = options

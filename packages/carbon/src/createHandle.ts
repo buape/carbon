@@ -24,7 +24,7 @@ export function createHandle<Env extends PartialEnv = PartialEnv>(
 
 		return async (req: Request, ctx?: Context) => {
 			const method = req.method
-			const url = new URL(req.url)
+			const url = new URL(req.url, "http://localhost")
 			const pathname = //
 				resolveRequestPathname(new URL(client.options.baseUrl), url)
 			if (!pathname) return new Response("Not Found", { status: 404 })
