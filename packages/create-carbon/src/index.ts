@@ -79,6 +79,7 @@ if (doInstall === true) {
 	const depsSpinner = yoctoSpinner({ text: "Installing dependencies..." })
 	depsSpinner.start()
 	await runPackageManagerCommand("install", name)
+	depsSpinner.stop()
 }
 
 // ================================================ Done ================================================
