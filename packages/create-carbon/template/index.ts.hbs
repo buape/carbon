@@ -33,10 +33,14 @@ import ButtonCommand from "./commands/button.js"
 const handle = createHandle((env) => {
 	const client = new Client(
 		{
+			{{#if plugins.linkedRoles}}
 			baseUrl: String(env.BASE_URL),
+			{{/if}}
 			deploySecret: String(env.DEPLOY_SECRET),
 			clientId: String(env.DISCORD_CLIENT_ID),
+			{{#if plugins.linkedRoles}}
 			clientSecret: String(env.DISCORD_CLIENT_SECRET),
+			{{/if}}
 			publicKey: String(env.DISCORD_PUBLIC_KEY),
 			token: String(env.DISCORD_BOT_TOKEN)
 		},

@@ -40,7 +40,11 @@ import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@bu
 import { LinkedRoles } from "@buape/carbon/linked-roles"
 
 const handle = createHandle((env) => {
-    const client = new Client({ ... }, [ ... ])
+    const client = new Client({
+        // Add these options and environment variables
+        baseUrl: String(env.BASE_URL),
+        clientSecret: String(env.CLIENT_SECRET),
+    }, [ ... ])
     const linkedRoles = new LinkedRoles(client, {
         metadata: [
             {
