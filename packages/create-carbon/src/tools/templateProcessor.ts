@@ -49,7 +49,7 @@ interface FrontMatter extends Record<string, string | undefined> {
 export const processTemplate = async (
 	context: Omit<TemplateContext, "versions">
 ) => {
-	const templatePath = resolve(import.meta.dirname, "../../template")
+	const templatePath = resolve(import.meta.dirname, "../../../template")
 	debug("Processing template")
 	debug("Getting dependency versions")
 	const packageVersions = await getDependencyVersions()

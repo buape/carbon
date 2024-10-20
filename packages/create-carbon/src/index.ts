@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import * as p from "@clack/prompts"
 import yoctoSpinner from "yocto-spinner"
 import { type Runtime, runtimes } from "./runtimes.js"
