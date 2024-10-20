@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.6.1
+
+### Patch Changes
+
+- 5d43f99: refactor: change env vars and options requirements
+
 ## 0.6.0
 
 ### Minor Changes
