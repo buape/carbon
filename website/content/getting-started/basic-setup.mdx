@@ -89,7 +89,7 @@ import HelloCommand from './commands/hello'
 const handle = createHandle((env) => {
     const client = new Client(
         { ... },
-        [HelloCommand]
+        [new HelloCommand()]
     )
     return [client]
 })
