@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.2.1
+
+### Patch Changes
+
+- 5d43f99: fix: trying to use `__dirname` in es module
+
 ## 0.2.0
 
 ### Minor Changes
