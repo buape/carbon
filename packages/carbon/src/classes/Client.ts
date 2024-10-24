@@ -27,6 +27,10 @@ import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
  */
 export interface ClientOptions {
 	/**
+	 * The base URL of the app
+	 */
+	baseUrl: string
+	/**
 	 * The client ID of the app
 	 */
 	clientId: string
