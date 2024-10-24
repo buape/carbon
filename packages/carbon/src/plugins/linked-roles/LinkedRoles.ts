@@ -16,10 +16,6 @@ type Tokens = {
 declare module "../../classes/Client.d.ts" {
 	interface ClientOptions {
 		/**
-		 * The base URL of the app
-		 */
-		baseUrl: string
-		/**
 		 * The client secret of the app, used for OAuth
 		 */
 		clientSecret: string
