@@ -23,7 +23,7 @@ export type MessagePayload =
 			 * The settings for which mentions are allowed in the message
 			 */
 			allowedMentions?: {
-				parse?: ["roles", "users", "everyone"]
+				parse?: ("roles" | "users" | "everyone")[]
 				roles?: string[]
 				users?: string[]
 			}
