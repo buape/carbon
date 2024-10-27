@@ -16,6 +16,7 @@ import OptionsCommand from "./commands/testing/options.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
+import MentionsCommand from "./commands/testing/allow_mentions.js"
 
 const handle = createHandle((env) => {
 	const client = new Client(
@@ -40,7 +41,8 @@ const handle = createHandle((env) => {
 			new OptionsCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),
-			new UserCommand()
+			new UserCommand(),
+			new MentionsCommand()
 		]
 	)
 	const linkedRoles = new LinkedRoles(client, {
