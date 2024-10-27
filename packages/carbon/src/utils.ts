@@ -89,6 +89,7 @@ export const serializePayload = (
 	}
 	const data = {
 		...payload,
+		allowed_mentions: payload.allowedMentions,
 		embeds: payload.embeds?.map((embed) => embed.serialize()),
 		components: payload.components?.map((row) => row.serialize())
 	}
