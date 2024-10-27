@@ -13,6 +13,7 @@ A client must be created within your [`createHandle`](/api/index/functions/creat
 ```ts title="src/index.ts"
 const handle = createHandle((env) => {
     const client = new Client({
+        baseUrl: String(env.BASE_URL),
         deploySecret: String(env.DEPLOY_SECRET),
         clientId: String(env.CLIENT_ID),
         publicKey: String(env.PUBLIC_KEY),
@@ -24,6 +25,7 @@ const handle = createHandle((env) => {
 
 Here we have created a client with the following options:
 
+- `baseUrl`: The relative base URL of your app
 - `deploySecret`: The deploy secret of your bot, used as a password for deploying commands and other sensitive matters
 - `clientId`: The Discord client ID of your bot
 - `publicKey`: The Discord public key of your bot
