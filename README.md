@@ -37,4 +37,4 @@ To get started with Carbon, you can check out the [Getting Started](https://carb
 
 ## Contributing
 
-We welcome contributions to Carbon! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/carbon/helpful-guides/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
+We welcome contributions to Carbon! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/even-more/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
