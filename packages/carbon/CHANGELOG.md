@@ -1,5 +1,12 @@
 # @buape/carbon
 
+## 0.6.2
+
+### Patch Changes
+
+- e20d29c: fix: move base url option back
+- d5d1488: fix: send allowedMentions to discord in correct format
+
 ## 0.6.1
 
 ### Patch Changes

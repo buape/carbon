@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.2.2
+
+### Patch Changes
+
+- e20d29c: fix: move base url option back
+
 ## 0.2.1
 
 ### Patch Changes
