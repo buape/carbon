@@ -11,6 +11,7 @@
 		"web:export": "sh ./copy-api.sh && next export"
 	},
 	"dependencies": {
+		"@t3-oss/env-nextjs": "0.11.1",
 		"class-variance-authority": "0.7.0",
 		"fumadocs-core": "13.4.10",
 		"fumadocs-mdx": "10.0.2",
