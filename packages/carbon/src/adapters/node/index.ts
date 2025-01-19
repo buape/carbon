@@ -1,24 +1,21 @@
 import * as Hono from "@hono/node-server"
-import type { Handle } from "../../createHandle.js"
-import type { ServerOptions } from "../shared.js"
+import type { Client } from "../../index.js"
+import { createHandler } from "../fetch/index.js"
 
-export type Server = ReturnType<typeof Hono.serve>
+export type Server = Hono.ServerType
+export type ServerOptions = Omit<Parameters<typeof Hono.serve>[0], "fetch">
 
 /**
- * Creates a Node.js server using the provided handle function and options
- * @param handle The handle function created by {@link createHandle}
- * @param options The server options including the port and hostname
- * @returns The created server instance
- * @example
- * ```ts
- * const server = createServer(handle, { ... })
- * ```
+ * Creates a server for the client using Hono.serve under the hood
+ * @param client The Carbon client to create the server for
+ * @param options Additional options for the server
+ * @returns The server instance
  */
-export function createServer(handle: Handle, options: ServerOptions): Server {
-	const fetch = handle(process.env)
+export function createServer(client: Client, options: ServerOptions): Server {
+	const fetch = createHandler(client)
 	return Hono.serve({
-		fetch: (req) => fetch(req, {}),
-		port: options.port,
-		hostname: options.hostname
+		// Weird type issue with options.createServer ??
+		...(options as object),
+		fetch: (r) => fetch(r, {})
 	})
 }
