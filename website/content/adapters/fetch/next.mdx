@@ -45,14 +45,14 @@ Ensure the file where you export your handler is placed at `src/app/api/discord/
 <Step>
 ### Create a Handler
 
-Using the `@buape/carbon/adapters/next` package, you can create a handler that you can then export for Next.js API routes. This server will handle incoming interactions and route them to your bot.
+Using the `@buape/carbon/adapters/fetch` package, you can create a handler that you can then export for Next.js API routes. This will handle incoming interactions and route them to your bot.
 
 ```ts
-import { createHandler } from '@buape/carbon/adapters/next'
+import { createHandler } from '@buape/carbon/adapters/fetch'
 
-const handle = createHandle( ... )
+const client = new Client( ... )
 
-const handler = createHandler(handle)
+const handler = createHandler(client)
 export { handler as GET, handler as POST }
 ```
 
@@ -63,16 +63,9 @@ export { handler as GET, handler as POST }
 
 <Steps>
 <Step>
-### Set Environment Variables
-
-First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.env.local` file.
-
-</Step>
-
-<Step>
 ### Start a Proxy
 
-Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, you may want to set it as `BASE_URL="<PUBLIC_URL>/api/discord"` in your `.env.local` file.
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). This created public URL will be referred to as `PUBLIC_URL` in the following steps.
 
 <PackageManager.Run executor scripts={["localtunnel"]} />
 
@@ -82,13 +75,21 @@ You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
 </Step>
 
 <Step>
+### Set Environment Variables
+
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.env.local` file.
+
+<Callout type="warn">
+`BASE_URL` should be your public URL **plus the relative path** to your Next.js API routes, likely `/api/discord`.
+You can rename this variable if it conflicts with your existing environment variables.
+</Callout>
+
+</Step>
+
+<Step>
 ### Configure Portal URLs
 
 Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
-
-<Callout type="warn">
-`<BASE_URL>` refers to the public URL plus the relative path to your Next.js API routes, likely `/api/discord`.
-</Callout>
 
 </Step>
 

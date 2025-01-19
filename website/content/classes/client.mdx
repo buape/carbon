@@ -8,19 +8,14 @@ The main class that is used to use Carbon is the [`Client`](/api/index/classes/C
 
 ## Creating a Client
 
-A client must be created within your [`createHandle`](/api/index/functions/createHandle) factory. 
-
 ```ts title="src/index.ts"
-const handle = createHandle((env) => {
-    const client = new Client({
-        baseUrl: String(env.BASE_URL),
-        deploySecret: String(env.DEPLOY_SECRET),
-        clientId: String(env.CLIENT_ID),
-        publicKey: String(env.PUBLIC_KEY),
-        token: String(env.TOKEN),
-    }, [new PingCommand()])
-    return [client]
-})
+const client = new Client({
+    baseUrl: " ... ",
+    deploySecret: " ... ",
+    clientId: " ... ",
+    publicKey: " ... ",
+    token: " ... ",
+}, [new PingCommand()])
 ```
 
 Here we have created a client with the following options:

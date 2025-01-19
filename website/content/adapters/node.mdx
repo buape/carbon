@@ -1,6 +1,6 @@
 ---
 title: Node.js
-description: Learn how to set up and deploy your Carbon bot using Node.js, including development and production environments.
+description: Learn how to set up and deploy your Carbon bot using the Node.js runtime, including development and production environments.
 icon: Hexagon
 ---
 
@@ -24,7 +24,7 @@ import { Workflow, Server } from "lucide-react";
     />
 </Cards>
 
-### Manual Setup
+## Manual Setup
 
 This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
 
@@ -44,9 +44,9 @@ Using the `@buape/carbon/adapters/node` package, you can create a server to host
 ```ts
 import { createServer } from '@buape/carbon/adapters/node'
 
-const handle = createHandle( ... )
+const client = new Client( ... )
 
-createServer(handle, { port: 3000 })
+createServer(client, { port: 3000 })
 ```
 
 </Step>
@@ -145,7 +145,7 @@ You may also want to set up a process manager like [PM2](https://npmjs.com/packa
 </Step>
 
 <Callout type="info">
-Reminder to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+Remember to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
 </Callout>
 
 </Steps>

@@ -1,0 +1,107 @@
+---
+title: Fetch
+icon: Workflow
+---
+
+import { Step, Steps } from "fumadocs-ui/components/steps";
+import { Workflow, Server } from "lucide-react";
+
+## Fetch Request Handler
+
+A Carbon bot can be deployed in any environment or framework that supports the fetch request handler API. This flexibility ensures seamless integration across different setups without the need for custom adapters.
+
+```ts
+import { createHandler } from '@buape/carbon/adapters/fetch'
+
+const client = new Client( ... )
+
+const handler = createHandler(client)
+//      ^? ((req: Request) => Promise<Response>)
+// This new handler can be used with any fetch-compatible environment or framework
+```
+
+### Customizing Request Handling
+
+You can also extend this approach to customize routing and request handling for different paths or use cases.
+
+```ts
+const handler = createHandler(client)
+
+// Bun or other frameworks
+Bun.serve({
+  fetch(req: Request) {
+    const url = new URL(req.url)
+    if (url.startsWith('/api/discord')) {
+      return handler(req)
+    } else {
+      // Handle other requests
+    }
+  }
+})
+```
+
+## Running in Development
+
+How you run your Carbon bot in development depends on the environment or framework you're using. Here are some common setups:
+
+<Steps>
+<Step>
+### Start a Proxy
+
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). This created public URL will be referred to as `PUBLIC_URL` in the following steps.
+
+<PackageManager.Run executor scripts={["localtunnel"]} />
+
+<Callout type="info">
+You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+</Callout>
+</Step>
+
+<Step>
+### Set Environment Variables
+
+First things first, you'll need to grab your public URL and your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them into whatever environment variables file your setup uses.
+
+<Callout type="warn">
+`BASE_URL` should be your public URL plus the relative path - if any - to your bot's handler.
+You can rename this variable if it conflicts with your existing environment variables.
+</Callout>
+
+</Step>
+
+<Step>
+### Configure Portal URLs
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
+
+</Step>
+
+<Step>
+### Invite your App
+
+You'll need to invite your app to your server to interact with it. To do so, navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+</Step>
+
+<Step>
+### Run the Bot
+
+How you run your bot in development depends on the environment or framework you're using.
+</Step>
+
+<Step>
+### Deploy Your Commands to Discord
+
+Finally, to deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This will send your command data to Discord to register them with your bot.
+</Step>
+</Steps>
+
+## Deploying to Production
+
+Deploying your Carbon bot to production also depends on the environment or framework you're using. You'll need to refer to the specific documentation for your setup.
+
+<Callout type="info">
+Remember,
+- you'll need a public URL for Discord to access your bot
+- to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+</Callout>

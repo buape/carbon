@@ -36,29 +36,24 @@ Let's start by adding Carbon to your project:
 </Step>
 
 <Step>
-### Create a Client and Handle Function
+### Create a Client
 
-Next, create a handle function by passing a client factory to the [`createHandle`](/api/functions/createhandle) function. The factory should return an array of plugins, the first being the client, and the rest being any other optional plugins you may want to add.
+Next, create a new client instance by importing the `Client` class from the `@buape/carbon` package. The client requires a configuration object with your bot's credentials and an array of commands to register.
 
 ```ts title="src/index.ts"
-import { createHandle, Client } from "@buape/carbon";
+import { Client } from "@buape/carbon";
 
-const handle = createHandle((env) => {
-    const client = new Client(
-        {
-            baseUrl: String(env.BASE_URL),
-            deploySecret: String(env.DEPLOY_SECRET),
-            clientId: String(env.DISCORD_CLIENT_ID),
-            publicKey: String(env.DISCORD_PUBLIC_KEY),
-            token: String(env.DISCORD_TOKEN),
-        },
-        []
-    )
-    return [client];
-});
+const client = new Client({
+  baseUrl: process.env.BASE_URL,
+  deploySecret: process.env.DEPLOY_SECRET,
+  clientId: process.env.DISCORD_CLIENT_ID,
+  publicKey: process.env.DISCORD_PUBLIC_KEY,
+  token: process.env.DISCORD_TOKEN,
+}, [])
 ```
 
 <Callout type="info">
+The `deploySecret` is your own secret key used to verify requests to protected endpoints, such as the deploy commands endpoint, an endpoint that you do not want to be spammed.
 Setting environment variables will be covered in a later step.
 </Callout>
 
@@ -73,12 +68,12 @@ Now we'll create a simple command that responds with "Hello!" when invoked. This
 import { Command, type CommandInteraction } from "@buape/carbon";
 
 export default class HelloCommand extends Command {
-    name = "hello";
-    description = "Say hello to the bot";
+  name = "hello";
+  description = "Say hello to the bot";
 
-    async run(interaction: CommandInteraction) {
-        await interaction.reply("Hello!");
-    }
+  async run(interaction: CommandInteraction) {
+    await interaction.reply("Hello!");
+  }
 }
 ```
 
@@ -87,13 +82,10 @@ Then, mount the command to your client to make it available for use. This step i
 ```ts title="src/index.ts"
 import HelloCommand from './commands/hello'
 
-const handle = createHandle((env) => {
-    const client = new Client(
-        { ... },
-        [new HelloCommand()]
-    )
-    return [client]
-})
+const client = new Client(
+  { ... },
+  [new HelloCommand()]
+)
 ```
 
 </Step>
@@ -104,26 +96,31 @@ const handle = createHandle((env) => {
 You'll now need to set up an adapter to wrap your handle function to work with your runtime, pick an adapter from the list below to continue.
 
 <Cards>
-    <Card
-        title="Cloudflare Workers"
-        href="/adapters/cloudflare#manual-setup"
-        description="Deploy your Carbon bot using Cloudflare Workers for a scalable, serverless environment."
-    />
-    <Card
-        title="Next.js"
-        href="/adapters/next#manual-setup"
-        description="Integrate your Carbon bot with a Next.js application for seamless server-side rendering."
-    />
-    <Card
-        title="Node.js"
-        href="/adapters/node#manual-setup"
-        description="Deploy your Carbon bot using Node.js for a flexible and robust server environment."
-    />
-    <Card
-        title="Bun"
-        href="/adapters/bun#manual-setup"
-        description="Run your Carbon bot with Bun for a fast and lightweight alternative to Node.js."
-    />
+  <Card
+    title="Cloudflare Workers"
+    href="/adapters/cloudflare#manual-setup"
+    description="Deploy your Carbon bot using Cloudflare Workers for a scalable, serverless environment."
+  />
+  <Card
+    title="Next.js"
+    href="/adapters/next#manual-setup"
+    description="Integrate your Carbon bot with a Next.js application for seamless server-side rendering."
+  />
+  <Card
+    title="Node.js"
+    href="/adapters/node#manual-setup"
+    description="Deploy your Carbon bot using Node.js for a flexible and robust server environment."
+  />
+  <Card
+    title="Bun"
+    href="/adapters/bun#manual-setup"
+    description="Run your Carbon bot with Bun for a fast and lightweight alternative to Node.js."
+  />
+  <Card
+    title="More"
+    href="/adapters/fetch"
+    description="Explore more ways to set up and deploy your Carbon bot using different environments and frameworks."
+  />
 </Cards>
 </Step>
 </Steps>

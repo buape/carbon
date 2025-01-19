@@ -1,10 +1,10 @@
 import "./global.css"
 import { RootProvider } from "fumadocs-ui/provider"
 import { Rubik } from "next/font/google"
-import type { ReactNode } from "react"
-import { baseUrl, createMetadata } from "./og/[...slug]/metadata"
 import Script from "next/script"
+import type { ReactNode } from "react"
 import { env } from "~/env.mjs"
+import { baseUrl, createMetadata } from "./og/[...slug]/metadata"
 
 const rubik = Rubik({
 	subsets: ["latin"],

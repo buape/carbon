@@ -24,7 +24,7 @@ import { Workflow, Server } from "lucide-react";
     />
 </Cards>
 
-### Manual Setup
+## Manual Setup
 
 This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
 
@@ -37,19 +37,49 @@ This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide.
 <div class="step" style={{ display: 'hidden' }} />
 
 <Step>
-### Create a Handler
+### Create a Fetch Handler
 
 Using the `@buape/carbon/adapters/cloudflare` package, you can create a handler that you can then export for Cloudflare Workers. This server will handle incoming interactions and route them to your bot.
 
-```ts
-import { createHandler } from '@buape/carbon/adapters/cloudflare'
+```ts title="src/index.ts"
+import { createHandler } from '@buape/carbon/adapters/fetch'
 
-const handle = createHandle( ... )
+const client = new Client( ... )
 
-const handler = createHandler(handle)
+const handler = createHandler(client)
 export default { fetch: handler }
 ```
 
+</Step>
+
+<Step>
+### Create a Entry Point File
+
+To access environment variables globally in a Cloudflare Worker, Carbon uses a workaround by assigning the `process.env` object to the `globalThis` object before importing the main handler file. This approach allows you to access environment variables at the top level of your handler file, something that is not normally possible in Cloudflare Workers.
+
+```ts title="src/entry.ts"
+import type { ExecutionContext } from '@cloudflare/workers-types'
+
+export default {
+  fetch(req: Request, env: Record<string, string>, ctx: ExecutionContext) {
+		Reflect.set(globalThis, 'process', { env })
+		const handle = await import('./index.js')
+		return handle.default.fetch(req, ctx)
+  }
+}
+```
+</Step>
+
+<Step>
+### Add a Wrangler Configuration
+
+You'll need to create a `wrangler.toml` file in the root of your project to configure your Cloudflare Worker to use the entry point file you created. This file should look something like this:
+
+```toml title="wrangler.toml"
+name = " ... "
+main = "src/entry.ts"
+compatibility_date = " ... "
+```
 </Step>
 </Steps>
 
@@ -57,22 +87,22 @@ export default { fetch: handler }
 
 <Steps>
 <Step>
-### Set Environment Variables
-
-First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.dev.vars` file.
-
-</Step>
-
-<Step>
 ### Start a Proxy
 
-Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL,  you may want to set it as `BASE_URL="<PUBLIC_URL>"` in your `.dev.vars` file.
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). This created public URL will be referred to as `PUBLIC_URL` in the following steps.
 
 <PackageManager.Run executor scripts={["localtunnel"]} />
 
 <Callout type="info">
 You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
 </Callout>
+</Step>
+
+<Step>
+### Set Environment Variables
+
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.dev.vars` file.
+
 </Step>
 
 <Step>
@@ -116,6 +146,7 @@ Before deploying your bot, you'll need to set your environment variables. This c
 <PackageManager.Run
     executor
     scripts={[
+        "wrangler secret put BASE_URL",
         "wrangler secret put DISCORD_PUBLIC_KEY",
         "wrangler secret put DISCORD_CLIENT_ID",
         "wrangler secret put DISCORD_BOT_TOKEN",
