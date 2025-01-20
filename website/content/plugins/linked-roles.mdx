@@ -9,21 +9,21 @@ import { Steps, Step } from "fumadocs-ui/components/steps";
 Linked Roles are a handy feature of Discord that allows you to create roles that users have to meet certain criteria in order to claim those roles.
 
 <Cards>
-    <Card
-        title="Admin Standpoint"
-        description="Read more about Linked Roles from an admin standpoint."
-        href="https://support.discord.com/hc/en-us/articles/10388356626711-Connections-Linked-Roles-Admins"
-    />
-    <Card
-        title="User Standpoint"
-        description="Read more about Linked Roles from a user standpoint."
-        href="https://support.discord.com/hc/en-us/articles/8063233404823-Connections-Linked-Roles-Community-Members"
-    />
+  <Card
+    title="Admin Standpoint"
+    description="Read more about Linked Roles from an admin standpoint."
+    href="https://support.discord.com/hc/en-us/articles/10388356626711-Connections-Linked-Roles-Admins"
+  />
+  <Card
+    title="User Standpoint"
+    description="Read more about Linked Roles from a user standpoint."
+    href="https://support.discord.com/hc/en-us/articles/8063233404823-Connections-Linked-Roles-Community-Members"
+  />
 </Cards>
 
 ## Usage
 
-Linked Roles are straightforward to use in Carbon, simplify create an instance and pass it to the plugins array in your `createHandle` function factory.
+Linked Roles are straightforward to use in Carbon, simplify create an instance and pass it to the plugins array in your `Client` constructor.
 
 <Callout type="warn">
 You can only have five metadata per application, and they apply across all guilds your app is in.
@@ -33,36 +33,30 @@ You can only have five metadata per application, and they apply across all guild
 <Step>
 ### Add a Linked Roles Instance
 
-To add Linked Roles to your bot, you'll need to create a new instance of the `LinkedRoles` class and pass it your client and some metadata. The metadata is an array of objects that define the criteria for each role. In this example, we're creating a role that can only be claimed by users who have the `is_staff` metadata set to `true`.
+To add Linked Roles to your bot, you'll need to create a new instance of the `LinkedRoles` class and pass it some metadata. The metadata is an array of objects that define the criteria for each role. In this example, we're creating a role that can only be claimed by users who have the `is_staff` metadata set to `true`.
 
 ```ts title="src/index.ts"
-import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
+import { Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
 import { LinkedRoles } from "@buape/carbon/linked-roles"
 
-const handle = createHandle((env) => {
-    const client = new Client({
-        // Add these options and environment variables
-        baseUrl: String(env.BASE_URL),
-        clientSecret: String(env.CLIENT_SECRET),
-    }, [ ... ])
-    const linkedRoles = new LinkedRoles(client, {
-        metadata: [
-            {
-                key: 'is_staff',
-                name: 'Verified Staff',
-                description: 'Whether the user is a verified staff member',
-                type: ApplicationRoleConnectionMetadataType.BooleanEqual
-            }
-        ],
-	    metadataCheckers: {
-		    is_staff: async (userId) => {
-                const allStaff = ["439223656200273932"]
-                return allStaff.includes(userId)
-		    }
-	    }
-    })
-    return [client, linkedRoles]
+const linkedRoles = new LinkedRoles({
+  metadata: [
+    {
+      key: 'is_staff',
+      name: 'Verified Staff',
+      description: 'Whether the user is a verified staff member',
+      type: ApplicationRoleConnectionMetadataType.BooleanEqual
+    }
+  ],
+  metadataCheckers: {
+    is_staff: async (userId) => {
+      // Check if the user is a staff member
+      return true
+    }
+  }
 })
+
+const client = new Client({ ... }, [ ... ], [linkedRoles])
 ```
 </Step>
 

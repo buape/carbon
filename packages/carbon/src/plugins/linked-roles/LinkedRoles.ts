@@ -33,68 +33,70 @@ declare module "../../classes/Client.d.ts" {
  *
  * @example
  * ```ts
- * import { createHandle, Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
+ * import { Client, ApplicationRoleConnectionMetadataType } from "@buape/carbon"
  * import { LinkedRoles } from "@buape/carbon/linked-roles"
  *
- * const handle = createHandle((env) => {
- *     const client = new Client({ ... }, [ ... ])
- *     const linkedRoles = new LinkedRoles(client, {
- *         metadata: [
- *             {
- *                 key: 'is_staff',
- *                 name: 'Verified Staff',
- *                 description: 'Whether the user is a verified staff member',
- *                 type: ApplicationRoleConnectionMetadataType.BooleanEqual
- *             }
- *         ],
- *         metadataCheckers: {
- *             is_staff: async (userId) => {
- *                 const allStaff = ["439223656200273932"]
- *                 return allStaff.includes(userId)
- *             }
- *         }
- *     })
- *     return [client, linkedRoles]
+ * const linkedRoles = new LinkedRoles({
+ *   metadata: [
+ * 	   {
+ * 		   key: "is_staff",
+ * 		   name: "Verified Staff",
+ * 		   description: "Whether the user is a verified staff member",
+ * 		   type: ApplicationRoleConnectionMetadataType.BooleanEqual
+ * 	   }
+ *   ],
+ *   metadataCheckers: {
+ *     is_staff: async (userId) => {
+ *       const allStaff = ["439223656200273932"]
+ *       return allStaff.includes(userId)
+ *     }
+ *   }
  * })
+ *
+ * const client = new Client({ ...  }, [ ... ], [linkedRoles])
  * ```
  */
 export class LinkedRoles extends Plugin {
-	client: Client
+	client?: Client
 	options: LinkedRolesOptions
 
-	constructor(client: Client, options: LinkedRolesOptions) {
+	constructor(options: LinkedRolesOptions) {
 		super()
-
-		if (!client.options.baseUrl) throw new Error("Missing base URL")
-		if (!client.options.clientSecret) throw new Error("Missing client secret")
-		if (!client.options.deploySecret && !options.disableDeployRoute)
-			throw new Error("Missing deploy secret")
-
-		this.client = client
 		this.options = { ...options }
-		this.appendRoutes()
 	}
 
-	private appendRoutes() {
-		this.routes.push({
+	public registerClient(client: Client): void {
+		if (!client.options.baseUrl) throw new Error("Missing base URL")
+		if (!client.options.clientSecret) throw new Error("Missing client secret")
+		if (!client.options.deploySecret && !this.options.disableDeployRoute)
+			throw new Error("Missing deploy secret")
+		this.client = client
+	}
+
+	public registerRoutes(client: Client) {
+		client.routes.push({
 			method: "GET",
 			path: "/linked-roles/deploy",
 			handler: this.handleDeployRequest.bind(this),
 			protected: true,
 			disabled: this.options.disableDeployRoute
 		})
-		this.routes.push({
+		client.routes.push({
 			method: "GET",
 			path: "/linked-roles/verify-user",
 			handler: this.handleUserVerificationRequest.bind(this),
 			disabled: this.options.disableVerifyUserRoute
 		})
-		this.routes.push({
+		client.routes.push({
 			method: "GET",
 			path: "/linked-roles/verify-user/callback",
 			handler: this.handleUserVerificationCallbackRequest.bind(this),
 			disabled: this.options.disableVerifyUserCallbackRoute
 		})
+	}
+
+	private assertRegistered(): asserts this is { client: Client } {
+		if (!this.client) throw new Error("Client not registered")
 	}
 
 	/**
@@ -111,6 +113,7 @@ export class LinkedRoles extends Plugin {
 	 * @returns A response
 	 */
 	public async handleUserVerificationRequest() {
+		this.assertRegistered()
 		return new Response("Found", {
 			status: 302,
 			headers: {
@@ -125,6 +128,8 @@ export class LinkedRoles extends Plugin {
 	 * @returns A response
 	 */
 	public async handleUserVerificationCallbackRequest(req: Request) {
+		this.assertRegistered()
+
 		const url = new URL(req.url)
 		const code = String(url.searchParams.get("code"))
 
@@ -186,6 +191,8 @@ export class LinkedRoles extends Plugin {
 	}
 
 	private async getOAuthTokens(code: string) {
+		this.assertRegistered()
+
 		const url = "https://discord.com/api/v10/oauth2/token"
 		const body = new URLSearchParams({
 			client_id: this.client.options.clientId,
@@ -218,6 +225,8 @@ export class LinkedRoles extends Plugin {
 		metadata: Record<string, unknown>,
 		tokens: Tokens
 	) {
+		this.assertRegistered()
+
 		const url = `https://discord.com/api/v10/users/@me/applications/${this.client.options.clientId}/role-connection`
 		const response = await fetch(url, {
 			method: "PUT",
@@ -237,6 +246,8 @@ export class LinkedRoles extends Plugin {
 	}
 
 	private async setMetadata(data: typeof this.options.metadata) {
+		this.assertRegistered()
+
 		const response = await fetch(
 			`https://discord.com/api/v10/applications/${this.client.options.clientId}/role-connections/metadata`,
 			{

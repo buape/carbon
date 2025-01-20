@@ -1,12 +1,5 @@
 {
 	"title": "Adapters",
 	"icon": "Cable",
-	"pages": [
-		"--- Serverless ---",
-		"cloudflare",
-		"next",
-		"--- Server ---",
-		"node",
-		"bun"
-	]
+	"pages": ["fetch", "node", "bun"]
 }

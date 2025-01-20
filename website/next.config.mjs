@@ -15,6 +15,16 @@ const config = {
 			permanent: false
 		},
 		{
+			source: "/adapters/cloudflare",
+			destination: "/adapters/fetch/cloudflare",
+			permanent: false
+		},
+		{
+			source: "/adapters/next",
+			destination: "/adapters/fetch/next",
+			permanent: false
+		},
+		{
 			// Redirect old Carbon URLs to introduction page
 			source: "/carbon/:path*",
 			destination: "/getting-started/introduction",

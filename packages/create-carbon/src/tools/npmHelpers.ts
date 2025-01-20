@@ -46,10 +46,10 @@ const dependencies = {
 	typescript: undefined,
 	// Node
 	"@types/node": undefined,
+	dotenv: undefined,
 	"tsc-watch": undefined,
 	// Bun
 	"@types/bun": undefined,
-	dotenv: undefined,
 	// Cloudflare
 	wrangler: undefined,
 	"@cloudflare/workers-types": undefined,

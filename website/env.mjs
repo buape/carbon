@@ -5,11 +5,13 @@ export const env = createEnv({
 	extends: [],
 	shared: {},
 	server: {
-		NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+		NODE_ENV: z
+			.enum(["development", "production", "test"])
+			.default("development")
 	},
 	client: {},
 	runtimeEnv: {
-		NODE_ENV: process.env.NODE_ENV,
+		NODE_ENV: process.env.NODE_ENV
 	},
 	skipValidation:
 		!!process.env.CI ||

@@ -1,5 +1,5 @@
-import { Client, createHandle } from "@buape/carbon"
-import { createHandler } from "@buape/carbon/adapters/cloudflare"
+import { Client } from "@buape/carbon"
+import { createHandler } from "@buape/carbon/adapters/fetch"
 import {
 	ApplicationRoleConnectionMetadataType,
 	LinkedRoles
@@ -15,50 +15,62 @@ import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
 
-const handle = createHandle((env) => {
-	const client = new Client(
+const linkedRoles = new LinkedRoles({
+	metadata: [
 		{
-			baseUrl: String(env.BASE_URL),
-			deploySecret: String(env.DEPLOY_SECRET),
-			clientId: String(env.DISCORD_CLIENT_ID),
-			clientSecret: String(env.DISCORD_CLIENT_SECRET),
-			publicKey: String(env.DISCORD_PUBLIC_KEY),
-			token: String(env.DISCORD_BOT_TOKEN)
-		},
-		[
-			// commands/*
-			new PingCommand(),
-			// commands/testing/*
-			new ButtonCommand(),
-			new EphemeralCommand(),
-			new EverySelectCommand(),
-			new MessageCommand(),
-			new ModalCommand(),
-			new OptionsCommand(),
-			new SubcommandsCommand(),
-			new SubcommandGroupsCommand(),
-			new UserCommand()
-		]
-	)
-	const linkedRoles = new LinkedRoles(client, {
-		metadata: [
-			{
-				key: "is_staff",
-				name: "Verified Staff",
-				description: "Whether the user is a verified staff member",
-				type: ApplicationRoleConnectionMetadataType.BooleanEqual
-			}
-		],
-		metadataCheckers: {
-			is_staff: async (userId) => {
-				const isAllowed = ["439223656200273932"]
-				if (isAllowed.includes(userId)) return true
-				return false
-			}
+			key: "is_staff",
+			name: "Verified Staff",
+			description: "Whether the user is a verified staff member",
+			type: ApplicationRoleConnectionMetadataType.BooleanEqual
 		}
-	})
-	return [client, linkedRoles]
+	],
+	metadataCheckers: {
+		is_staff: async (userId) => {
+			const isAllowed = ["439223656200273932"]
+			if (isAllowed.includes(userId)) return true
+			return false
+		}
+	}
 })
 
-const handler = createHandler(handle)
+const client = new Client(
+	{
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		clientId: process.env.DISCORD_CLIENT_ID,
+		clientSecret: process.env.DISCORD_CLIENT_SECRET,
+		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		token: process.env.DISCORD_BOT_TOKEN
+	},
+	[
+		// commands/*
+		new PingCommand(),
+		// commands/testing/*
+		new ButtonCommand(),
+		new EphemeralCommand(),
+		new EverySelectCommand(),
+		new MessageCommand(),
+		new ModalCommand(),
+		new OptionsCommand(),
+		new SubcommandsCommand(),
+		new SubcommandGroupsCommand(),
+		new UserCommand()
+	],
+	[linkedRoles]
+)
+
+const handler = createHandler(client)
 export default { fetch: handler }
+
+declare global {
+	namespace NodeJS {
+		interface ProcessEnv {
+			BASE_URL: string
+			DEPLOY_SECRET: string
+			DISCORD_CLIENT_ID: string
+			DISCORD_CLIENT_SECRET: string
+			DISCORD_PUBLIC_KEY: string
+			DISCORD_BOT_TOKEN: string
+		}
+	}
+}

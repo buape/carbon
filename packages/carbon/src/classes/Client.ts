@@ -11,7 +11,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
-import { type Context, Plugin } from "../abstracts/Plugin.js"
+import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
@@ -76,7 +76,15 @@ export interface ClientOptions {
 /**
  * The main client used to interact with Discord
  */
-export class Client extends Plugin {
+export class Client {
+	/**
+	 * The routes that the client will handle
+	 */
+	routes: Route[] = []
+	/**
+	 * The plugins that the client has registered
+	 */
+	plugins: Plugin[] = []
 	/**
 	 * The options used to initialize the client
 	 */
@@ -109,10 +117,13 @@ export class Client extends Plugin {
 	 * Creates a new client
 	 * @param options The options used to initialize the client
 	 * @param commands The commands that the client has registered
+	 * @param plugins The plugins that the client should use
 	 */
-	constructor(options: ClientOptions, commands: BaseCommand[]) {
-		super()
-
+	constructor(
+		options: ClientOptions,
+		commands: BaseCommand[],
+		plugins: Plugin[] = []
+	) {
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
 		if (!options.token) throw new Error("Missing token")
@@ -121,13 +132,22 @@ export class Client extends Plugin {
 
 		this.options = options
 		this.commands = commands
-		this.appendRoutes()
+
+		// Remove trailing slashes from the base URL
+		options.baseUrl = options.baseUrl.replace(/\/+$/, "")
 
 		this.commandHandler = new CommandHandler(this)
 		this.componentHandler = new ComponentHandler(this)
 		this.modalHandler = new ModalHandler(this)
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
+
+		this.appendRoutes()
+		for (const plugin of plugins) {
+			plugin.registerClient?.(this)
+			plugin.registerRoutes?.(this)
+			this.plugins.push(plugin)
+		}
 
 		if (!options.disableAutoRegister) {
 			for (const command of commands) {

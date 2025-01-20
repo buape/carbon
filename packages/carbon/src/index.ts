@@ -1,5 +1,3 @@
-export * from "./createHandle.js"
-
 // ----- Abstracts -----
 export * from "./abstracts/AnySelectMenu.js"
 export * from "./abstracts/AnySelectMenuInteraction.js"
@@ -67,7 +65,5 @@ export * from "./structures/User.js"
 
 // ----- Misc -----
 export * from "discord-api-types/v10"
-export * from "./adapters/shared.js"
-export * from "./createHandle.js"
 export * from "./types.js"
 export * from "./utils.js"
