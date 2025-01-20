@@ -1,9 +1,12 @@
 name: CI
 
 on:
+    push:
+        branches:
+            - main
     merge_group:
         types: [checks_requested]
-    pull_request_target:
+    pull_request:
         types:
             - opened
             - synchronize
@@ -12,10 +15,21 @@ on:
             - "!renovate/web"
 
 jobs:
-    build:
-        name: Check for Successful Build
+    validate:
+        name: ${{ matrix.task.name }}
         timeout-minutes: 15
         runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                task:
+                    - name: Check Build
+                      run: pnpm run ci
+                    - name: Check Formatting
+                      run: biome ci .
+                    - name: Run Tests
+                      run: pnpm run test
+
         steps:
             - name: Check out code
               uses: actions/checkout@v4
@@ -23,31 +37,9 @@ jobs:
             - name: Setup
               uses: ./.github/actions/setup
 
-            - name: Build
-              run: pnpm run ci
-
-    biome:
-        name: Check Formatting
-        timeout-minutes: 15
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
             - name: Setup Biome
+              if: ${{ matrix.task.run == 'biome ci .' }}
               uses: biomejs/setup-biome@v2
-            - name: Run Biome
-              run: biome ci .
 
-    test:
-        name: Run Test Suites
-        timeout-minutes: 15
-        runs-on: ubuntu-latest
-        steps:
-            - name: Check out code
-              uses: actions/checkout@v4
-
-            - name: Setup
-              uses: ./.github/actions/setup
-
-            - name: Run tests
-              run: pnpm run test
+            - name: ${{ matrix.task.name }}
+              run: ${{ matrix.task.run }}
