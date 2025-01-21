@@ -106,8 +106,8 @@ importers:
         specifier: 1.13.7
         version: 1.13.7(hono@4.6.5)
       '@types/bun':
-        specifier: 1.1.17
-        version: 1.1.17
+        specifier: 1.1.18
+        version: 1.1.18
 
   packages/create-carbon:
     dependencies:
@@ -1426,8 +1426,8 @@ packages:
   '@types/acorn@4.0.6':
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
 
-  '@types/bun@1.1.17':
-    resolution: {integrity: sha512-zZt0Kao/8hAwNOXh4bmt8nKbMEd4QD8n7PeTGF+NZTVY5ouXhU/TX7jUj4He1p7mgY+WdplnU1B6MB1j17vdzg==}
+  '@types/bun@1.1.18':
+    resolution: {integrity: sha512-gtw6cIv/8Q530D0BmoYnjEzR65SjVq2SaUE0NeU6tbm7QBMsTZ61/NBNERtK/FUJaoi7PiteUohK7JcrXBCkvw==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -4995,7 +4995,7 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.6
 
-  '@types/bun@1.1.17':
+  '@types/bun@1.1.18':
     dependencies:
       bun-types: 1.1.44
     optional: true
