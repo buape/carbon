@@ -30,7 +30,7 @@ if (p.isCancel(name)) {
 	process.exit(1)
 }
 
-const runtime = await p.select<typeof runtimes, Runtime>({
+const runtime = await p.select<Runtime>({
 	message: "What runtime do you want to use?",
 	options: runtimes
 })

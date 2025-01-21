@@ -8,21 +8,9 @@ import { utils } from "~/app/source"
 const font = readFileSync("./app/og/[...slug]/Rubik-Regular.ttf")
 const fontBold = readFileSync("./app/og/[...slug]/Rubik-Bold.ttf")
 import Logo from "~/public/CarbonLogo.png"
-import { baseUrl } from "./metadata"
+import { baseUrl, metadataImage } from "./metadata"
 
-export function GET(
-	_: NextRequest,
-	{
-		params
-	}: {
-		params: {
-			slug: string[]
-		}
-	}
-): ImageResponse {
-	const page = utils.getPage(params.slug.slice(0, -1))
-	if (!page) notFound()
-
+export const GET = metadataImage.createAPI((page) => {
 	return generateOGImage({
 		primaryTextColor: "rgb(240,240,240)",
 		primaryColor: "rgb(145,234,228)",
@@ -51,7 +39,7 @@ export function GET(
 			}
 		]
 	})
-}
+})
 
 export function generateStaticParams(): {
 	slug: string[]

@@ -6,7 +6,7 @@ import { docs, meta } from "~/.source"
 import { create } from "~/components/icon"
 
 export const utils = loader({
-	baseUrl: "",
+	baseUrl: "/",
 	icon(icon) {
 		if (icon && icon in icons)
 			return create({ icon: icons[icon as keyof typeof icons] })

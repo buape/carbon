@@ -1,4 +1,11 @@
+import { createMetadataImage } from "fumadocs-core/server"
 import type { Metadata } from "next/types"
+import { utils } from "~/app/source"
+
+export const metadataImage = createMetadataImage({
+	imageRoute: "/og",
+	source: utils
+})
 
 export function createMetadata(override: Metadata): Metadata {
 	return {
