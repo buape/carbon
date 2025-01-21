@@ -9,9 +9,9 @@ import {
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { utils } from "~/app/source"
+import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
 import { metadataImage } from "../og/[...slug]/metadata"
-import { useMDXComponents } from "~/components/mdx-components"
 
 type Props = {
 	params: Promise<{
