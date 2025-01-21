@@ -14,7 +14,7 @@
 			"persistent": true
 		},
 		"web:build": {
-			"outputs": ["website/.next/**"]
+			"outputs": ["website/out/**"]
 		},
 		"web:start": {},
 		"web:dev": {},

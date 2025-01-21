@@ -5,11 +5,11 @@ import defaultComponents from "fumadocs-ui/mdx"
 import type { MDXComponents } from "mdx/types"
 import { PackageManager } from "./package-manager"
 
-export function useMDXComponents(): MDXComponents {
+export function useMDXComponents() {
 	return {
 		...defaultComponents,
 
-		pre: ({ ref: _ref, ...props }) => (
+		pre: ({ ...props }) => (
 			<CodeBlock {...props}>
 				<Pre>{props.children}</Pre>
 			</CodeBlock>

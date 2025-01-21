@@ -1,5 +1,4 @@
-import { DocsLayout } from "fumadocs-ui/layout"
-import { getImageMeta } from "fumadocs-ui/og"
+import { DocsLayout } from "fumadocs-ui/layouts/docs"
 import {
 	DocsBody,
 	DocsCategory,
@@ -9,22 +8,19 @@ import {
 } from "fumadocs-ui/page"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import type { ReactElement } from "react"
 import { utils } from "~/app/source"
-import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
-import { createMetadata } from "../og/[...slug]/metadata"
+import { metadataImage } from "../og/[...slug]/metadata"
+import { useMDXComponents } from "~/components/mdx-components"
 
-interface Param {
-	slug: string[]
+type Props = {
+	params: Promise<{
+		slug: string[]
+	}>
 }
 
-export default function Page({
-	params
-}: {
-	params: Param
-}): ReactElement {
-	const page = utils.getPage(params.slug)
+export default async function Page({ params }: Props) {
+	const page = utils.getPage((await params).slug)
 
 	if (!page) notFound()
 
@@ -46,24 +42,23 @@ export default function Page({
 				<DocsTitle>{page.data.title}</DocsTitle>
 				<DocsDescription>{page.data.description}</DocsDescription>
 				<DocsBody>
+					{/* @ts-expect-error 2322 Typing doesn't like the namespace but it does work */}
 					<page.data.body components={useMDXComponents()} />
-					{page.data.index ? (
-						<DocsCategory page={page} pages={utils.getPages()} />
-					) : null}
+					{page.data.index ? <DocsCategory page={page} from={utils} /> : null}
 				</DocsBody>
 			</DocsPage>
 		</DocsLayout>
 	)
 }
 
-export function generateStaticParams(): Param[] {
+export function generateStaticParams() {
 	return utils.getPages().map((page) => ({
 		slug: page.slugs
 	}))
 }
 
-export function generateMetadata({ params }: { params: Param }): Metadata {
-	const page = utils.getPage(params.slug)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+	const page = utils.getPage((await params).slug)
 
 	if (!page) notFound()
 
@@ -71,17 +66,8 @@ export function generateMetadata({ params }: { params: Param }): Metadata {
 		page.data.description ??
 		"A modern and powerful framework for building HTTP Discord bots"
 
-	const image = getImageMeta("og", page.slugs)
-
-	return createMetadata({
+	return metadataImage.withImage(page.slugs, {
 		title: page.data.title,
-		description,
-		openGraph: {
-			url: `/${page.slugs.join("/")}`,
-			images: image
-		},
-		twitter: {
-			images: image
-		}
+		description
 	})
 }
