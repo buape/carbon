@@ -18,8 +18,13 @@
 		{
 			"matchFileNames": ["website/**"],
 			"groupName": "web"
+		},
+		{
+			"matchPackageNames": ["wrangler"],
+			"schedule": ["* * 1/14 * *"]
 		}
 	],
 	"labels": ["dependencies"],
+	"schedule": ["* * * * 7"],
 	"gitIgnoredAuthors": ["119761697+buapebot@users.noreply.github.com"]
 }
