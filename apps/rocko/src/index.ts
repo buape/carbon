@@ -17,6 +17,7 @@ import OptionsCommand from "./commands/testing/options.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
+import { ApplicationAuthorizedListener } from "./events/authorized.js"
 
 const linkedRoles = new LinkedRoles({
 	metadata: [
@@ -45,22 +46,25 @@ const client = new Client(
 		publicKey: process.env.DISCORD_PUBLIC_KEY,
 		token: process.env.DISCORD_BOT_TOKEN
 	},
-	[
-		// commands/*
-		new PingCommand(),
-		// commands/testing/*
-		new AttachmentCommand(),
-		new ButtonCommand(),
-		new EphemeralCommand(),
-		new EverySelectCommand(),
-		new MessageCommand(),
-		new ModalCommand(),
-		new OptionsCommand(),
-		new SubcommandsCommand(),
-		new SubcommandGroupsCommand(),
-		new UserCommand(),
-		new MentionsCommand()
-	],
+	{
+		commands: [
+			// commands/*
+			new PingCommand(),
+			// commands/testing/*
+			new AttachmentCommand(),
+			new ButtonCommand(),
+			new EphemeralCommand(),
+			new EverySelectCommand(),
+			new MessageCommand(),
+			new ModalCommand(),
+			new OptionsCommand(),
+			new SubcommandsCommand(),
+			new SubcommandGroupsCommand(),
+			new UserCommand(),
+			new MentionsCommand()
+		],
+		listeners: [new ApplicationAuthorizedListener()]
+	},
 	[linkedRoles]
 )
 
