@@ -143,7 +143,7 @@ export class Client {
 			commands?: BaseCommand[]
 			listeners?: Listener[]
 		},
-		plugins: Plugin[]
+		plugins: Plugin[] = []
 	) {
 		if (!options.clientId) throw new Error("Missing client ID")
 		if (!options.publicKey) throw new Error("Missing public key")
