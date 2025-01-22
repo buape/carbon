@@ -183,21 +183,6 @@ export class Client {
 		if (options.autoDeploy) {
 			this.handleDeployRequest()
 		}
-
-		this.log(
-			`Carbon initalized with routes:${this.routes
-				.filter((x) => !x.disabled)
-				.map((x) => {
-					return `\n\t${x.method} ${x.path}`
-				})}`
-		)
-	}
-
-	/**
-	 * Logger for the client, can be overridden to provide a custom logger
-	 */
-	public log(...args: unknown[]) {
-		console.log(...args)
 	}
 
 	private appendRoutes() {

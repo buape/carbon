@@ -68,6 +68,14 @@ const client = new Client(
 	[linkedRoles]
 )
 
+console.log(
+	`Carbon initalized with routes:${client.routes
+		.filter((x) => !x.disabled)
+		.map((x) => {
+			return `\n\t${x.method} ${x.path}`
+		})}`
+)
+
 createServer(client, { port: 3000 })
 
 declare global {

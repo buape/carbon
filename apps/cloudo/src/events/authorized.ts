@@ -13,9 +13,9 @@ export default class ApplicationAuthorizedListener extends Listener {
 		client: Client
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
-			client.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)
+			console.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)
 		} else {
-			client.log(`Added to user ${data.user.username} (${data.user.id})`)
+			console.log(`Added to user ${data.user.username} (${data.user.id})`)
 		}
 	}
 }
