@@ -15,6 +15,6 @@ export class EventHandler extends Base {
 	async handleEvent(payload: APIWebhookEvent) {
 		if (payload.type !== ApplicationWebhookType.Event) return
 		const listener = this.listeners.find((x) => x.type === payload.event.type)
-		if (listener) listener.handle(payload.event.data, this.client)
+		if (listener) return await listener.handle(payload.event.data, this.client)
 	}
 }

@@ -8,7 +8,7 @@ import {
 
 export default class ApplicationAuthorizedListener extends Listener {
 	type = ApplicationWebhookEventType.ApplicationAuthorized
-	override async handle(
+	async handle(
 		data: ListenerEventData<ApplicationWebhookEventType.ApplicationAuthorized>,
 		client: Client
 	) {
