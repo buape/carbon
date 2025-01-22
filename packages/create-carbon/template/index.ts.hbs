@@ -23,9 +23,11 @@ import { createHandler } from "@buape/carbon/adapters/fetch"
 {{#if (eq runtime "next")}}
 import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
+import AuthorizedEvent from "~/events/authorized"
 {{else}}
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/button.js"
+import ApplicationAuthorizedListener from "./events/authorized.js"
 {{/if}}
 
 {{#if plugins.linkedRoles}}
@@ -59,10 +61,15 @@ const client = new Client(
 		publicKey: process.env.DISCORD_PUBLIC_KEY,
 		token: process.env.DISCORD_BOT_TOKEN,
 	},
-	[
-		new PingCommand(),
-		new ButtonCommand()
-	]{{#if plugins.linkedRoles}},
+	{
+		commands: [
+			new PingCommand(),
+			new ButtonCommand()
+		], 
+		listeners: [
+			new ApplicationAuthorizedListener()
+		],
+	}{{#if plugins.linkedRoles}},
 	[linkedRoles]{{/if}}
 )
 

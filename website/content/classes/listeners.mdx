@@ -1,0 +1,58 @@
+---
+title: "Listeners" 
+description: "Receiving and responding to webhook events"
+icon: Rss
+---
+
+In addition to the regular interactions system, Discord also provides a way to trigger events in your application. 
+Webhook events are one-way events sent to your app over HTTP to notify you when an event occurs. 
+Unlike events that are sent over Gateway connections, events sent over webhooks are not realtime or guaranteed to be in order.
+
+In Carbon, we use Listeners to handle events from Discord. These events can include things like application authorization changes or entitlement updates.
+
+## Creating a Listener
+
+To create a listener, extend the `Listener` class and implement the required methods:
+
+```ts title="src/events/authorized.ts"
+import {
+	ApplicationIntegrationType,
+	ApplicationWebhookEventType,
+	type Client,
+	Listener,
+	type ListenerEventData
+} from "@buape/carbon"
+
+export default class ApplicationAuthorizedListener extends Listener {
+	type = ApplicationWebhookEventType.ApplicationAuthorized
+	override async handle(
+		data: ListenerEventData<ApplicationWebhookEventType.ApplicationAuthorized>,
+		client: Client
+	) {
+		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
+			console.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)
+		} else {
+			console.log(`Added to user ${data.user.username} (${data.user.id})`)
+		}
+	}
+}
+```
+
+## Registering Listeners
+
+
+Listeners need to be registered with your Carbon client when initializing it:
+
+```ts title="src/index.ts"
+import { Client } from "carbon"
+import ApplicationAuthorizedListener from "./events/authorized"
+
+const client = new Client({
+  // ... other options
+}, {
+	commands: [],
+	listeners: [
+		new ApplicationAuthorizedListener()
+	]
+})
+```

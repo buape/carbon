@@ -6,6 +6,8 @@ import {
 	type APIInteraction,
 	type APIRole,
 	type APIUser,
+	type APIWebhookEvent,
+	ApplicationWebhookType,
 	InteractionResponseType,
 	InteractionType,
 	Routes
@@ -15,12 +17,14 @@ import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../factories/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
+import { EventHandler } from "../internals/EventHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
 import { Guild } from "../structures/Guild.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
+import type { Listener } from "./Listener.js"
 
 /**
  * The options used for initializing the client
@@ -67,10 +71,15 @@ export interface ClientOptions {
 	 */
 	disableDeployRoute?: boolean
 	/**
-	 * Whether the interactions route should
+	 * Whether the interactions route should be disabled
 	 * @default false
 	 */
 	disableInteractionsRoute?: boolean
+	/**
+	 * Whether the events route should be disabled
+	 * @default false
+	 */
+	disableEventsRoute?: boolean
 }
 
 /**
@@ -94,6 +103,10 @@ export class Client {
 	 */
 	commands: BaseCommand[]
 	/**
+	 * The event listeners that the client has registered
+	 */
+	listeners: Listener[] = []
+	/**
 	 * The rest client used to interact with the Discord API
 	 */
 	rest: RequestClient
@@ -112,6 +125,11 @@ export class Client {
 	 * @internal
 	 */
 	modalHandler: ModalHandler
+	/**
+	 * The handler for events sent from Discord
+	 * @internal
+	 */
+	eventHandler: EventHandler
 
 	/**
 	 * Creates a new client
@@ -121,7 +139,10 @@ export class Client {
 	 */
 	constructor(
 		options: ClientOptions,
-		commands: BaseCommand[],
+		handlers: {
+			commands?: BaseCommand[]
+			listeners?: Listener[]
+		},
 		plugins: Plugin[] = []
 	) {
 		if (!options.clientId) throw new Error("Missing client ID")
@@ -131,7 +152,8 @@ export class Client {
 			throw new Error("Missing deploy secret")
 
 		this.options = options
-		this.commands = commands
+		this.commands = handlers.commands ?? []
+		this.listeners = handlers.listeners ?? []
 
 		// Remove trailing slashes from the base URL
 		options.baseUrl = options.baseUrl.replace(/\/+$/, "")
@@ -139,6 +161,7 @@ export class Client {
 		this.commandHandler = new CommandHandler(this)
 		this.componentHandler = new ComponentHandler(this)
 		this.modalHandler = new ModalHandler(this)
+		this.eventHandler = new EventHandler(this)
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
 
@@ -150,7 +173,7 @@ export class Client {
 		}
 
 		if (!options.disableAutoRegister) {
-			for (const command of commands) {
+			for (const command of this.commands) {
 				for (const component of command.components)
 					this.componentHandler.registerComponent(new component())
 				for (const modal of command.modals)
@@ -176,6 +199,12 @@ export class Client {
 			handler: this.handleInteractionsRequest.bind(this),
 			disabled: this.options.disableInteractionsRoute
 		})
+		this.routes.push({
+			method: "POST",
+			path: "/events",
+			handler: this.handleEventsRequest.bind(this),
+			disabled: this.options.disableEventsRoute
+		})
 	}
 
 	/**
@@ -196,11 +225,30 @@ export class Client {
 	/**
 	 * Handle an interaction request from Discord
 	 * @param req The request to handle
+	 * @returns A response
+	 */
+	public async handleEventsRequest(req: Request) {
+		const isValid = await this.validateDiscordRequest(req)
+		if (!isValid) return new Response("Unauthorized", { status: 401 })
+
+		const payload = (await req.json()) as APIWebhookEvent
+
+		// All ping webhooks should respond with 204 and an empty body
+		if (payload.type === ApplicationWebhookType.Ping)
+			return new Response(null, { status: 204 })
+
+		this.eventHandler.handleEvent(payload) // Events will never return anything to Discord
+		return new Response(null, { status: 204 })
+	}
+
+	/**
+	 * Handle an interaction request from Discord
+	 * @param req The request to handle
 	 * @param ctx The context for the request
 	 * @returns A response
 	 */
 	public async handleInteractionsRequest(req: Request, ctx: Context) {
-		const isValid = await this.validateInteractionRequest(req)
+		const isValid = await this.validateDiscordRequest(req)
 		if (!isValid) return new Response("Unauthorized", { status: 401 })
 
 		const interaction = (await req.json()) as APIInteraction
@@ -238,10 +286,10 @@ export class Client {
 	}
 
 	/**
-	 * Validate the interaction request
+	 * Validate a request from Discord
 	 * @param req The request to validate
 	 */
-	private async validateInteractionRequest(req: Request) {
+	private async validateDiscordRequest(req: Request) {
 		const body = await req.clone().text()
 		const signature = req.headers.get("X-Signature-Ed25519")
 		const timestamp = req.headers.get("X-Signature-Timestamp")
