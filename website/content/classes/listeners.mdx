@@ -14,7 +14,7 @@ In Carbon, we use Listeners to handle events from Discord. These events can incl
 
 To create a listener, extend the `Listener` class and implement the required methods:
 
-```ts title="src/listeners/AuthorizationListener"
+```ts title="src/events/authorized.ts"
 import {
 	ApplicationIntegrationType,
 	ApplicationWebhookEventType,
@@ -23,7 +23,7 @@ import {
 	type ListenerEventData
 } from "@buape/carbon"
 
-export class ApplicationAuthorizedListener extends Listener {
+export default class ApplicationAuthorizedListener extends Listener {
 	type = ApplicationWebhookEventType.ApplicationAuthorized
 	override async handle(
 		data: ListenerEventData<ApplicationWebhookEventType.ApplicationAuthorized>,
@@ -45,14 +45,14 @@ Listeners need to be registered with your Carbon client when initializing it:
 
 ```ts title="src/index.ts"
 import { Client } from "carbon"
-import { AuthorizationListener } from "./listeners/AuthorizationListener"
+import ApplicationAuthorizedListener from "./events/authorized"
 
 const client = new Client({
   // ... other options
 }, {
 	commands: [],
 	listeners: [
-		new AuthorizationListener()
+		new ApplicationAuthorizedListener()
 	]
 })
 ```
