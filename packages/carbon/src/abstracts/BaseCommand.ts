@@ -35,7 +35,6 @@ export abstract class BaseCommand {
 	abstract type: ApplicationCommandType
 	/**
 	 * The places this command can be used in
-	 * @beta API types are not finalized
 	 */
 	integrationTypes: ApplicationIntegrationType[] = [
 		ApplicationIntegrationType.GuildInstall,
@@ -43,7 +42,6 @@ export abstract class BaseCommand {
 	]
 	/**
 	 * The contexts this command can be used in
-	 * @beta API types are not finalized
 	 */
 	contexts: InteractionContextType[] = [
 		InteractionContextType.Guild,
