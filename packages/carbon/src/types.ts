@@ -37,3 +37,5 @@ export type MessagePayload =
 			tts?: boolean
 	  }
 	| string
+
+export type ArrayOrSingle<T> = T | T[]

@@ -4,6 +4,7 @@ import {
 } from "discord-api-types/v10"
 import {
 	ApplicationIntegrationType,
+	type ArrayOrSingle,
 	type BaseComponent,
 	InteractionContextType,
 	type Modal,
@@ -54,7 +55,7 @@ export abstract class BaseCommand {
 	 * The default permission that a user needs to have to use this command.
 	 * This can be overridden by server admins.
 	 */
-	permission?: (typeof Permission)[keyof typeof Permission]
+	permission?: ArrayOrSingle<(typeof Permission)[keyof typeof Permission]>
 
 	/**
 	 * The components that the command is able to use.
@@ -85,9 +86,11 @@ export abstract class BaseCommand {
 				options: this.serializeOptions(),
 				integration_types: this.integrationTypes,
 				contexts: this.contexts,
-				default_member_permissions: this.permission
-					? `${this.permission}`
-					: null
+				default_member_permissions: Array.isArray(this.permission)
+					? this.permission.reduce((a, p) => a | p, 0n).toString()
+					: this.permission
+						? `${this.permission}`
+						: null
 			}
 
 			return data
@@ -98,7 +101,11 @@ export abstract class BaseCommand {
 			options: this.serializeOptions(),
 			integration_types: this.integrationTypes,
 			contexts: this.contexts,
-			default_member_permissions: this.permission ? `${this.permission}` : null
+			default_member_permissions: Array.isArray(this.permission)
+				? this.permission.reduce((a, p) => a | p, 0n).toString()
+				: this.permission
+					? `${this.permission}`
+					: null
 		}
 
 		return data
