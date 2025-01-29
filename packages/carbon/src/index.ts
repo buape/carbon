@@ -68,3 +68,7 @@ export * from "./structures/User.js"
 export * from "discord-api-types/v10"
 export * from "./types.js"
 export * from "./utils.js"
+
+// ----- Re-exports -----
+import { PermissionFlagsBits } from "discord-api-types/v10"
+export const Permission = PermissionFlagsBits

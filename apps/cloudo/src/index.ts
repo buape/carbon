@@ -11,6 +11,7 @@ import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
 import OptionsCommand from "./commands/testing/options.js"
+import PermissionCommand from "./commands/testing/permissions.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
@@ -54,6 +55,7 @@ const client = new Client(
 			new MessageCommand(),
 			new ModalCommand(),
 			new OptionsCommand(),
+			new PermissionCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),
 			new UserCommand()
