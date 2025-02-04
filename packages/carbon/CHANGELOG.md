@@ -1,5 +1,21 @@
 # @buape/carbon
 
+## 0.7.0
+
+### Minor Changes
+
+- 4b8d474: feat: webhook events
+- 29c323c: feat: command permissions
+- 626f3c3: refactor: replace creating handle with new adapters
+
+### Patch Changes
+
+- 6d91c08: chore(deps): update dependency @types/bun to v1.1.18
+- 137a2d9: chore: update dependencies
+- e20d29c: fix: move base url option back
+- c6c60a6: chore: remove beta tag for integrationTypes and contexts on commands
+- d5d1488: fix: send allowedMentions to discord in correct format
+
 ## 0.6.1
 
 ### Patch Changes
