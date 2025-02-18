@@ -1,5 +1,17 @@
 # create-carbon
 
+## 0.3.0
+
+### Minor Changes
+
+- 4b8d474: feat: webhook events
+- 626f3c3: refactor: replace creating handle with new adapters
+
+### Patch Changes
+
+- 137a2d9: chore: update dependencies
+- e20d29c: fix: move base url option back
+
 ## 0.2.1
 
 ### Patch Changes
