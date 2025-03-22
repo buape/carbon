@@ -1,5 +1,5 @@
-import { DiscordError } from "./errors/DiscordError.js"
-import { RateLimitError } from "./errors/RatelimitError.js"
+import { DiscordError } from "../errors/DiscordError.js"
+import { RateLimitError } from "../errors/RatelimitError.js"
 
 /**
  * The options used to initialize the RequestClient

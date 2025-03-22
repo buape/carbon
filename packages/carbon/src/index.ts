@@ -23,14 +23,21 @@ export * from "./classes/Embed.js"
 export * from "./classes/Listener.js"
 export * from "./classes/MentionableSelectMenu.js"
 export * from "./classes/Modal.js"
+export * from "./classes/RequestClient.js"
 export * from "./classes/RoleSelectMenu.js"
 export * from "./classes/Row.js"
 export * from "./classes/StringSelectMenu.js"
 export * from "./classes/TextInput.js"
 export * from "./classes/UserSelectMenu.js"
 
-// ----- Factories -----
-export * from "./factories/channelFactory.js"
+// ----- Errors -----
+export * from "./errors/BaseError.js"
+export * from "./errors/DiscordError.js"
+export * from "./errors/RatelimitError.js"
+
+// ----- Functions -----
+export * from "./functions/channelFactory.js"
+export * from "./functions/errorsMapper.js"
 
 // ----- Internals -----
 export * from "./internals/AutocompleteInteraction.js"
