@@ -8,8 +8,8 @@ import {
 	type RESTPostAPIInteractionFollowupJSONBody,
 	Routes
 } from "discord-api-types/v10"
+import { Base } from "./Base.js"
 import {
-	Base,
 	type Client,
 	Embed,
 	Guild,
