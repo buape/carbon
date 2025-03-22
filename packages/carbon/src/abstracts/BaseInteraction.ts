@@ -4,13 +4,11 @@ import {
 	InteractionResponseType,
 	type InteractionType,
 	MessageFlags,
-	type RESTPatchAPIInteractionOriginalResponseJSONBody,
 	type RESTPostAPIInteractionCallbackJSONBody,
 	type RESTPostAPIInteractionFollowupJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import {
-	Base,
 	type Client,
 	Embed,
 	Guild,
@@ -22,39 +20,7 @@ import {
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload } from "../types.js"
 import { serializePayload } from "../utils.js"
-
-/**
- * Additional options for replying to an interaction
- */
-export type InteractionReplyOptions = {
-	/**
-	 * The files to send in the interaction
-	 */
-	files?: InteractionFileData[]
-	/**
-	 * Whether the interaction should be ephemeral
-	 */
-	ephemeral?: boolean
-}
-
-/**
- * The data for a file to send in an interaction
- */
-export type InteractionFileData = {
-	/**
-	 * The name of the file that will be given to Discord
-	 */
-	name: string
-	/**
-	 * The data of the file in a Blob
-	 */
-	data: Blob
-	/**
-	 * The alt text of the file, shown for accessibility
-	 * @alpha This isn't implemented yet
-	 */
-	description?: string
-}
+import { Base } from "./Base.js"
 
 export type InteractionDefaults = {
 	ephemeral?: boolean
@@ -132,8 +98,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 * If the interaction is deferred, this will edit the original response.
 	 * @param data The response data
 	 */
-	async reply(data: MessagePayload, options: InteractionReplyOptions = {}) {
-		const serialized = serializePayload(data)
+	async reply(data: MessagePayload) {
+		const serialized = serializePayload(data, this.defaultEphemeral)
 		if (this._deferred) {
 			await this.client.rest.patch(
 				Routes.webhookMessage(
@@ -142,10 +108,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					"@original"
 				),
 				{
-					body: {
-						...serialized
-					} as RESTPatchAPIInteractionOriginalResponseJSONBody,
-					files: options.files
+					body: serialized
 				}
 			)
 		} else {
@@ -154,16 +117,8 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				{
 					body: {
 						type: InteractionResponseType.ChannelMessageWithSource,
-						data: {
-							...serialized,
-							flags:
-								options.ephemeral || this.defaultEphemeral
-									? MessageFlags.Ephemeral |
-										("flags" in serialized ? (serialized.flags ?? 0) : 0)
-									: undefined
-						}
-					} as RESTPostAPIInteractionCallbackJSONBody,
-					files: options.files
+						data: serialized
+					} satisfies RESTPostAPIInteractionCallbackJSONBody
 				}
 			)
 		}
@@ -214,19 +169,14 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	/**
 	 * Send a followup message to the interaction
 	 */
-	async followUp(reply: MessagePayload, options: InteractionReplyOptions = {}) {
+	async followUp(reply: MessagePayload) {
 		const serialized = serializePayload(reply)
 		await this.client.rest.post(
 			Routes.webhook(this.client.options.clientId, this.rawData.token),
 			{
 				body: {
-					...serialized,
-					flags: options.ephemeral
-						? MessageFlags.Ephemeral |
-							("flags" in serialized ? (serialized.flags ?? 0) : 0)
-						: undefined
-				} as RESTPostAPIInteractionFollowupJSONBody,
-				files: options.files
+					...serialized
+				} satisfies RESTPostAPIInteractionFollowupJSONBody
 			}
 		)
 	}

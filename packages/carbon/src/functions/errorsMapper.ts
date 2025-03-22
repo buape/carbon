@@ -1,4 +1,11 @@
-import type { DiscordRawError } from "./index.js"
+export type DiscordRawError = {
+	code?: number
+	message: string
+	errors?: {
+		// biome-ignore lint/suspicious/noExplicitAny: We use any here to allow for many different forms of errors that are checked in the mapper
+		[key: string]: any
+	}
+}
 
 export interface TransformedError {
 	code: string

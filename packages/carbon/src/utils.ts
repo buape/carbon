@@ -1,4 +1,5 @@
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
+import type { RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10"
 import type { MessagePayload } from "./types.js"
 
 export const splitCustomId = (
@@ -83,7 +84,7 @@ export function concatUint8Arrays(
 export const serializePayload = (
 	payload: MessagePayload,
 	defaultEphemeral = false
-) => {
+): RESTPostAPIChannelMessageJSONBody => {
 	if (typeof payload === "string") {
 		return { content: payload, flags: defaultEphemeral ? 64 : undefined }
 	}
@@ -94,7 +95,7 @@ export const serializePayload = (
 		components: payload.components?.map((row) => row.serialize())
 	}
 	if (defaultEphemeral) {
-		data.flags = 64
+		data.flags = payload.flags ? payload.flags | 64 : 64
 	}
 	return data
 }

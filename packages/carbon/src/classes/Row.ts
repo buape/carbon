@@ -1,6 +1,7 @@
-import type {
-	APIActionRowComponent,
-	APIActionRowComponentTypes
+import {
+	type APIActionRowComponent,
+	type APIMessageActionRowComponent,
+	ComponentType
 } from "discord-api-types/v10"
 import type { BaseComponent } from "../abstracts/BaseComponent.js"
 
@@ -39,12 +40,12 @@ export class Row<T extends BaseComponent = BaseComponent> {
 		this.components = []
 	}
 
-	serialize = (): APIActionRowComponent<APIActionRowComponentTypes> => {
+	serialize = (): APIActionRowComponent<APIMessageActionRowComponent> => {
 		return {
-			type: 1,
+			type: ComponentType.ActionRow,
 			components: this.components.map((component) =>
 				component.serialize()
-			) as APIActionRowComponentTypes[]
+			) as APIMessageActionRowComponent[]
 		}
 	}
 }

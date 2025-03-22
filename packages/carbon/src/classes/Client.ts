@@ -1,4 +1,3 @@
-import { RequestClient, type RequestClientOptions } from "@buape/carbon-request"
 import {
 	type APIChannel,
 	type APIGuild,
@@ -14,7 +13,7 @@ import {
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
-import { channelFactory } from "../factories/channelFactory.js"
+import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
 import { EventHandler } from "../internals/EventHandler.js"
@@ -25,6 +24,7 @@ import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
 import type { Listener } from "./Listener.js"
+import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 /**
  * The options used for initializing the client

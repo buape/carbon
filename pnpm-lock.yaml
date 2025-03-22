@@ -89,9 +89,6 @@ importers:
 
   packages/carbon:
     dependencies:
-      '@buape/carbon-request':
-        specifier: workspace:*
-        version: link:../request
       '@types/node':
         specifier: ^22.10.7
         version: 22.10.7
@@ -127,8 +124,6 @@ importers:
       '@types/node':
         specifier: ^22.10.7
         version: 22.10.7
-
-  packages/request: {}
 
   website:
     dependencies:

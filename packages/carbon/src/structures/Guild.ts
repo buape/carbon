@@ -8,7 +8,7 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { channelFactory } from "../factories/channelFactory.js"
+import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../utils.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"

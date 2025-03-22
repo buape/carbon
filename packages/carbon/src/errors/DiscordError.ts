@@ -1,5 +1,8 @@
-import { type TransformedError, errorMapper } from "../errorsMapper.js"
-import type { DiscordRawError } from "../index.js"
+import {
+	type DiscordRawError,
+	type TransformedError,
+	errorMapper
+} from "../functions/errorsMapper.js"
 import { BaseError } from "./BaseError.js"
 
 export class DiscordError extends BaseError {

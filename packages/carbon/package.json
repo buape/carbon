@@ -25,7 +25,6 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@buape/carbon-request": "workspace:*",
 		"@types/node": "^22.10.7",
 		"discord-api-types": "0.37.117"
 	},

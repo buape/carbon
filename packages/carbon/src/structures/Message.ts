@@ -1,5 +1,4 @@
 import {
-	type APIAllowedMentions,
 	type APIAttachment,
 	type APIChannel,
 	type APIMessage,
@@ -11,16 +10,19 @@ import {
 	type APIThreadChannel,
 	type ChannelType,
 	type MessageFlags,
+	MessageReferenceType,
 	type MessageType,
+	type RESTPatchAPIChannelMessageJSONBody,
+	type RESTPostAPIChannelMessageJSONBody,
 	type RESTPostAPIChannelThreadsJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Embed } from "../classes/Embed.js"
-import type { Row } from "../classes/Row.js"
-import { channelFactory } from "../factories/channelFactory.js"
-import type { IfPartial } from "../utils.js"
+import { channelFactory } from "../functions/channelFactory.js"
+import type { MessagePayload } from "../types.js"
+import { type IfPartial, serializePayload } from "../utils.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
@@ -343,22 +345,44 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		return new GuildThreadChannel(this.client, thread)
 	}
 
-	async edit(data: {
-		content?: string
-		embeds?: Embed[]
-		allowedMentions?: APIAllowedMentions
-		components?: Row[]
-	}) {
+	async edit(data: MessagePayload) {
+		const serialized = serializePayload(data)
 		await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
-					...data,
-					embeds: data.embeds?.map((embed) => embed.serialize()),
-					components: data.components?.map((row) => row.serialize()),
-					allowed_mentions: data.allowedMentions
-				}
+					...serialized
+				} satisfies RESTPatchAPIChannelMessageJSONBody
 			}
 		)
+	}
+
+	async forward(channelId: string) {
+		const channel = await this.client.fetchChannel(channelId)
+		if (!channel) throw new Error(`Channel ${channelId} not found`)
+		if (!("send" in channel))
+			throw new Error(`Cannot forward message to channel ${channelId}`)
+		await this.client.rest.post(Routes.channelMessages(channelId), {
+			body: {
+				message_reference: {
+					type: MessageReferenceType.Forward,
+					message_id: this.id,
+					channel_id: this.channelId
+				}
+			} satisfies RESTPostAPIChannelMessageJSONBody
+		})
+	}
+
+	async reply(data: MessagePayload) {
+		const serialized = serializePayload(data)
+		await this.client.rest.post(Routes.channelMessages(this.channelId), {
+			body: {
+				...serialized,
+				message_reference: {
+					type: MessageReferenceType.Default,
+					message_id: this.id
+				}
+			} satisfies RESTPostAPIChannelMessageJSONBody
+		})
 	}
 }
