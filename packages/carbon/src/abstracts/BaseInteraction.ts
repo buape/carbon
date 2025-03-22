@@ -8,7 +8,6 @@ import {
 	type RESTPostAPIInteractionFollowupJSONBody,
 	Routes
 } from "discord-api-types/v10"
-import { Base } from "./Base.js"
 import {
 	type Client,
 	Embed,
@@ -21,6 +20,7 @@ import {
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload } from "../types.js"
 import { serializePayload } from "../utils.js"
+import { Base } from "./Base.js"
 
 export type InteractionDefaults = {
 	ephemeral?: boolean
