@@ -8,18 +8,15 @@ export default class AttachmentCommand extends Command {
 
 	async run(interaction: CommandInteraction) {
 		const file = new Blob([readFileSync("./kiai.png")])
-		await interaction.reply(
-			{
-				content: "Testing"
-			},
-			{
-				files: [
-					{
-						name: "kiai.png",
-						data: file
-					}
-				]
-			}
-		)
+		await interaction.reply({
+			content: "Testing",
+			files: [
+				{
+					name: "kiai.png",
+					data: file,
+					description: "Test image"
+				}
+			]
+		})
 	}
 }

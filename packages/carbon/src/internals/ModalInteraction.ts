@@ -5,7 +5,6 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
-import type { InteractionReplyOptions } from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
 import type { MessagePayload } from "../types.js"
 import { serializePayload } from "../utils.js"
@@ -46,10 +45,7 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 	 * Update the original message of the component.
 	 * This can only be used for modals triggered from components
 	 */
-	async update(
-		data: MessagePayload,
-		options: Pick<InteractionReplyOptions, "files"> = {}
-	) {
+	async update(data: MessagePayload) {
 		const serialized = serializePayload(data)
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
@@ -59,8 +55,7 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 					data: {
 						...serialized
 					}
-				} as RESTPostAPIInteractionCallbackJSONBody,
-				files: options.files
+				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}

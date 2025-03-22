@@ -1,8 +1,8 @@
 import {
+	type DiscordRawError,
 	type TransformedError,
 	errorMapper
 } from "../functions/errorsMapper.js"
-import type { DiscordRawError } from "@buape/carbon-request/src/index.js"
 import { BaseError } from "./BaseError.js"
 
 export class DiscordError extends BaseError {

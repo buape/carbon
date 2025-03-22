@@ -8,11 +8,7 @@ import {
 import type { Client } from "../classes/Client.js"
 import type { MessagePayload } from "../types.js"
 import { serializePayload, splitCustomId } from "../utils.js"
-import {
-	BaseInteraction,
-	type InteractionDefaults,
-	type InteractionReplyOptions
-} from "./BaseInteraction.js"
+import { BaseInteraction, type InteractionDefaults } from "./BaseInteraction.js"
 
 export class BaseComponentInteraction extends BaseInteraction<APIMessageComponentInteraction> {
 	customId: string
@@ -48,10 +44,7 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 	/**
 	 * Update the original message of the component
 	 */
-	async update(
-		data: MessagePayload,
-		options: Pick<InteractionReplyOptions, "files"> = {}
-	) {
+	async update(data: MessagePayload) {
 		const serialized = serializePayload(data)
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
@@ -61,8 +54,7 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 					data: {
 						...serialized
 					}
-				} as RESTPostAPIInteractionCallbackJSONBody,
-				files: options.files
+				} as RESTPostAPIInteractionCallbackJSONBody
 			}
 		)
 	}
