@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.8.0
+
+### Minor Changes
+
+- 98b165b: feat: support files in all MessagePayloads, not just interaction replies
+
 ## 0.7.0
 
 ### Minor Changes
