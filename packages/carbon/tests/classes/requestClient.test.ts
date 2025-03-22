@@ -1,9 +1,5 @@
 import { expect, test, vi } from "vitest"
-import {
-	DiscordError,
-	RateLimitError,
-	RequestClient
-} from "../../src/index.js"
+import { DiscordError, RateLimitError, RequestClient } from "../../src/index.js"
 
 const mockFetch = vi.fn()
 

@@ -21,11 +21,11 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Embed } from "../classes/Embed.js"
 import { channelFactory } from "../functions/channelFactory.js"
-import { serializePayload, type IfPartial } from "../utils.js"
+import type { MessagePayload } from "../types.js"
+import { type IfPartial, serializePayload } from "../utils.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
-import type { MessagePayload } from "../types.js"
 
 export class Message<IsPartial extends boolean = false> extends Base {
 	constructor(

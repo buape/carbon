@@ -1,7 +1,7 @@
 import {
-	ComponentType,
 	type APIActionRowComponent,
-	type APIMessageActionRowComponent
+	type APIMessageActionRowComponent,
+	ComponentType
 } from "discord-api-types/v10"
 import type { BaseComponent } from "../abstracts/BaseComponent.js"
 
