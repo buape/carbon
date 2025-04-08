@@ -81,17 +81,16 @@ export class AutocompleteOptionsHandler extends OptionsHandler {
 	getFocused() {
 		const focused = this.raw.find((x) => "focused" in x && x.focused)
 		if (!focused) return null
-		switch (focused.type) {
-			case ApplicationCommandOptionType.String:
-				return this.getString(focused.name)
-			case ApplicationCommandOptionType.Integer:
-				return this.getInteger(focused.name)
-			case ApplicationCommandOptionType.Number:
-				return this.getNumber(focused.name)
-			case ApplicationCommandOptionType.Boolean:
-				return this.getBoolean(focused.name)
-			default:
-				return null
-		}
+		const value = focused.type === ApplicationCommandOptionType.String ? this.getString(focused.name) :
+			focused.type === ApplicationCommandOptionType.Integer ? this.getInteger(focused.name) :
+			focused.type === ApplicationCommandOptionType.Number ? this.getNumber(focused.name) :
+			focused.type === ApplicationCommandOptionType.Boolean ? this.getBoolean(focused.name) :
+			null;
+
+		return {
+			name: focused.name,
+			type: focused.type,
+			value: value
+		};
 	}
 }
