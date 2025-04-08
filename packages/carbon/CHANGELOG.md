@@ -1,5 +1,12 @@
 # @buape/carbon
 
+## 0.8.0
+
+### Minor Changes
+
+- 98b165b: feat: support files in all MessagePayloads, not just interaction replies
+- 50cc5c8: feat: return name and type for autocomplete's getFocused() options as well as value
+
 ## 0.7.0
 
 ### Minor Changes
