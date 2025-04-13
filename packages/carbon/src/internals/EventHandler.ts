@@ -6,13 +6,7 @@ export class EventHandler extends Base {
 		payload: ListenerEventData[T],
 		type: T
 	) {
-		console.log(
-			"all listeners",
-			this.client.listeners.map((x) => x.type)
-		)
-		console.log("handleEvent", type)
 		const listeners = this.client.listeners.filter((x) => x.type === type)
-		console.log("listeners", listeners)
 		await Promise.all(
 			listeners.map((listener) => listener.handle(payload, this.client))
 		)
