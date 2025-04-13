@@ -8,7 +8,11 @@ export class EventHandler extends Base {
 	) {
 		const listeners = this.client.listeners.filter((x) => x.type === type)
 		await Promise.all(
-			listeners.map((listener) => listener.handle(payload, this.client))
+			listeners.map((listener) =>
+				listener.handle(payload, this.client).catch((err) => {
+					console.error(err)
+				})
+			)
 		)
 	}
 }
