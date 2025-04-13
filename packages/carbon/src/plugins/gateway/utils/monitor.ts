@@ -10,6 +10,13 @@ export interface ConnectionMetrics {
 	errors: number // Number of errors encountered
 }
 
+export interface MonitorConfig {
+	/** Monitoring interval in milliseconds (default: 60000) */
+	interval?: number
+	/** Warning threshold for latency in milliseconds (default: 1000) */
+	latencyThreshold?: number
+}
+
 export class ConnectionMonitor extends EventEmitter {
 	private metrics: ConnectionMetrics = {
 		latency: 0,
@@ -24,15 +31,20 @@ export class ConnectionMonitor extends EventEmitter {
 	private startTime = Date.now()
 	private lastHeartbeat = 0
 	private metricsInterval: NodeJS.Timeout
+	private readonly config: Required<MonitorConfig>
 
-	constructor() {
+	constructor(config: MonitorConfig = {}) {
 		super()
+		this.config = {
+			interval: config.interval ?? 60000,
+			latencyThreshold: config.latencyThreshold ?? 1000
+		}
 		this.metricsInterval = setInterval(() => {
 			this.metrics.uptime = Date.now() - this.startTime
 			this.emit("metrics", this.getMetrics())
 
 			// Check for high latency
-			if (this.metrics.latency > 1000) {
+			if (this.metrics.latency > this.config.latencyThreshold) {
 				this.emit("warning", `High latency detected: ${this.metrics.latency}ms`)
 			}
 
@@ -47,7 +59,7 @@ export class ConnectionMonitor extends EventEmitter {
 					`High error rate detected: ${errorRate} errors/minute`
 				)
 			}
-		}, 60000)
+		}, this.config.interval)
 	}
 
 	public recordError(): void {

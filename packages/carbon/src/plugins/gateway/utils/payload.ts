@@ -18,12 +18,30 @@ interface ResumeData {
 	sequence: number
 }
 
-export function validatePayload(data: string): GatewayPayload | null {
+export function validatePayload(data: unknown): GatewayPayload | null {
 	try {
-		const payload = JSON.parse(data)
-		if (typeof payload.op !== "number") return null
+		const payload = data as GatewayPayload
+
+		if (!payload || typeof payload !== "object") {
+			console.error("[Gateway] Invalid payload: Not an object", { data })
+			return null
+		}
+
+		if (!("op" in payload) || typeof payload.op !== "number") {
+			console.error("[Gateway] Invalid payload: Missing or invalid op code", {
+				data
+			})
+			return null
+		}
+
+		if (!("d" in payload)) {
+			console.error("[Gateway] Invalid payload: Missing data field", { data })
+			return null
+		}
+
 		return payload
-	} catch {
+	} catch (error) {
+		console.error("[Gateway] Failed to validate payload:", error, { data })
 		return null
 	}
 }

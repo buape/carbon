@@ -24,6 +24,11 @@ interface HelloData {
 export interface GatewayPluginOptions {
 	intents: number
 	url?: string
+	reconnect?: {
+		maxAttempts?: number
+		baseDelay?: number
+		maxDelay?: number
+	}
 }
 
 declare module "../../classes/Client.js" {
@@ -42,18 +47,23 @@ export class GatewayPlugin extends Plugin {
 	public sequence: number | null = null
 	public lastHeartbeatAck = true
 	protected emitter: EventEmitter
+	private reconnectAttempts = 0
 
 	constructor(options: GatewayPluginOptions) {
 		super()
 		this.config = {
 			url: "wss://gateway.discord.gg/?v=10&encoding=json",
+			reconnect: {
+				maxAttempts: 5,
+				baseDelay: 1000,
+				maxDelay: 30000
+			},
 			...options
 		}
 		this.state = {
 			sequence: null,
 			sessionId: null,
-			heartbeatInterval: 0,
-			lastHeartbeatAck: true
+			resumeGatewayUrl: null
 		}
 		this.monitor = new ConnectionMonitor()
 		this.emitter = new EventEmitter()
@@ -79,6 +89,12 @@ export class GatewayPlugin extends Plugin {
 				: (this.config.url ?? "wss://gateway.discord.gg/?v=10&encoding=json")
 		this.ws = this.createWebSocket(url)
 		this.setupWebSocket()
+
+		this.ws.on("close", () => {
+			this.reconnectAttempts++
+			const backoffTime = Math.min(1000 * 2 ** this.reconnectAttempts, 30000) // Exponential backoff with a max of 30 seconds
+			setTimeout(() => this.connect(resume), backoffTime)
+		})
 	}
 
 	public disconnect(): void {
@@ -99,6 +115,7 @@ export class GatewayPlugin extends Plugin {
 		if (!this.ws) return
 
 		this.ws.on("open", () => {
+			this.reconnectAttempts = 0 // Reset attempts on successful connection
 			this.emitter.emit("debug", "WebSocket connection opened")
 		})
 
@@ -122,9 +139,9 @@ export class GatewayPlugin extends Plugin {
 			switch (op) {
 				case GatewayOpcodes.Hello: {
 					const helloData = d as HelloData
-					this.state.heartbeatInterval = helloData.heartbeat_interval
+					const interval = helloData.heartbeat_interval
 					startHeartbeat(this, {
-						interval: helloData.heartbeat_interval,
+						interval,
 						reconnectCallback: () => this.handleZombieConnection()
 					})
 
@@ -161,7 +178,7 @@ export class GatewayPlugin extends Plugin {
 						} else {
 							// Clear session data and re-identify
 							this.state.sessionId = null
-							this.state.resumeGatewayUrl = undefined
+							this.state.resumeGatewayUrl = null
 							this.sequence = null
 							this.connect(false)
 						}
@@ -191,28 +208,66 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	protected handleClose(code: number): void {
+		const {
+			maxAttempts = 5,
+			baseDelay = 1000,
+			maxDelay = 30000
+		} = this.config.reconnect ?? {}
+
+		if (this.reconnectAttempts >= maxAttempts) {
+			this.emitter.emit(
+				"error",
+				new Error(
+					`Max reconnect attempts (${maxAttempts}) reached after code ${code}`
+				)
+			)
+			return
+		}
+
 		switch (code) {
 			case GatewayCloseCodes.AuthenticationFailed:
 			case GatewayCloseCodes.InvalidAPIVersion:
 			case GatewayCloseCodes.InvalidIntents:
 			case GatewayCloseCodes.DisallowedIntents:
-			case GatewayCloseCodes.ShardingRequired:
+			case GatewayCloseCodes.ShardingRequired: {
 				// Fatal errors - don't reconnect
 				this.emitter.emit("error", new Error(`Fatal Gateway error: ${code}`))
+				this.reconnectAttempts = maxAttempts // Prevent further reconnection attempts
 				break
+			}
 
 			case GatewayCloseCodes.InvalidSeq:
-			case GatewayCloseCodes.SessionTimedOut:
+			case GatewayCloseCodes.SessionTimedOut: {
 				// Clear session and re-identify
 				this.state.sessionId = null
-				this.state.resumeGatewayUrl = undefined
+				this.state.resumeGatewayUrl = null
 				this.sequence = null
-				setTimeout(() => this.connect(false), 5000)
+				this.reconnectAttempts++
+				const backoffTime = Math.min(
+					baseDelay * 2 ** this.reconnectAttempts,
+					maxDelay
+				)
+				this.emitter.emit(
+					"debug",
+					`Reconnecting with backoff: ${backoffTime}ms after code ${code}`
+				)
+				setTimeout(() => this.connect(false), backoffTime)
 				break
+			}
 
-			default:
+			default: {
 				// Try to resume for other codes
-				setTimeout(() => this.connect(this.canResume()), 5000)
+				this.reconnectAttempts++
+				const resumeBackoffTime = Math.min(
+					baseDelay * 2 ** this.reconnectAttempts,
+					maxDelay
+				)
+				this.emitter.emit(
+					"debug",
+					`Attempting resume with backoff: ${resumeBackoffTime}ms after code ${code}`
+				)
+				setTimeout(() => this.connect(this.canResume()), resumeBackoffTime)
+			}
 		}
 	}
 

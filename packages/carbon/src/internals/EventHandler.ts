@@ -13,8 +13,8 @@ export class EventHandler extends Base {
 		type: T
 	) {
 		const listeners = this.listeners.filter((x) => x.type === type)
-		for (const listener of listeners) {
-			await listener.handle(payload, this.client)
-		}
+		await Promise.all(
+			listeners.map((listener) => listener.handle(payload, this.client))
+		)
 	}
 }

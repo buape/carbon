@@ -9,7 +9,7 @@ path: src/index.ts
 {{#if (eq runtime "node")}}
 import 'dotenv/config';
 {{/if}}
-import { Client } from "@buape/carbon"
+import { Client{{#if plugins.gateway}}, { GatewayIntentBits }{{/if}} } from "@buape/carbon"
 {{#if plugins.linkedRoles}}
 import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
 {{/if}}
@@ -61,7 +61,7 @@ const linkedRoles = new LinkedRoles({
 
 {{#if plugins.gateway}}
 const gateway = new GatewayPlugin({
-	intents: 513 // Add your required intents here
+	intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages
 })
 {{/if}}
 
