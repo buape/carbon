@@ -2,8 +2,8 @@ import {
 	type Client,
 	Listener,
 	ListenerEvent,
-	Message,
-	type ListenerEventData
+	type ListenerEventData,
+	Message
 } from "@buape/carbon"
 
 export class MessageCreateListener extends Listener {
