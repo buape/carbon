@@ -23,7 +23,10 @@ const client = new Client(
 	},
 	[
 		new GatewayPlugin({
-			intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages
+			intents:
+				GatewayIntentBits.Guilds |
+				GatewayIntentBits.GuildMessages |
+				GatewayIntentBits.MessageContent
 		})
 	]
 )
@@ -33,10 +36,12 @@ console.log(
 		.filter((x) => !x.disabled)
 		.map((x) => {
 			return `\n\t${x.method} ${x.path}`
-		})}`
+		})}\nand listeners:${client.listeners.map((x) => {
+		return `\n\t${x.type}`
+	})}`
 )
 
-createServer(client, { port: 3000 })
+createServer(client, { port: 3001 })
 
 declare global {
 	namespace NodeJS {

@@ -1,18 +1,18 @@
 import { Base } from "../abstracts/Base.js"
-import type { Listener } from "../classes/Listener.js"
 import type { ListenerEventData } from "../types.js"
 
 export class EventHandler extends Base {
-	listeners: Listener[] = []
-
-	registerListener(listener: (typeof this.listeners)[number]) {
-		this.listeners.push(listener)
-	}
 	async handleEvent<T extends keyof ListenerEventData>(
 		payload: ListenerEventData[T],
 		type: T
 	) {
-		const listeners = this.listeners.filter((x) => x.type === type)
+		console.log(
+			"all listeners",
+			this.client.listeners.map((x) => x.type)
+		)
+		console.log("handleEvent", type)
+		const listeners = this.client.listeners.filter((x) => x.type === type)
+		console.log("listeners", listeners)
 		await Promise.all(
 			listeners.map((listener) => listener.handle(payload, this.client))
 		)

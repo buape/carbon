@@ -165,7 +165,8 @@ export class GatewayPlugin extends Plugin {
 						this.state.resumeGatewayUrl = readyData.resume_gateway_url
 					}
 					if (t && this.client) {
-						this.client.emit(t.toLowerCase(), d)
+						// @ts-expect-error - the types are really annoying here, but they are correct technically
+						this.client.eventHandler.handleEvent(d, t)
 					}
 					break
 				}

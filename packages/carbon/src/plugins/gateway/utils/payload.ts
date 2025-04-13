@@ -18,9 +18,9 @@ interface ResumeData {
 	sequence: number
 }
 
-export function validatePayload(data: unknown): GatewayPayload | null {
+export function validatePayload(data: string): GatewayPayload | null {
 	try {
-		const payload = data as GatewayPayload
+		const payload = JSON.parse(data) as GatewayPayload
 
 		if (!payload || typeof payload !== "object") {
 			console.error("[Gateway] Invalid payload: Not an object", { data })
