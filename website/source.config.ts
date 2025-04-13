@@ -8,19 +8,17 @@ import {
 import { z } from "zod"
 
 export const { docs, meta } = defineDocs({
+	dir: "content",
 	docs: {
-		dir: "content",
 		schema: frontmatterSchema.extend({
 			index: z.boolean().default(false)
 		})
 	},
 	meta: {
-		dir: "content",
 		schema: metaSchema
 	}
 })
 
 export default defineConfig({
-	generateManifest: true,
 	lastModifiedTime: "git"
 })
