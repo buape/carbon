@@ -1,14 +1,16 @@
 import {
 	ApplicationIntegrationType,
-	ApplicationWebhookEventType,
+	type Client,
 	Listener,
-	type ListenerEventData
+	ListenerEvent,
+	type ListenerEventData,
+	type ValueOf
 } from "@buape/carbon"
 
 export default class ApplicationAuthorizedListener extends Listener {
-	type = ApplicationWebhookEventType.ApplicationAuthorized
+	readonly type = ListenerEvent.ApplicationAuthorized
 	async handle(
-		data: ListenerEventData<ApplicationWebhookEventType.ApplicationAuthorized>
+		data: ListenerEventData[typeof ListenerEvent.ApplicationAuthorized]
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
 			console.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)

@@ -237,7 +237,8 @@ export class Client {
 		if (payload.type === ApplicationWebhookType.Ping)
 			return new Response(null, { status: 204 })
 
-		this.eventHandler.handleEvent(payload) // Events will never return anything to Discord
+		this.eventHandler.handleEvent(payload.event.data, payload.event.type)
+
 		return new Response(null, { status: 204 })
 	}
 

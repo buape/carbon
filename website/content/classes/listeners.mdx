@@ -1,58 +1,142 @@
 ---
 title: "Listeners" 
-description: "Receiving and responding to webhook events"
+description: "Handling Discord events through webhooks and gateway"
 icon: Rss
 ---
 
-In addition to the regular interactions system, Discord also provides a way to trigger events in your application. 
-Webhook events are one-way events sent to your app over HTTP to notify you when an event occurs. 
-Unlike events that are sent over Gateway connections, events sent over webhooks are not realtime or guaranteed to be in order.
+Discord provides two ways to receive events in your application:
+1. **Webhook Events**: One-way events sent to your app over HTTP (not realtime, not guaranteed to be in order)
+2. **Gateway Events**: Realtime events sent over WebSocket connection (realtime, ordered delivery)
 
-In Carbon, we use Listeners to handle events from Discord. These events can include things like application authorization changes or entitlement updates.
+In Carbon, we use Listeners to handle both types of events in a unified way.
+
+## Types of Events
+
+### Webhook Events
+- Application authorization changes
+- Entitlement updates
+- Quest user enrollment
+
+### Gateway Events
+- Server events (joins, leaves, updates)
+- Message events (create, update, delete)
+- Channel events (create, update, delete)
+- Member events (join, leave, update)
+- And many more...
 
 ## Creating a Listener
 
-To create a listener, extend the `Listener` class and implement the required methods:
+To create a listener, extend the `Listener` class and implement the required methods. Here are some examples:
+
+### Webhook Event Example
 
 ```ts title="src/events/authorized.ts"
 import {
 	ApplicationIntegrationType,
-	ApplicationWebhookEventType,
+	ListenerEvent,
 	type Client,
 	Listener,
 	type ListenerEventData
 } from "@buape/carbon"
 
 export default class ApplicationAuthorizedListener extends Listener {
-	type = ApplicationWebhookEventType.ApplicationAuthorized
-	override async handle(
-		data: ListenerEventData<ApplicationWebhookEventType.ApplicationAuthorized>,
+	readonly type = ListenerEvent.ApplicationAuthorized
+	async handle(
+		data: ListenerEventData<typeof ListenerEvent.ApplicationAuthorized>,
 		client: Client
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
-			console.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)
+			console.log(`Bot added to server ${data.guild?.name} (${data.guild?.id})`)
 		} else {
-			console.log(`Added to user ${data.user.username} (${data.user.id})`)
+			console.log(`Bot authorized by user ${data.user.username} (${data.user.id})`)
 		}
+	}
+}
+```
+
+### Gateway Event Example
+
+```ts title="src/events/ready.ts"
+import { 
+	ListenerEvent,
+	type Client,
+	Listener,
+	type ListenerEventData 
+} from "@buape/carbon"
+
+export default class ReadyListener extends Listener {
+	readonly type = ListenerEvent.Ready
+	async handle(
+		data: ListenerEventData<typeof ListenerEvent.Ready>,
+		client: Client
+	) {
+		console.log(`Bot is ready! Logged in as ${data.user.username}`)
+	}
+}
+```
+
+```ts title="src/events/messageCreate.ts"
+import { 
+	ListenerEvent,
+	type Client,
+	Listener,
+	type ListenerEventData 
+} from "@buape/carbon"
+
+export default class MessageCreateListener extends Listener {
+	readonly type = ListenerEvent.MessageCreate
+	async handle(
+		data: ListenerEventData<typeof ListenerEvent.MessageCreate>,
+		client: Client
+	) {
+		// Ignore bot messages
+		if (data.author.bot) return
+
+		console.log(`New message from ${data.author.username}: ${data.content}`)
 	}
 }
 ```
 
 ## Registering Listeners
 
-
 Listeners need to be registered with your Carbon client when initializing it:
 
 ```ts title="src/index.ts"
-import { Client } from "carbon"
+import { Client } from "@buape/carbon"
 import ApplicationAuthorizedListener from "./events/authorized"
+import ReadyListener from "./events/ready"
+import MessageCreateListener from "./events/messageCreate"
 
-const client = new Client({
-  // ... other options
-}, {
-	commands: [],
-	listeners: [
-		new ApplicationAuthorizedListener()
-	]
-})
+const client = new Client(
+	{
+		// ... other options
+	},
+	{
+		commands: [],
+		listeners: [
+			new ApplicationAuthorizedListener(),
+			new ReadyListener(),
+			new MessageCreateListener()
+		]
+	}
+)
 ```
+
+## Available Events
+
+Carbon supports all Discord events through the `ListenerEvent` enum. Some commonly used events include:
+
+### Webhook Events
+- `ListenerEvent.ApplicationAuthorized`
+- `ListenerEvent.EntitlementCreate`
+- `ListenerEvent.QuestUserEnrollment`
+
+### Gateway Events
+- `ListenerEvent.Ready`
+- `ListenerEvent.MessageCreate`
+- `ListenerEvent.GuildCreate`
+- `ListenerEvent.GuildMemberAdd`
+- `ListenerEvent.ChannelCreate`
+- And many more...
+
+For a complete list of available events and their data types, refer to the `ListenerEventData` type in the Carbon source code.

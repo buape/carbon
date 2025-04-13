@@ -17,4 +17,6 @@ export const runtimes = [
 	}
 ] as const satisfies { label: string; value: string }[]
 
+export const serverRuntimes: Runtime[] = ["node", "bun"]
+
 export type Runtime = (typeof runtimes)[number]["value"]

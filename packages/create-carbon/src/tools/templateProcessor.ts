@@ -34,7 +34,7 @@ interface TemplateContext {
 	runtime: Runtime
 	packageManager: string
 	todaysDate: string
-	plugins: Record<"linkedRoles", boolean>
+	plugins: Record<"linkedRoles" | "gateway", boolean>
 	versions: Record<string, string>
 }
 

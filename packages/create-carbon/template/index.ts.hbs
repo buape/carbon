@@ -13,6 +13,9 @@ import { Client } from "@buape/carbon"
 {{#if plugins.linkedRoles}}
 import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
 {{/if}}
+{{#if plugins.gateway}}
+import { GatewayPlugin } from "@buape/carbon/gateway"
+{{/if}}
 {{#if (eq runtime "node")}}
 import { createServer } from "@buape/carbon/adapters/node"
 {{else if (eq runtime "bun")}}
@@ -24,10 +27,16 @@ import { createHandler } from "@buape/carbon/adapters/fetch"
 import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
 import AuthorizedEvent from "~/events/authorized"
+{{#if plugins.gateway}}
+import MessageCreateListener from "~/events/messageCreate"
+{{/if}}
 {{else}}
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/button.js"
 import ApplicationAuthorizedListener from "./events/authorized.js"
+{{#if plugins.gateway}}
+import MessageCreateListener from "./events/messageCreate.js"
+{{/if}}
 {{/if}}
 
 {{#if plugins.linkedRoles}}
@@ -50,6 +59,12 @@ const linkedRoles = new LinkedRoles({
 })
 {{/if}}
 
+{{#if plugins.gateway}}
+const gateway = new GatewayPlugin({
+	intents: 513 // Add your required intents here
+})
+{{/if}}
+
 const client = new Client(
 	{
 		baseUrl: process.env.BASE_URL,
@@ -67,10 +82,11 @@ const client = new Client(
 			new ButtonCommand()
 		], 
 		listeners: [
-			new ApplicationAuthorizedListener()
+			new ApplicationAuthorizedListener(){{#if plugins.gateway}},
+			new MessageCreateListener(){{/if}}
 		],
-	}{{#if plugins.linkedRoles}},
-	[linkedRoles]{{/if}}
+	}{{#if (or plugins.linkedRoles plugins.gateway)}},
+	[{{#if plugins.linkedRoles}}linkedRoles{{/if}}{{#if (and plugins.linkedRoles plugins.gateway)}}, {{/if}}{{#if plugins.gateway}}gateway{{/if}}]{{/if}}
 )
 
 {{#if (or (eq runtime "node") (eq runtime "bun"))}}

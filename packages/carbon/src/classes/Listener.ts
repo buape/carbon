@@ -1,21 +1,10 @@
-import type {
-	APIWebhookEventApplicationAuthorizedData,
-	APIWebhookEventEntitlementCreateData,
-	ApplicationWebhookEventType
-} from "discord-api-types/v10"
+import type { ListenerEvent, ListenerEventData, ValueOf } from "../types.js"
 import type { Client } from "./Client.js"
 
-export type ListenerEventData<T extends ApplicationWebhookEventType> =
-	T extends ApplicationWebhookEventType.ApplicationAuthorized
-		? APIWebhookEventApplicationAuthorizedData
-		: T extends ApplicationWebhookEventType.EntitlementCreate
-			? APIWebhookEventEntitlementCreateData
-			: never
-
 export abstract class Listener {
-	abstract type: ApplicationWebhookEventType
+	abstract readonly type: ValueOf<typeof ListenerEvent>
 	abstract handle(
-		data: ListenerEventData<typeof this.type>,
+		data: ListenerEventData[this["type"]],
 		client: Client
 	): Promise<void>
 }

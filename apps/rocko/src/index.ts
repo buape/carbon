@@ -71,7 +71,7 @@ const client = new Client(
 )
 
 console.log(
-	`Carbon initalized with routes:${client.routes
+	`Carbon initialized with routes:${client.routes
 		.filter((x) => !x.disabled)
 		.map((x) => {
 			return `\n\t${x.method} ${x.path}`

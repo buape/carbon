@@ -1,9 +1,6 @@
-import {
-	type APIWebhookEvent,
-	ApplicationWebhookType
-} from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Listener } from "../classes/Listener.js"
+import type { ListenerEventData } from "../types.js"
 
 export class EventHandler extends Base {
 	listeners: Listener[] = []
@@ -11,10 +8,13 @@ export class EventHandler extends Base {
 	registerListener(listener: (typeof this.listeners)[number]) {
 		this.listeners.push(listener)
 	}
-
-	async handleEvent(payload: APIWebhookEvent) {
-		if (payload.type !== ApplicationWebhookType.Event) return
-		const listener = this.listeners.find((x) => x.type === payload.event.type)
-		if (listener) return await listener.handle(payload.event.data, this.client)
+	async handleEvent<T extends keyof ListenerEventData>(
+		payload: ListenerEventData[T],
+		type: T
+	) {
+		const listeners = this.listeners.filter((x) => x.type === type)
+		for (const listener of listeners) {
+			await listener.handle(payload, this.client)
+		}
 	}
 }
