@@ -25,13 +25,13 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@types/node": "^22.10.7",
-		"discord-api-types": "0.37.117"
+		"@types/node": "^22.14.1",
+		"discord-api-types": "0.37.120"
 	},
 	"optionalDependencies": {
-		"@cloudflare/workers-types": "4.20250121.0",
-		"@hono/node-server": "1.13.7",
-		"@types/bun": "1.1.18"
+		"@cloudflare/workers-types": "4.20250412.0",
+		"@hono/node-server": "1.14.1",
+		"@types/bun": "1.2.9"
 	},
 	"files": [
 		"dist",

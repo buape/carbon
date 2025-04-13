@@ -22,6 +22,11 @@
 		{
 			"matchPackageNames": ["wrangler"],
 			"schedule": ["* * 1/14 * *"]
+		},
+		{
+			"matchDepTypes": ["devDependencies"],
+			"schedule": ["* * 1/14 * *"],
+			"groupName": "devDependencies"
 		}
 	],
 	"labels": ["dependencies"],
