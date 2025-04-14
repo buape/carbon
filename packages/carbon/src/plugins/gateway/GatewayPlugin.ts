@@ -7,6 +7,7 @@ import {
 	GatewayOpcodes,
 	type GatewayPayload,
 	type GatewayState,
+	type GatewayPluginOptions,
 	type ReadyEventData
 } from "./types.js"
 import { startHeartbeat, stopHeartbeat } from "./utils/heartbeat.js"
@@ -21,17 +22,8 @@ interface HelloData {
 	heartbeat_interval: number
 }
 
-export interface GatewayPluginOptions {
-	intents: number
-	url?: string
-	reconnect?: {
-		maxAttempts?: number
-		baseDelay?: number
-		maxDelay?: number
-	}
-}
-
 export class GatewayPlugin extends Plugin {
+	readonly id = "gateway"
 	protected client?: Client
 	protected config: GatewayPluginOptions
 	protected state: GatewayState
@@ -42,6 +34,8 @@ export class GatewayPlugin extends Plugin {
 	public lastHeartbeatAck = true
 	protected emitter: EventEmitter
 	private reconnectAttempts = 0
+	public shardId?: number
+	public totalShards?: number
 
 	constructor(options: GatewayPluginOptions) {
 		super()
@@ -307,7 +301,8 @@ export class GatewayPlugin extends Plugin {
 				os: process.platform,
 				browser: "@buape/carbon - https://carbon.buape.com",
 				device: "@buape/carbon - https://carbon.buape.com"
-			}
+			},
+			...(this.config.shard ? { shard: this.config.shard } : {})
 		})
 		this.send(payload)
 	}

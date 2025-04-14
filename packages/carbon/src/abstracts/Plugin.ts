@@ -5,6 +5,10 @@ import type { Client } from "../classes/Client.js"
  */
 export abstract class Plugin {
 	/**
+	 * An ID that identifies the plugin uniquely between all other used plugins in the Client
+	 */
+	abstract readonly id: string
+	/**
 	 * Registers the client with this plugin
 	 * @param client The client to register
 	 */

@@ -1,20 +1,41 @@
 import {
 	GatewayCloseCodes as DiscordGatewayCloseCodes,
 	GatewayOpcodes as DiscordGatewayOpcodes,
+	type GatewayIntentBits,
 	type GatewayReadyDispatchData
 } from "discord-api-types/v10"
-import type { Client } from "../../classes/Client.js"
 
-/**
- * Configuration interface for the Gateway plugin
- */
-export interface GatewayConfig {
-	/** The Carbon client instance */
-	client: Client
-	/** Discord Gateway intents bitfield - controls which events the bot receives */
-	intents: number
-	/** Optional custom Gateway URL - defaults to Discord's standard Gateway */
+export interface GatewayPluginOptions {
+	/**
+	 * The intents to use for the client
+	 */
+	intents: GatewayIntents[] | number
+	/**
+	 * The URL of the gateway to connect to
+	 */
 	url?: string
+	/**
+	 * The shard to connect to
+	 * [shard_id, num_shards]
+	 */
+	shard?: [number, number]
+	/**
+	 * The reconnect options
+	 */
+	reconnect?: {
+		/**
+		 * The maximum number of reconnect attempts
+		 */
+		maxAttempts?: number
+		/**
+		 * The base delay between reconnect attempts
+		 */
+		baseDelay?: number
+		/**
+		 * The maximum delay between reconnect attempts after it scales exponentially
+		 */
+		maxDelay?: number
+	}
 }
 
 /**
@@ -40,3 +61,5 @@ export interface GatewayPayload {
 }
 
 export type ReadyEventData = GatewayReadyDispatchData
+
+export type GatewayIntents = GatewayIntentBits

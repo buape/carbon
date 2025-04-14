@@ -1,7 +1,8 @@
 import "dotenv/config"
 import { Client, GatewayIntentBits } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
-import { GatewayPlugin } from "@buape/carbon/gateway"
+// import { GatewayPlugin } from "@buape/carbon/plugins/gateway"
+import { ShardingPlugin } from "@buape/carbon/sharding"
 import PingCommand from "./commands/ping.js"
 import { MessageCreate } from "./events/messageCreate.js"
 import { Ready } from "./events/ready.js"
@@ -22,7 +23,7 @@ const client = new Client(
 		listeners: [new Ready(), new MessageCreate()]
 	},
 	[
-		new GatewayPlugin({
+		new ShardingPlugin({
 			intents:
 				GatewayIntentBits.Guilds |
 				GatewayIntentBits.GuildMessages |
