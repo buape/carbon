@@ -120,7 +120,7 @@ export class MessageCreate extends MessageCreateListener {
 To use your listeners, you'll need to register them with your Carbon client. Here's how to set everything up:
 
 ```typescript title="src/index.ts"
-import { Client, GatewayIntentBits } from "@buape/carbon"
+import { Client, GatewayIntents } from "@buape/carbon"
 import { Ready } from "./events/ready"
 import { MessageCreate } from "./events/messageCreate"
 import { ApplicationAuthorized } from "./events/authorized"

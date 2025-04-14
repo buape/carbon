@@ -57,7 +57,7 @@ import { Client } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
 import {
   GatewayForwarderPlugin,
-  GatewayIntentBits
+  GatewayIntents
 } from "@buape/carbon/gateway-forwarder"
 
 const client = new Client(
@@ -71,9 +71,9 @@ const client = new Client(
   {},
   [
     new GatewayForwarderPlugin({
-      intents: GatewayIntentBits.Guilds | 
-               GatewayIntentBits.GuildMessages | 
-               GatewayIntentBits.MessageContent,
+      intents: GatewayIntents.Guilds | 
+               GatewayIntents.GuildMessages | 
+               GatewayIntents.MessageContent,
       webhookUrl: `${process.env.BASE_URL}/events`,
       privateKey: process.env.FORWARDER_PRIVATE_KEY
     })

@@ -1,7 +1,7 @@
 import {
 	GatewayCloseCodes as DiscordGatewayCloseCodes,
 	GatewayOpcodes as DiscordGatewayOpcodes,
-	GatewayIntentBits,
+	GatewayIntents,
 	type GatewayReadyDispatchData
 } from "discord-api-types/v10"
 
@@ -62,4 +62,4 @@ export interface GatewayPayload {
 
 export type ReadyEventData = GatewayReadyDispatchData
 
-export const GatewayIntents = GatewayIntentBits
+export const GatewayIntents = GatewayIntents

@@ -9,12 +9,12 @@ path: src/index.ts
 {{#if (eq runtime "node")}}
 import 'dotenv/config';
 {{/if}}
-import { Client{{#if plugins.gateway}}, { GatewayIntentBits }{{/if}} } from "@buape/carbon"
+import { Client } from "@buape/carbon"
 {{#if plugins.linkedRoles}}
 import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
 {{/if}}
 {{#if plugins.gateway}}
-import { GatewayPlugin } from "@buape/carbon/gateway"
+import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway"
 {{/if}}
 {{#if (eq runtime "node")}}
 import { createServer } from "@buape/carbon/adapters/node"
@@ -33,9 +33,9 @@ import MessageCreateListener from "~/events/messageCreate"
 {{else}}
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/button.js"
-import ApplicationAuthorizedListener from "./events/authorized.js"
+import ApplicationAuthorized from "./events/authorized.js"
 {{#if plugins.gateway}}
-import MessageCreateListener from "./events/messageCreate.js"
+import MessageCreate from "./events/messageCreate.js"
 {{/if}}
 {{/if}}
 
@@ -61,7 +61,7 @@ const linkedRoles = new LinkedRoles({
 
 {{#if plugins.gateway}}
 const gateway = new GatewayPlugin({
-	intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages
+	intents: GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
 })
 {{/if}}
 
