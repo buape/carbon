@@ -4,7 +4,7 @@ description: Setup workflow for GitHub Actions
 runs:
     using: composite
     steps:
-        - uses: pnpm/action-setup@v4.0.0
+        - uses: pnpm/action-setup@v4.1.0
 
         - name: Setup Node.js environment
           uses: actions/setup-node@v4
