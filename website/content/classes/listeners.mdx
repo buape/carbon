@@ -4,33 +4,64 @@ description: "Handling Discord events through webhooks and gateway"
 icon: Rss
 ---
 
-# Understanding Discord Events
+When you're building a Discord bot, you need to know when stuff happens - when someone sends a message, joins a server, or clicks a button. Discord sends these updates in two ways: through webhooks and through the Gateway. Let's look at how Carbon helps you handle both types easily.
 
-Discord provides two fundamental ways for your bot to receive events and updates about what's happening across servers and interactions. Carbon unifies these approaches through its Listener system, making it straightforward to handle any type of Discord event in your application.
+## The Two Types of Events
 
-## Event Types in Discord
+Discord has two main ways of telling your bot what's happening:
 
-Discord events come in two main flavors: Webhook events and Gateway events. Webhook events are HTTP-based notifications sent directly to your application's endpoints, ideal for handling specific interactions like application authorizations or entitlement updates. Gateway events, delivered through a WebSocket connection, provide real-time updates about everything happening in the servers your bot is part of.
+1. **Webhook Events**: These are HTTP requests that Discord sends directly to your bot. They're great for handling things like:
+   - Slash commands and component interactions
+   - OAuth2 authorization grants
+   - Application commands and message components
+   - Premium subscription events
+   These arrive as HTTP POST requests and might be slightly out of order.
 
-The key difference lies in their delivery mechanisms. Webhook events are one-way HTTP requests that might arrive out of order and aren't guaranteed to be real-time. Gateway events, delivered through a persistent WebSocket connection, arrive in real-time and maintain proper ordering - perfect for keeping your bot synchronized with Discord's state.
+2. **Gateway Events**: These come through a WebSocket connection - think of it like a constant phone line between your bot and Discord. These events:
+   - Arrive in real-time with strict ordering
+   - Maintain session state and resumability
+   - Require specific intents to be enabled
+   - Include all real-time Discord updates
 
-For more details about Gateway connections and sharding, see our [Gateway documentation](/plugins/gateway).
+The key technical differences are:
+- **Delivery Mechanism**: Webhooks use HTTP POST requests, Gateway uses WebSocket frames
+- **Ordering**: Gateway events are strictly ordered, webhooks may arrive out of sequence
+- **Latency**: Gateway events arrive in real-time, webhooks have variable latency
+- **State**: Gateway maintains session state, webhooks are stateless
+- **Reliability**: Gateway includes built-in reconnection, webhooks may need manual retry logic
+- **Scale**: Webhooks can scale horizontally, Gateway requires persistent connections
+- **Rate Limiting**: Different rate limit rules apply to each type
+- **Authentication**: Webhooks use signatures, Gateway uses token auth
 
-## Working with Listeners in Carbon
+If you want to learn more about setting up Gateway connections, check out our [Gateway guide](/plugins/gateway).
 
-Carbon's Listener system provides a unified, type-safe way to handle both webhook and gateway events. Let's look at how to implement different types of listeners:
+## Creating Listeners in Carbon
 
-### Handling Authorization Events
+Carbon makes it super easy to handle both types of events using the same pattern. All listeners extend from the `BaseListener` class that provides type safety and consistent interfaces:
 
-When someone adds your bot to their server or authorizes it for user-specific features, you'll want to handle the `ApplicationAuthorized` event. Here's how you might implement that:
+```typescript
+abstract class BaseListener {
+	abstract readonly type: ValueOf<typeof ListenerEvent>
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+}
+```
+
+Let's look at some examples:
+
+### Handling Bot Installation
+
+Want to do something when someone adds your bot to their server? Here's how:
 
 ```typescript title="src/events/authorized.ts"
-import {
-	ApplicationIntegrationType,
+import { 
 	ListenerEvent,
 	type Client,
 	ApplicationAuthorizedListener,
-	type ListenerEventData
+	type ListenerEventData,
+	ApplicationIntegrationType
 } from "@buape/carbon"
 
 export class ApplicationAuthorized extends ApplicationAuthorizedListener {
@@ -40,10 +71,13 @@ export class ApplicationAuthorized extends ApplicationAuthorizedListener {
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
 			console.log(`Bot was added to ${data.guild?.name}`)
-			// Set up initial guild configuration here
+			// Maybe set up some initial server settings here
+			
+			// Example: Send welcome message
+
 		} else {
-			console.log(`User ${data.user.username} authorized the application`)
-			// Handle user-specific setup
+			console.log(`${data.user.username} authorized the app`)
+			// Handle other authorization types
 		}
 	}
 }
@@ -51,11 +85,9 @@ export class ApplicationAuthorized extends ApplicationAuthorizedListener {
 
 ### Handling Gateway Events
 
-Gateway events are the heartbeat of your bot's interaction with Discord. Here's how you might handle some common scenarios:
+Gateway events are where the fun stuff happens. Here are a couple of common examples:
 
-#### Bot Ready Event
-
-The Ready event fires when your bot successfully connects to Discord's gateway and is ready to start receiving events:
+#### When Your Bot Starts Up
 
 ```typescript title="src/events/ready.ts"
 import { 
@@ -70,15 +102,19 @@ export class Ready extends ReadyListener {
 		data: ListenerEventData[typeof ListenerEvent.Ready],
 		client: Client
 	) {
-		console.log(`Connected as ${data.user.username}`)
+		console.log(`Ready! Logged in as ${data.user.username}`)
 		console.log(`Serving ${data.guilds.length} servers`)
+		
+		// Set up any initialization tasks here
+		await registerCommands(client);
+		await setupPeriodicTasks(client);
 	}
 }
 ```
 
-#### Message Events
+#### Handling Messages
 
-Handling messages is one of the most common tasks for a Discord bot. Here's a comprehensive message handler:
+Want to do something when people send messages? Here's how:
 
 ```typescript title="src/events/messageCreate.ts"
 import { 
@@ -93,34 +129,31 @@ export class MessageCreate extends MessageCreateListener {
 		data: ListenerEventData[typeof ListenerEvent.MessageCreate],
 		client: Client
 	) {
-		// Ignore messages from bots to prevent loops
-		if (data.author.bot) return
+		// Don't respond to other bots!
+		if (data.author.bot) return;
 
-		// Access the full message context
-		const { content, author, guild, member } = data
+		const { content, author, guild } = data;
 		
-		// Example: Log messages in a specific channel
-		if (data.channel.id === 'your-log-channel-id') {
-			console.log(`${author.username}: ${content}`)
-		}
-
-		// Example: Handle server-specific prefixes for message commands
-		if (guild) {
-			const prefix = await getGuildPrefix(guild.id)
-			if (content.startsWith(prefix)) {
-				// Handle message commands
+		if (guild && content) {
+			// Handle the message in a guild context
+			console.log(`${author.username} said: ${content} in ${guild.name}`);
+			
+			// Example: Command handling
+			if (content.startsWith('!')) {
+				const [command, ...args] = content.slice(1).split(' ');
+				await handleCommand(command, args, data, client);
 			}
 		}
 	}
 }
 ```
 
-## Setting Up Your Listeners
+## Adding Your Listeners
 
-To use your listeners, you'll need to register them with your Carbon client. Here's how to set everything up:
+Once you've created your listeners, you need to tell Carbon about them. Just add them to your client setup:
 
 ```typescript title="src/index.ts"
-import { Client, GatewayIntents } from "@buape/carbon"
+import { Client } from "@buape/carbon"
 import { Ready } from "./events/ready"
 import { MessageCreate } from "./events/messageCreate"
 import { ApplicationAuthorized } from "./events/authorized"
@@ -134,7 +167,7 @@ const client = new Client(
 		token: process.env.DISCORD_BOT_TOKEN
 	},
 	{
-		commands: [], // Your slash commands here
+		commands: [], // Your slash commands go here
 		listeners: [
 			new Ready(),
 			new MessageCreate(),
@@ -144,21 +177,21 @@ const client = new Client(
 )
 ```
 
-## Available Events
+## Events You Can Listen For
 
-Carbon supports the full range of Discord events through its type-safe `ListenerEvent` system. Here are some of the most commonly used events you might want to handle:
+Carbon supports all of Discord's events. Here are some of the most common ones:
 
-### Common Gateway Events
-- Server lifecycle: `GuildCreate`, `GuildDelete`, `GuildUpdate`
-- Member activity: `GuildMemberAdd`, `GuildMemberRemove`, `GuildMemberUpdate`
-- Messages: `MessageCreate`, `MessageUpdate`, `MessageDelete`
-- Channels: `ChannelCreate`, `ChannelUpdate`, `ChannelDelete`
-- Voice states: `VoiceStateUpdate`, `VoiceServerUpdate`
-- Interactions: `InteractionCreate`
+### Gateway Events
+- Server events: `GuildCreate`, `GuildDelete`, `GuildUpdate`
+- Member events: `GuildMemberAdd`, `GuildMemberRemove`, `GuildMemberUpdate`
+- Message events: `MessageCreate`, `MessageUpdate`, `MessageDelete`
+- Channel events: `ChannelCreate`, `ChannelUpdate`, `ChannelDelete`
+- Voice events: `VoiceStateUpdate`, `VoiceServerUpdate`
+- Interaction events: `InteractionCreate`
 
 ### Webhook Events
-- Application changes: `ApplicationAuthorized`
-- Premium features: `EntitlementCreate`, `EntitlementUpdate`, `EntitlementDelete`
-- User progression: `QuestUserEnrollment`
+- Application events: `ApplicationAuthorized`
+- Premium events: `EntitlementCreate`, `EntitlementUpdate`, `EntitlementDelete`
+- Quest events: `QuestUserEnrollment`
 
-Each event type comes with its own strongly-typed data structure, ensuring you always know exactly what data is available in your event handlers. The `ListenerEventData` type provides comprehensive type information for all supported events.
+Each event type comes with its own data structure defined in the `ListenerEventData` type, which provides full type safety and autocompletion in your IDE. The event data includes everything you need to know about what happened, properly typed and easily accessible.

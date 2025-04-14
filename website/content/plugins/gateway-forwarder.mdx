@@ -4,25 +4,21 @@ description: Forward Discord Gateway events to your application as webhook-style
 icon: Forward
 ---
 
-The Gateway Forwarder plugin allows you to receive Discord Gateway events through webhook-style HTTP requests instead of maintaining a WebSocket connection. This is particularly useful for serverless environments or when you want to process Gateway events through your existing HTTP infrastructure.
+Want to run your bot on serverless but still need Gateway events? The Gateway Forwarder plugin is here to help! It lets you receive Gateway events through regular HTTP webhooks instead of maintaining a WebSocket connection. This means you can run your bot on platforms like Vercel, Cloudflare Workers, or AWS Lambda while still getting all those real-time events from Discord.
 
-## Architecture Overview
+## How Does It Work?
 
-The Gateway Forwarder setup uses a two-part architecture that separates the WebSocket connection handling from your main bot logic. At its core, you'll run two separate Carbon instances that work together to provide a seamless experience.
+The Gateway Forwarder uses a clever two-part setup: a super lightweight forwarder that runs on a regular server (like a \$5 VPS) and just maintains the WebSocket connection to Discord, and your main bot code that runs wherever you want (even serverless!) and receives events as HTTP webhooks. Think of the forwarder as your bot's phone operator - it stays on the line with Discord and forwards any important calls to your main application. This way, your main bot logic can scale independently and process events through your familiar HTTP infrastructure.
 
-The first part is a lightweight Gateway Forwarder instance that runs in a traditional, long-running environment like a server or container. This instance's sole responsibility is maintaining the WebSocket connection to Discord and forwarding events. It doesn't need any commands, listeners, or other bot logic - just the Gateway Forwarder plugin. Since it only forwards events outward and doesn't need to receive incoming requests, you don't even need to set up an HTTP server or provide a Carbon adapter. By keeping this instance focused on a single task, you can run it on minimal infrastructure while ensuring a stable connection to Discord's Gateway.
+## Technical Details
 
-The second part is your main application instance, which contains all your actual bot logic, commands, and event handling. This instance can run anywhere, including serverless environments like AWS Lambda or Vercel, because it doesn't need to maintain any persistent connections. Instead, it receives Gateway events as regular HTTP webhooks, allowing it to scale independently and process events through your existing HTTP infrastructure.
+The forwarder is designed to handle all the complex parts of Gateway connections so you don't have to. It maintains a WebSocket connection to Discord's Gateway following the official lifecycle - establishing the connection, handling the Hello event, keeping up with heartbeats and ACKs, and managing session state and resuming. It takes care of receiving and decoding Gateway events (including ETF/JSON handling), signs each event with Ed25519, and forwards it to your webhook endpoint. If your endpoint happens to be down, it'll handle retries with exponential backoff, and it manages all the Gateway session state and reconnections exactly as Discord specifies.
 
-This separation of concerns brings several advantages to your bot's architecture. You can run your main bot logic in serverless environments that typically don't support WebSocket connections, scale your event processing independently of the Gateway connection, and handle all events through your familiar HTTP infrastructure. Most importantly, you can optimize costs by running minimal infrastructure for the WebSocket connection while scaling your main application based on actual usage.
+On your main application's side, things are even simpler. Your app receives events as regular HTTP POST requests, and Carbon's client automatically handles all the security and processing for you. The client verifies the Ed25519 signatures, manages rate limits according to Discord's guidelines, and presents the events to your listeners in the same format as if they came directly from Discord.
 
-## How It Works
+## Setting Up the Forwarder
 
-The Gateway Forwarder plugin maintains a WebSocket connection to Discord's Gateway and forwards all events to your specified HTTP endpoint. Each event is signed using Ed25519, similar to Discord's webhook signature system, allowing you to verify that the events are genuine.
-
-## Setting Up Keys
-
-Before using the Gateway Forwarder, you'll need to generate an Ed25519 key pair. Run these commands in your terminal:
+First, you'll need to generate a key pair so your main bot can verify that events are actually coming from your forwarder. Here's what you need to run in your terminal:
 
 ```bash title="Terminal"
 # Generate key pair and store in variables
@@ -41,13 +37,11 @@ echo "$KEYPAIR" | awk '{printf "%s\\n", $0}' >> .env
 echo "\"" >> .env
 ```
 
-This will append two environment variables to your `.env` file:
-- `FORWARDER_PRIVATE_KEY`: The private key used by the forwarder to sign events
-- `FORWARDER_PUBLIC_KEY`: The public key used by your application to verify events
+This will add two environment variables to your `.env` file: the `FORWARDER_PRIVATE_KEY` that the forwarder uses to sign events (keep this one secret!), and the `FORWARDER_PUBLIC_KEY` that your main bot uses to verify events are legitimate.
 
-## Forwarder Setup
+## Setting Up the Forwarder Bot
 
-Create a new application that will run the Gateway Forwarder plugin:
+Creating a new application for your forwarder is super straightforward - it just needs the Gateway Forwarder plugin:
 
 ```typescript title="src/index.ts"
 import "dotenv/config"
@@ -72,19 +66,29 @@ const client = new Client(
                GatewayIntents.GuildMessages | 
                GatewayIntents.MessageContent,
       webhookUrl: `${process.env.BASE_URL}/events`,
-      privateKey: process.env.FORWARDER_PRIVATE_KEY
+      privateKey: process.env.FORWARDER_PRIVATE_KEY,
+      // Optional configuration
+      retryStrategy: {
+        maxAttempts: 5,           // Maximum retry attempts
+        initialDelay: 1000,       // Start with 1 second delay
+        maxDelay: 60000,          // Cap at 1 minute delay
+        backoffMultiplier: 2      // Double delay each retry
+      },
+      eventFilter: (event) => {   // Optional event filtering
+        return !event.t?.startsWith('TYPING_');  // Skip typing events
+      }
     })
   ]
 )
 
 console.log(
-  `Gateway forwarder initialized and ready to forward events to ${process.env.BASE_URL}/events`
+  `Gateway forwarder ready to send events to ${process.env.BASE_URL}/events`
 )
 ```
 
-## Receiving Events
+## Setting Up Your Main Bot
 
-In your main application, configure it to accept the forwarded events by adding the forwarder's public key:
+Setting up your main bot application is even simpler - you just need to add the forwarder's public key to your client config:
 
 ```typescript title="src/index.ts"
 import { Client } from "@buape/carbon"
@@ -101,88 +105,53 @@ const client = new Client({
 })
 ```
 
-The events will be delivered to your `/events` endpoint with the following headers:
-- `X-Signature-Ed25519`: The event signature
-- `X-Signature-Timestamp`: The timestamp used in the signature
-- `Content-Type`: `application/json`
+When events arrive at your `/events` endpoint, they'll come with all the headers you need: `X-Signature-Ed25519` for the event signature (64 bytes hex), `X-Signature-Timestamp` for the timestamp used in the signature, `Content-Type` set to `application/json`, and the proper Discord bot user agent. The event payload itself is straightforward too - it's a simple JSON object with a `type` (always 0 for Gateway events) and an `event` object containing the Gateway event type and data, matching Discord's Gateway format exactly.
 
-The event payload will be formatted as a webhook event:
+## Event Verification
 
-```typescript
-interface WebhookEvent {
-  type: number // Always 0 for Gateway events
-  event: {
-    type: string    // The Gateway event type (e.g., "MESSAGE_CREATE")
-    data: unknown   // The event data
-  }
-}
-```
+Event verification happens automatically in Carbon's client. Here's how it works:
 
-## Security Considerations
+1. When the forwarder sends an event:
+   - It adds a timestamp to the request
+   - It concatenates the timestamp and the raw JSON body
+   - It signs this data with Ed25519 using its private key
+   - It sends the event with the signature in the `X-Signature-Ed25519` header and timestamp in `X-Signature-Timestamp`
 
-1. Keep your private key secure and never commit it to version control
-2. Use environment variables to store both public and private keys
-3. Always verify the signature of incoming events
-4. Use HTTPS for your webhook endpoint
+2. When Carbon's client receives the event:
+   - It extracts the timestamp and signature from the headers
+   - It verifies the signature using the forwarder's public key (which you provided in the client config)
+   - If verification passes, it processes the event and sends it to your listeners
+   - If verification fails, it rejects the event to protect your bot
 
-## Best Practices
+You don't need to implement any of this yourself - just make sure you've added the forwarder's public key to your client config as shown in the setup example above.
 
-1. **Error Handling**: Implement proper error handling for failed event deliveries
-2. **Retry Logic**: Consider implementing retry logic in case your endpoint is temporarily unavailable
-3. **Monitoring**: Monitor the forwarder's connection status and event delivery success rate
-4. **Scaling**: Run the forwarder separately from your main application for better scalability
+## Quick Tips for Success
 
-## Environment Variables
+When setting up your Gateway Forwarder, there are a few key things to keep in mind. First and foremost, keep that private key super secret - never commit it to Git! Always use environment variables for both keys. It's also crucial to use HTTPS for your webhook endpoint to keep everything secure.
 
-Make sure to set these environment variables:
-
-```bash title=".env"
-# Standard Discord configuration
-BASE_URL="your-base-url"
-DEPLOY_SECRET="your-deploy-secret"
-DISCORD_CLIENT_ID="your-client-id"
-DISCORD_PUBLIC_KEY="discord-public-key"
-DISCORD_BOT_TOKEN="your-bot-token"
-
-# Gateway Forwarder configuration
-FORWARDER_PUBLIC_KEY="generated-public-key"
-FORWARDER_PRIVATE_KEY="generated-private-key"
-```
+Consider using the event filter to reduce unnecessary traffic, and make sure you've got appropriate timeouts set up for your environment. The forwarder will handle retries if your endpoint is temporarily down, but you might want to monitor its connection status in production.
 
 ## Quick Start with Railway
 
-You can quickly deploy a Gateway Forwarder using Railway and the `create-carbon` CLI. Here's how:
+Want to get started fast? You can deploy a forwarder on Railway in just a few minutes. Start by creating a new forwarder project:
 
-1. Create a new forwarder project:
 ```bash
 pnpm create carbon@latest
 ```
 
-2. When prompted:
-   - Enter a project name
-   - Select "Gateway Forwarder" as the runtime
-   - Choose to install dependencies
+When prompted, you can pick any project name you like, but make sure to choose "Gateway Forwarder" as the runtime. Let it install the dependencies, then generate your keys using the commands we covered earlier.
 
-3. Generate your Ed25519 key pair using the commands in the generated README.md file.
+Next, head over to [Railway](https://railway.app) and create a new project. Choose "Deploy from GitHub" and pick your forwarder repo. You'll need to add these environment variables:
+- `BASE_URL`: Your Railway deployment URL (like https://your-app.railway.app)
+- `DEPLOY_SECRET`: Any random string to secure deployments
+- `DISCORD_CLIENT_ID`: Your Discord app ID
+- `DISCORD_PUBLIC_KEY`: Your Discord app public key
+- `DISCORD_BOT_TOKEN`: Your Discord bot token
+- `FORWARDER_PRIVATE_KEY`: The private key from earlier
 
-4. Create a new project on [Railway](https://railway.app):
-   - Click "New Project"
-   - Choose "Deploy from GitHub"
-   - Select your forwarder repository
+Finally, set your start command in Railway to:
+```bash
+pnpm build && pnpm start
+```
 
-5. Add your environment variables in Railway:
-   - `BASE_URL`: Your Railway deployment URL (e.g., https://your-app.railway.app)
-   - `DEPLOY_SECRET`: A random string for securing deployments
-   - `DISCORD_CLIENT_ID`: Your Discord application ID
-   - `DISCORD_PUBLIC_KEY`: Your Discord application public key
-   - `DISCORD_BOT_TOKEN`: Your Discord bot token
-   - `FORWARDER_PRIVATE_KEY`: The private key generated in step 3
-
-6. Configure the start command in Railway:
-   ```bash
-   pnpm build && pnpm start
-   ```
-
-Your forwarder will now be running on Railway, maintaining a WebSocket connection to Discord's Gateway and forwarding events to your specified endpoint. The minimal setup ensures efficient resource usage while providing reliable event forwarding.
-
-Remember to keep your private key secure. If anyone gains access to it, they will be able to send fake events to your application.
+And that's it! Your forwarder will run happily on Railway, keeping that WebSocket connection alive while your main bot scales independently. Just remember: keep that private key safe. If someone gets their hands on it, they could send fake events to your bot!
