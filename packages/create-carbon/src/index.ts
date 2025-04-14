@@ -39,22 +39,26 @@ if (p.isCancel(runtime)) {
 	process.exit(1)
 }
 
-const gateway = serverRuntimes.includes(runtime)
-	? await p.confirm({
-			message:
-				"Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
-			initialValue: false
-		})
-	: false
+const gateway =
+	serverRuntimes.includes(runtime) && runtime !== "forwarder"
+		? await p.confirm({
+				message:
+					"Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
+				initialValue: false
+			})
+		: false
 if (p.isCancel(gateway)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
 
-const linkedRoles = await p.confirm({
-	message: "Would you like to add linked roles to your app?",
-	initialValue: false
-})
+const linkedRoles =
+	runtime !== "forwarder"
+		? await p.confirm({
+				message: "Would you like to add linked roles to your app?",
+				initialValue: false
+			})
+		: false
 if (p.isCancel(linkedRoles)) {
 	p.outro("Cancelled")
 	process.exit(1)
