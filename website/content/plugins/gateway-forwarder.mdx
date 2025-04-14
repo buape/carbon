@@ -52,11 +52,10 @@ Create a new application that will run the Gateway Forwarder plugin:
 ```typescript title="src/index.ts"
 import "dotenv/config"
 import { Client } from "@buape/carbon"
-import { createServer } from "@buape/carbon/adapters/node"
 import {
   GatewayForwarderPlugin,
   GatewayIntents
-} from "@buape/carbon/gateway-forwarder"
+} from "@buape/carbon/plugins/gateway-forwarder"
 
 const client = new Client(
   {

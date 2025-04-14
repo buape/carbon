@@ -25,7 +25,8 @@ When configuring the Gateway plugin, the most important decision you'll make is 
 Here's how you might configure the Gateway plugin:
 
 ```typescript title="src/index.ts"
-import { Client, GatewayPlugin, GatewayIntents } from "@buape/carbon"
+import { Client } from "@buape/carbon"
+import { GatewayPlugin, GatewayIntents } from "@buape/carbon/plugins/gateway"
 
 const client = new Client(
   {
@@ -60,7 +61,9 @@ As your bot grows and joins more servers, you'll need to consider sharding. Shar
 Here's how you can implement sharding:
 
 ```typescript title="src/index.ts"
-import { Client, ShardingPlugin, GatewayIntents } from "@buape/carbon"
+import { Client } from "@buape/carbon"
+import { ShardingPlugin } from "@buape/carbon/plugins/sharding"
+import { GatewayIntents } from "@buape/carbon/plugins/gateway"
 
 const client = new Client(
   {
