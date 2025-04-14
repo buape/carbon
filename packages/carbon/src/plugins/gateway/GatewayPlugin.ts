@@ -31,12 +31,6 @@ export interface GatewayPluginOptions {
 	}
 }
 
-declare module "../../classes/Client.js" {
-	interface Client {
-		emit(event: string, ...args: unknown[]): boolean
-	}
-}
-
 export class GatewayPlugin extends Plugin {
 	protected client?: Client
 	protected config: GatewayPluginOptions
