@@ -26,7 +26,7 @@ In Carbon, we use Listeners to handle both types of events in a unified way.
 
 ## Creating a Listener
 
-To create a listener, extend the `Listener` class and implement the required methods. Here are some examples:
+To create a listener, extend the appropriate listener class for your event type (e.g., `ApplicationAuthorizedListener`, `ReadyListener`, etc.). Each event type has its own base class that provides type safety and proper data handling. Here are some examples:
 
 ### Webhook Event Example
 
@@ -35,14 +35,13 @@ import {
 	ApplicationIntegrationType,
 	ListenerEvent,
 	type Client,
-	Listener,
+	ApplicationAuthorizedListener,
 	type ListenerEventData
 } from "@buape/carbon"
 
-export default class ApplicationAuthorizedListener extends Listener {
-	readonly type = ListenerEvent.ApplicationAuthorized
+export default class ApplicationAuthorized extends ApplicationAuthorizedListener {
 	async handle(
-		data: ListenerEventData<typeof ListenerEvent.ApplicationAuthorized>,
+		data: ListenerEventData[typeof ListenerEvent.ApplicationAuthorized],
 		client: Client
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
@@ -60,14 +59,13 @@ export default class ApplicationAuthorizedListener extends Listener {
 import { 
 	ListenerEvent,
 	type Client,
-	Listener,
+	ReadyListener,
 	type ListenerEventData 
 } from "@buape/carbon"
 
-export default class ReadyListener extends Listener {
-	readonly type = ListenerEvent.Ready
+export default class Ready extends ReadyListener {
 	async handle(
-		data: ListenerEventData<typeof ListenerEvent.Ready>,
+		data: ListenerEventData[typeof ListenerEvent.Ready],
 		client: Client
 	) {
 		console.log(`Bot is ready! Logged in as ${data.user.username}`)
@@ -79,14 +77,13 @@ export default class ReadyListener extends Listener {
 import { 
 	ListenerEvent,
 	type Client,
-	Listener,
+	MessageCreateListener,
 	type ListenerEventData 
 } from "@buape/carbon"
 
-export default class MessageCreateListener extends Listener {
-	readonly type = ListenerEvent.MessageCreate
+export default class MessageCreate extends MessageCreateListener {
 	async handle(
-		data: ListenerEventData<typeof ListenerEvent.MessageCreate>,
+		data: ListenerEventData[typeof ListenerEvent.MessageCreate],
 		client: Client
 	) {
 		// Ignore bot messages
@@ -103,9 +100,9 @@ Listeners need to be registered with your Carbon client when initializing it:
 
 ```ts title="src/index.ts"
 import { Client } from "@buape/carbon"
-import ApplicationAuthorizedListener from "./events/authorized"
-import ReadyListener from "./events/ready"
-import MessageCreateListener from "./events/messageCreate"
+import ApplicationAuthorized from "./events/authorized"
+import Ready from "./events/ready"
+import MessageCreate from "./events/messageCreate"
 
 const client = new Client(
 	{
@@ -114,9 +111,9 @@ const client = new Client(
 	{
 		commands: [],
 		listeners: [
-			new ApplicationAuthorizedListener(),
-			new ReadyListener(),
-			new MessageCreateListener()
+			new ApplicationAuthorized(),
+			new Ready(),
+			new MessageCreate()
 		]
 	}
 )
@@ -139,4 +136,4 @@ Carbon supports all Discord events through the `ListenerEvent` enum. Some common
 - `ListenerEvent.ChannelCreate`
 - And many more...
 
-For a complete list of available events and their data types, refer to the `ListenerEventData` type in the Carbon source code.
+For a complete list of available events and their data types, refer to the `ListenerEventData` type.

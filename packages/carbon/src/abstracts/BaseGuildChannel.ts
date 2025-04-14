@@ -8,7 +8,7 @@ import {
 } from "discord-api-types/v10"
 import { Guild } from "../structures/Guild.js"
 import type { GuildCategoryChannel } from "../structures/GuildCategoryChannel.js"
-import type { MessagePayload } from "../types.js"
+import type { MessagePayload } from "../types/index.js"
 import type { IfPartial } from "../utils.js"
 import { serializePayload } from "../utils.js"
 import { BaseChannel } from "./BaseChannel.js"

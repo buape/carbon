@@ -3,8 +3,8 @@ import { Client, GatewayIntentBits } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
 import { GatewayPlugin } from "@buape/carbon/gateway"
 import PingCommand from "./commands/ping.js"
-import { MessageCreateListener } from "./events/messageCreate.js"
-import { ReadyListener } from "./events/ready.js"
+import { MessageCreate } from "./events/messageCreate.js"
+import { Ready } from "./events/ready.js"
 
 const client = new Client(
 	{
@@ -19,7 +19,7 @@ const client = new Client(
 			// commands/*
 			new PingCommand()
 		],
-		listeners: [new ReadyListener(), new MessageCreateListener()]
+		listeners: [new Ready(), new MessageCreate()]
 	},
 	[
 		new GatewayPlugin({
@@ -49,7 +49,6 @@ declare global {
 			BASE_URL: string
 			DEPLOY_SECRET: string
 			DISCORD_CLIENT_ID: string
-			DISCORD_CLIENT_SECRET: string
 			DISCORD_PUBLIC_KEY: string
 			DISCORD_BOT_TOKEN: string
 		}

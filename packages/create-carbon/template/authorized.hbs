@@ -6,14 +6,13 @@ import {
 	ApplicationIntegrationType,
 	ListenerEvent,
 	type Client,
-	Listener,
+	ApplicationAuthorizedListener,
 	type ListenerEventData
 } from "@buape/carbon"
 
-export default class ApplicationAuthorizedListener extends Listener {
-	readonly type = ListenerEvent.ApplicationAuthorized
+export default class ApplicationAuthorized extends ApplicationAuthorizedListener {
 	async handle(
-		data: ListenerEventData<typeof ListenerEvent.ApplicationAuthorized>,
+		data: ListenerEventData[typeof ListenerEvent.ApplicationAuthorized],
 		client: Client
 	) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {

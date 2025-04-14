@@ -1,6 +1,10 @@
-import { Listener, ListenerEvent, type ListenerEventData } from "@buape/carbon"
+import {
+	ListenerEvent,
+	type ListenerEventData,
+	ReadyListener
+} from "@buape/carbon"
 
-export class ReadyListener extends Listener {
+export class Ready extends ReadyListener {
 	readonly type = ListenerEvent.Ready
 	async handle(data: ListenerEventData[typeof ListenerEvent.Ready]) {
 		console.log(`Logged in as ${data.user.username}`)

@@ -1,11 +1,11 @@
 import {
 	ApplicationIntegrationType,
-	Listener,
 	ListenerEvent,
-	type ListenerEventData
+	type ListenerEventData,
+	ApplicationAuthorizedListener
 } from "@buape/carbon"
 
-export class ApplicationAuthorizedListener extends Listener {
+export class ApplicationAuthorized extends ApplicationAuthorizedListener {
 	readonly type = ListenerEvent.ApplicationAuthorized
 	async handle(
 		data: ListenerEventData[typeof ListenerEvent.ApplicationAuthorized]

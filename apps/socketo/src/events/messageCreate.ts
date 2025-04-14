@@ -1,23 +1,18 @@
 import {
 	type Client,
-	Listener,
 	ListenerEvent,
 	type ListenerEventData,
-	Message
+	MessageCreateListener
 } from "@buape/carbon"
 
-export class MessageCreateListener extends Listener {
+export class MessageCreate extends MessageCreateListener {
 	readonly type = ListenerEvent.MessageCreate
-	async handle(
-		data: ListenerEventData[typeof ListenerEvent.MessageCreate],
-		client: Client
-	) {
+	async handle(data: ListenerEventData[this["type"]], client: Client) {
 		if (
-			data.channel_id === "1229597822907580488" &&
+			data.message.channelId === "1229597822907580488" &&
 			data.author.id !== client.options.clientId
 		) {
-			const message = new Message(client, data)
-			await message.reply(`Echo: ${data.content}`)
+			await data.message.reply(`Echo: ${data.content}`)
 		}
 		console.log(`Message created: ${data.content}`)
 	}

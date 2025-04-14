@@ -73,7 +73,7 @@ export * from "./structures/User.js"
 
 // ----- Misc -----
 export * from "discord-api-types/v10"
-export * from "./types.js"
+export * from "./types/index.js"
 export * from "./utils.js"
 
 // ----- Re-exports -----

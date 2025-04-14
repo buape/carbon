@@ -1,4 +1,8 @@
-import { type APIChannel, ChannelType } from "discord-api-types/v10"
+import {
+	type APIChannel,
+	ChannelType,
+	type ThreadChannelType
+} from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import { DmChannel } from "../structures/DmChannel.js"
 import { GroupDmChannel } from "../structures/GroupDmChannel.js"
@@ -12,6 +16,18 @@ import {
 } from "../structures/GuildStageOrVoiceChannel.js"
 import { GuildTextChannel } from "../structures/GuildTextChannel.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
+
+export type AnyChannel =
+	| DmChannel
+	| GroupDmChannel
+	| GuildTextChannel
+	| GuildVoiceChannel
+	| GuildStageChannel
+	| GuildCategoryChannel
+	| GuildAnnouncementChannel
+	| GuildThreadChannel<ThreadChannelType>
+	| GuildForumChannel
+	| GuildMediaChannel
 
 export const channelFactory = (client: Client, channelData: APIChannel) => {
 	switch (channelData.type) {

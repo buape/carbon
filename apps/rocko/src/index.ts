@@ -18,7 +18,7 @@ import PermissionCommand from "./commands/testing/permissions.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
-import { ApplicationAuthorizedListener } from "./events/authorized.js"
+import { ApplicationAuthorized } from "./events/authorized.js"
 
 const linkedRoles = new LinkedRoles({
 	metadata: [
@@ -65,7 +65,7 @@ const client = new Client(
 			new UserCommand(),
 			new MentionsCommand()
 		],
-		listeners: [new ApplicationAuthorizedListener()]
+		listeners: [new ApplicationAuthorized()]
 	},
 	[linkedRoles]
 )

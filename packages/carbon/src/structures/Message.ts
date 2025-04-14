@@ -21,7 +21,7 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Embed } from "../classes/Embed.js"
 import { channelFactory } from "../functions/channelFactory.js"
-import type { MessagePayload } from "../types.js"
+import type { MessagePayload } from "../types/index.js"
 import { type IfPartial, serializePayload } from "../utils.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Role } from "./Role.js"
@@ -31,13 +31,17 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
 		rawDataOrIds: IsPartial extends true
-			? { id: string; channelId: string }
+			? { id: string; channelId?: string }
 			: APIMessage
 	) {
 		super(client)
-		if (Object.keys(rawDataOrIds).length === 2) {
+		if (
+			Object.keys(rawDataOrIds).length === 2 &&
+			"id" in rawDataOrIds &&
+			"channelId" in rawDataOrIds
+		) {
 			this.id = rawDataOrIds.id
-			this.channelId = rawDataOrIds["channelId" as never]
+			this.channelId = rawDataOrIds.channelId
 		} else {
 			const data = rawDataOrIds as APIMessage
 			this.id = data.id
@@ -65,7 +69,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The ID of the channel the message is in
 	 */
-	readonly channelId: string
+	readonly channelId: string | undefined
 
 	/**
 	 * Whether the message is a partial message (meaning it does not have all the data).
@@ -290,6 +294,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * If the message is not partial, all fields will be updated with new values from Discord.
 	 */
 	async fetch() {
+		if (!this.channelId)
+			throw new Error("Cannot fetch message without channel ID")
 		const newData = (await this.client.rest.get(
 			Routes.channelMessage(this.channelId, this.id)
 		)) as APIMessage
@@ -302,6 +308,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Delete this message from Discord
 	 */
 	async delete() {
+		if (!this.channelId)
+			throw new Error("Cannot delete message without channel ID")
 		return await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
@@ -311,6 +319,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Get the channel the message was sent in
 	 */
 	async fetchChannel() {
+		if (!this.channelId)
+			throw new Error("Cannot fetch channel without channel ID")
 		const data = (await this.client.rest.get(
 			Routes.channel(this.channelId)
 		)) as APIChannel
@@ -321,6 +331,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Pin this message
 	 */
 	async pin() {
+		if (!this.channelId)
+			throw new Error("Cannot pin message without channel ID")
 		await this.client.rest.put(Routes.channelPin(this.channelId, this.id))
 	}
 
@@ -328,6 +340,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Unpin this message
 	 */
 	async unpin() {
+		if (!this.channelId)
+			throw new Error("Cannot unpin message without channel ID")
 		await this.client.rest.delete(Routes.channelPin(this.channelId, this.id))
 	}
 
@@ -336,6 +350,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * If you want to start a thread without a start message, use {@link BaseGuildTextChannel.startThread}
 	 */
 	async startThread(data: RESTPostAPIChannelThreadsJSONBody) {
+		if (!this.channelId)
+			throw new Error("Cannot start thread without channel ID")
 		const thread = (await this.client.rest.post(
 			Routes.threads(this.channelId, this.id),
 			{
@@ -346,6 +362,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	}
 
 	async edit(data: MessagePayload) {
+		if (!this.channelId)
+			throw new Error("Cannot edit message without channel ID")
 		const serialized = serializePayload(data)
 		await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
@@ -358,6 +376,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	}
 
 	async forward(channelId: string) {
+		if (!this.channelId)
+			throw new Error("Cannot forward message without channel ID")
 		const channel = await this.client.fetchChannel(channelId)
 		if (!channel) throw new Error(`Channel ${channelId} not found`)
 		if (!("send" in channel))
@@ -374,6 +394,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	}
 
 	async reply(data: MessagePayload) {
+		if (!this.channelId)
+			throw new Error("Cannot reply to message without channel ID")
 		const serialized = serializePayload(data)
 		await this.client.rest.post(Routes.channelMessages(this.channelId), {
 			body: {

@@ -3,16 +3,15 @@ path: src/events/ready.ts
 ---
 
 import {
-	GatewayEvent,
+	ListenerEvent,
 	type Client,
-	Listener,
+	ReadyListener,
 	type ListenerEventData
 } from "@buape/carbon"
 
-export default class ReadyListener extends Listener {
-	readonly type = GatewayEvent.Ready
+export default class Ready extends ReadyListener {
 	async handle(
-		data: ListenerEventData<typeof GatewayEvent>,
+		data: ListenerEventData[typeof ListenerEvent.Ready],
 		client: Client
 	) {
 		console.log(`Logged in as ${data.user.username}`)
