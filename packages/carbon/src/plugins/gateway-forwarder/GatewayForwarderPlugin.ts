@@ -1,5 +1,8 @@
 import { createPrivateKey, sign } from "node:crypto"
-import { ApplicationWebhookType } from "discord-api-types/v10"
+import {
+	type APIWebhookEvent,
+	ApplicationWebhookType
+} from "discord-api-types/v10"
 import { concatUint8Arrays, valueToUint8Array } from "../../utils.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type { GatewayPayload, GatewayPluginOptions } from "../gateway/types.js"
@@ -57,18 +60,23 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 				const payload = JSON.parse(data.toString()) as GatewayPayload
 
 				if (payload.t && payload.d) {
-					const webhookEvent = {
+					// In the below code, the events are not truly webhook events,
+					// but we use the webhook event type so that the payloads are structured correctly to work as if they were webhook events
+					const timestamp = Date.now()
+					const webhookEvent: APIWebhookEvent = {
+						version: 1,
+						application_id: this.client?.options.clientId || "unknown",
 						type: ApplicationWebhookType.Event,
 						event: {
 							type: payload.t,
+							timestamp: new Date().toISOString(),
 							data: payload.d
-						}
+						} as APIWebhookEvent["event"]
 					}
 
 					const body = JSON.stringify(webhookEvent)
-					const timestamp = Date.now().toString()
 
-					const timestampData = valueToUint8Array(timestamp)
+					const timestampData = valueToUint8Array(timestamp.toString())
 					const bodyData = valueToUint8Array(body)
 					const message = concatUint8Arrays(timestampData, bodyData)
 
@@ -81,7 +89,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 						headers: {
 							"Content-Type": "application/json",
 							"X-Signature-Ed25519": signatureHex,
-							"X-Signature-Timestamp": timestamp
+							"X-Signature-Timestamp": timestamp.toString()
 						},
 						body
 					})
