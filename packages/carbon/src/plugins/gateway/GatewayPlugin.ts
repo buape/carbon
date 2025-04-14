@@ -76,12 +76,6 @@ export class GatewayPlugin extends Plugin {
 				: (this.config.url ?? "wss://gateway.discord.gg/?v=10&encoding=json")
 		this.ws = this.createWebSocket(url)
 		this.setupWebSocket()
-
-		this.ws.on("close", () => {
-			this.reconnectAttempts++
-			const backoffTime = Math.min(1000 * 2 ** this.reconnectAttempts, 30000)
-			setTimeout(() => this.connect(resume), backoffTime)
-		})
 	}
 
 	public disconnect(): void {
@@ -194,7 +188,11 @@ export class GatewayPlugin extends Plugin {
 		})
 	}
 
-	protected handleClose(code: number): void {
+	protected handleReconnectionAttempt(options: {
+		code?: number
+		isZombieConnection?: boolean
+		forceNoResume?: boolean
+	}): void {
 		const {
 			maxAttempts = 5,
 			baseDelay = 1000,
@@ -205,65 +203,69 @@ export class GatewayPlugin extends Plugin {
 			this.emitter.emit(
 				"error",
 				new Error(
-					`Max reconnect attempts (${maxAttempts}) reached after code ${code}`
+					`Max reconnect attempts (${maxAttempts}) reached${options.code ? ` after code ${options.code}` : ""}`
 				)
 			)
 			return
 		}
 
-		switch (code) {
-			case GatewayCloseCodes.AuthenticationFailed:
-			case GatewayCloseCodes.InvalidAPIVersion:
-			case GatewayCloseCodes.InvalidIntents:
-			case GatewayCloseCodes.DisallowedIntents:
-			case GatewayCloseCodes.ShardingRequired: {
-				this.emitter.emit("error", new Error(`Fatal Gateway error: ${code}`))
-				this.reconnectAttempts = maxAttempts
-				break
-			}
+		if (options.code) {
+			switch (options.code) {
+				case GatewayCloseCodes.AuthenticationFailed:
+				case GatewayCloseCodes.InvalidAPIVersion:
+				case GatewayCloseCodes.InvalidIntents:
+				case GatewayCloseCodes.DisallowedIntents:
+				case GatewayCloseCodes.ShardingRequired: {
+					this.emitter.emit(
+						"error",
+						new Error(`Fatal Gateway error: ${options.code}`)
+					)
+					this.reconnectAttempts = maxAttempts
+					return
+				}
 
-			case GatewayCloseCodes.InvalidSeq:
-			case GatewayCloseCodes.SessionTimedOut: {
-				this.state.sessionId = null
-				this.state.resumeGatewayUrl = null
-				this.sequence = null
-				this.reconnectAttempts++
-				const backoffTime = Math.min(
-					baseDelay * 2 ** this.reconnectAttempts,
-					maxDelay
-				)
-				this.emitter.emit(
-					"debug",
-					`Reconnecting with backoff: ${backoffTime}ms after code ${code}`
-				)
-				setTimeout(() => this.connect(false), backoffTime)
-				break
-			}
-
-			default: {
-				this.reconnectAttempts++
-				const resumeBackoffTime = Math.min(
-					baseDelay * 2 ** this.reconnectAttempts,
-					maxDelay
-				)
-				this.emitter.emit(
-					"debug",
-					`Attempting resume with backoff: ${resumeBackoffTime}ms after code ${code}`
-				)
-				setTimeout(() => this.connect(this.canResume()), resumeBackoffTime)
+				case GatewayCloseCodes.InvalidSeq:
+				case GatewayCloseCodes.SessionTimedOut: {
+					this.state.sessionId = null
+					this.state.resumeGatewayUrl = null
+					this.sequence = null
+					options.forceNoResume = true
+					break
+				}
 			}
 		}
+
+		this.reconnectAttempts++
+		const backoffTime = Math.min(
+			baseDelay * 2 ** this.reconnectAttempts,
+			maxDelay
+		)
+
+		if (options.isZombieConnection) {
+			this.monitor.recordZombieConnection()
+		}
+
+		this.disconnect()
+
+		const shouldResume = !options.forceNoResume && this.canResume()
+		this.emitter.emit(
+			"debug",
+			`${shouldResume ? "Attempting resume" : "Reconnecting"} with backoff: ${backoffTime}ms${options.code ? ` after code ${options.code}` : ""}`
+		)
+
+		setTimeout(() => this.connect(shouldResume), backoffTime)
+	}
+
+	protected handleClose(code: number): void {
+		this.handleReconnectionAttempt({ code })
 	}
 
 	protected handleZombieConnection(): void {
-		this.monitor.recordZombieConnection()
-		this.disconnect()
-		this.connect(this.canResume())
+		this.handleReconnectionAttempt({ isZombieConnection: true })
 	}
 
 	protected handleReconnect(): void {
-		this.disconnect()
-		this.connect(this.canResume())
+		this.handleReconnectionAttempt({})
 	}
 
 	protected canResume(): boolean {
