@@ -21,7 +21,6 @@ export function startHeartbeat(
 ): void {
 	stopHeartbeat(manager)
 
-	// Add jitter to prevent thundering herd
 	const jitter = Math.random() * 1000
 	const interval = options.interval + jitter
 
@@ -38,7 +37,6 @@ export function startHeartbeat(
 		})
 	}, interval)
 
-	// Send initial heartbeat
 	manager.send({
 		op: GatewayOpcodes.Heartbeat,
 		d: manager.sequence

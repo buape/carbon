@@ -44,8 +44,9 @@ export interface ClientOptions {
 	deploySecret?: string
 	/**
 	 * The public key of the app, used for interaction verification
+	 * Can be a single key or an array of keys
 	 */
-	publicKey: string
+	publicKey: string | string[]
 	/**
 	 * The token of the bot
 	 */
@@ -300,24 +301,38 @@ export class Client {
 			const timestampData = valueToUint8Array(timestamp)
 			const bodyData = valueToUint8Array(body)
 			const message = concatUint8Arrays(timestampData, bodyData)
-			const isValid = await subtleCrypto.verify(
-				{
-					name: "ed25519"
-				},
-				await subtleCrypto.importKey(
-					"raw",
-					valueToUint8Array(this.options.publicKey, "hex"),
-					{
-						name: "ed25519",
-						namedCurve: "ed25519"
-					},
-					false,
-					["verify"]
-				),
-				valueToUint8Array(signature, "hex"),
-				message
-			)
-			return isValid
+
+			// Convert single key to array for consistent handling
+			const publicKeys = Array.isArray(this.options.publicKey)
+				? this.options.publicKey
+				: [this.options.publicKey]
+
+			// Try each public key until one works
+			for (const publicKey of publicKeys) {
+				try {
+					const isValid = await subtleCrypto.verify(
+						{
+							name: "ed25519"
+						},
+						await subtleCrypto.importKey(
+							"raw",
+							valueToUint8Array(publicKey, "hex"),
+							{
+								name: "ed25519",
+								namedCurve: "ed25519"
+							},
+							false,
+							["verify"]
+						),
+						valueToUint8Array(signature, "hex"),
+						message
+					)
+					if (isValid) return true
+				} catch {
+					// Skip to next key if this one fails
+				}
+			}
+			return false
 		} catch (_) {
 			return false
 		}

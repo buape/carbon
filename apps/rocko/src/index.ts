@@ -19,6 +19,7 @@ import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
 import { ApplicationAuthorized } from "./events/authorized.js"
+import { MessageCreate } from "./events/messageCreate.js"
 
 const linkedRoles = new LinkedRoles({
 	metadata: [
@@ -44,7 +45,10 @@ const client = new Client(
 		deploySecret: process.env.DEPLOY_SECRET,
 		clientId: process.env.DISCORD_CLIENT_ID,
 		clientSecret: process.env.DISCORD_CLIENT_SECRET,
-		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		publicKey: [
+			process.env.DISCORD_PUBLIC_KEY,
+			process.env.FORWARDER_PUBLIC_KEY
+		], // Receiving from pointo
 		token: process.env.DISCORD_BOT_TOKEN
 	},
 	{
@@ -65,7 +69,7 @@ const client = new Client(
 			new UserCommand(),
 			new MentionsCommand()
 		],
-		listeners: [new ApplicationAuthorized()]
+		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
 	[linkedRoles]
 )
@@ -89,6 +93,7 @@ declare global {
 			DISCORD_CLIENT_SECRET: string
 			DISCORD_PUBLIC_KEY: string
 			DISCORD_BOT_TOKEN: string
+			FORWARDER_PUBLIC_KEY: string // Receiving from pointo
 		}
 	}
 }

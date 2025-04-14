@@ -23,7 +23,7 @@ interface HelloData {
 }
 
 export class GatewayPlugin extends Plugin {
-	readonly id = "gateway"
+	protected id = "gateway"
 	protected client?: Client
 	protected config: GatewayPluginOptions
 	protected state: GatewayState
@@ -56,7 +56,6 @@ export class GatewayPlugin extends Plugin {
 		this.monitor = new ConnectionMonitor()
 		this.emitter = new EventEmitter()
 
-		// Forward monitor events
 		this.monitor.on("metrics", (metrics: ConnectionMetrics) =>
 			this.emitter.emit("metrics", metrics)
 		)
@@ -80,7 +79,7 @@ export class GatewayPlugin extends Plugin {
 
 		this.ws.on("close", () => {
 			this.reconnectAttempts++
-			const backoffTime = Math.min(1000 * 2 ** this.reconnectAttempts, 30000) // Exponential backoff with a max of 30 seconds
+			const backoffTime = Math.min(1000 * 2 ** this.reconnectAttempts, 30000)
 			setTimeout(() => this.connect(resume), backoffTime)
 		})
 	}
@@ -103,7 +102,7 @@ export class GatewayPlugin extends Plugin {
 		if (!this.ws) return
 
 		this.ws.on("open", () => {
-			this.reconnectAttempts = 0 // Reset attempts on successful connection
+			this.reconnectAttempts = 0
 			this.emitter.emit("debug", "WebSocket connection opened")
 		})
 
@@ -165,7 +164,6 @@ export class GatewayPlugin extends Plugin {
 						if (canResume && this.canResume()) {
 							this.connect(true)
 						} else {
-							// Clear session data and re-identify
 							this.state.sessionId = null
 							this.state.resumeGatewayUrl = null
 							this.sequence = null
@@ -219,15 +217,13 @@ export class GatewayPlugin extends Plugin {
 			case GatewayCloseCodes.InvalidIntents:
 			case GatewayCloseCodes.DisallowedIntents:
 			case GatewayCloseCodes.ShardingRequired: {
-				// Fatal errors - don't reconnect
 				this.emitter.emit("error", new Error(`Fatal Gateway error: ${code}`))
-				this.reconnectAttempts = maxAttempts // Prevent further reconnection attempts
+				this.reconnectAttempts = maxAttempts
 				break
 			}
 
 			case GatewayCloseCodes.InvalidSeq:
 			case GatewayCloseCodes.SessionTimedOut: {
-				// Clear session and re-identify
 				this.state.sessionId = null
 				this.state.resumeGatewayUrl = null
 				this.sequence = null
@@ -245,7 +241,6 @@ export class GatewayPlugin extends Plugin {
 			}
 
 			default: {
-				// Try to resume for other codes
 				this.reconnectAttempts++
 				const resumeBackoffTime = Math.min(
 					baseDelay * 2 ** this.reconnectAttempts,

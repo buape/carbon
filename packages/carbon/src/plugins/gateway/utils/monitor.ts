@@ -1,13 +1,13 @@
 import { EventEmitter } from "node:events"
 
 export interface ConnectionMetrics {
-	latency: number // Time between heartbeat and ack in ms
-	uptime: number // Connection uptime in ms
-	reconnects: number // Number of reconnections
-	zombieConnections: number // Number of zombie connections detected
-	messagesReceived: number // Number of messages received
-	messagesSent: number // Number of messages sent
-	errors: number // Number of errors encountered
+	latency: number
+	uptime: number
+	reconnects: number
+	zombieConnections: number
+	messagesReceived: number
+	messagesSent: number
+	errors: number
 }
 
 export interface MonitorConfig {
@@ -43,12 +43,10 @@ export class ConnectionMonitor extends EventEmitter {
 			this.metrics.uptime = Date.now() - this.startTime
 			this.emit("metrics", this.getMetrics())
 
-			// Check for high latency
 			if (this.metrics.latency > this.config.latencyThreshold) {
 				this.emit("warning", `High latency detected: ${this.metrics.latency}ms`)
 			}
 
-			// Check for high error rate
 			const errorRate = (
 				this.metrics.errors /
 				(this.metrics.uptime / 60000)
