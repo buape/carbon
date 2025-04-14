@@ -1,15 +1,11 @@
 import {
 	ApplicationAuthorizedListener,
 	ApplicationIntegrationType,
-	ListenerEvent,
 	type ListenerEventData
 } from "@buape/carbon"
 
 export default class ApplicationAuthorized extends ApplicationAuthorizedListener {
-	readonly type = ListenerEvent.ApplicationAuthorized
-	async handle(
-		data: ListenerEventData[typeof ListenerEvent.ApplicationAuthorized]
-	) {
+	async handle(data: ListenerEventData[this["type"]]) {
 		if (data.integration_type === ApplicationIntegrationType.GuildInstall) {
 			console.log(`Added to server ${data.guild?.name} (${data.guild?.id})`)
 		} else {

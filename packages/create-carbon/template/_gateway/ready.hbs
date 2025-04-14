@@ -3,17 +3,13 @@ path: src/events/ready.ts
 ---
 
 import {
-	ListenerEvent,
 	type Client,
 	ReadyListener,
 	type ListenerEventData
 } from "@buape/carbon"
 
 export default class Ready extends ReadyListener {
-	async handle(
-		data: ListenerEventData[typeof ListenerEvent.Ready],
-		client: Client
-	) {
+	async handle(data: ListenerEventData[this["type"]], client: Client) {
 		console.log(`Logged in as ${data.user.username}`)
 	}
 } 
