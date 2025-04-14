@@ -82,8 +82,8 @@ const client = new Client(
 			new ButtonCommand()
 		], 
 		listeners: [
-			new ApplicationAuthorizedListener(){{#if plugins.gateway}},
-			new MessageCreateListener(){{/if}}
+			new ApplicationAuthorized(){{#if plugins.gateway}},
+			new MessageCreate(){{/if}}
 		],
 	}{{#if (or plugins.linkedRoles plugins.gateway)}},
 	[{{#if plugins.linkedRoles}}linkedRoles{{/if}}{{#if (and plugins.linkedRoles plugins.gateway)}}, {{/if}}{{#if plugins.gateway}}gateway{{/if}}]{{/if}}
