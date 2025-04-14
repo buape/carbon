@@ -6,8 +6,8 @@ import {
 	GatewayCloseCodes,
 	GatewayOpcodes,
 	type GatewayPayload,
-	type GatewayState,
 	type GatewayPluginOptions,
+	type GatewayState,
 	type ReadyEventData
 } from "./types.js"
 import { startHeartbeat, stopHeartbeat } from "./utils/heartbeat.js"
