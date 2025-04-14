@@ -1,8 +1,8 @@
 import {
+	ApplicationAuthorizedListener,
 	ApplicationIntegrationType,
 	ListenerEvent,
-	type ListenerEventData,
-	ApplicationAuthorizedListener
+	type ListenerEventData
 } from "@buape/carbon"
 
 export class ApplicationAuthorized extends ApplicationAuthorizedListener {
