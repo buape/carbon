@@ -7,7 +7,6 @@ import { utils } from "~/app/source"
 export const baseOptions: HomeLayoutProps = {
 	githubUrl: "https://github.com/buape/carbon",
 	nav: {
-		enableSearch: true,
 		title: (
 			<>
 				<Image

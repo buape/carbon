@@ -1,7 +1,6 @@
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
 import {
 	DocsBody,
-	DocsCategory,
 	DocsDescription,
 	DocsPage,
 	DocsTitle
@@ -12,6 +11,8 @@ import { utils } from "~/app/source"
 import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
 import { metadataImage } from "../og/[...slug]/metadata"
+import { Card, Cards } from "fumadocs-ui/components/card"
+import { getPageTreePeers } from "fumadocs-core/server"
 
 type Props = {
 	params: Promise<{
@@ -44,7 +45,17 @@ export default async function Page({ params }: Props) {
 				<DocsBody>
 					{/* @ts-expect-error 2322 Typing doesn't like the namespace but it does work */}
 					<page.data.body components={useMDXComponents()} />
-					{page.data.index ? <DocsCategory page={page} from={utils} /> : null}
+					{page.data.index ? (
+						<Cards>
+							{getPageTreePeers(utils.pageTree, `/${page.slugs.join("/")}`).map(
+								(peer) => (
+									<Card key={peer.url} title={peer.name} href={peer.url}>
+										{peer.description}
+									</Card>
+								)
+							)}
+						</Cards>
+					) : null}
 				</DocsBody>
 			</DocsPage>
 		</DocsLayout>

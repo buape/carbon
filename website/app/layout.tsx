@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="en" className={rubik.className} suppressHydrationWarning>
 			<body>
-				<RootProvider>{children}</RootProvider>
+				<RootProvider search={{ enabled: true }}>{children}</RootProvider>
 			</body>
 			{env.NODE_ENV === "production" ? (
 				<Script

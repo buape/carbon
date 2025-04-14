@@ -25,7 +25,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@changesets/changelog-git": "0.2.1",
-		"@changesets/cli": "2.28.1",
+		"@changesets/cli": "2.29.0",
 		"@net-tech-/env-cmd": "1.0.3",
 		"@turbo/gen": "2.5.0",
 		"tsc-watch": "6.2.1",

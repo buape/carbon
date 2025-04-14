@@ -29,7 +29,7 @@
 		"discord-api-types": "0.37.120"
 	},
 	"optionalDependencies": {
-		"@cloudflare/workers-types": "4.20250412.0",
+		"@cloudflare/workers-types": "4.20250414.0",
 		"@hono/node-server": "1.14.1",
 		"@types/bun": "1.2.9",
 		"@types/ws": "8.18.1",

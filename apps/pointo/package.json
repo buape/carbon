@@ -11,7 +11,7 @@
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
 		"dotenv": "16.5.0",
-		"ws": "8.18.0"
+		"ws": "8.18.1"
 	},
 	"devDependencies": {
 		"@types/node": "22.14.1",
