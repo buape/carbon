@@ -10,7 +10,7 @@ export class EventHandler extends Base {
 		await Promise.all(
 			listeners.map((listener) => {
 				const data = listener.parseRawData(payload, this.client)
-				listener.handle(data, this.client).catch((err: unknown) => {
+				return listener.handle(data, this.client).catch((err: unknown) => {
 					console.error(err)
 				})
 			})
