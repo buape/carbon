@@ -140,8 +140,8 @@ importers:
         version: 0.37.120
     optionalDependencies:
       '@cloudflare/workers-types':
-        specifier: 4.20250412.0
-        version: 4.20250412.0
+        specifier: 4.20250414.0
+        version: 4.20250414.0
       '@hono/node-server':
         specifier: 1.14.1
         version: 1.14.1(hono@4.6.5)
@@ -405,6 +405,9 @@ packages:
 
   '@cloudflare/workers-types@4.20250412.0':
     resolution: {integrity: sha512-ukQE+TRc5HNkM6VvGfTNC9x54TLQKjdcm624F8Qh1ZRe0iJrW2/j1eYgvJABJPexDousYCR7VzCGteShLcBJYQ==}
+
+  '@cloudflare/workers-types@4.20250414.0':
+    resolution: {integrity: sha512-ZHl8LiyUMWiIxYqpasen8Lc75Ef+0afqL26TEd95eRIi5kgkEbjDJ7uIUnpxMoZTRI0J8Hy5YEPtt4nFXt+TpA==}
 
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -4296,6 +4299,9 @@ snapshots:
     optional: true
 
   '@cloudflare/workers-types@4.20250412.0': {}
+
+  '@cloudflare/workers-types@4.20250414.0':
+    optional: true
 
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
