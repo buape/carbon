@@ -1,8 +1,8 @@
-import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
-import type { GatewayPluginOptions, GatewayPayload } from "../gateway/types.js"
+import { createPrivateKey, sign } from "node:crypto"
 import { ApplicationWebhookType } from "discord-api-types/v10"
 import { concatUint8Arrays, valueToUint8Array } from "../../utils.js"
-import { sign, createPrivateKey } from "node:crypto"
+import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
+import type { GatewayPayload, GatewayPluginOptions } from "../gateway/types.js"
 
 export interface GatewayForwarderPluginOptions extends GatewayPluginOptions {
 	/**
