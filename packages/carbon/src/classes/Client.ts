@@ -135,7 +135,7 @@ export class Client {
 	/**
 	 * Creates a new client
 	 * @param options The options used to initialize the client
-	 * @param commands The commands that the client has registered
+	 * @param handlers The handlers that the client has registered
 	 * @param plugins The plugins that the client should use
 	 */
 	constructor(

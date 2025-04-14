@@ -4,8 +4,6 @@ description: Forward Discord Gateway events to your application as webhook-style
 icon: Forward
 ---
 
-# Gateway Forwarder
-
 The Gateway Forwarder plugin allows you to receive Discord Gateway events through webhook-style HTTP requests instead of maintaining a WebSocket connection. This is particularly useful for serverless environments or when you want to process Gateway events through your existing HTTP infrastructure.
 
 ## Architecture Overview
@@ -188,10 +186,4 @@ pnpm create carbon@latest
 
 Your forwarder will now be running on Railway, maintaining a WebSocket connection to Discord's Gateway and forwarding events to your specified endpoint. The minimal setup ensures efficient resource usage while providing reliable event forwarding.
 
-Remember to:
-1. Keep your private key secure and never commit it to version control
-2. Use the generated public key in your main application's configuration
-3. Monitor your forwarder's logs in Railway for any connection issues
-4. Consider setting up health checks to ensure the forwarder stays running
-
-
+Remember to keep your private key secure. If anyone gains access to it, they will be able to send fake events to your application.

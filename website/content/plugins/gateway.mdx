@@ -4,13 +4,13 @@ description: How to use the Gateway plugin in Carbon to receive non-webhook even
 icon: SatelliteDish
 ---
 
-# Gateway and Sharding
-
 Carbon provides two powerful plugins for handling Discord's Gateway connections and sharding: the `GatewayPlugin` and `ShardingPlugin`. These plugins work together to enable your bot to receive real-time events from Discord and scale efficiently across multiple servers.
 
 ## Understanding the Gateway
 
 Discord's Gateway API is the backbone of real-time communication for your bot. Unlike HTTP endpoints that handle one-off requests, the Gateway establishes a persistent WebSocket connection that allows your bot to receive events as they happen, such as when messages are sent, members join a server, or voice states change. The `GatewayPlugin` in Carbon manages this WebSocket connection, handling all the complexities of maintaining a stable connection with Discord.
+
+If you prefer to use HTTP-based interactions instead of WebSocket connections (for example, in serverless environments), you can check out our documentation on [HTTP bots](/concepts/http-bots). Alternatively, if you want to receive Gateway events via webhooks, you can use our [Gateway Forwarder plugin](/plugins/gateway-forwarder) which maintains the WebSocket connection separately and forwards events to your application.
 
 ## Handling Gateway Events
 

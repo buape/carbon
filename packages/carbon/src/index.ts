@@ -9,6 +9,7 @@ export * from "./abstracts/BaseComponentInteraction.js"
 export * from "./abstracts/BaseGuildChannel.js"
 export * from "./abstracts/BaseGuildTextChannel.js"
 export * from "./abstracts/BaseInteraction.js"
+export * from "./abstracts/BaseListener.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
 export * from "./abstracts/Plugin.js"
 
