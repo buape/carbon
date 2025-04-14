@@ -1,8 +1,7 @@
 import "dotenv/config"
-import { Client, GatewayIntentBits } from "@buape/carbon"
+import { Client } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
-// import { GatewayPlugin } from "@buape/carbon/plugins/gateway"
-import { ShardingPlugin } from "@buape/carbon/sharding"
+import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"
 import PingCommand from "./commands/ping.js"
 import { MessageCreate } from "./events/messageCreate.js"
 import { Ready } from "./events/ready.js"
@@ -25,9 +24,9 @@ const client = new Client(
 	[
 		new ShardingPlugin({
 			intents:
-				GatewayIntentBits.Guilds |
-				GatewayIntentBits.GuildMessages |
-				GatewayIntentBits.MessageContent
+				GatewayIntents.Guilds |
+				GatewayIntents.GuildMessages |
+				GatewayIntents.MessageContent
 		})
 	]
 )

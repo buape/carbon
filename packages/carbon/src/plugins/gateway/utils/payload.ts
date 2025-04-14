@@ -1,8 +1,4 @@
-import {
-	type GatewayIntents,
-	GatewayOpcodes,
-	type GatewayPayload
-} from "../types.js"
+import { GatewayOpcodes, type GatewayPayload } from "../types.js"
 
 interface IdentifyProperties {
 	os: string
@@ -13,7 +9,7 @@ interface IdentifyProperties {
 interface IdentifyData {
 	token: string
 	properties: IdentifyProperties
-	intents: GatewayIntents[] | number
+	intents: number
 }
 
 interface ResumeData {
@@ -51,15 +47,12 @@ export function validatePayload(data: string): GatewayPayload | null {
 }
 
 export function createIdentifyPayload(data: IdentifyData): GatewayPayload {
-	const intents: number = Array.isArray(data.intents)
-		? data.intents.reduce((acc, intent) => acc | intent, 0)
-		: data.intents
 	return {
 		op: GatewayOpcodes.Identify,
 		d: {
 			token: data.token,
 			properties: data.properties,
-			intents
+			intents: data.intents
 		}
 	}
 }

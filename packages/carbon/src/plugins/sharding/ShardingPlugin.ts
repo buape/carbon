@@ -140,6 +140,9 @@ export class ShardingPlugin extends Plugin {
 	 * Discord's sharding formula
 	 */
 	protected calculateShardId(guildId: string, totalShards: number): number {
+		if (!/^\d+$/.test(guildId)) {
+			throw new Error("Invalid guild ID")
+		}
 		return Number((BigInt(guildId) >> 22n) % BigInt(totalShards))
 	}
 }
