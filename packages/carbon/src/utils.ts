@@ -1,6 +1,6 @@
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 import type { RESTPostAPIChannelMessageJSONBody } from "discord-api-types/v10"
-import type { MessagePayload } from "./types.js"
+import type { MessagePayload } from "./types/index.js"
 
 export const splitCustomId = (
 	customId: string

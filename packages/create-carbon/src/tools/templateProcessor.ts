@@ -34,7 +34,7 @@ interface TemplateContext {
 	runtime: Runtime
 	packageManager: string
 	todaysDate: string
-	plugins: Record<"linkedRoles", boolean>
+	plugins: Record<"linkedRoles" | "gateway", boolean>
 	versions: Record<string, string>
 }
 
@@ -84,6 +84,16 @@ const processFolder = (path: string, context: TemplateContext) => {
 const processFile = (path: string, context: TemplateContext) => {
 	const ext = path.split(".").pop()
 	let result = undefined
+
+	// Skip non-forwarder templates for forwarder runtime
+	if (
+		context.runtime === "forwarder" &&
+		!path.includes("forwarder") &&
+		!path.includes("package.json")
+	) {
+		return debug(`Skipping non-forwarder file ${path} for forwarder runtime`)
+	}
+
 	if (ext === "hbs") result = compileHbsFile(path, context)
 	else if (ext === "json") result = compileJsonFile(path, context)
 	else return debug(`Ignoring file ${path}`)

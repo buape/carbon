@@ -2,7 +2,7 @@
 
 import * as p from "@clack/prompts"
 import yoctoSpinner from "yocto-spinner"
-import { type Runtime, runtimes } from "./runtimes.js"
+import { type Runtime, runtimes, serverRuntimes } from "./runtimes.js"
 import { doesDirectoryExist } from "./tools/fileSystem.js"
 import {
 	getPackageManager,
@@ -39,10 +39,26 @@ if (p.isCancel(runtime)) {
 	process.exit(1)
 }
 
-const linkedRoles = await p.confirm({
-	message: "Would you like to add linked roles to your app?",
-	initialValue: false
-})
+const gateway =
+	serverRuntimes.includes(runtime) && runtime !== "forwarder"
+		? await p.confirm({
+				message:
+					"Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
+				initialValue: false
+			})
+		: false
+if (p.isCancel(gateway)) {
+	p.outro("Cancelled")
+	process.exit(1)
+}
+
+const linkedRoles =
+	runtime !== "forwarder"
+		? await p.confirm({
+				message: "Would you like to add linked roles to your app?",
+				initialValue: false
+			})
+		: false
 if (p.isCancel(linkedRoles)) {
 	p.outro("Cancelled")
 	process.exit(1)
@@ -59,7 +75,7 @@ await processTemplate({
 	runtime,
 	packageManager,
 	todaysDate: new Date().toISOString().split("T")[0] ?? "",
-	plugins: { linkedRoles }
+	plugins: { linkedRoles, gateway }
 })
 
 spinner.stop()

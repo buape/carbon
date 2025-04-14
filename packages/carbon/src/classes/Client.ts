@@ -12,6 +12,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
+import type { BaseListener } from "../abstracts/BaseListener.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
@@ -23,7 +24,6 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
-import type { Listener } from "./Listener.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 /**
@@ -44,8 +44,9 @@ export interface ClientOptions {
 	deploySecret?: string
 	/**
 	 * The public key of the app, used for interaction verification
+	 * Can be a single key or an array of keys
 	 */
-	publicKey: string
+	publicKey: string | string[]
 	/**
 	 * The token of the bot
 	 */
@@ -105,7 +106,7 @@ export class Client {
 	/**
 	 * The event listeners that the client has registered
 	 */
-	listeners: Listener[] = []
+	listeners: BaseListener[] = []
 	/**
 	 * The rest client used to interact with the Discord API
 	 */
@@ -134,14 +135,14 @@ export class Client {
 	/**
 	 * Creates a new client
 	 * @param options The options used to initialize the client
-	 * @param commands The commands that the client has registered
+	 * @param handlers The handlers that the client has registered
 	 * @param plugins The plugins that the client should use
 	 */
 	constructor(
 		options: ClientOptions,
 		handlers: {
 			commands?: BaseCommand[]
-			listeners?: Listener[]
+			listeners?: BaseListener[]
 		},
 		plugins: Plugin[] = []
 	) {
@@ -237,7 +238,8 @@ export class Client {
 		if (payload.type === ApplicationWebhookType.Ping)
 			return new Response(null, { status: 204 })
 
-		this.eventHandler.handleEvent(payload) // Events will never return anything to Discord
+		this.eventHandler.handleEvent(payload.event.data, payload.event.type)
+
 		return new Response(null, { status: 204 })
 	}
 
@@ -299,24 +301,38 @@ export class Client {
 			const timestampData = valueToUint8Array(timestamp)
 			const bodyData = valueToUint8Array(body)
 			const message = concatUint8Arrays(timestampData, bodyData)
-			const isValid = await subtleCrypto.verify(
-				{
-					name: "ed25519"
-				},
-				await subtleCrypto.importKey(
-					"raw",
-					valueToUint8Array(this.options.publicKey, "hex"),
-					{
-						name: "ed25519",
-						namedCurve: "ed25519"
-					},
-					false,
-					["verify"]
-				),
-				valueToUint8Array(signature, "hex"),
-				message
-			)
-			return isValid
+
+			// Convert single key to array for consistent handling
+			const publicKeys = Array.isArray(this.options.publicKey)
+				? this.options.publicKey
+				: [this.options.publicKey]
+
+			// Try each public key until one works
+			for (const publicKey of publicKeys) {
+				try {
+					const isValid = await subtleCrypto.verify(
+						{
+							name: "ed25519"
+						},
+						await subtleCrypto.importKey(
+							"raw",
+							valueToUint8Array(publicKey, "hex"),
+							{
+								name: "ed25519",
+								namedCurve: "ed25519"
+							},
+							false,
+							["verify"]
+						),
+						valueToUint8Array(signature, "hex"),
+						message
+					)
+					if (isValid) return true
+				} catch {
+					// Skip to next key if this one fails
+				}
+			}
+			return false
 		} catch (_) {
 			return false
 		}

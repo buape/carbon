@@ -2,10 +2,99 @@
 path: README.md
 ---
 
-## {{name}}
+# {{name}}
 
-This is a [Discord](https://discord.dev) app made with [Carbon](https://carbon.buape.com) and generated with the [`create-carbon`](https://npmjs.com/create-carbon) tool.
+{{#if (eq runtime "forwarder")}}
+A Discord Gateway Forwarder built with [Carbon](https://carbon.buape.com).
 
-To learn how to get started in development, deploy to production, or add commands, head over to the [documentation](https://carbon.buape.com/adapters/{{runtime}}) for your runtime.
+## Setup
 
-If you need any assistance, you can join our [Discord](https://go.buape.com/carbon) and ask in the [`#support`](https://discord.com/channels/1280628625904894072/1280630704308486174) channel.
+1. Create a `.env` file with the following variables:
+```env
+BASE_URL="your-base-url"
+DEPLOY_SECRET="your-deploy-secret"
+DISCORD_CLIENT_ID="your-client-id"
+DISCORD_PUBLIC_KEY="discord-public-key"
+DISCORD_BOT_TOKEN="your-bot-token"
+FORWARDER_PRIVATE_KEY="your-private-key"
+```
+
+2. Generate your Ed25519 key pair:
+```bash
+# Generate key pair and store in variables
+KEYPAIR=$(openssl genpkey -algorithm ED25519)
+PUBKEY=$(echo "$KEYPAIR" | openssl pkey -pubout)
+
+# Extract raw public key bytes (last 32 bytes) and convert to hex
+RAW_PUBKEY=$(echo "$PUBKEY" | grep -v -- "-----" | tr -d '\n' | base64 -d | tail -c 32 | xxd -p -c 64)
+
+# Add public key to .env
+echo "FORWARDER_PUBLIC_KEY=\"$RAW_PUBKEY\"" >> .env
+
+# Add private key with escaped newlines to .env
+echo -n "FORWARDER_PRIVATE_KEY=\"" >> .env
+echo "$KEYPAIR" | awk '{printf "%s\\n", $0}' >> .env
+echo "\"" >> .env
+```
+
+3. Install dependencies:
+```bash
+{{packageManager}} install
+```
+
+4. Build and start the forwarder:
+```bash
+{{packageManager}} run build
+{{packageManager}} start
+```
+
+The forwarder will now forward all Gateway events to `${BASE_URL}/events` with Ed25519 signatures.
+
+{{else}}
+A Discord bot built with [Carbon](https://carbon.buape.com).
+
+## Setup
+
+1. Create a `.env` file with the following variables:
+```env
+BASE_URL="your-base-url"
+DEPLOY_SECRET="your-deploy-secret"
+DISCORD_CLIENT_ID="your-client-id"
+DISCORD_PUBLIC_KEY="discord-public-key"
+DISCORD_BOT_TOKEN="your-bot-token"
+```
+
+2. Install dependencies:
+```bash
+{{packageManager}} install
+```
+
+3. Start the development server:
+```bash
+{{packageManager}} run dev
+```
+
+## Commands
+
+- `/ping` - Basic ping command
+- `/button` - Example button command
+
+{{#if plugins.gateway}}
+## Gateway Events
+
+The bot listens for the following Gateway events:
+- Message Create - Logs when a message is sent
+{{/if}}
+
+{{#if plugins.linkedRoles}}
+## Linked Roles
+
+The bot supports linked roles with the following metadata:
+- `is_staff` - Whether the user is a verified staff member
+{{/if}}
+
+{{/if}}
+
+## License
+
+MIT

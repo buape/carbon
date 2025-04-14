@@ -1,0 +1,16 @@
+---
+path: src/events/messageCreate.ts
+---
+
+import {
+	ListenerEvent,
+	MessageCreateListener,
+	type ListenerEventData
+} from "@buape/carbon"
+
+export default class MessageCreate extends MessageCreateListener {
+	async handle(data: ListenerEventData[typeof ListenerEvent.MessageCreate]) {
+		// Handle the message create event
+		console.log(`Message received from ${data.author.username}: ${data.content}`)
+	}
+} 

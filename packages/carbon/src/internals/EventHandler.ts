@@ -1,20 +1,24 @@
-import {
-	type APIWebhookEvent,
-	ApplicationWebhookType
-} from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
-import type { Listener } from "../classes/Listener.js"
+import type { ListenerEventRawData } from "../types/index.js"
 
+/**
+ * Handles Discord gateway events and dispatches them to registered listeners.
+ * This class is responsible for managing and executing event listeners for various Discord events.
+ * @internal
+ */
 export class EventHandler extends Base {
-	listeners: Listener[] = []
-
-	registerListener(listener: (typeof this.listeners)[number]) {
-		this.listeners.push(listener)
-	}
-
-	async handleEvent(payload: APIWebhookEvent) {
-		if (payload.type !== ApplicationWebhookType.Event) return
-		const listener = this.listeners.find((x) => x.type === payload.event.type)
-		if (listener) return await listener.handle(payload.event.data, this.client)
+	async handleEvent<T extends keyof ListenerEventRawData>(
+		payload: ListenerEventRawData[T],
+		type: T
+	) {
+		const listeners = this.client.listeners.filter((x) => x.type === type)
+		await Promise.all(
+			listeners.map((listener) => {
+				const data = listener.parseRawData(payload, this.client)
+				return listener.handle(data, this.client).catch((err: unknown) => {
+					console.error(err)
+				})
+			})
+		)
 	}
 }

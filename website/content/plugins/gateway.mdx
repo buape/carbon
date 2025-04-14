@@ -1,0 +1,105 @@
+---
+title: Gateway
+description: How to use the Gateway plugin in Carbon to receive non-webhook events from Discord.
+icon: SatelliteDish
+---
+
+Carbon provides two powerful plugins for handling Discord's Gateway connections and sharding: the `GatewayPlugin` and `ShardingPlugin`. These plugins work together to enable your bot to receive real-time events from Discord and scale efficiently across multiple servers.
+
+## Understanding the Gateway
+
+Discord's Gateway API is the backbone of real-time communication for your bot. Unlike HTTP endpoints that handle one-off requests, the Gateway establishes a persistent WebSocket connection that allows your bot to receive events as they happen, such as when messages are sent, members join a server, or voice states change. The `GatewayPlugin` in Carbon manages this WebSocket connection, handling all the complexities of maintaining a stable connection with Discord.
+
+If you prefer to use HTTP-based interactions instead of WebSocket connections (for example, in serverless environments), you can check out our documentation on [HTTP bots](/concepts/http-bots). Alternatively, if you want to receive Gateway events via webhooks, you can use our [Gateway Forwarder plugin](/plugins/gateway-forwarder) which maintains the WebSocket connection separately and forwards events to your application.
+
+## Handling Gateway Events
+
+While the Gateway plugin manages the connection to Discord, you'll need to implement listeners to handle the events it receives. See our [Listeners documentation](/classes/listeners) for details on how to handle Gateway events like messages, member updates, and more in your application.
+
+## Gateway Plugin
+
+The `GatewayPlugin` serves as your bot's primary connection to Discord's real-time events. It manages everything from establishing the initial connection to handling disconnections and reconnections, all while maintaining the connection's health through regular heartbeats.
+
+When configuring the Gateway plugin, the most important decision you'll make is selecting which events your bot needs to receive through Gateway Intents. Intents are Discord's way of letting you specify exactly which types of events your bot should receive, helping to minimize unnecessary traffic.
+
+Here's how you might configure the Gateway plugin:
+
+```typescript title="src/index.ts"
+import { Client, GatewayPlugin, GatewayIntents } from "@buape/carbon"
+
+const client = new Client(
+  {
+    baseUrl: process.env.BASE_URL,
+    deploySecret: process.env.DEPLOY_SECRET,
+    clientId: process.env.DISCORD_CLIENT_ID,
+    publicKey: process.env.DISCORD_PUBLIC_KEY,
+    token: process.env.DISCORD_BOT_TOKEN
+  },
+  {
+    commands: [
+      // Your commands here
+    ],
+    listeners: [
+      // Your event listeners here
+    ]
+  },
+  [
+    new GatewayPlugin({
+      intents: GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
+    })
+  ]
+)
+```
+
+The Gateway plugin includes sophisticated connection management features. When a disconnection occurs, it implements an exponential backoff strategy, gradually increasing the time between reconnection attempts to prevent overwhelming Discord's servers. It also maintains session state, allowing it to resume connections efficiently when possible, rather than establishing entirely new sessions.
+
+## Scaling with Sharding
+
+As your bot grows and joins more servers, you'll need to consider sharding. Sharding becomes mandatory when your bot reaches 2,500 guilds, but you might want to implement it earlier for better scalability. The `ShardingPlugin` in Carbon makes this process straightforward.
+
+Here's how you can implement sharding:
+
+```typescript title="src/index.ts"
+import { Client, ShardingPlugin, GatewayIntents } from "@buape/carbon"
+
+const client = new Client(
+  {
+    baseUrl: process.env.BASE_URL,
+    deploySecret: process.env.DEPLOY_SECRET,
+    clientId: process.env.DISCORD_CLIENT_ID,
+    publicKey: process.env.DISCORD_PUBLIC_KEY,
+    token: process.env.DISCORD_BOT_TOKEN
+  },
+  {
+    commands: [
+      // Your commands here
+    ],
+    listeners: [
+      // Your event listeners here
+    ]
+  },
+  [
+    new ShardingPlugin({
+      intents: GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
+    })
+  ]
+)
+```
+
+The ShardingPlugin handles all the complexity of managing multiple Gateway connections. When you initialize it without specifying a total shard count, it automatically queries Discord's API to determine the optimal number of shards for your bot. This automatic scaling ensures your bot can handle its current server load efficiently.
+
+Behind the scenes, Discord uses a consistent formula to determine which shard handles which guild: `shard_id = (guild_id >> 22) % num_shards`. The ShardingPlugin implements this formula and handles all the routing automatically, ensuring each event gets processed by the correct shard.
+
+## Error Handling and Monitoring
+
+Both plugins include comprehensive error handling and monitoring capabilities. When issues arise, such as authentication failures or connection timeouts, the plugins attempt to recover automatically when possible. For authentication failures or other critical issues, they'll provide detailed error information to help you diagnose and resolve the problem.
+
+The plugins emit various events that you can use to monitor your bot's health. You'll receive information about connection states, heartbeat acknowledgments, and reconnection attempts. This monitoring capability is particularly valuable when running a sharded bot, as it helps you ensure all shards are operating correctly.
+
+## Best Practices
+
+When implementing these plugins, consider starting with the Gateway plugin alone if your bot is in fewer than 2,500 guilds. This keeps your implementation simple while still providing all the real-time functionality you need. As your bot grows, you can seamlessly transition to the ShardingPlugin, which will handle the increased load by distributing it across multiple shards.
+
+Let Discord guide your scaling decisions by using its recommended shard count rather than setting one manually. The ShardingPlugin will automatically query Discord's API to determine the optimal configuration for your bot's current size and usage patterns.
+
+Remember to implement proper error handling and monitoring in your application code. While the plugins handle many error scenarios automatically, you should still log and monitor errors to ensure your bot's reliability and to help diagnose any issues that arise.

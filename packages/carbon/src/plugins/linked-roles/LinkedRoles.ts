@@ -57,6 +57,7 @@ declare module "../../classes/Client.d.ts" {
  * ```
  */
 export class LinkedRoles extends Plugin {
+	readonly id = "linked-roles"
 	client?: Client
 	options: LinkedRolesOptions
 

@@ -1,6 +1,6 @@
 import { DiscordError } from "../errors/DiscordError.js"
 import { RateLimitError } from "../errors/RatelimitError.js"
-import type { MessagePayload, MessagePayloadFile } from "../types.js"
+import type { MessagePayload, MessagePayloadFile } from "../types/index.js"
 
 /**
  * The options used to initialize the RequestClient

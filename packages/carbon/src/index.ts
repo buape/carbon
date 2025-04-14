@@ -9,6 +9,7 @@ export * from "./abstracts/BaseComponentInteraction.js"
 export * from "./abstracts/BaseGuildChannel.js"
 export * from "./abstracts/BaseGuildTextChannel.js"
 export * from "./abstracts/BaseInteraction.js"
+export * from "./abstracts/BaseListener.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
 export * from "./abstracts/Plugin.js"
 
@@ -73,7 +74,7 @@ export * from "./structures/User.js"
 
 // ----- Misc -----
 export * from "discord-api-types/v10"
-export * from "./types.js"
+export * from "./types/index.js"
 export * from "./utils.js"
 
 // ----- Re-exports -----
