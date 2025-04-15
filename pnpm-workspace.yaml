@@ -1,4 +1,11 @@
 packages:
-    - "apps/*"
-    - "packages/*"
-    - "website"
+  - apps/*
+  - packages/*
+  - website
+
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - core-js-pure
+  - esbuild
+  - sharp
+  - workerd
