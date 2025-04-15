@@ -148,14 +148,16 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this user.
 	 * If the user is partial, this will fetch all the data for the user and populate the fields.
 	 * If the user is not partial, all fields will be updated with new values from Discord.
+	 * @returns A Promise that resolves to a non-partial User
 	 */
-	async fetch() {
+	async fetch(): Promise<User<false>> {
 		const newData = (await this.client.rest.get(
 			Routes.user(this.id)
 		)) as APIUser
 		if (!newData) throw new Error(`User ${this.id} not found`)
 
 		this.setData(newData)
+		return this as User<false>
 	}
 
 	/**

@@ -126,14 +126,16 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this guild.
 	 * If the guild is partial, this will fetch all the data for the guild and populate the fields.
 	 * If the guild is not partial, all fields will be updated with new values from Discord.
+	 * @returns A Promise that resolves to a non-partial Guild
 	 */
-	async fetch() {
+	async fetch(): Promise<Guild<false>> {
 		const newData = (await this.client.rest.get(
 			Routes.guild(this.id)
 		)) as APIGuild
 		if (!newData) throw new Error(`Guild ${this.id}not found`)
 
 		this.setData(newData)
+		return this as Guild<false>
 	}
 
 	/**

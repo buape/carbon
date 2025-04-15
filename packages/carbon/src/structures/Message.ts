@@ -292,8 +292,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this message.
 	 * If the message is partial, this will fetch all the data for the message and populate the fields.
 	 * If the message is not partial, all fields will be updated with new values from Discord.
+	 * @returns A Promise that resolves to a non-partial Message
 	 */
-	async fetch() {
+	async fetch(): Promise<Message<false>> {
 		if (!this.channelId)
 			throw new Error("Cannot fetch message without channel ID")
 		const newData = (await this.client.rest.get(
@@ -302,6 +303,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!newData) throw new Error(`Message ${this.id} not found`)
 
 		this.setData(newData)
+		return this as Message<false>
 	}
 
 	/**

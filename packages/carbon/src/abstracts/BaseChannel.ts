@@ -77,14 +77,15 @@ export abstract class BaseChannel<
 
 	/**
 	 * Fetches the channel from the API.
-	 * @returns The channel data.
+	 * @returns A Promise that resolves to a non-partial channel
 	 */
-	async fetch() {
+	async fetch(): Promise<BaseChannel<Type, false>> {
 		const newData = (await this.client.rest.get(
 			Routes.channel(this.id)
 		)) as Extract<APIChannel, { type: Type }>
 		if (!newData) throw new Error(`Channel ${this.id} not found`)
 
 		this.setData(newData)
+		return this as BaseChannel<Type, false>
 	}
 }

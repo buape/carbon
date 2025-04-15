@@ -3,6 +3,7 @@ import {
 	type APIGuild,
 	type APIGuildMember,
 	type APIInteraction,
+	type APIMessage,
 	type APIRole,
 	type APIUser,
 	type APIWebhookEvent,
@@ -25,6 +26,7 @@ import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
+import { Message } from "../structures/Message.js"
 
 /**
  * The options used for initializing the client
@@ -391,6 +393,19 @@ export class Client {
 			Routes.guildMember(guildId, id)
 		)) as APIGuildMember
 		return new GuildMember(this, member, new Guild<true>(this, guildId))
+	}
+
+	/**
+	 * Fetch a message from the Discord API
+	 * @param channelId The ID of the channel the message is in
+	 * @param messageId The ID of the message to fetch
+	 * @returns The message data
+	 */
+	async fetchMessage(channelId: string, messageId: string) {
+		const message = (await this.rest.get(
+			Routes.channelMessage(channelId, messageId)
+		)) as APIMessage
+		return new Message(this, message)
 	}
 
 	// ======================== End Fetchers ================================================

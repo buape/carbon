@@ -151,14 +151,16 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this role.
 	 * If the role is partial, this will fetch all the data for the role and populate the fields.
 	 * If the role is not partial, all fields will be updated with new values from Discord.
+	 * @returns A Promise that resolves to a non-partial Role
 	 */
-	async fetch(guildId: string) {
+	async fetch(guildId: string): Promise<Role<false>> {
 		const newData = (await this.client.rest.get(
 			Routes.guildRole(guildId, this.id)
 		)) as APIRole
 		if (!newData) throw new Error(`Role ${this.id} not found`)
 
 		this.setData(newData)
+		return this as Role<false>
 	}
 
 	/**
