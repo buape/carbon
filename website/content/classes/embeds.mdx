@@ -4,7 +4,27 @@ description: Embeds are used to display rich content in messages.
 icon: SquareMenu
 ---
 
-Embeds are used to display rich content in messages. They are created by extending the [`Embed`](/api/index/classes/Embed) class, and adding a `title`, `description`, and `url` property.
+Embeds are used to display rich content in messages. You can create them in one or two ways:
+
+## Raw Objects
+
+If you have a one-off embed that doesn't need its own class, you can directly use the Embed class.
+
+```ts
+const testEmbed = new Embed({
+    title: "Embed Test",
+    description: "This is an embed test",
+    url: "https://buape.com"
+})
+message.reply({
+    embeds: [testEmbed]
+})
+```
+
+
+## Extended Classes
+
+You can setup a generic Embed that you can use in multiple places by extending the [`Embed`](/api/index/classes/Embed) class, and adding properties there or in the constructor.
 
 ```ts
 class TestEmbed extends Embed {
@@ -27,10 +47,6 @@ class TestEmbed extends Embed {
     url = "https://carbon.buape.com"
     timestamp = new Date().toString()
     color = 16711680;
-    footer = {
-        text: "Footer Text",
-        icon: "https://cdn.buape.com/CarbonWordmark.png",
-    };
     image = "https://cdn.buape.com/CarbonWordmark.png";
     thumbnail = "https://cdn.buape.com/CarbonWordmark.png";
     author = {
@@ -49,5 +65,17 @@ class TestEmbed extends Embed {
             inline: true,
         },
     ];
+
+    constructor(footerText: string) {
+        this.footer = {
+            text: footerText,
+            icon: "https://cdn.buape.com/CarbonWordmark.png",
+        };
+    }
 }
+
+const embedToSend = new TestEmbed("This is the custom footer")
+message.reply({
+    embeds: [embedToSend]
+})
 ```
