@@ -1,15 +1,17 @@
 import { EventEmitter } from "node:events"
+import type { GatewayDispatchPayload } from "discord-api-types/v10"
 import WebSocket from "ws"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
+import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
 import {
+	type APIGatewayBotInfo,
 	GatewayCloseCodes,
 	GatewayOpcodes,
 	type GatewayPayload,
 	type GatewayPluginOptions,
 	type GatewayState,
-	type ReadyEventData,
-	type APIGatewayBotInfo
+	type ReadyEventData
 } from "./types.js"
 import { startHeartbeat, stopHeartbeat } from "./utils/heartbeat.js"
 import { type ConnectionMetrics, ConnectionMonitor } from "./utils/monitor.js"
@@ -18,8 +20,6 @@ import {
 	createResumePayload,
 	validatePayload
 } from "./utils/payload.js"
-import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
-import type { GatewayDispatchPayload } from "discord-api-types/v10"
 
 interface HelloData {
 	heartbeat_interval: number

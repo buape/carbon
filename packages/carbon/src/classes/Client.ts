@@ -22,11 +22,11 @@ import { EventHandler } from "../internals/EventHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
 import { Guild } from "../structures/Guild.js"
 import { GuildMember } from "../structures/GuildMember.js"
+import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
-import { Message } from "../structures/Message.js"
 
 /**
  * The options used for initializing the client

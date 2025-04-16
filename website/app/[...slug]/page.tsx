@@ -1,3 +1,5 @@
+import { getPageTreePeers } from "fumadocs-core/server"
+import { Card, Cards } from "fumadocs-ui/components/card"
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
 import {
 	DocsBody,
@@ -11,8 +13,6 @@ import { utils } from "~/app/source"
 import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
 import { metadataImage } from "../og/[...slug]/metadata"
-import { Card, Cards } from "fumadocs-ui/components/card"
-import { getPageTreePeers } from "fumadocs-core/server"
 
 type Props = {
 	params: Promise<{
