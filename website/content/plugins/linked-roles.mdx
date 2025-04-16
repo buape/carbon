@@ -10,14 +10,14 @@ Linked Roles are a handy feature of Discord that allows you to create roles that
 
 <Cards>
   <Card
-    title="Admin Standpoint"
-    description="Read more about Linked Roles from an admin standpoint."
-    href="https://support.discord.com/hc/en-us/articles/10388356626711-Connections-Linked-Roles-Admins"
+	title="Admin Standpoint"
+	description="Read more about Linked Roles from an admin standpoint."
+	href="https://support.discord.com/hc/en-us/articles/10388356626711-Connections-Linked-Roles-Admins"
   />
   <Card
-    title="User Standpoint"
-    description="Read more about Linked Roles from a user standpoint."
-    href="https://support.discord.com/hc/en-us/articles/8063233404823-Connections-Linked-Roles-Community-Members"
+	title="User Standpoint"
+	description="Read more about Linked Roles from a user standpoint."
+	href="https://support.discord.com/hc/en-us/articles/8063233404823-Connections-Linked-Roles-Community-Members"
   />
 </Cards>
 
@@ -41,18 +41,18 @@ import { LinkedRoles } from "@buape/carbon/linked-roles"
 
 const linkedRoles = new LinkedRoles({
   metadata: [
-    {
-      key: 'is_staff',
-      name: 'Verified Staff',
-      description: 'Whether the user is a verified staff member',
-      type: ApplicationRoleConnectionMetadataType.BooleanEqual
-    }
+	{
+	  key: 'is_staff',
+	  name: 'Verified Staff',
+	  description: 'Whether the user is a verified staff member',
+	  type: ApplicationRoleConnectionMetadataType.BooleanEqual
+	}
   ],
   metadataCheckers: {
-    is_staff: async (userId) => {
-      // Check if the user is a staff member
-      return true
-    }
+	is_staff: async (userId) => {
+	  // Check if the user is a staff member
+	  return true
+	}
   }
 })
 

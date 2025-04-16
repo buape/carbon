@@ -29,30 +29,30 @@ import { Client } from "@buape/carbon"
 import { GatewayPlugin, GatewayIntents } from "@buape/carbon/plugins/gateway"
 
 const client = new Client(
-  {
-    baseUrl: process.env.BASE_URL,
-    deploySecret: process.env.DEPLOY_SECRET,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    publicKey: process.env.DISCORD_PUBLIC_KEY,
-    token: process.env.DISCORD_BOT_TOKEN
-  },
-  {},
-  [
-    new GatewayPlugin({
-      intents: GatewayIntents.Guilds | 
-               GatewayIntents.GuildMessages | 
-               GatewayIntents.MessageContent,
-      // Optional: Configure connection behavior
-      largeThreshold: 250,  // Number of offline members to load
-      presence: {           // Bot's initial presence
-        status: "online",
-        activities: [{
-          name: "with Carbon",
-          type: ActivityType.Playing
-        }]
-      }
-    })
-  ]
+	{
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		clientId: process.env.DISCORD_CLIENT_ID,
+		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		token: process.env.DISCORD_BOT_TOKEN
+	},
+	{},
+	[
+		new GatewayPlugin({
+			intents: GatewayIntents.Guilds | 
+					GatewayIntents.GuildMessages | 
+					GatewayIntents.MessageContent,
+			// Optional: Configure connection behavior
+			largeThreshold: 250,  // Number of offline members to load
+			presence: {           // Bot's initial presence
+				status: "online",
+				activities: [{
+					name: "with Carbon",
+					type: ActivityType.Playing
+				}]
+			}
+		})
+	]
 )
 ```
 
@@ -71,24 +71,24 @@ import { Client } from "@buape/carbon"
 import { ShardingPlugin, GatewayIntents } from "@buape/carbon/plugins/gateway"
 
 const client = new Client(
-  {
-    baseUrl: process.env.BASE_URL,
-    deploySecret: process.env.DEPLOY_SECRET,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    publicKey: process.env.DISCORD_PUBLIC_KEY,
-    token: process.env.DISCORD_BOT_TOKEN
-  },
-  {},
-  [
-    new ShardingPlugin({
-      intents: GatewayIntents.Guilds | 
-               GatewayIntents.GuildMessages | 
-               GatewayIntents.MessageContent,
-      // Optional: Manual shard configuration
-      shardCount: 10,      // Let Discord auto-scale by default
-      shardIds: [0, 1, 2], // Run specific shards in this process
-    })
-  ]
+	{
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		clientId: process.env.DISCORD_CLIENT_ID,
+		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		token: process.env.DISCORD_BOT_TOKEN
+	},
+	{},
+	[
+		new ShardingPlugin({
+			intents: GatewayIntents.Guilds | 
+					GatewayIntents.GuildMessages | 
+					GatewayIntents.MessageContent,
+			// Optional: Manual shard configuration
+			shardCount: 10,      // Let Discord auto-scale by default
+			shardIds: [0, 1, 2], // Run specific shards in this process
+		})
+	]
 )
 ```
 

@@ -14,12 +14,12 @@ To create a button, you need to create a class that extends the `Button` class. 
 import { Button, type ButtonInteraction } from "@buape/carbon";
 
 export default class PingButton extends Button {
-    customId = "ping"
-    label = "Ping"
+	customId = "ping"
+	label = "Ping"
 
-    async run(interaction: ButtonInteraction) {
-        await interaction.reply("Pong!")
-    }
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("Pong!")
+	}
 }
 ```
 
@@ -45,8 +45,8 @@ Link buttons are used to link to external sources. They are created by extending
 import { Button, type ButtonInteraction } from "@buape/carbon";
 
 export default class LinkButton extends Button {
-    label = "Carbon Documentation"
-    url = "https://carbon.buape.com"
+	label = "Carbon Documentation"
+	url = "https://carbon.buape.com"
 }
 ```
 

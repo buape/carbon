@@ -59,11 +59,11 @@ To access environment variables globally in a Cloudflare Worker, Carbon uses a w
 import type { ExecutionContext } from '@cloudflare/workers-types'
 
 export default {
-  fetch(req: Request, env: Record<string, string>, ctx: ExecutionContext) {
+	fetch(req: Request, env: Record<string, string>, ctx: ExecutionContext) {
 		Reflect.set(globalThis, 'process', { env })
 		const handle = await import('./index.js')
 		return handle.default.fetch(req, ctx)
-  }
+	}
 }
 ```
 </Step>

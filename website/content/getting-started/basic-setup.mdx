@@ -44,11 +44,11 @@ Next, create a new client instance by importing the `Client` class from the `@bu
 import { Client } from "@buape/carbon";
 
 const client = new Client({
-  baseUrl: process.env.BASE_URL,
-  deploySecret: process.env.DEPLOY_SECRET,
-  clientId: process.env.DISCORD_CLIENT_ID,
-  publicKey: process.env.DISCORD_PUBLIC_KEY,
-  token: process.env.DISCORD_TOKEN,
+	baseUrl: process.env.BASE_URL,
+	deploySecret: process.env.DEPLOY_SECRET,
+	clientId: process.env.DISCORD_CLIENT_ID,
+	publicKey: process.env.DISCORD_PUBLIC_KEY,
+	token: process.env.DISCORD_TOKEN,
 }, [])
 ```
 
@@ -68,12 +68,12 @@ Now we'll create a simple command that responds with "Hello!" when invoked. This
 import { Command, type CommandInteraction } from "@buape/carbon";
 
 export default class HelloCommand extends Command {
-  name = "hello";
-  description = "Say hello to the bot";
+	name = "hello";
+	description = "Say hello to the bot";
 
-  async run(interaction: CommandInteraction) {
-    await interaction.reply("Hello!");
-  }
+	async run(interaction: CommandInteraction) {
+		await interaction.reply("Hello!");
+	}
 }
 ```
 
@@ -83,8 +83,8 @@ Then, mount the command to your client to make it available for use. This step i
 import HelloCommand from './commands/hello'
 
 const client = new Client(
-  { ... },
-  [new HelloCommand()]
+	{ ... },
+	[new HelloCommand()]
 )
 ```
 

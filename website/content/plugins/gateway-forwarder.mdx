@@ -46,39 +46,39 @@ Creating a new application for your forwarder is super straightforward - it just
 ```typescript title="src/index.ts"
 import "dotenv/config"
 import { 
-  Client, 
-  type ListenerEventType
+	Client, 
+	type ListenerEventType
 } from "@buape/carbon"
 import {
-  GatewayForwarderPlugin,
-  GatewayIntents
+	GatewayForwarderPlugin,
+	GatewayIntents
 } from "@buape/carbon/plugins/gateway-forwarder"
 
 const client = new Client(
-  {
-    baseUrl: process.env.BASE_URL,
-    deploySecret: process.env.DEPLOY_SECRET,
-    clientId: process.env.DISCORD_CLIENT_ID,
-    publicKey: process.env.DISCORD_PUBLIC_KEY,
-    token: process.env.DISCORD_BOT_TOKEN
-  },
-  {},
-  [
-    new GatewayForwarderPlugin({
-      intents: GatewayIntents.Guilds | 
-               GatewayIntents.GuildMessages | 
-               GatewayIntents.MessageContent,
-      webhookUrl: `${process.env.BASE_URL}/events`,
-      privateKey: process.env.FORWARDER_PRIVATE_KEY,
-      eventFilter: (event: ListenerEventType) => {
-        return event.startsWith('MESSAGE_');  // Only forward message events (create, update, delete)
-      }
-    })
-  ]
+	{
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		clientId: process.env.DISCORD_CLIENT_ID,
+		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		token: process.env.DISCORD_BOT_TOKEN
+	},
+	{},
+	[
+		new GatewayForwarderPlugin({
+			intents: GatewayIntents.Guilds | 
+					GatewayIntents.GuildMessages | 
+					GatewayIntents.MessageContent,
+			webhookUrl: `${process.env.BASE_URL}/events`,
+			privateKey: process.env.FORWARDER_PRIVATE_KEY,
+			eventFilter: (event: ListenerEventType) => {
+				return event.startsWith('MESSAGE_');  // Only forward message events (create, update, delete)
+			}
+		})
+	]
 )
 
 console.log(
-  `Gateway forwarder ready to send events to ${process.env.BASE_URL}/events`
+	`Gateway forwarder ready to send events to ${process.env.BASE_URL}/events`
 )
 ```
 
@@ -90,14 +90,14 @@ Setting up your main bot application is even simpler - you just need to add the 
 import { Client } from "@buape/carbon"
 
 const client = new Client({
-  baseUrl: process.env.BASE_URL,
-  deploySecret: process.env.DEPLOY_SECRET,
-  clientId: process.env.DISCORD_CLIENT_ID,
-  publicKey: [
-    process.env.DISCORD_PUBLIC_KEY,    // Discord's public key
-    process.env.FORWARDER_PUBLIC_KEY   // Forwarder's public key
-  ],
-  token: process.env.DISCORD_BOT_TOKEN
+	baseUrl: process.env.BASE_URL,
+	deploySecret: process.env.DEPLOY_SECRET,
+	clientId: process.env.DISCORD_CLIENT_ID,
+	publicKey: [
+		process.env.DISCORD_PUBLIC_KEY,    // Discord's public key
+		process.env.FORWARDER_PUBLIC_KEY   // Forwarder's public key
+	],
+	token: process.env.DISCORD_BOT_TOKEN
 })
 ```
 
@@ -108,16 +108,16 @@ When events arrive at your `/events` endpoint, they'll come with all the headers
 Event verification happens automatically in Carbon's client. Here's how it works:
 
 1. When the forwarder sends an event:
-   - It adds a timestamp to the request
-   - It concatenates the timestamp and the raw JSON body
-   - It signs this data with Ed25519 using its private key
-   - It sends the event with the signature in the `X-Signature-Ed25519` header and timestamp in `X-Signature-Timestamp`
+    - It adds a timestamp to the request
+    - It concatenates the timestamp and the raw JSON body
+    - It signs this data with Ed25519 using its private key
+    - It sends the event with the signature in the `X-Signature-Ed25519` header and timestamp in `X-Signature-Timestamp`
 
 2. When Carbon's client receives the event:
-   - It extracts the timestamp and signature from the headers
-   - It verifies the signature using the forwarder's public key (which you provided in the client config)
-   - If verification passes, it processes the event and sends it to your listeners
-   - If verification fails, it rejects the event to protect your bot
+    - It extracts the timestamp and signature from the headers
+    - It verifies the signature using the forwarder's public key (which you provided in the client config)
+    - If verification passes, it processes the event and sends it to your listeners
+    - If verification fails, it rejects the event to protect your bot
 
 You don't need to implement any of this yourself - just make sure you've added the forwarder's public key to your client config as shown in the setup example above.
 

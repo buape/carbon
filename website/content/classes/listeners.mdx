@@ -11,17 +11,17 @@ When you're building a Discord bot, you need to know when stuff happens - when s
 Discord has two main ways of telling your bot what's happening:
 
 1. **Webhook Events**: These are HTTP requests that Discord sends directly to your bot. They're great for handling things like:
-   - Slash commands and component interactions
-   - OAuth2 authorization grants
-   - Application commands and message components
-   - Premium subscription events
-   These arrive as HTTP POST requests and might be slightly out of order.
+	- Slash commands and component interactions
+	- OAuth2 authorization grants
+	- Application commands and message components
+	- Premium subscription events
+	These arrive as HTTP POST requests and might be slightly out of order.
 
 2. **Gateway Events**: These come through a WebSocket connection - think of it like a constant phone line between your bot and Discord. These events:
-   - Arrive in real-time with strict ordering
-   - Maintain session state and resumability
-   - Require specific intents to be enabled
-   - Include all real-time Discord updates
+	- Arrive in real-time with strict ordering
+	- Maintain session state and resumability
+	- Require specific intents to be enabled
+	- Include all real-time Discord updates
 
 The key technical differences are:
 - **Delivery Mechanism**: Webhooks use HTTP POST requests, Gateway uses WebSocket frames
