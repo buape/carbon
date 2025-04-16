@@ -2,8 +2,10 @@ import {
 	GatewayCloseCodes as DiscordGatewayCloseCodes,
 	GatewayOpcodes as DiscordGatewayOpcodes,
 	GatewayIntentBits,
-	type GatewayReadyDispatchData
+	type GatewayReadyDispatchData,
+	type APIGatewayBotInfo
 } from "discord-api-types/v10"
+import type { ListenerEventType } from "../../types/index.js"
 
 export interface GatewayPluginOptions {
 	/**
@@ -36,6 +38,11 @@ export interface GatewayPluginOptions {
 		 */
 		maxDelay?: number
 	}
+	/**
+	 * This is a custom function you can provide that will filter events.
+	 * If this function is present, the plugin will only process events that return `true`.
+	 */
+	eventFilter?: (event: ListenerEventType) => boolean
 }
 
 /**
@@ -63,3 +70,5 @@ export interface GatewayPayload {
 export type ReadyEventData = GatewayReadyDispatchData
 
 export const GatewayIntents = GatewayIntentBits
+
+export type { APIGatewayBotInfo }

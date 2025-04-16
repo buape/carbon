@@ -45,7 +45,10 @@ Creating a new application for your forwarder is super straightforward - it just
 
 ```typescript title="src/index.ts"
 import "dotenv/config"
-import { Client } from "@buape/carbon"
+import { 
+  Client, 
+  type ListenerEventType
+} from "@buape/carbon"
 import {
   GatewayForwarderPlugin,
   GatewayIntents
@@ -67,15 +70,8 @@ const client = new Client(
                GatewayIntents.MessageContent,
       webhookUrl: `${process.env.BASE_URL}/events`,
       privateKey: process.env.FORWARDER_PRIVATE_KEY,
-      // Optional configuration
-      retryStrategy: {
-        maxAttempts: 5,           // Maximum retry attempts
-        initialDelay: 1000,       // Start with 1 second delay
-        maxDelay: 60000,          // Cap at 1 minute delay
-        backoffMultiplier: 2      // Double delay each retry
-      },
-      eventFilter: (event) => {   // Optional event filtering
-        return !event.t?.startsWith('TYPING_');  // Skip typing events
+      eventFilter: (event: ListenerEventType) => {
+        return event.startsWith('MESSAGE_');  // Only forward message events (create, update, delete)
       }
     })
   ]

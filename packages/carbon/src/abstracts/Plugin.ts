@@ -12,13 +12,13 @@ export abstract class Plugin {
 	 * Registers the client with this plugin
 	 * @param client The client to register
 	 */
-	registerClient?(client: Client): void
+	registerClient?(client: Client): Promise<void> | void
 
 	/**
 	 * Registers the routes of this plugin with the client
 	 * @param client The client to register the routes with
 	 */
-	registerRoutes?(client: Client): void
+	registerRoutes?(client: Client): Promise<void> | void
 }
 
 export interface Route {

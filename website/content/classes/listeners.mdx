@@ -41,7 +41,7 @@ Carbon makes it super easy to handle both types of events using the same pattern
 
 ```typescript
 abstract class BaseListener {
-	abstract readonly type: ValueOf<typeof ListenerEvent>
+	abstract readonly type: ListenerEventType
 	abstract handle(
 		data: ListenerEventData[this["type"]],
 		client: Client

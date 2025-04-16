@@ -1,3 +1,4 @@
+import type { APIGatewayBotInfo } from "discord-api-types/v10"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
@@ -27,6 +28,7 @@ export class ShardingPlugin extends Plugin {
 	protected maxConcurrency: number
 	protected spawnQueue: number[] = []
 	protected spawning = false
+	protected gatewayInfo?: APIGatewayBotInfo
 
 	constructor(options: ShardingPluginOptions) {
 		super()
@@ -48,9 +50,13 @@ export class ShardingPlugin extends Plugin {
 						}
 					}
 				)
-				const data = await response.json()
-				this.config.totalShards = data.shards
-				this.maxConcurrency = data.session_start_limit.max_concurrency
+				const gatewayInfo = (await response.json()) as APIGatewayBotInfo
+				this.config.totalShards = gatewayInfo.shards
+				if (!this.config.url) {
+					this.config.url = gatewayInfo.url
+				}
+				this.maxConcurrency = gatewayInfo.session_start_limit.max_concurrency
+				this.gatewayInfo = gatewayInfo
 			} catch {
 				throw new Error("Failed to get recommended shard count from Discord")
 			}
@@ -95,10 +101,13 @@ export class ShardingPlugin extends Plugin {
 		// Spawn the current batch of shards
 		await Promise.all(
 			currentBatch.map(async (shardId) => {
-				const shard = new GatewayPlugin({
-					...this.config,
-					shard: [shardId, totalShards]
-				})
+				const shard = new GatewayPlugin(
+					{
+						...this.config,
+						shard: [shardId, totalShards]
+					},
+					this.gatewayInfo
+				)
 
 				if (this.client) {
 					shard.registerClient(this.client)

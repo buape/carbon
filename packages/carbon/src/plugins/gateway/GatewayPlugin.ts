@@ -8,7 +8,8 @@ import {
 	type GatewayPayload,
 	type GatewayPluginOptions,
 	type GatewayState,
-	type ReadyEventData
+	type ReadyEventData,
+	type APIGatewayBotInfo
 } from "./types.js"
 import { startHeartbeat, stopHeartbeat } from "./utils/heartbeat.js"
 import { type ConnectionMetrics, ConnectionMonitor } from "./utils/monitor.js"
@@ -17,6 +18,8 @@ import {
 	createResumePayload,
 	validatePayload
 } from "./utils/payload.js"
+import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
+import type { GatewayDispatchPayload } from "discord-api-types/v10"
 
 interface HelloData {
 	heartbeat_interval: number
@@ -36,11 +39,11 @@ export class GatewayPlugin extends Plugin {
 	private reconnectAttempts = 0
 	public shardId?: number
 	public totalShards?: number
+	protected gatewayInfo?: APIGatewayBotInfo
 
-	constructor(options: GatewayPluginOptions) {
+	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
 		this.config = {
-			url: "wss://gateway.discord.gg/?v=10&encoding=json",
 			reconnect: {
 				maxAttempts: 5,
 				baseDelay: 1000,
@@ -55,6 +58,7 @@ export class GatewayPlugin extends Plugin {
 		}
 		this.monitor = new ConnectionMonitor()
 		this.emitter = new EventEmitter()
+		this.gatewayInfo = gatewayInfo
 
 		this.monitor.on("metrics", (metrics: ConnectionMetrics) =>
 			this.emitter.emit("metrics", metrics)
@@ -64,8 +68,27 @@ export class GatewayPlugin extends Plugin {
 		)
 	}
 
-	public registerClient(client: Client): void {
+	public async registerClient(client: Client): Promise<void> {
 		this.client = client
+
+		if (!this.gatewayInfo) {
+			try {
+				const response = await fetch(
+					"https://discord.com/api/v10/gateway/bot",
+					{
+						headers: {
+							Authorization: `Bot ${client.options.token}`
+						}
+					}
+				)
+				this.gatewayInfo = (await response.json()) as APIGatewayBotInfo
+			} catch (error) {
+				throw new Error(
+					`Failed to get gateway information from Discord: ${error instanceof Error ? error.message : String(error)}`
+				)
+			}
+		}
+
 		this.connect()
 	}
 
@@ -73,7 +96,9 @@ export class GatewayPlugin extends Plugin {
 		const url =
 			resume && this.state.resumeGatewayUrl
 				? this.state.resumeGatewayUrl
-				: (this.config.url ?? "wss://gateway.discord.gg/?v=10&encoding=json")
+				: (this.gatewayInfo?.url ??
+					this.config.url ??
+					"wss://gateway.discord.gg/?v=10&encoding=json")
 		this.ws = this.createWebSocket(url)
 		this.setupWebSocket()
 	}
@@ -140,14 +165,19 @@ export class GatewayPlugin extends Plugin {
 					break
 
 				case GatewayOpcodes.Dispatch: {
-					if (t === "READY") {
+					const payload1 = payload as GatewayDispatchPayload
+					const t1 = payload1.t as ListenerEventType
+					if (!Object.values(ListenerEvent).includes(t1))
+						throw new Error(`Unknown event type: ${t1}`)
+					if (t1 === "READY") {
 						const readyData = d as ReadyEventData
 						this.state.sessionId = readyData.session_id
 						this.state.resumeGatewayUrl = readyData.resume_gateway_url
 					}
 					if (t && this.client) {
-						// @ts-expect-error - the types are really annoying here, but they are correct technically
-						this.client.eventHandler.handleEvent(d, t)
+						if (!this.config.eventFilter || this.config.eventFilter?.(t1)) {
+							this.client.eventHandler.handleEvent(payload1.d, t1)
+						}
 					}
 					break
 				}

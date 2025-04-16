@@ -1,9 +1,8 @@
 import type { Client } from "../classes/Client.js"
 import type {
-	ListenerEvent,
 	ListenerEventData,
 	ListenerEventRawData,
-	ValueOf
+	ListenerEventType
 } from "../types/listeners.js"
 
 /**
@@ -12,7 +11,7 @@ import type {
  * @abstract
  */
 export abstract class BaseListener {
-	abstract readonly type: ValueOf<typeof ListenerEvent>
+	abstract readonly type: ListenerEventType
 	abstract handle(
 		data: ListenerEventData[this["type"]],
 		client: Client

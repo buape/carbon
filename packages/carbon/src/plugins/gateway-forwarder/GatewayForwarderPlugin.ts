@@ -6,6 +6,7 @@ import {
 import { concatUint8Arrays, valueToUint8Array } from "../../utils.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type { GatewayPayload, GatewayPluginOptions } from "../gateway/types.js"
+import type { ListenerEventType } from "../../types/index.js"
 
 export interface GatewayForwarderPluginOptions extends GatewayPluginOptions {
 	/**
@@ -60,6 +61,12 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 				const payload = JSON.parse(data.toString()) as GatewayPayload
 
 				if (payload.t && payload.d) {
+					if (
+						!this.config.eventFilter ||
+						!this.config.eventFilter(payload.t as ListenerEventType)
+					)
+						return
+
 					// In the below code, the events are not truly webhook events,
 					// but we use the webhook event type so that the payloads are structured correctly to work as if they were webhook events
 					const timestamp = Date.now()

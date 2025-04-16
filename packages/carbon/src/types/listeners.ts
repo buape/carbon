@@ -87,10 +87,22 @@ import type { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { Message } from "../structures/Message.js"
 import type { Role } from "../structures/Role.js"
 import type { User } from "../structures/User.js"
-export const ListenerEvent = {
-	...GatewayDispatchEvents,
+
+export const WebhookEvent = {
 	...ApplicationWebhookEventType
 }
+
+export const GatewayEvent = {
+	...GatewayDispatchEvents
+}
+
+export const ListenerEvent = {
+	...GatewayEvent,
+	...WebhookEvent
+}
+
+export type ListenerEventType =
+	(typeof ListenerEvent)[keyof typeof ListenerEvent]
 
 export type ListenerEventRawData = {
 	[ListenerEvent.ApplicationAuthorized]: APIWebhookEventApplicationAuthorizedData
@@ -463,5 +475,3 @@ export type ListenerEventData = {
 		user: User<true>
 	}
 }
-
-export type ValueOf<T> = T[keyof T]
