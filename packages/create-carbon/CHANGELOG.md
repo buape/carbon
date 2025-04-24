@@ -1,5 +1,16 @@
 # create-carbon
 
+## 0.4.0
+
+### Minor Changes
+
+- 4a1329f: feat: Gateway forwarder plugin to allow gateway events with a serverless http bot
+- 4a1329f: feat: add gateway support for server runtimes
+
+### Patch Changes
+
+- cfacfd5: chore: update dependencies
+
 ## 0.3.0
 
 ### Minor Changes
