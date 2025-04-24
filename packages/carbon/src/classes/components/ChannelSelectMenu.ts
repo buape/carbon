@@ -7,6 +7,8 @@ import type { ChannelSelectMenuInteraction } from "../../internals/ChannelSelect
 
 export abstract class ChannelSelectMenu extends AnySelectMenu {
 	readonly type = ComponentType.ChannelSelect as const
+	readonly isV2 = false
+	channelTypes?: APIChannelSelectComponent["channel_types"]
 	channelTypes?: APIChannelSelectComponent["channel_types"]
 	defaultValues?: APIChannelSelectComponent["default_values"]
 	abstract run(interaction: ChannelSelectMenuInteraction): Promise<void>
