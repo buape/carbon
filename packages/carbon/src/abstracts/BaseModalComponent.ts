@@ -4,9 +4,12 @@ import type {
 } from "discord-api-types/v10"
 import { BaseComponent } from "./BaseComponent.js"
 
-export type ComponentAdditionalData = {
-	[key: string]: string | number | boolean
-}
+import type {
+  APIComponentInModalActionRow,
+  ComponentType
+} from "discord-api-types/v10"
+import { BaseComponent } from "./BaseComponent.js"
+import type { ComponentAdditionalData } from "./BaseMessageInteractiveComponent.js"
 
 export abstract class BaseModalComponent extends BaseComponent {
 	abstract override type: ComponentType.TextInput
