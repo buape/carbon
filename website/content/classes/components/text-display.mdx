@@ -1,0 +1,48 @@
+---
+title: TextDisplay
+description: A component for displaying text content in messages.
+icon: Type
+---
+
+The TextDisplay component is the primary way to show text content in your messages. It's a simple but essential component that can be used standalone or within other components like Section or Container.
+
+## Component Structure
+
+A TextDisplay is defined by its text content. It's the most basic component type and serves as the foundation for displaying information in your messages.
+
+## Creating a TextDisplay
+
+To create a text display, you simply instantiate the `TextDisplay` class with your desired text:
+
+```ts title="src/components/text.ts"
+import { TextDisplay } from "@buape/carbon";
+
+const text = new TextDisplay("Hello, world!");
+```
+
+## Usage Example
+
+Here's how you might use TextDisplay in a command:
+
+```ts title="src/commands/text-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { TextDisplay, Section } from "@buape/carbon";
+
+class TextExample extends Command {
+	name = "text"
+	description = "Example of using TextDisplay components"
+
+	async run(interaction: CommandInteraction) {
+		const section = new Section(
+			[
+				new TextDisplay("This is the first line of text."),
+				new TextDisplay("This is the second line of text.")
+			]
+		)
+
+		await interaction.reply({
+			components: [section]
+		})
+	}
+}
+``` 

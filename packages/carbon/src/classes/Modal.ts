@@ -3,9 +3,9 @@ import type {
 	APIModalInteractionResponseCallbackData,
 	APITextInputComponent
 } from "discord-api-types/v10"
+import type { BaseModalComponent } from "../abstracts/BaseModalComponent.js"
 import type { ModalInteraction } from "../internals/ModalInteraction.js"
-import type { Row } from "./Row.js"
-import type { TextInput } from "./TextInput.js"
+import type { Row } from "./components/Row.js"
 
 export abstract class Modal {
 	/**
@@ -16,7 +16,7 @@ export abstract class Modal {
 	/**
 	 * The components of the modal
 	 */
-	components: Row<TextInput>[] = []
+	components: Row<BaseModalComponent>[] = []
 
 	/**
 	 * The custom ID of the modal

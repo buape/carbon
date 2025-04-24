@@ -1,10 +1,24 @@
 import type { APIAllowedMentions } from "discord-api-types/v10"
+import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Embed } from "../classes/Embed.js"
-import type { Row } from "../classes/Row.js"
+import type { Container } from "../classes/components/Container.js"
+import type { File } from "../classes/components/File.js"
+import type { MediaGallery } from "../classes/components/MediaGallery.js"
+import type { Row } from "../classes/components/Row.js"
+import type { Section } from "../classes/components/Section.js"
+import type { Separator } from "../classes/components/Separator.js"
+import type { TextDisplay } from "../classes/components/TextDisplay.js"
 
 export type AllowedMentions = APIAllowedMentions
+export type TopLevelComponents =
+	| Row<BaseMessageInteractiveComponent>
+	| Container
+	| File
+	| MediaGallery
+	| Section
+	| Separator
+	| TextDisplay
 
-/**
 /**
  * The data that is sent to Discord when sending a message.
  * If you pass just a string, it will be treated as the content of the message.
@@ -20,9 +34,9 @@ export type MessagePayload =
 			 */
 			embeds?: Embed[]
 			/**
-			 * The components to send in the message, listed in rows
+			 * The components to send in the message
 			 */
-			components?: Row[]
+			components?: TopLevelComponents[]
 			/**
 			 * The settings for which mentions are allowed in the message
 			 */

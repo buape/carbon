@@ -1,0 +1,54 @@
+---
+title: Container
+description: A container component that groups and organizes other components in a message.
+icon: Box
+---
+
+The Container component is the foundation for organizing other components in your messages. Similar to Discord's Action Row, it serves as a wrapper that can hold multiple components and apply consistent theming.
+
+## Component Structure
+
+A Container is defined by its ability to hold other components and optionally apply an accent color to them. It's the primary way to group related components together in a message.
+
+## Creating a Container
+
+To create a container, you need to create a class that extends the `Container` class:
+
+```ts title="src/components/container.ts"
+import { Container, TextDisplay } from "@buape/carbon";
+
+class MyContainer extends Container {
+	components = [
+		new TextDisplay("This text is inside a container.")
+	]
+	accentColor = "#5865F2" // Optional accent color
+}
+```
+
+## Usage Example
+
+Here's how you might use a Container in a command:
+
+```ts title="src/commands/container-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { Container, TextDisplay, Section, Thumbnail } from "@buape/carbon";
+
+class ContainerExample extends Command {
+	name = "container"
+	description = "Example of using a Container component"
+
+	async run(interaction: CommandInteraction) {
+		const container = new Container([
+			new Section(
+				[new TextDisplay("This is a section inside a container.")],
+				new Thumbnail("https://example.com/icon.png")
+			),
+			new TextDisplay("This is standalone text in the container.")
+		], "#FF0000") // Red accent color
+
+		await interaction.reply({
+			components: [container]
+		})
+	}
+}
+``` 

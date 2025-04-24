@@ -2,11 +2,12 @@ import {
 	type APIStringSelectComponent,
 	ComponentType
 } from "discord-api-types/v10"
-import { AnySelectMenu } from "../abstracts/AnySelectMenu.js"
-import type { StringSelectMenuInteraction } from "../internals/StringSelectMenuInteraction.js"
+import { AnySelectMenu } from "../../abstracts/AnySelectMenu.js"
+import type { StringSelectMenuInteraction } from "../../internals/StringSelectMenuInteraction.js"
 
 export abstract class StringSelectMenu extends AnySelectMenu {
-	type: ComponentType.StringSelect = ComponentType.StringSelect
+	readonly type = ComponentType.StringSelect as const
+	readonly isV2 = false
 	abstract options: APIStringSelectComponent["options"]
 	abstract run(interaction: StringSelectMenuInteraction): Promise<void>
 

@@ -145,7 +145,15 @@ export class RequestClient {
 		this.abortController = new AbortController()
 		let body: BodyInit | undefined
 
-		if (data?.body && typeof data.body === "object" && "files" in data.body) {
+		if (
+			data?.body &&
+			typeof data.body === "object" &&
+			("files" in data.body ||
+				("data" in data.body &&
+					data.body.data &&
+					typeof data.body.data === "object" &&
+					"files" in data.body.data))
+		) {
 			const payload = data.body as MessagePayload
 			if (typeof payload === "string") {
 				data.body = { content: payload, attachments: [] }
@@ -154,7 +162,24 @@ export class RequestClient {
 			}
 
 			const formData = new FormData()
-			const files = (payload as { files?: MessagePayloadFile[] }).files || []
+			const files = (() => {
+				if (typeof payload === "object" && payload !== null) {
+					if ("files" in payload) {
+						return (payload as { files?: MessagePayloadFile[] }).files || []
+					}
+					if (
+						"data" in payload &&
+						typeof payload.data === "object" &&
+						payload.data !== null
+					) {
+						return (
+							(payload as { data: { files?: MessagePayloadFile[] } }).data
+								.files || []
+						)
+					}
+				}
+				return []
+			})()
 
 			for (const [index, file] of files.entries()) {
 				let { data: fileData } = file

@@ -1,0 +1,58 @@
+---
+title: MediaGallery
+description: A component for displaying multiple images in a gallery format.
+icon: Image
+---
+
+The MediaGallery component allows you to display multiple images in a gallery layout within your messages. It's useful for showcasing collections of images or related visual content.
+
+## Component Structure
+
+A MediaGallery is defined by its array of image items. Each item must have a URL that can point to either an external image or an attachment in the message.
+
+## Creating a MediaGallery
+
+To create a media gallery, you instantiate the `MediaGallery` class with an array of image items:
+
+```ts title="src/components/gallery.ts"
+import { MediaGallery } from "@buape/carbon";
+
+const gallery = new MediaGallery([
+	{ url: "attachment://photo1.jpg" },
+	{ url: "https://example.com/image2.png" },
+	{ url: "attachment://photo3.png" }
+]);
+```
+
+## Usage Example
+
+Here's how you might use MediaGallery in a command:
+
+```ts title="src/commands/gallery-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { MediaGallery, TextDisplay } from "@buape/carbon";
+
+class GalleryExample extends Command {
+	name = "gallery"
+	description = "Example of using MediaGallery components"
+
+	async run(interaction: CommandInteraction) {
+		await interaction.reply({
+			components: [
+				new TextDisplay("Here's a gallery of images:"),
+				new MediaGallery([
+					{ url: "attachment://photo1.jpg" },
+					{ url: "https://example.com/image2.png" }
+				])
+			],
+			files: [
+				{
+					name: "photo1.jpg",
+					data: new Blob([/* image data */]),
+					description: "First gallery image"
+				}
+			]
+		})
+	}
+}
+``` 

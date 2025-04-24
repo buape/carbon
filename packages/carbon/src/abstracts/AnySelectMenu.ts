@@ -8,7 +8,7 @@ import type {
 	ComponentType
 } from "discord-api-types/v10"
 import type { AnySelectMenuInteraction } from "./AnySelectMenuInteraction.js"
-import { BaseComponent } from "./BaseComponent.js"
+import { BaseMessageInteractiveComponent } from "./BaseMessageInteractiveComponent.js"
 
 export type AnySelectMenuComponentType =
 	| ComponentType.ChannelSelect
@@ -17,7 +17,7 @@ export type AnySelectMenuComponentType =
 	| ComponentType.UserSelect
 	| ComponentType.MentionableSelect
 
-export abstract class AnySelectMenu extends BaseComponent {
+export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 	abstract type: AnySelectMenuComponentType
 	abstract run(interaction: AnySelectMenuInteraction): Promise<void>
 
