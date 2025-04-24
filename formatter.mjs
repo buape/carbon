@@ -65,7 +65,7 @@ export function load(app) {
 			if (!page.contents) return
 			page.contents = page.contents.replace(
 				/attachment:\/\/<(\w+)>/g,
-				'attachment://`<$1>`'
+				"attachment://`<$1>`"
 			)
 		}
 	)
