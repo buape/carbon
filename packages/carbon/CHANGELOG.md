@@ -1,5 +1,21 @@
 # @buape/carbon
 
+## 0.8.0
+
+### Minor Changes
+
+- a095849: feat: components v2
+- 98b165b: feat: support files in all MessagePayloads, not just interaction replies
+- 50cc5c8: feat: return name and type for autocomplete's getFocused() options as well as value
+- 4a1329f: feat: Gateway forwarder plugin to allow gateway events with a serverless http bot
+- 4a1329f: feat: add gateway support for server runtimes
+
+### Patch Changes
+
+- cfacfd5: chore: update dependencies
+- a095849: fix: make attachments work for standard interaction replies as well as channel sends
+- cc80d95: feat: add better fetching for partials, allowing you to reassign with the full class data
+
 ## 0.7.0
 
 ### Minor Changes
