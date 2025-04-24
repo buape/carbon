@@ -3,10 +3,11 @@ import {
 	ComponentType,
 	TextInputStyle
 } from "discord-api-types/v10"
-import { BaseComponent } from "../abstracts/BaseComponent.js"
+import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 
-export abstract class TextInput extends BaseComponent {
-	type = ComponentType.TextInput
+export abstract class TextInput extends BaseModalComponent {
+	readonly type = ComponentType.TextInput as const
+	readonly isV2 = false
 
 	/**
 	 * The custom ID of the text input

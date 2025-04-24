@@ -56,4 +56,17 @@ export function load(app) {
 			page.contents = page.contents.replace(/\.mdx/g, "")
 		}
 	)
+
+	// Escape angle brackets in attachment:// references
+	app.renderer.on(
+		MarkdownPageEvent.END,
+		/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent} page */
+		(page) => {
+			if (!page.contents) return
+			page.contents = page.contents.replace(
+				/attachment:\/\/<(\w+)>/g,
+				"attachment://`<$1>`"
+			)
+		}
+	)
 }

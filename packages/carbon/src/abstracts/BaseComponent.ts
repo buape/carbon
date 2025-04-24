@@ -1,49 +1,27 @@
-import type { APIBaseComponent, ComponentType } from "discord-api-types/v10"
-
-export type ComponentAdditionalData = {
-	[key: string]: string | number | boolean
-}
+import type {
+	APIMessageComponent,
+	APIModalComponent,
+	ComponentType
+} from "discord-api-types/v10"
 
 export abstract class BaseComponent {
-	constructor(data?: {
-		additionalData?: ComponentAdditionalData
-	}) {
-		if (data?.additionalData) this.additionalData = data.additionalData
-	}
-
-	/**
-	 * Whether the component response should be automatically deferred
-	 */
-	defer = false
-	/**
-	 * Whether the component response should be ephemeral
-	 */
-	ephemeral = false
-
 	/**
 	 * The type of the component
 	 */
-	abstract type: ComponentType
-	/**
-	 * The custom ID of the component
-	 */
-	abstract customId: string
-
-	additionalData: ComponentAdditionalData | null = null
+	abstract readonly type: ComponentType
 
 	/**
-	 * Create a custom ID to use for this component that embeds additional data that you want to be handed
-	 * @param additionalData The additional data that you want to be passed in this component's custom ID
-	 * @returns The custom ID to use
+	 * Whether the component is a v2 component and requires the IS_COMPONENTS_V2 flag
 	 */
-	public createId = (additionalData: typeof this.additionalData) => {
-		if (!additionalData) return this.customId
-		// id:arg1=1;arg2=2
-		const id = `${this.customId}:${Object.entries(additionalData)
-			.map(([key, value]) => `${key}=${value}`)
-			.join(";")}`
-		return id
-	}
+	abstract readonly isV2: boolean
 
-	abstract serialize: () => APIBaseComponent<typeof this.type>
+	/**
+	 * 32 bit integer used as an optional identifier for component
+	 * The id field is optional and is used to identify components in the response from an interaction that aren't interactive components.
+	 * The id must be unique within the message and is generated sequentially by Discord if left empty.
+	 * Generation of ids won't use another id that exists in the message if you have one defined for another component.
+	 */
+	id?: number
+
+	abstract serialize: () => APIMessageComponent | APIModalComponent
 }

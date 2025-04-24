@@ -1,0 +1,50 @@
+---
+title: Thumbnail
+description: A component for displaying small images in messages.
+icon: Image
+---
+
+The Thumbnail component is used to display small images in your messages. It's commonly used as an accessory in Section components to provide visual context alongside text content.
+
+## Component Structure
+
+A Thumbnail is defined by its image URL. The URL can point to an external image or reference an attachment in the message.
+
+## Creating a Thumbnail
+
+To create a thumbnail, you instantiate the `Thumbnail` class with the image URL:
+
+```ts title="src/components/thumbnail.ts"
+import { Thumbnail } from "@buape/carbon";
+
+// Using a web URL
+const webThumbnail = new Thumbnail("https://example.com/icon.png");
+
+// Using an attachment
+const attachedThumbnail = new Thumbnail("attachment://kiai.png");
+```
+
+## Usage Example
+
+Here's how you might use Thumbnail in a command:
+
+```ts title="src/commands/thumbnail-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { Thumbnail, Section, TextDisplay } from "@buape/carbon";
+
+class ThumbnailExample extends Command {
+	name = "thumbnail"
+	description = "Example of using Thumbnail components"
+
+	async run(interaction: CommandInteraction) {
+		const section = new Section(
+			[new TextDisplay("This text has a thumbnail next to it.")],
+			new Thumbnail("https://example.com/icon.png")
+		)
+
+		await interaction.reply({
+			components: [section]
+		})
+	}
+}
+``` 

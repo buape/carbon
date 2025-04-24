@@ -9,6 +9,7 @@ import PingCommand from "./commands/ping.js"
 import MentionsCommand from "./commands/testing/allow_mentions.js"
 import AttachmentCommand from "./commands/testing/attachment.js"
 import ButtonCommand from "./commands/testing/button.js"
+import ComponentsV2 from "./commands/testing/components_v2.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
@@ -66,6 +67,7 @@ const client = new Client(
 			new PermissionCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),
+			new ComponentsV2(),
 			new UserCommand(),
 			new MentionsCommand()
 		],

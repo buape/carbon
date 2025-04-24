@@ -1,0 +1,59 @@
+---
+title: Section
+description: A component that groups related information horizontally with an optional accessory.
+icon: Layout
+---
+
+The Section component helps organize related information in a horizontal layout. It can contain multiple components (typically text) and optionally include an accessory element like a thumbnail that appears alongside the main content.
+
+## Component Structure
+
+A Section is defined by its ability to display components horizontally and optionally include an accessory component. It's commonly used to pair text with related media or icons.
+
+## Creating a Section
+
+To create a section, you need to create a class that extends the `Section` class:
+
+```ts title="src/components/section.ts"
+import { Section, TextDisplay, Thumbnail } from "@buape/carbon";
+
+class MySection extends Section {
+	components = [
+		new TextDisplay("This is the main content of the section.")
+	]
+	accessory = new Thumbnail("https://example.com/icon.png")
+}
+```
+
+## Usage Example
+
+Here's how you might use a Section in a command:
+
+```ts title="src/commands/section-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { Section, TextDisplay, Thumbnail } from "@buape/carbon";
+
+class SectionExample extends Command {
+	name = "section"
+	description = "Example of using a Section component"
+
+	async run(interaction: CommandInteraction) {
+		const section = new Section(
+			[
+				new TextDisplay("This is the main text."),
+				new TextDisplay("This is additional text in the same section.")
+			],
+			new Thumbnail("https://example.com/icon.png")
+		)
+
+		await interaction.reply({
+			components: [section]
+		})
+	}
+}
+```
+
+The Section component is particularly useful when you want to:
+- Group related text and media together
+- Create a consistent layout for information
+- Add visual context to text content 

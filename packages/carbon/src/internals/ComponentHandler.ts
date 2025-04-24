@@ -4,13 +4,13 @@ import type {
 	APIMessageComponentSelectMenuInteraction
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
-import type { BaseComponent } from "../abstracts/BaseComponent.js"
-import { Button } from "../classes/Button.js"
-import { ChannelSelectMenu } from "../classes/ChannelSelectMenu.js"
-import { MentionableSelectMenu } from "../classes/MentionableSelectMenu.js"
-import { RoleSelectMenu } from "../classes/RoleSelectMenu.js"
-import { StringSelectMenu } from "../classes/StringSelectMenu.js"
-import { UserSelectMenu } from "../classes/UserSelectMenu.js"
+import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
+import { Button } from "../classes/components/Button.js"
+import { ChannelSelectMenu } from "../classes/components/ChannelSelectMenu.js"
+import { MentionableSelectMenu } from "../classes/components/MentionableSelectMenu.js"
+import { RoleSelectMenu } from "../classes/components/RoleSelectMenu.js"
+import { StringSelectMenu } from "../classes/components/StringSelectMenu.js"
+import { UserSelectMenu } from "../classes/components/UserSelectMenu.js"
 import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
 import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
@@ -19,12 +19,12 @@ import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
 import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
 export class ComponentHandler extends Base {
-	components: BaseComponent[] = []
+	components: BaseMessageInteractiveComponent[] = []
 	/**
 	 * Register a component with the handler
 	 * @internal
 	 */
-	registerComponent(component: BaseComponent) {
+	registerComponent(component: BaseMessageInteractiveComponent) {
 		if (!this.components.find((x) => x.customId === component.customId)) {
 			this.components.push(component)
 		}

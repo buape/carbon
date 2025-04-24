@@ -1,0 +1,55 @@
+---
+title: File
+description: A component for displaying file attachments in messages.
+icon: File
+---
+
+The File component is used to display references to files attached to your messages. It can show basic file information and provide access to the attached file.
+
+## Component Structure
+
+A File is defined by its attachment URL and an optional flag to show metadata. The URL must reference an attachment in the message using the `attachment://` protocol.
+
+## Creating a File
+
+To create a file component, you instantiate the `File` class with the attachment URL and optionally set showMetadata:
+
+```ts title="src/components/file.ts"
+import { File } from "@buape/carbon";
+
+// Basic file display
+const file = new File("attachment://report.pdf");
+
+// File display with metadata
+const fileWithMeta = new File("attachment://report.pdf", true);
+```
+
+## Usage Example
+
+Here's how you might use File in a command:
+
+```ts title="src/commands/file-example.ts"
+import { Command, type CommandInteraction } from "@buape/carbon";
+import { File, TextDisplay } from "@buape/carbon";
+
+class FileExample extends Command {
+	name = "file"
+	description = "Example of using File components"
+
+	async run(interaction: CommandInteraction) {
+		await interaction.reply({
+			components: [
+				new TextDisplay("Here's the file:"),
+				new File("attachment://report.pdf", true)
+			],
+			files: [
+				{
+					name: "report.pdf",
+					data: new Blob([/* file data */]),
+					description: "Example PDF file"
+				}
+			]
+		})
+	}
+}
+``` 

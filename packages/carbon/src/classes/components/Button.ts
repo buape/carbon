@@ -5,12 +5,12 @@ import {
 	ButtonStyle,
 	ComponentType
 } from "discord-api-types/v10"
-import { BaseComponent } from "../abstracts/BaseComponent.js"
-import type { ButtonInteraction } from "../internals/ButtonInteraction.js"
+import { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
+import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
 
-abstract class BaseButton extends BaseComponent {
-	type = ComponentType.Button
-
+abstract class BaseButton extends BaseMessageInteractiveComponent {
+	readonly type = ComponentType.Button as const
+	readonly isV2 = false
 	/**
 	 * The label of the button
 	 */

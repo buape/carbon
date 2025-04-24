@@ -5,7 +5,7 @@ import {
 import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
-	type BaseComponent,
+	type BaseMessageInteractiveComponent,
 	InteractionContextType,
 	type Modal,
 	type Permission
@@ -61,7 +61,7 @@ export abstract class BaseCommand {
 	 * The components that the command is able to use.
 	 * You pass these here so the handler can listen for them..
 	 */
-	components: (new () => BaseComponent)[] = []
+	components: (new () => BaseMessageInteractiveComponent)[] = []
 
 	/**
 	 * All the modals that the command is able to use.
