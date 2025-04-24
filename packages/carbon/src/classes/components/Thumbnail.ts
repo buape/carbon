@@ -14,6 +14,7 @@ export abstract class Thumbnail extends BaseComponent {
 	serialize = (): APIThumbnailComponent => {
 		return {
 			type: this.type,
+			id: this.id,
 			media: {
 				url: this.url
 			}

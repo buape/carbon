@@ -98,7 +98,11 @@ export const serializePayload = (
 			: MessageFlags.IsComponentsV2
 	}
 
-	if (payload.flags && payload.flags & MessageFlags.IsComponentsV2) {
+	if (
+		payload.flags &&
+		(payload.flags & MessageFlags.IsComponentsV2) ===
+			MessageFlags.IsComponentsV2
+	) {
 		if (payload.content) {
 			throw new Error(
 				"You cannot send a message with both content and v2 components. Use the TextDisplay component as a replacement for the content property in the message."

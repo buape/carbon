@@ -28,6 +28,7 @@ export class File extends BaseComponent {
 	serialize = (): APIFileComponent => {
 		return {
 			type: ComponentType.File,
+			id: this.id,
 			file: {
 				url: this.file
 			},

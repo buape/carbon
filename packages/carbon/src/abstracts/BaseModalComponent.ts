@@ -3,12 +3,6 @@ import type {
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "./BaseComponent.js"
-
-import type {
-  APIComponentInModalActionRow,
-  ComponentType
-} from "discord-api-types/v10"
-import { BaseComponent } from "./BaseComponent.js"
 import type { ComponentAdditionalData } from "./BaseMessageInteractiveComponent.js"
 
 export abstract class BaseModalComponent extends BaseComponent {

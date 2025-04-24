@@ -26,7 +26,7 @@ export abstract class Section extends BaseComponent {
 			type: this.type,
 			id: this.id,
 			components: this.components.map((component) => component.serialize()),
-			accessory: this.accessory?.serialize()
+			accessory: this.accessory.serialize()
 		}
 	}
 }

@@ -29,6 +29,9 @@ export abstract class MediaGallery extends BaseComponent {
 	}[]
 
 	serialize = (): APIMediaGalleryComponent => {
+		if (this.items.length < 1 || this.items.length > 10) {
+			throw new Error("MediaGallery must have between 1 and 10 items")
+		}
 		return {
 			type: ComponentType.MediaGallery,
 			id: this.id,

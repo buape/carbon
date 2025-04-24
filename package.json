@@ -10,7 +10,7 @@
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter demo-cloudo",
 		"cli": "cd packages/create-carbon && pnpm cli",
 		"dev": "env-cmd -- turbo run dev --env-mode loose --filter !demo-cloudo --filter !demo-socketo --filter !demo-pointo",
-		"dev:forwarder": "env-cmd -- turbo run dev --env-mode loose --filter !demo-cloudo --filter !demo-rocko --filter !demo-cloudo",
+		"dev:forwarder": "env-cmd -- turbo run dev --env-mode loose --filter !demo-cloudo --filter !demo-rocko",
 		"generate": "turbo gen package",
 		"lint": "biome check . --write",
 		"preinstall": "npx only-allow pnpm",
