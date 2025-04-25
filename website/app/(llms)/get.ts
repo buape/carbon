@@ -24,20 +24,21 @@ export const getTxt = async (filePaths: string[]) => {
 			value: content
 		})
 
-		return `file: ${file}
-meta: ${JSON.stringify(data, null, 2)}
-${processed}`
+		return `<file path="${file}" meta="${JSON.stringify(data, null, 2)}">
+${processed}
+</file>`
 	})
 
 	const scanned = await Promise.all(scan)
 
 	return new Response(
-		`Carbon Docs
-This is the llms.txt file for Carbon.
+		`# Carbon Docs
 
-Other files:
+## Other files:
 API: https://carbon.buape.com/llms-api.txt
 Full: https://carbon.buape.com/llms-full.txt
+
+
 
 ${scanned.join("\n\n")}`
 	)
