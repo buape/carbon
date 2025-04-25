@@ -1,25 +1,19 @@
 "dependencies":
     - changed-files:
-          - any-glob-to-any-file:
-                [
-                    "pnpm-lock.yaml",
-                    "package.json",
-                    "packages/*/package.json",
-                    "website/package.json",
-                    "apps/*/package.json",
-                ]
-"p:carbon":
+        - any-glob-to-any-file: ["pnpm-lock.yaml"]
+"package: carbon":
     - changed-files:
-          - any-glob-to-any-file: ["packages/carbon/**"]
-"p:create-carbon":
+        - any-glob-to-any-file: ["packages/carbon/**"]
+"package: create-carbon":
     - changed-files:
-          - any-glob-to-any-file: ["packages/create-carbon/**"]
-"p:discord-request":
+        - any-glob-to-any-file: ["packages/create-carbon/**"]
+"plugin: gateway":
     - changed-files:
-          - any-glob-to-any-file: ["packages/discord-request/**"]
-"p:nodejs":
+        - any-glob-to-any-file: [
+            "packages/carbon/src/plugins/gateway-forwarder",
+            "packages/carbon/src/plugins/gateway",
+            "packages/carbon/src/plugins/sharding"
+        ]
+"package: linked-roles":
     - changed-files:
-          - any-glob-to-any-file: ["packages/nodejs/**"]
-"docs":
-    - changed-files:
-          - any-glob-to-any-file: ["apps/website/**"]
+        - any-glob-to-any-file: ["packages/carbon/src/plugins/linked-roles"]
