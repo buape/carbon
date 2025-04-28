@@ -12,6 +12,7 @@ import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../utils.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"
+import { DiscordError } from "../errors/DiscordError.js"
 
 export class Guild<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -161,19 +162,33 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Get a member in the guild by ID
 	 */
 	async fetchMember(memberId: string) {
-		const member = (await this.client.rest.get(
-			Routes.guildMember(this.id, memberId)
-		)) as APIGuildMember
-		return new GuildMember(this.client, member, this)
+		try {
+			const member = (await this.client.rest.get(
+				Routes.guildMember(this.id, memberId)
+			)) as APIGuildMember
+			return new GuildMember(this.client, member, this)
+		} catch (e) {
+			if (e instanceof DiscordError) {
+				if (e.status === 404) return null
+			}
+			throw e
+		}
 	}
 
 	/**
 	 * Fetch a channel from the guild by ID
 	 */
 	async fetchChannel(channelId: string) {
-		const channel = (await this.client.rest.get(
-			Routes.channel(channelId)
-		)) as APIChannel
-		return channelFactory(this.client, channel)
+		try {
+			const channel = (await this.client.rest.get(
+				Routes.channel(channelId)
+			)) as APIChannel
+			return channelFactory(this.client, channel)
+		} catch (e) {
+			if (e instanceof DiscordError) {
+				if (e.status === 404) return null
+			}
+			throw e
+		}
 	}
 }
