@@ -97,6 +97,10 @@ export class CommandHandler extends Base {
 			if (command.defer) {
 				await interaction.defer()
 			}
+			if (command.preCheck) {
+				const result = await command.preCheck(interaction)
+				if (!result) return false
+			}
 			return await command.run(interaction)
 		} catch (e: unknown) {
 			if (e instanceof Error) console.error(e.message)

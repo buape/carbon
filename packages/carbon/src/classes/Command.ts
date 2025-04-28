@@ -45,6 +45,19 @@ export abstract class Command extends BaseCommand {
 	}
 
 	/**
+	 * The function that is called before the command is ran.
+	 * You can use this to run things such as cooldown checks, extra permission checks, etc.
+	 * If this returns anything other than `true`, the command will not run.
+	 * @param interaction The interaction that triggered the command
+	 * @returns Whether the command should continue to run
+	 */
+	public async preCheck(
+		interaction: CommandInteraction
+	): Promise<true | unknown> {
+		return !!interaction
+	}
+
+	/**
 	 * @internal
 	 */
 	serializeOptions() {

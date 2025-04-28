@@ -1,0 +1,84 @@
+---
+title: Prechecks
+description: Learn how to use prechecks to add additional validation and checks before a command runs.
+icon: Shield
+---
+
+Prechecks are a powerful feature in Carbon that allow you to add additional validation and checks before a command is executed. This can be useful for implementing features like cooldowns, permission checks, or any other validation that needs to happen before the main command logic runs.
+
+## How Prechecks Work
+
+Prechecks are implemented by overriding the `preCheck` method in your command class. This method is called before the main `run` method of your command. If the precheck returns anything other than `true`, the command will not execute.
+
+Here's a basic example of a precheck:
+
+```typescript
+import { Command } from "@buape/carbon"
+import { CommandInteraction } from "discord.js"
+
+export default class MyCommand extends Command {
+	public override async preCheck(interaction: CommandInteraction): Promise<true | unknown> {
+		// Check if the user has a specific role
+		if (!interaction.member?.roles.cache.has("123456789")) {
+			await interaction.reply("You don't have permission to use this command!")
+			return false
+		}
+		return true
+	}
+
+	public override async run(interaction: CommandInteraction) {
+		// Your command logic here
+	}
+}
+```
+
+## Common Use Cases
+
+### Cooldowns
+You can implement cooldowns using prechecks to prevent users from spamming commands:
+
+```typescript
+private cooldowns = new Map<string, number>()
+
+public override async preCheck(interaction: CommandInteraction): Promise<true | unknown> {
+	const cooldown = 5000 // 5 seconds
+	const now = Date.now()
+	const lastUsed = this.cooldowns.get(interaction.user.id)
+
+	if (lastUsed && now - lastUsed < cooldown) {
+		await interaction.reply(`Please wait ${Math.ceil((cooldown - (now - lastUsed)) / 1000)} seconds before using this command again.`)
+		return false
+	}
+
+	this.cooldowns.set(interaction.user.id, now)
+	return true
+}
+```
+
+### Permission Checks
+You can use prechecks to verify if a user has the necessary permissions to use a command:
+
+```typescript
+public override async preCheck(interaction: CommandInteraction): Promise<true | unknown> {
+	if (!interaction.memberPermissions?.has("Administrator")) {
+		await interaction.reply("You need administrator permissions to use this command!")
+		return false
+	}
+	return true
+}
+```
+
+### Maintenance Mode
+You can implement a maintenance mode that prevents commands from being used:
+
+```typescript
+private maintenanceMode = false
+
+public override async preCheck(interaction: CommandInteraction): Promise<true | unknown> {
+	if (this.maintenanceMode) {
+		await interaction.reply("This command is currently under maintenance. Please try again later.")
+		return false
+	}
+	return true
+}
+```

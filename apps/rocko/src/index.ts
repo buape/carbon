@@ -21,7 +21,7 @@ import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
 import { ApplicationAuthorized } from "./events/authorized.js"
 import { MessageCreate } from "./events/messageCreate.js"
-
+import PrecheckCommand from "./commands/testing/precheck.js"
 const linkedRoles = new LinkedRoles({
 	metadata: [
 		{
@@ -69,7 +69,8 @@ const client = new Client(
 			new SubcommandGroupsCommand(),
 			new ComponentsV2(),
 			new UserCommand(),
-			new MentionsCommand()
+			new MentionsCommand(),
+			new PrecheckCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
