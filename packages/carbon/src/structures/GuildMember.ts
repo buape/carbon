@@ -5,6 +5,7 @@ import type { IfPartial } from "../utils.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
+import { maxPermissions } from "../permissions.js"
 
 export class GuildMember<
 	// This currently can never be partial, so we don't need to worry about it
@@ -134,6 +135,19 @@ export class GuildMember<
 	get pending(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.pending ?? false
+	}
+
+	async getPermissions(): Promise<IfPartial<IsPartial, bigint[]>> {
+		if (!this.rawData) return undefined as never
+		if (this.guild.ownerId === this.user.id) return maxPermissions
+		const permissions = await Promise.all(
+			this.roles.map(async (x) => {
+				if (x.partial) await x.fetch(this.guild.id)
+				if (!x.permissions) return undefined
+				return BigInt(x.permissions)
+			})
+		)
+		return permissions.filter((x) => x !== undefined)
 	}
 
 	/**

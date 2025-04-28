@@ -108,9 +108,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The permissions of the role.
 	 */
-	get permissions(): IfPartial<IsPartial, string> {
+	get permissions(): IfPartial<IsPartial, bigint> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.permissions
+		return BigInt(this.rawData.permissions)
 	}
 
 	/**
@@ -228,13 +228,14 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the permissions of the role
-	 * @param permissions The permissions to set as a BitField string, until a better permission structure is implemented
+	 * @param permissions The permissions to set
 	 */
-	async setPermissions(guildId: string, permissions: string) {
+	async setPermissions(guildId: string, permissions: bigint[]) {
+		const permValue = permissions.reduce((acc, perm) => acc | perm, BigInt(0))
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { permissions }
+			body: { permissions: permValue.toString() }
 		})
-		this.setField("permissions", permissions)
+		this.setField("permissions", permValue.toString())
 	}
 
 	async delete(guildId: string) {
