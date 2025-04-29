@@ -2,8 +2,8 @@ import type {
 	APIComponentInModalActionRow,
 	ComponentType
 } from "discord-api-types/v10"
-import { BaseComponent } from "./BaseComponent.js"
 import type { ComponentParserResult } from "../types/index.js"
+import { BaseComponent } from "./BaseComponent.js"
 export abstract class BaseModalComponent extends BaseComponent {
 	abstract override type: ComponentType.TextInput
 

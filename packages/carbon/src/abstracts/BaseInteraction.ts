@@ -9,15 +9,15 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import {
+	BaseMessageInteractiveComponent,
 	type Client,
 	Embed,
 	Guild,
 	Message,
 	type Modal,
+	Row,
 	User,
-	channelFactory,
-	BaseMessageInteractiveComponent,
-	Row
+	channelFactory
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload } from "../types/index.js"

@@ -5,8 +5,8 @@ import type {
 } from "discord-api-types/v10"
 import type { BaseModalComponent } from "../abstracts/BaseModalComponent.js"
 import type { ModalInteraction } from "../internals/ModalInteraction.js"
-import type { Row } from "./components/Row.js"
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
+import type { Row } from "./components/Row.js"
 
 export abstract class Modal {
 	/**
