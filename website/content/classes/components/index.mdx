@@ -5,8 +5,7 @@ index: true
 
 Components are used to create interactive elements in your bot, such as buttons, select menus, and text inputs.
 
-When you create a component, you will need to pass it to the [`components` property of the `Command` class](/api/classes/CommandInteraction#properties). This will allow it to be registered with the bot as a handler.
-When you pass it, make sure you aren't instantiating it, but rather just passing the class itself.
+Components are automatically registered when they are used in a message. The registration happens when you use the component in a message, either through `reply`, `followUp`, or any other method that sends a message with components.
 
 ```ts title="src/commands/ping.ts"
 import { Command, type CommandInteraction } from "@buape/carbon"
@@ -16,17 +15,16 @@ export default class PingCommand extends Command {
 	description = "A simple ping command"
 	defer = false
 
-	components = [PingButton]
-
 	async run(interaction: CommandInteraction) {
 		return interaction.reply({
-			content: "Pong!"
+			content: "Pong!",
+			components: [new Row([new PingButton()])]
 		})
 	}
 }
 
 class PingButton extends Button {
-	customId = "ping"
+	customId = "ping:action=click"
 	label = "Ping"
 	style = ButtonStyle.Primary
 
@@ -38,4 +36,34 @@ class PingButton extends Button {
 }
 ```
 
-If you don't want to automatically register the components, you can do so manually by setting the `autoRegister` option to `false` in the client options.
+## Custom ID System
+
+Components use a custom ID system that allows you to pass data along with the component. The format is:
+
+```
+key:arg1=value1;arg2=value2
+```
+
+For example, if you have a button that needs to know which user to ping, you could do:
+
+```ts
+class PingButton extends Button {
+	customId = "ping:userId=123456789"
+	label = "Ping User"
+	style = ButtonStyle.Primary
+
+	async run(interaction: ButtonInteraction) {
+		const { userId } = interaction.customIdParser(interaction.customId).data
+		return interaction.reply({
+			content: `Pinging user ${userId}`
+		})
+	}
+}
+```
+
+The custom ID parser will automatically convert:
+- `true` and `false` to booleans
+- Numbers to numbers
+- Everything else to strings
+
+You can also override the `customIdParser` method if you want to use a different format for your custom IDs.

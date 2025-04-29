@@ -63,12 +63,6 @@ export interface ClientOptions {
 	 */
 	autoDeploy?: boolean
 	/**
-	 * Whether components and modals should not be registered automatically.
-	 * If you want you register components yourself (e.g. you are changing them at runtime), you can manually call {@link ComponentHandler#registerComponent} and {@link ModalHandler#registerModal} on the client.
-	 * @default false
-	 */
-	disableAutoRegister?: boolean
-	/**
 	 * Whether the deploy route should be disabled.
 	 * @default false
 	 */
@@ -175,14 +169,6 @@ export class Client {
 			this.plugins.push(plugin)
 		}
 
-		if (!options.disableAutoRegister) {
-			for (const command of this.commands) {
-				for (const component of command.components)
-					this.componentHandler.registerComponent(new component())
-				for (const modal of command.modals)
-					this.modalHandler.registerModal(new modal())
-			}
-		}
 		if (options.autoDeploy) {
 			this.handleDeployRequest()
 		}

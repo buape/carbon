@@ -3,10 +3,8 @@ import type {
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "./BaseComponent.js"
-
-export type ComponentAdditionalData = {
-	[key: string]: string | number | boolean
-}
+import type { BaseComponentInteraction } from "./BaseComponentInteraction.js"
+import type { ComponentData, ComponentParserResult } from "../types/index.js"
 
 export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	abstract type:
@@ -20,13 +18,6 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 
 	readonly isV2 = false
 
-	constructor(data?: {
-		additionalData?: ComponentAdditionalData
-	}) {
-		super()
-		if (data?.additionalData) this.additionalData = data.additionalData
-	}
-
 	/**
 	 * Whether the component response should be automatically deferred
 	 */
@@ -37,25 +28,44 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	ephemeral = false
 
 	/**
-	 * The custom ID of the component
+	 * The custom ID of the component.
+	 * If you want to provide a custom ID with additional data, you should either follow the default parser's format or implement your own custom parser.
+	 *
+	 * @see {@link customIdParser}
 	 */
 	abstract customId: string
 
-	additionalData: ComponentAdditionalData | null = null
-
 	/**
-	 * Create a custom ID to use for this component that embeds additional data that you want to be handed
-	 * @param additionalData The additional data that you want to be passed in this component's custom ID
-	 * @returns The custom ID to use
+	 * This function is called by the handler when a component is received, and is used to parse the custom ID into a key and data object.
+	 * By default, the ID is parsed in this format: `key:arg1=true;arg2=2;arg3=cheese`, where `arg1`, `arg2`, and `arg3` are the data arguments.
+	 * It will also automatically parse `true` and `false` as booleans, and will parse numbers as numbers.
+	 *
+	 * You can override this to parse the ID in a different format as you see fit, but it must follow these rules:
+	 * - The ID must have a `key` somewhere in the ID that can be returned by the parser. This key is what Carbon's component handler will use to identify the component and pass an interaction to the correct component.
+	 * - The data must be able to be arbitrary as far as Carbon's handler is concerned, meaning that any component with the same base key can be treated as the same component with logic within the component's logic methods to handle the data.
+	 *
+	 * @param id - The custom ID of the component as received from an interaction event
+	 * @returns The base key and the data object
 	 */
-	public createId = (additionalData: typeof this.additionalData) => {
-		if (!additionalData) return this.customId
-		// id:arg1=1;arg2=2
-		const id = `${this.customId}:${Object.entries(additionalData)
-			.map(([key, value]) => `${key}=${value}`)
-			.join(";")}`
-		return id
+	customIdParser: (id: string) => ComponentParserResult = (id) => {
+		const [key, ...data] = id.split(":")
+		if (!key) throw new Error(`Invalid component ID: ${id}`)
+		return {
+			key,
+			data: Object.fromEntries(
+				data.map((d) => {
+					const [k, v] = d.split("=")
+					if (v === "true") return [k, true]
+					if (v === "false") return [k, false]
+					return [k, Number.isNaN(Number(v)) ? v : Number(v)]
+				})
+			)
+		}
 	}
 
 	abstract serialize: () => APIComponentInMessageActionRow
+	abstract run(
+		interaction: BaseComponentInteraction,
+		data: ComponentData
+	): Promise<void>
 }

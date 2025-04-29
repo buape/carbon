@@ -6,36 +6,81 @@ icon: Captions
 
 Modals are popup forms that can be used to collect user input. They are created by extending the [`Modal`](/api/index/classes/Modal) class, and adding a `title` and `components` property. All the components must be [`TextInput`](/api/index/classes/TextInput) classes.
 
+Modals are automatically registered when they are shown to a user. The registration happens when you call `showModal` on an interaction.
+
 ```ts title="src/commands/modal.ts"
-class ModalCommand extends Modal {
-    title = "Test Modal"
-    customId = "test-modal"
+import { Command, type CommandInteraction, Modal, type ModalInteraction, Row, TextInput, TextInputStyle } from "@buape/carbon"
+
+export default class ModalCommand extends Command {
+	name = "modal"
+	description = "A command that shows a modal"
+
+	async run(interaction: CommandInteraction) {
+		await interaction.showModal(new TestModal())
+	}
+}
+
+class TestModal extends Modal {
+	title = "Test Modal"
+	customId = "test-modal:action=submit"
 
 	components = [
-		new Row([new TextInputHi()]),
+		new Row([new TextInputName()]),
 		new Row([new TextInputAge()])
 	]
 
-    async run(interaction: ModalInteraction) {
-        const name = interaction.fields.getText("name")
-        const age = interaction.fields.getText("age")
-        const color = interaction.fields.getText("color")
-        const height = interaction.fields.getText("height") || "not";
-        await interaction.reply(
-            `Hi ${name}, you are ${age} years old, and your favorite color is ${color}. You are ${height} tall.`
-        )
-    }
+	async run(interaction: ModalInteraction) {
+		const name = interaction.fields.getText("name")
+		const age = interaction.fields.getText("age")
+		await interaction.reply(
+			`Hi ${name}, you are ${age} years old!`
+		)
+	}
 }
 
-class TextInputHi extends TextInput {
-    label = "Tell me about your life"
-    customId = "life"
-    style = TextInputStyle.Paragraph
+class TextInputName extends TextInput {
+	label = "What is your name?"
+	customId = "name"
+	style = TextInputStyle.Short
 }
 
 class TextInputAge extends TextInput {
-    label = "How old are you?"
-    customId = "age"
-    style = TextInputStyle.Short
+	label = "How old are you?"
+	customId = "age"
+	style = TextInputStyle.Short
 }
 ```
+
+## Custom ID System
+
+Modals use the same custom ID system as components, allowing you to pass data along with the modal. The format is:
+
+```
+key:arg1=value1;arg2=value2
+```
+
+For example, if you have a modal that needs to know which user to edit, you could do:
+
+```ts
+class EditUserModal extends Modal {
+	title = "Edit User"
+	customId = "edit-user:userId=123456789"
+
+	components = [
+		new Row([new TextInputName()])
+	]
+
+	async run(interaction: ModalInteraction) {
+		const { userId } = interaction.customIdParser(interaction.customId).data
+		const name = interaction.fields.getText("name")
+		// Edit user with ID userId to have name name
+	}
+}
+```
+
+The custom ID parser will automatically convert:
+- `true` and `false` to booleans
+- Numbers to numbers
+- Everything else to strings
+
+You can also override the `customIdParser` method if you want to use a different format for your custom IDs.
