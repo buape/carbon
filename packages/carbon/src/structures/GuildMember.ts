@@ -1,11 +1,11 @@
 import type { APIGuildMember, GuildMemberFlags } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { maxPermissions } from "../permissions.js"
 import type { IfPartial } from "../utils.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
-import { maxPermissions } from "../permissions.js"
 
 export class GuildMember<
 	// This currently can never be partial, so we don't need to worry about it
