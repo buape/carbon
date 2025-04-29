@@ -6,7 +6,7 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(

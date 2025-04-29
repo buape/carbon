@@ -1,6 +1,6 @@
 import type { APIGuildTextChannel, ChannelType } from "discord-api-types/v10"
 import { BaseGuildTextChannel } from "../abstracts/BaseGuildTextChannel.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 
 export class GuildTextChannel<
 	IsPartial extends boolean = false

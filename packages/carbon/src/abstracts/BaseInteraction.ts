@@ -21,7 +21,7 @@ import {
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils.js"
+import { serializePayload } from "../utils/index.js"
 import { Base } from "./Base.js"
 
 export type InteractionDefaults = {

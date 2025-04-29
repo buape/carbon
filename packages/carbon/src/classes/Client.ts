@@ -25,7 +25,11 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
-import { concatUint8Arrays, subtleCrypto, valueToUint8Array } from "../utils.js"
+import {
+	concatUint8Arrays,
+	subtleCrypto,
+	valueToUint8Array
+} from "../utils/index.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 /**

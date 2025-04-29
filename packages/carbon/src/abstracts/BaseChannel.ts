@@ -5,7 +5,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 import { Base } from "./Base.js"
 
 export abstract class BaseChannel<

@@ -5,6 +5,7 @@ import type {
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
 import { BaseComponent } from "./BaseComponent.js"
 import type { BaseComponentInteraction } from "./BaseComponentInteraction.js"
+import { parseCustomId } from "../utils/customIdParser.js"
 
 export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	abstract type:
@@ -47,22 +48,7 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	 * @param id - The custom ID of the component as received from an interaction event
 	 * @returns The base key and the data object
 	 */
-	customIdParser: (id: string) => ComponentParserResult = (id) => {
-		const [key, raw] = id.split(":")
-		if (!key) throw new Error(`Invalid component ID: ${id}`)
-		const entries = raw ? raw.split(";") : []
-		return {
-			key,
-			data: Object.fromEntries(
-				entries.map((d) => {
-					const [k, v = ""] = d.split("=")
-					if (v === "true") return [k, true]
-					if (v === "false") return [k, false]
-					return [k, Number.isNaN(Number(v)) ? v : Number(v)]
-				})
-			)
-		}
-	}
+	customIdParser: (id: string) => ComponentParserResult = parseCustomId
 
 	abstract serialize: () => APIComponentInMessageActionRow
 	abstract run(

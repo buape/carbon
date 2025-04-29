@@ -7,7 +7,7 @@ import {
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
 import type { MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils.js"
+import { serializePayload } from "../utils/index.js"
 import { FieldsHandler } from "./FieldsHandler.js"
 
 export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction> {
