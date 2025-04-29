@@ -48,13 +48,14 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	 * @returns The base key and the data object
 	 */
 	customIdParser: (id: string) => ComponentParserResult = (id) => {
-		const [key, ...data] = id.split(":")
+		const [key, raw] = id.split(":")
 		if (!key) throw new Error(`Invalid component ID: ${id}`)
+		const entries = raw ? raw.split(";") : []
 		return {
 			key,
 			data: Object.fromEntries(
-				data.map((d) => {
-					const [k, v] = d.split("=")
+				entries.map((d) => {
+					const [k, v = ""] = d.split("=")
 					if (v === "true") return [k, true]
 					if (v === "false") return [k, false]
 					return [k, Number.isNaN(Number(v)) ? v : Number(v)]
