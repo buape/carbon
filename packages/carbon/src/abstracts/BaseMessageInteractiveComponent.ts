@@ -3,9 +3,9 @@ import type {
 	ComponentType
 } from "discord-api-types/v10"
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
+import { parseCustomId } from "../utils/customIdParser.js"
 import { BaseComponent } from "./BaseComponent.js"
 import type { BaseComponentInteraction } from "./BaseComponentInteraction.js"
-import { parseCustomId } from "../utils/customIdParser.js"
 
 export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	abstract type:

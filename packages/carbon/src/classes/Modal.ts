@@ -6,8 +6,8 @@ import type {
 import type { BaseModalComponent } from "../abstracts/BaseModalComponent.js"
 import type { ModalInteraction } from "../internals/ModalInteraction.js"
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
-import type { Row } from "./components/Row.js"
 import { parseCustomId } from "../utils/customIdParser.js"
+import type { Row } from "./components/Row.js"
 
 export abstract class Modal {
 	/**
