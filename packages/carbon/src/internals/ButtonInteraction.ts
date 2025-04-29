@@ -1,5 +1,4 @@
 import {
-	type APIMessageButtonInteractionData,
 	type APIMessageComponentButtonInteraction,
 	ComponentType,
 	InteractionType
@@ -7,12 +6,8 @@ import {
 import { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
-import { splitCustomId } from "../utils.js"
 
 export class ButtonInteraction extends BaseComponentInteraction {
-	customId: string = splitCustomId(
-		(this.rawData.data as APIMessageButtonInteractionData).custom_id
-	)[0]
 	constructor(
 		client: Client,
 		data: APIMessageComponentButtonInteraction,

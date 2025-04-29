@@ -4,7 +4,7 @@ import type {
 	ForumLayoutType
 } from "discord-api-types/v10"
 import { GuildThreadOnlyChannel } from "../abstracts/GuildThreadOnlyChannel.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 
 /**
  * Represents a guild forum channel.

@@ -4,6 +4,7 @@ import {
 	ButtonStyle,
 	Command,
 	type CommandInteraction,
+	type ComponentData,
 	LinkButton,
 	Row
 } from "@buape/carbon"
@@ -12,8 +13,6 @@ export default class ButtonCommand extends Command {
 	name = "button"
 	description = "A simple command with a button!"
 	defer = true
-
-	components = [ClickMeButton]
 
 	async run(interaction: CommandInteraction) {
 		await interaction.reply({
@@ -28,8 +27,15 @@ class ClickMeButton extends Button {
 	label = "Click me!"
 	style = ButtonStyle.Primary
 
-	async run(interaction: ButtonInteraction) {
-		await interaction.reply("You clicked the button!")
+	constructor() {
+		super()
+		this.customId = `click-me:time=${Date.now()}`
+	}
+
+	async run(interaction: ButtonInteraction, data: ComponentData) {
+		await interaction.reply(
+			`You clicked the button that was generated at time ${data.time}, ${interaction.user?.username ?? "friend"}!`
+		)
 	}
 }
 

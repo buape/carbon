@@ -4,7 +4,7 @@ import {
 	ApplicationWebhookType
 } from "discord-api-types/v10"
 import type { ListenerEventType } from "../../types/index.js"
-import { concatUint8Arrays, valueToUint8Array } from "../../utils.js"
+import { concatUint8Arrays, valueToUint8Array } from "../../utils/index.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type { GatewayPayload, GatewayPluginOptions } from "../gateway/types.js"
 

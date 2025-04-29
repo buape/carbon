@@ -4,7 +4,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 import { Message } from "./Message.js"
 import { User } from "./User.js"
 

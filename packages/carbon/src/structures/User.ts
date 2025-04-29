@@ -8,8 +8,8 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { MessagePayload } from "../types/index.js"
-import type { IfPartial } from "../utils.js"
-import { serializePayload } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
+import { serializePayload } from "../utils/index.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {

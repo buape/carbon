@@ -5,9 +5,7 @@ import {
 import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
-	type BaseMessageInteractiveComponent,
 	InteractionContextType,
-	type Modal,
 	type Permission
 } from "../index.js"
 
@@ -56,18 +54,6 @@ export abstract class BaseCommand {
 	 * This can be overridden by server admins.
 	 */
 	permission?: ArrayOrSingle<(typeof Permission)[keyof typeof Permission]>
-
-	/**
-	 * The components that the command is able to use.
-	 * You pass these here so the handler can listen for them..
-	 */
-	components: (new () => BaseMessageInteractiveComponent)[] = []
-
-	/**
-	 * All the modals that the command is able to use.
-	 * You pass these here so the handler can listen for them.
-	 */
-	modals: (new () => Modal)[] = []
 
 	/**
 	 * Serializes the command into a JSON object that can be sent to Discord

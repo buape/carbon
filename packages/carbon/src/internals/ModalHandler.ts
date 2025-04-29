@@ -19,9 +19,16 @@ export class ModalHandler extends Base {
 	 * @internal
 	 */
 	async handleInteraction(data: APIModalSubmitInteraction) {
-		const modal = this.modals.find((x) => x.customId === data.data.custom_id)
+		const modal = this.modals.find((x) => {
+			const modalKey = x.customIdParser(x.customId).key
+			const interactionKey = x.customIdParser(data.data.custom_id).key
+			return modalKey === interactionKey
+		})
 		if (!modal) return false
 
-		return await modal.run(new ModalInteraction(this.client, data, {}))
+		return await modal.run(
+			new ModalInteraction(this.client, data, {}),
+			modal.customIdParser(data.data.custom_id).data
+		)
 	}
 }

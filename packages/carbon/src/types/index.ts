@@ -9,6 +9,13 @@ import type { Section } from "../classes/components/Section.js"
 import type { Separator } from "../classes/components/Separator.js"
 import type { TextDisplay } from "../classes/components/TextDisplay.js"
 
+export type ComponentParserResult = {
+	key: string
+	data: Record<string, string | number | boolean>
+}
+
+export type ComponentData = ComponentParserResult["data"]
+
 export type AllowedMentions = APIAllowedMentions
 export type TopLevelComponents =
 	| Row<BaseMessageInteractiveComponent>
@@ -76,5 +83,6 @@ export type MessagePayloadFile = {
 }
 
 export type ArrayOrSingle<T> = T | T[]
+export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 
 export * from "./listeners.js"

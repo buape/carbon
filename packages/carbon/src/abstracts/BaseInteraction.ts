@@ -9,17 +9,19 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import {
+	BaseMessageInteractiveComponent,
 	type Client,
 	Embed,
 	Guild,
 	Message,
 	type Modal,
+	Row,
 	User,
 	channelFactory
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils.js"
+import { serializePayload } from "../utils/index.js"
 import { Base } from "./Base.js"
 
 export type InteractionDefaults = {
@@ -93,6 +95,29 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		return new GuildMember(this.client, this.rawData.member, this.guild)
 	}
 
+	private autoRegisterComponents(data: MessagePayload) {
+		if (typeof data !== "string" && data.components) {
+			for (const component of data.components) {
+				if (component instanceof Row) {
+					for (const childComponent of component.components) {
+						if (childComponent instanceof BaseMessageInteractiveComponent) {
+							const key = childComponent.customIdParser(
+								childComponent.customId
+							).key
+							const existingComponent =
+								this.client.componentHandler.components.find(
+									(comp) => comp.customIdParser(comp.customId).key === key
+								)
+							if (!existingComponent) {
+								this.client.componentHandler.registerComponent(childComponent)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	/**
 	 * Reply to an interaction.
 	 * If the interaction is deferred, this will edit the original response.
@@ -100,6 +125,10 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 */
 	async reply(data: MessagePayload) {
 		const serialized = serializePayload(data, this.defaultEphemeral)
+
+		// Auto-register any components in the message
+		this.autoRegisterComponents(data)
+
 		if (this._deferred) {
 			await this.client.rest.patch(
 				Routes.webhookMessage(
@@ -155,6 +184,15 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	async showModal(modal: Modal) {
 		if (this._deferred)
 			throw new Error("You cannot defer an interaction that shows a modal")
+
+		const key = modal.customIdParser(modal.customId).key
+		const existingModal = this.client.modalHandler.modals.find(
+			(m) => m.customIdParser(m.customId).key === key
+		)
+		if (!existingModal) {
+			this.client.modalHandler.registerModal(modal)
+		}
+
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
@@ -171,6 +209,10 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 */
 	async followUp(reply: MessagePayload) {
 		const serialized = serializePayload(reply)
+
+		// Auto-register any components in the message
+		this.autoRegisterComponents(reply)
+
 		await this.client.rest.post(
 			Routes.webhook(this.client.options.clientId, this.rawData.token),
 			{

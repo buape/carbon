@@ -34,12 +34,16 @@ export class ComponentHandler extends Base {
 	 * @internal
 	 */
 	async handleInteraction(data: APIMessageComponentInteraction) {
-		const component = this.components.find(
-			(x) =>
-				x.customId === data.data.custom_id &&
-				x.type === data.data.component_type
-		)
+		const component = this.components.find((x) => {
+			const componentKey = x.customIdParser(x.customId).key
+			const interactionKey = x.customIdParser(data.data.custom_id).key
+			return (
+				componentKey === interactionKey && x.type === data.data.component_type
+			)
+		})
 		if (!component) return false
+
+		const parsed = component.customIdParser(data.data.custom_id)
 
 		if (component instanceof Button) {
 			const interaction = new ButtonInteraction(
@@ -48,7 +52,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else if (component instanceof RoleSelectMenu) {
 			const interaction = new RoleSelectMenuInteraction(
 				this.client,
@@ -56,7 +60,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else if (component instanceof ChannelSelectMenu) {
 			const interaction = new ChannelSelectMenuInteraction(
 				this.client,
@@ -64,7 +68,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else if (component instanceof MentionableSelectMenu) {
 			const interaction = new MentionableSelectMenuInteraction(
 				this.client,
@@ -72,7 +76,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else if (component instanceof StringSelectMenu) {
 			const interaction = new StringSelectMenuInteraction(
 				this.client,
@@ -80,7 +84,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else if (component instanceof UserSelectMenu) {
 			const interaction = new UserSelectMenuInteraction(
 				this.client,
@@ -88,7 +92,7 @@ export class ComponentHandler extends Base {
 				{ ephemeral: component.ephemeral }
 			)
 			if (component.defer) await interaction.defer()
-			await component.run(interaction)
+			await component.run(interaction, parsed.data)
 		} else {
 			throw new Error(
 				`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id}`

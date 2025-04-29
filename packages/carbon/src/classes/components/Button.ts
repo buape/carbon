@@ -7,7 +7,7 @@ import {
 } from "discord-api-types/v10"
 import { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
-
+import type { ComponentData } from "../../types/index.js"
 abstract class BaseButton extends BaseMessageInteractiveComponent {
 	readonly type = ComponentType.Button as const
 	readonly isV2 = false
@@ -37,7 +37,10 @@ abstract class BaseButton extends BaseMessageInteractiveComponent {
 }
 
 export abstract class Button extends BaseButton {
-	abstract run(interaction: ButtonInteraction): Promise<void>
+	abstract run(
+		interaction: ButtonInteraction,
+		data: ComponentData
+	): Promise<void>
 
 	serialize = (): APIButtonComponent => {
 		if (this.style === ButtonStyle.Link) {
@@ -62,12 +65,16 @@ export abstract class Button extends BaseButton {
 }
 
 export abstract class LinkButton extends BaseButton {
-	customId = ""
+	customId = "link"
 	/**
 	 * The URL that the button links to
 	 */
 	abstract url: string
 	style: ButtonStyle.Link = ButtonStyle.Link
+
+	run = async () => {
+		throw new Error("Link buttons cannot be used in a run method")
+	}
 
 	serialize = (): APIButtonComponentWithURL => {
 		return {

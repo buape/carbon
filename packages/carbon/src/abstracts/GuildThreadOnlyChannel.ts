@@ -8,7 +8,7 @@ import type {
 } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { MessagePayload } from "../types/index.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class GuildThreadOnlyChannel<

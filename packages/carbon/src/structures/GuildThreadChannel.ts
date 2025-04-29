@@ -4,7 +4,7 @@ import {
 	type ThreadChannelType
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
-import type { IfPartial } from "../utils.js"
+import type { IfPartial } from "../types/index.js"
 
 export class GuildThreadChannel<
 	Type extends ThreadChannelType,

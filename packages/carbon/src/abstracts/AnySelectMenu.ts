@@ -7,9 +7,9 @@ import type {
 	APIUserSelectComponent,
 	ComponentType
 } from "discord-api-types/v10"
+import type { ComponentData } from "../types/index.js"
 import type { AnySelectMenuInteraction } from "./AnySelectMenuInteraction.js"
 import { BaseMessageInteractiveComponent } from "./BaseMessageInteractiveComponent.js"
-
 export type AnySelectMenuComponentType =
 	| ComponentType.ChannelSelect
 	| ComponentType.RoleSelect
@@ -19,7 +19,10 @@ export type AnySelectMenuComponentType =
 
 export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 	abstract type: AnySelectMenuComponentType
-	abstract run(interaction: AnySelectMenuInteraction): Promise<void>
+	abstract run(
+		interaction: AnySelectMenuInteraction,
+		data: ComponentData
+	): Promise<void>
 
 	minValues?: number
 	maxValues?: number

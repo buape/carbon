@@ -13,10 +13,7 @@ export * from "./abstracts/BaseListener.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
 export * from "./abstracts/Plugin.js"
 export * from "./abstracts/BaseModalComponent.js"
-export {
-	type ComponentAdditionalData,
-	BaseMessageInteractiveComponent
-} from "./abstracts/BaseMessageInteractiveComponent.js"
+export * from "./abstracts/BaseMessageInteractiveComponent.js"
 
 // ----- Classes -----
 export * from "./classes/components/Button.js"
@@ -88,4 +85,4 @@ export * from "./structures/User.js"
 export * from "discord-api-types/v10"
 export * from "./types/index.js"
 export * from "./permissions.js"
-export * from "./utils.js"
+export * from "./utils/index.js"
