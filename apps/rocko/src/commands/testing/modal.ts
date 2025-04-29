@@ -12,8 +12,6 @@ export default class ModalCommand extends Command {
 	name = "modal"
 	description = "Modal test"
 
-	modals = [TestModal]
-
 	async run(interaction: CommandInteraction) {
 		await interaction.showModal(new TestModal())
 	}

@@ -19,14 +19,6 @@ export default class EverySelectCommand extends Command {
 	description = "Send every select menu"
 	defer = true
 
-	components = [
-		StringSelect,
-		RoleSelect,
-		MentionableSelect,
-		ChannelSelect,
-		UserSelect
-	]
-
 	async run(interaction: CommandInteraction) {
 		const stringRow = new Row([new StringSelect()])
 		const roleRow = new Row([new RoleSelect()])
