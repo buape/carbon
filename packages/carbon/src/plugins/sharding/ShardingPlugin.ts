@@ -30,6 +30,8 @@ export class ShardingPlugin extends Plugin {
 	protected spawning = false
 	protected gatewayInfo?: APIGatewayBotInfo
 
+	customGatewayPlugin = GatewayPlugin
+
 	constructor(options: ShardingPluginOptions) {
 		super()
 		this.config = options
@@ -101,7 +103,7 @@ export class ShardingPlugin extends Plugin {
 		// Spawn the current batch of shards
 		await Promise.all(
 			currentBatch.map(async (shardId) => {
-				const shard = new GatewayPlugin(
+				const shard = new this.customGatewayPlugin(
 					{
 						...this.config,
 						shard: [shardId, totalShards]
