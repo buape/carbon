@@ -62,7 +62,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 				if (payload.t && payload.d) {
 					if (
-						!this.config.eventFilter ||
+						this.config.eventFilter &&
 						!this.config.eventFilter(payload.t as ListenerEventType)
 					)
 						return
