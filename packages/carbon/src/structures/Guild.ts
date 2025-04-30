@@ -124,6 +124,14 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
+	 * The preferred locale of the guild.
+	 */
+	get preferredLocale(): IfPartial<IsPartial, string> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.preferred_locale
+	}
+
+	/**
 	 * Fetch updated data for this guild.
 	 * If the guild is partial, this will fetch all the data for the guild and populate the fields.
 	 * If the guild is not partial, all fields will be updated with new values from Discord.
