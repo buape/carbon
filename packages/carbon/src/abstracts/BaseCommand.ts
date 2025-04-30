@@ -22,6 +22,16 @@ export abstract class BaseCommand {
 	 */
 	abstract description: string
 	/**
+	 * The localized name of the command
+	 * @see https://discord.com/developers/docs/interactions/application-commands#localization
+	 */
+	nameLocalizations?: Record<string, string>
+	/**
+	 * The localized description of the command
+	 * @see https://discord.com/developers/docs/interactions/application-commands#localization
+	 */
+	descriptionLocalizations?: Record<string, string>
+	/**
 	 * Whether the command response should be automatically deferred
 	 */
 	defer = false
@@ -67,8 +77,10 @@ export abstract class BaseCommand {
 		if (this.type === ApplicationCommandType.ChatInput) {
 			const data: RESTPostAPIApplicationCommandsJSONBody = {
 				name: this.name,
-				type: this.type,
+				name_localizations: this.nameLocalizations,
 				description: this.description,
+				description_localizations: this.descriptionLocalizations,
+				type: this.type,
 				options: this.serializeOptions(),
 				integration_types: this.integrationTypes,
 				contexts: this.contexts,
@@ -83,6 +95,7 @@ export abstract class BaseCommand {
 		}
 		const data: RESTPostAPIApplicationCommandsJSONBody = {
 			name: this.name,
+			name_localizations: this.nameLocalizations,
 			type: this.type,
 			options: this.serializeOptions(),
 			integration_types: this.integrationTypes,
