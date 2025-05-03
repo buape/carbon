@@ -54,7 +54,7 @@ export function createIdentifyPayload(data: IdentifyData): GatewayPayload {
 			token: data.token,
 			properties: data.properties,
 			intents: data.intents,
-			...(data.shard ? { shard: data.shard } : {}),
+			...(data.shard ? { shard: data.shard } : {})
 		}
 	}
 }
