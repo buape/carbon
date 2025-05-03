@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-feat: fixed sharding on createIdentifyPayload
+fix: fixed sharding on createIdentifyPayload
