@@ -10,6 +10,7 @@ interface IdentifyData {
 	token: string
 	properties: IdentifyProperties
 	intents: number
+	shard?: [number, number]
 }
 
 interface ResumeData {
@@ -52,7 +53,8 @@ export function createIdentifyPayload(data: IdentifyData): GatewayPayload {
 		d: {
 			token: data.token,
 			properties: data.properties,
-			intents: data.intents
+			intents: data.intents,
+			...(data.shard ? { shard: data.shard } : {}),
 		}
 	}
 }
