@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs"
 import {
 	Button,
-	ButtonInteraction,
+	type ButtonInteraction,
 	ButtonStyle,
 	Command,
 	type CommandInteraction,
@@ -64,22 +64,22 @@ class ContainerCommand extends Command {
 }
 
 class ButtonOne extends Button {
-	customId = "componentsv2-button1";
-	label = "Click me!";
-	style = ButtonStyle.Primary;
+	customId = "componentsv2-button1"
+	label = "Click me!"
+	style = ButtonStyle.Primary
 
 	async run(interaction: ButtonInteraction) {
-		await interaction.reply("You clicked the button!");
+		await interaction.reply("You clicked the button!")
 	}
 }
 
 class ButtonTwo extends Button {
-	customId = "componentsv2-button2";
-	label = "Click me! (container row)";
-	style = ButtonStyle.Primary;
+	customId = "componentsv2-button2"
+	label = "Click me! (container row)"
+	style = ButtonStyle.Primary
 
 	async run(interaction: ButtonInteraction) {
-		await interaction.reply("You clicked the button!");
+		await interaction.reply("You clicked the button!")
 	}
 }
 
