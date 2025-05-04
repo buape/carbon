@@ -1,9 +1,12 @@
 import { readFileSync } from "node:fs"
 import {
+	Button,
+	ButtonInteraction,
+	ButtonStyle,
 	Command,
 	type CommandInteraction,
 	CommandWithSubcommands,
-	LinkButton
+	Row
 } from "@buape/carbon"
 import {
 	Container,
@@ -60,9 +63,24 @@ class ContainerCommand extends Command {
 	}
 }
 
-class ButtonOne extends LinkButton {
-	label = "Click me!"
-	url = "https://example.com"
+class ButtonOne extends Button {
+	customId = "componentsv2-button1";
+	label = "Click me!";
+	style = ButtonStyle.Primary;
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("You clicked the button!");
+	}
+}
+
+class ButtonTwo extends Button {
+	customId = "componentsv2-button2";
+	label = "Click me! (container row)";
+	style = ButtonStyle.Primary;
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("You clicked the button!");
+	}
 }
 
 class SectionOne extends Section {
@@ -110,7 +128,8 @@ const componentsToSend = [
 	new File("attachment://kiai.png"),
 	new File("attachment://kiai.png", true),
 	new TextDisplay("Gallery:"),
-	new KiaiGallery()
+	new KiaiGallery(),
+	new Row([new ButtonTwo()])
 ]
 
 class ContainerOne extends Container {
