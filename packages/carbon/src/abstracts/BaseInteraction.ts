@@ -10,17 +10,20 @@ import {
 } from "discord-api-types/v10"
 import {
 	BaseMessageInteractiveComponent,
+	Button,
 	type Client,
+	Container,
 	Embed,
 	Guild,
 	Message,
 	type Modal,
 	Row,
+	Section,
 	User,
 	channelFactory
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
-import type { MessagePayload } from "../types/index.js"
+import type { MessagePayload, TopLevelComponents } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { Base } from "./Base.js"
 
@@ -97,23 +100,32 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 
 	private autoRegisterComponents(data: MessagePayload) {
 		if (typeof data !== "string" && data.components) {
-			for (const component of data.components) {
-				if (component instanceof Row) {
-					for (const childComponent of component.components) {
-						if (childComponent instanceof BaseMessageInteractiveComponent) {
-							const key = childComponent.customIdParser(
-								childComponent.customId
-							).key
-							const existingComponent =
-								this.client.componentHandler.components.find(
-									(comp) => comp.customIdParser(comp.customId).key === key
-								)
-							if (!existingComponent) {
-								this.client.componentHandler.registerComponent(childComponent)
-							}
+			this.registerComponents(data.components)
+		}
+	}
+	private registerComponents(components: TopLevelComponents[]) {
+		for (const component of components) {
+			if (component instanceof Row) {
+				for (const childComponent of component.components) {
+					if (childComponent instanceof BaseMessageInteractiveComponent) {
+						const key = childComponent.customIdParser(
+							childComponent.customId
+						).key
+						const existingComponent =
+							this.client.componentHandler.components.find(
+								(comp) => comp.customIdParser(comp.customId).key === key
+							)
+						if (!existingComponent) {
+							this.client.componentHandler.registerComponent(childComponent)
 						}
 					}
 				}
+			} else if (component instanceof Section) {
+				if (component.accessory instanceof Button) {
+					this.client.componentHandler.registerComponent(component.accessory)
+				}
+			} else if (component instanceof Container) {
+				this.registerComponents(component.components)
 			}
 		}
 	}
