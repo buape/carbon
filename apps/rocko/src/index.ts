@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { Client } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
+import { CommandDataPlugin } from "@buape/carbon/command-data"
 import {
 	ApplicationRoleConnectionMetadataType,
 	LinkedRoles
@@ -74,7 +75,7 @@ const client = new Client(
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
-	[linkedRoles]
+	[linkedRoles, new CommandDataPlugin()]
 )
 
 console.log(
