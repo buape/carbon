@@ -15,9 +15,6 @@ export abstract class Container extends BaseComponent {
 	readonly type = ComponentType.Container as const
 	readonly isV2 = true
 
-	/**
-	 * Up to 10 components
-	 */
 	abstract components: (
 		| Row
 		| TextDisplay
@@ -38,9 +35,6 @@ export abstract class Container extends BaseComponent {
 	spoiler = false
 
 	serialize = (): APIContainerComponent => {
-		if (this.components.length < 1 || this.components.length > 10) {
-			throw new Error("Container must have between 1 and 10 components")
-		}
 		return {
 			type: this.type,
 			components: this.components.map((component) =>
