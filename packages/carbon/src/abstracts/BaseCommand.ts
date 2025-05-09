@@ -20,7 +20,7 @@ export abstract class BaseCommand {
 	/**
 	 * A description of the command
 	 */
-	abstract description: string
+	description?: string
 	/**
 	 * The localized name of the command
 	 * @see https://discord.com/developers/docs/interactions/application-commands#localization
@@ -78,7 +78,7 @@ export abstract class BaseCommand {
 			const data: RESTPostAPIApplicationCommandsJSONBody = {
 				name: this.name,
 				name_localizations: this.nameLocalizations,
-				description: this.description,
+				description: this.description ?? "",
 				description_localizations: this.descriptionLocalizations,
 				type: this.type,
 				options: this.serializeOptions(),
