@@ -19,8 +19,22 @@ interface ErrorItem {
 }
 
 export const errorMapper = (data?: DiscordRawError): TransformedError[] => {
-	if (!data?.errors) return []
 	const result: TransformedError[] = []
+
+	// Temp fix for Discord API bug: https://github.com/buape/carbon/issues/247
+	if (data && "components" in data) {
+		for (const component of data.components as string[]) {
+			result.push({
+				code: "0",
+				location: component,
+				message: `Unknown error at component index ${component} - https://github.com/buape/carbon/issues/247`
+			})
+		}
+		return result
+	}
+	// end temp fix
+
+	if (!data?.errors) return []
 
 	// biome-ignore lint/suspicious/noExplicitAny: We use any here to allow for many different forms of errors that are checked in the mapper
 	const traverse = (obj: any, path: string[]): void => {
