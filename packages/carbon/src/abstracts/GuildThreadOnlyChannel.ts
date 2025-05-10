@@ -7,10 +7,10 @@ import type {
 	ThreadChannelType
 } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
+import type { Message } from "../structures/Message.js"
 import type { MessagePayload } from "../types/index.js"
 import type { IfPartial } from "../types/index.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
-
 export abstract class GuildThreadOnlyChannel<
 	Type extends ChannelType.GuildForum | ChannelType.GuildMedia,
 	IsPartial extends boolean = false
@@ -72,7 +72,7 @@ export abstract class GuildThreadOnlyChannel<
 	 * You cannot send a message directly to a forum or media channel, so this method throws an error.
 	 * Use {@link GuildThreadChannel.send} instead, or the alias {@link GuildThreadOnlyChannel.sendToPost} instead, to send a message to the channel's posts.
 	 */
-	override async send(): Promise<void> {
+	override async send(): Promise<never> {
 		throw new Error(
 			"You cannot send a message directly to a forum or media channel. Use GuildThreadChannel.send instead, or the alias GuildThreadOnlyChannel.sendToPost instead, to send a message to the channel's posts."
 		)
@@ -83,11 +83,11 @@ export abstract class GuildThreadOnlyChannel<
 	 * @remarks
 	 * This is an alias for {@link GuildThreadChannel.send} that will fetch the channel, but if you already have the channel, you can use {@link GuildThreadChannel.send} instead.
 	 */
-	async sendToPost(message: MessagePayload, postId: string): Promise<void> {
+	async sendToPost(message: MessagePayload, postId: string): Promise<Message> {
 		const channel = new GuildThreadChannel<ThreadChannelType, true>(
 			this.client,
 			postId
 		)
-		await channel.send(message)
+		return await channel.send(message)
 	}
 }

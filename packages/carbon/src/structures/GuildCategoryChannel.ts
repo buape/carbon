@@ -15,7 +15,7 @@ export class GuildCategoryChannel<
 	/**
 	 * You cannot send a message to a category channel, so this method throws an error
 	 */
-	override async send(): Promise<void> {
+	override async send(): Promise<never> {
 		throw new Error("Category channels cannot be sent to")
 	}
 }

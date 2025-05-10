@@ -1,5 +1,6 @@
 import {
 	type APIGuildChannel,
+	type APIMessage,
 	type GuildChannelType,
 	type RESTGetAPIGuildInvitesResult,
 	type RESTPostAPIChannelInviteJSONBody,
@@ -8,6 +9,7 @@ import {
 } from "discord-api-types/v10"
 import { Guild } from "../structures/Guild.js"
 import type { GuildCategoryChannel } from "../structures/GuildCategoryChannel.js"
+import { Message } from "../structures/Message.js"
 import type { MessagePayload } from "../types/index.js"
 import type { IfPartial } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
@@ -134,9 +136,10 @@ export abstract class BaseGuildChannel<
 	 * Send a message to the channel
 	 */
 	async send(message: MessagePayload) {
-		this.client.rest.post(Routes.channelMessages(this.id), {
+		const data = (await this.client.rest.post(Routes.channelMessages(this.id), {
 			body: serializePayload(message)
-		})
+		})) as APIMessage
+		return new Message(this.client, data)
 	}
 
 	/**
