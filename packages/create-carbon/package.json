@@ -18,7 +18,7 @@
 		"@clack/prompts": "0.10.1",
 		"gray-matter": "4.0.3",
 		"handlebars": "4.7.8",
-		"yocto-spinner": "0.2.1"
+		"yocto-spinner": "0.2.2"
 	},
 	"devDependencies": {
 		"@types/node": "^22.14.1"
