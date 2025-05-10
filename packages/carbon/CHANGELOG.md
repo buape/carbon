@@ -1,5 +1,29 @@
 # @buape/carbon
 
+## 0.9.0
+
+### Minor Changes
+
+- b5367f6: feat: add a Paginator class (implemented as a plugin)
+- 36ab053: feat: prechecks
+- 6af69df: feat: name and description localizations
+- 314b16f: feat: mount components when used, allowing for custom constructor setups
+- 6b8c1b9: feat: add sharding to the forwarder plugin
+- 314b16f: feat: implement a custom ID parser system for component data specific to each usage of a component
+- e0b6544: feat: command data plugin
+- ed32210: feat: add a way to fetch a guildmember's permissions
+- aeaa47a: feat: return a Message object when you use Channel#send
+
+### Patch Changes
+
+- 1a347b4: feat: add preferred locale to guild
+- 4fa2e35: fix: ignore event filter on gateway plugins if not set
+- 3591b56: fix(temp): add a patch workaround for https://github.com/buape/carbon/issues/247
+- 8e80185: fix: don't assume that channels and members always exist
+- c36a702: fix: update container id from 15 to 17
+- bc4a36a: fix: allow description to be optional for commands
+- fd678c2: fix: fixed sharding on createIdentifyPayload
+
 ## 0.8.0
 
 ### Minor Changes
