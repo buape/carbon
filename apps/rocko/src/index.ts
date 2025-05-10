@@ -16,6 +16,7 @@ import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
 import OptionsCommand from "./commands/testing/options.js"
+import PaginatorCommand from "./commands/testing/paginator.js"
 import PermissionCommand from "./commands/testing/permissions.js"
 import PrecheckCommand from "./commands/testing/precheck.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
@@ -71,7 +72,8 @@ const client = new Client(
 			new ComponentsV2(),
 			new UserCommand(),
 			new MentionsCommand(),
-			new PrecheckCommand()
+			new PrecheckCommand(),
+			new PaginatorCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
