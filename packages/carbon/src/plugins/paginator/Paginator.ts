@@ -14,6 +14,11 @@ export class Paginator {
 	private timeout: NodeJS.Timeout | null = null
 	private readonly timeoutDuration: number
 
+	/**
+	 * The user ID who is allowed to interact with the paginator
+	 */
+	readonly userId?: string
+
 	constructor(
 		/**
 		 * The pages to display in the paginator, with no limit on the amount of pages
@@ -28,14 +33,19 @@ export class Paginator {
 			 * How long in milliseconds the paginator will wait before disabling the buttons
 			 * @default 300000 (5 minutes)
 			 */
-			timeoutDuration = 300000
-		}: { client: Client; timeoutDuration?: number }
+			timeoutDuration = 300000,
+			/**
+			 * The user ID who is allowed to interact with the paginator
+			 */
+			userId
+		}: { client: Client; timeoutDuration?: number; userId?: string }
 	) {
 		if (pages.length === 0) {
 			throw new Error("Paginator must have at least one page")
 		}
 		this.pages = pages
 		this.timeoutDuration = timeoutDuration
+		this.userId = userId
 		const timestamp = Date.now().toString(36)
 		const random = Math.random().toString(36).slice(2, 5)
 		this.id = `${timestamp}-${random}`
@@ -175,6 +185,8 @@ class DirectionButton extends Button {
 			return interaction.reply({
 				content: `Paginator ${paginatorId} not found in memory`
 			})
+		if (paginator.userId && paginator.userId !== interaction.user?.id)
+			return interaction.acknowledge()
 		await paginator.goToPage(goToPage, interaction)
 	}
 }
