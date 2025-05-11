@@ -184,6 +184,42 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
+	 * Fetch all members in the guild
+	 * @param limit The maximum number of members to fetch (max 1000, default 100, set to "all" to fetch all members)
+	 * @param after The highest user id in the previous page
+	 * @returns A Promise that resolves to an array of GuildMember objects
+	 * @experimental
+	 */
+	async fetchMembers(limit: number | "all" = 100) {
+		if (limit === "all") {
+			const members = []
+			let after = undefined
+			let hasMore = true
+			while (hasMore) {
+				const newMembers = (await this.client.rest.get(
+					Routes.guildMembers(this.id),
+					{
+						limit: "1000",
+						...(after ? { after } : {})
+					}
+				)) as APIGuildMember[]
+				if (newMembers.length === 0) {
+					hasMore = false
+				} else {
+					members.push(...newMembers)
+					after = newMembers[newMembers.length - 1]?.user.id
+				}
+			}
+			return members.map((member) => new GuildMember(this.client, member, this))
+		}
+		const cappedLimit = Math.min(limit, 1000)
+		const members = (await this.client.rest.get(Routes.guildMembers(this.id), {
+			limit: cappedLimit.toString()
+		})) as APIGuildMember[]
+		return members.map((member) => new GuildMember(this.client, member, this))
+	}
+
+	/**
 	 * Fetch a channel from the guild by ID
 	 */
 	async fetchChannel(channelId: string) {

@@ -56,6 +56,7 @@ export type QueuedRequest = {
 	method: string
 	path: string
 	data?: RequestData
+	query?: Record<string, string>
 	resolve: (value?: unknown) => void
 	reject: (reason?: unknown) => void
 }
@@ -95,38 +96,38 @@ export class RequestClient {
 		}
 	}
 
-	async get(path: string) {
-		return await this.request("GET", path)
+	async get(path: string, query?: Record<string, string>) {
+		return await this.request("GET", path, { query })
 	}
 
 	async post(path: string, data?: RequestData) {
-		return await this.request("POST", path, data)
+		return await this.request("POST", path, { data })
 	}
 
 	async patch(path: string, data?: RequestData) {
-		return await this.request("PATCH", path, data)
+		return await this.request("PATCH", path, { data })
 	}
 
 	async put(path: string, data?: RequestData) {
-		return await this.request("PUT", path, data)
+		return await this.request("PUT", path, { data })
 	}
 
 	async delete(path: string, data?: RequestData) {
-		return await this.request("DELETE", path, data)
+		return await this.request("DELETE", path, { data })
 	}
 	private async request(
 		method: string,
 		path: string,
-		data?: RequestData
+		{ data, query }: { data?: RequestData; query?: Record<string, string> }
 	): Promise<unknown> {
 		if (this.options.queueRequests) {
 			return new Promise((resolve, reject) => {
-				this.queue.push({ method, path, data, resolve, reject })
+				this.queue.push({ method, path, data, query, resolve, reject })
 				this.processQueue()
 			})
 		}
 		return new Promise((resolve, reject) => {
-			this.executeRequest({ method, path, data, resolve, reject })
+			this.executeRequest({ method, path, data, query, resolve, reject })
 				.then(resolve)
 				.catch((err) => {
 					reject(err)
@@ -137,8 +138,8 @@ export class RequestClient {
 	private async executeRequest(request: QueuedRequest): Promise<unknown> {
 		await this.waitForRateLimit()
 
-		const { method, path, data } = request
-		const url = `${this.options.baseUrl}${path}`
+		const { method, path, data, query } = request
+		const url = `${this.options.baseUrl}${path}${query ? `?${new URLSearchParams(query).toString()}` : ""}`
 		const headers = new Headers({
 			Authorization: `${this.options.tokenHeader} ${this.token}`
 		})
