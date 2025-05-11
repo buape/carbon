@@ -4,7 +4,9 @@ import {
 	InteractionResponseType,
 	type InteractionType,
 	MessageFlags,
+	type RESTPatchAPIWebhookWithTokenMessageResult,
 	type RESTPostAPIInteractionCallbackJSONBody,
+	type RESTPostAPIInteractionCallbackWithResponseResult,
 	type RESTPostAPIInteractionFollowupJSONBody,
 	Routes
 } from "discord-api-types/v10"
@@ -133,16 +135,16 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	/**
 	 * Reply to an interaction.
 	 * If the interaction is deferred, this will edit the original response.
-	 * @param data The response data
+	 * @param data The message data to send
 	 */
-	async reply(data: MessagePayload) {
+	async reply(data: MessagePayload, overrideAutoRegister = false) {
 		const serialized = serializePayload(data, this.defaultEphemeral)
 
 		// Auto-register any components in the message
-		this.autoRegisterComponents(data)
+		if (!overrideAutoRegister) this.autoRegisterComponents(data)
 
 		if (this._deferred) {
-			await this.client.rest.patch(
+			const message = (await this.client.rest.patch(
 				Routes.webhookMessage(
 					this.client.options.clientId,
 					this.rawData.token,
@@ -151,18 +153,27 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				{
 					body: serialized
 				}
-			)
-		} else {
-			await this.client.rest.post(
-				Routes.interactionCallback(this.rawData.id, this.rawData.token),
-				{
-					body: {
-						type: InteractionResponseType.ChannelMessageWithSource,
-						data: serialized
-					} satisfies RESTPostAPIInteractionCallbackJSONBody
-				}
-			)
+			)) as RESTPatchAPIWebhookWithTokenMessageResult
+			return new Message(this.client, message)
 		}
+		const done = (await this.client.rest.post(
+			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			{
+				body: {
+					type: InteractionResponseType.ChannelMessageWithSource,
+					data: serialized
+				} satisfies RESTPostAPIInteractionCallbackJSONBody
+			},
+			{
+				with_response: true
+			}
+		)) as RESTPostAPIInteractionCallbackWithResponseResult
+		console.log(`Done: ${done}`)
+		if (!done.resource?.message)
+			throw new Error(
+				`No resource returned for message from interaction callback: ${done.resource}`
+			)
+		return new Message(this.client, done.resource.message)
 	}
 
 	/**
@@ -233,5 +244,46 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				} satisfies RESTPostAPIInteractionFollowupJSONBody
 			}
 		)
+	}
+
+	/**
+	 * This function will reply to the interaction and wait for a component to be pressed.
+	 * Any components passed in the message will not have run() functions called and
+	 * will only trigger the interaction.acknowledge() function.
+	 * This function will also return a promise that resolves
+	 * to the custom ID of the component that was pressed.
+	 *
+	 * @param data The message data to send
+	 * @param timeout After this many milliseconds, the promise will resolve to null
+	 */
+	async replyAndWaitForComponent(
+		data: MessagePayload,
+		timeout = 300000
+	): Promise<
+		| { success: true; customId: string }
+		| { success: false; reason: "timed out" }
+	> {
+		const message = await this.reply(data, true)
+
+		return new Promise((resolve, reject) => {
+			const timer = setTimeout(() => {
+				this.client.componentHandler.oneOffComponents.delete(
+					`${message.id}-${message.channelId}`
+				)
+				reject({ success: false, reason: "timed out" })
+			}, timeout)
+			this.client.componentHandler.oneOffComponents.set(
+				`${message.id}-${message.channelId}`,
+				{
+					resolve: (id: string) => {
+						clearTimeout(timer)
+						this.client.componentHandler.oneOffComponents.delete(
+							`${message.id}-${message.channelId}`
+						)
+						resolve({ success: true, customId: id })
+					}
+				}
+			)
+		})
 	}
 }

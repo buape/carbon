@@ -1,7 +1,10 @@
+import { Routes } from "discord-api-types/v9"
+import { InteractionResponseType } from "discord-api-types/v9"
 import type {
 	APIMessageComponentButtonInteraction,
 	APIMessageComponentInteraction,
-	APIMessageComponentSelectMenuInteraction
+	APIMessageComponentSelectMenuInteraction,
+	RESTPostAPIInteractionCallbackJSONBody
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
@@ -20,6 +23,13 @@ import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
 export class ComponentHandler extends Base {
 	components: BaseMessageInteractiveComponent[] = []
+
+	oneOffComponents: Map<
+		`${string}-${string}`,
+		{
+			resolve: (id: string) => void
+		}
+	> = new Map()
 	/**
 	 * Register a component with the handler
 	 * @internal
@@ -41,7 +51,27 @@ export class ComponentHandler extends Base {
 				componentKey === interactionKey && x.type === data.data.component_type
 			)
 		})
-		if (!component) return false
+		if (!component) {
+			const oneOffComponent = this.oneOffComponents.get(
+				`${data.message.id}-${data.message.channel_id}`
+			)
+
+			if (oneOffComponent) {
+				oneOffComponent.resolve(data.data.custom_id)
+				this.oneOffComponents.delete(
+					`${data.message.id}-${data.message.channel_id}`
+				)
+				await this.client.rest.post(
+					Routes.interactionCallback(data.id, data.token),
+					{
+						body: {
+							type: InteractionResponseType.DeferredMessageUpdate
+						} as RESTPostAPIInteractionCallbackJSONBody
+					}
+				)
+			}
+			return
+		}
 
 		const parsed = component.customIdParser(data.data.custom_id)
 

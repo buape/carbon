@@ -37,11 +37,11 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 		)
 	}
 
-	override async defer() {
+	override async defer(): Promise<never> {
 		throw new Error("Defer is not available for autocomplete interactions")
 	}
 
-	override async reply() {
+	override async reply(): Promise<never> {
 		throw new Error("Reply is not available for autocomplete interactions")
 	}
 

@@ -1,6 +1,7 @@
 import {
 	type APIAttachment,
 	type APIChannel,
+	type APIComponentInContainer,
 	type APIMessage,
 	type APIMessageInteractionMetadata,
 	type APIMessageReference,
@@ -9,6 +10,7 @@ import {
 	type APIStickerItem,
 	type APIThreadChannel,
 	type ChannelType,
+	ComponentType,
 	type MessageFlags,
 	MessageReferenceType,
 	type MessageType,
@@ -41,7 +43,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			"channelId" in rawDataOrIds
 		) {
 			this.id = rawDataOrIds.id
-			this.channelId = rawDataOrIds.channelId
+			this.channelId = rawDataOrIds.channelId || ""
 		} else {
 			const data = rawDataOrIds as APIMessage
 			this.id = data.id
@@ -55,11 +57,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		this.rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")
 	}
-	// private setField(key: keyof APIMessage, value: unknown) {
-	// 	if (!this.rawData)
-	// 		throw new Error("Cannot set field without having data... smh")
-	// 	Reflect.set(this.rawData, key, value)
-	// }
 
 	/**
 	 * The ID of the message
@@ -69,7 +66,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The ID of the channel the message is in
 	 */
-	readonly channelId: string | undefined
+	readonly channelId: string
 
 	/**
 	 * Whether the message is a partial message (meaning it does not have all the data).
@@ -363,6 +360,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		return new GuildThreadChannel(this.client, thread)
 	}
 
+	/**
+	 * Edit this message
+	 * @param data - The data to edit the message with
+	 * @returns A Promise that resolves to the edited message
+	 */
 	async edit(data: MessagePayload) {
 		if (!this.channelId)
 			throw new Error("Cannot edit message without channel ID")
@@ -377,6 +379,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		)
 	}
 
+	/**
+	 * Forward this message to a different channel
+	 * @param channelId - The ID of the channel to forward the message to
+	 * @returns A Promise that resolves to the forwarded message
+	 */
 	async forward(channelId: string) {
 		if (!this.channelId)
 			throw new Error("Cannot forward message without channel ID")
@@ -395,6 +402,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		})
 	}
 
+	/**
+	 * Reply to this message
+	 * @param data - The data to reply with
+	 * @returns A Promise that resolves to the replied message
+	 */
 	async reply(data: MessagePayload) {
 		if (!this.channelId)
 			throw new Error("Cannot reply to message without channel ID")
@@ -408,5 +420,52 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				}
 			} satisfies RESTPostAPIChannelMessageJSONBody
 		})
+	}
+
+	/**
+	 * Disable all buttons on the message except for link buttons
+	 */
+	async disableAllButtons() {
+		if (!this.rawData) return
+		if (!this.rawData.components) return
+		await this.client.rest.patch(
+			Routes.channelMessage(this.channelId, this.id),
+			{
+				body: {
+					...this.rawData,
+					components:
+						this.rawData.components?.map((component) => {
+							const disable = (component: APIComponentInContainer) => {
+								if (component.type === ComponentType.ActionRow) {
+									return {
+										...component,
+										components: component.components.map((c) => ({
+											...c,
+											disabled: true
+										}))
+									}
+								}
+								if (component.type === ComponentType.Section) {
+									return {
+										...component,
+										accessory:
+											"disabled" in component.accessory
+												? { ...component.accessory, disabled: true }
+												: component.accessory
+									}
+								}
+								return component
+							}
+							if (component.type === ComponentType.Container) {
+								return {
+									...component,
+									components: component.components.map((c) => disable(c))
+								}
+							}
+							return disable(component)
+						}) ?? []
+				} satisfies RESTPatchAPIChannelMessageJSONBody
+			}
+		)
 	}
 }

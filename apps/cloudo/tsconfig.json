@@ -1,5 +1,5 @@
 {
-	"include": ["src"],
+	"include": ["src", "../rocko/src/commands/testing/confirm.ts"],
 	"exclude": ["node_modules", "dist"],
 	"compilerOptions": {
 		"strict": true,

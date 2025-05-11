@@ -54,5 +54,5 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	abstract run(
 		interaction: BaseComponentInteraction,
 		data: ComponentData
-	): Promise<void>
+	): Promise<unknown>
 }

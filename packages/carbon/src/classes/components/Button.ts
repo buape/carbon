@@ -40,7 +40,7 @@ export abstract class Button extends BaseButton {
 	abstract run(
 		interaction: ButtonInteraction,
 		data: ComponentData
-	): Promise<void>
+	): Promise<unknown>
 
 	serialize = (): APIButtonComponent => {
 		if (this.style === ButtonStyle.Link) {
