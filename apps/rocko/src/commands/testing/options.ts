@@ -61,6 +61,12 @@ export default class OptionsCommand extends Command {
 			required: false
 		},
 		{
+			name: "attachment",
+			type: ApplicationCommandOptionType.Attachment,
+			description: "DESCRIPTION",
+			required: false
+		},
+		{
 			name: "autocomplete",
 			type: ApplicationCommandOptionType.String,
 			description: "DESCRIPTION",
@@ -91,9 +97,9 @@ export default class OptionsCommand extends Command {
 		const channel = await interaction.options.getChannel("channel")
 		const role = interaction.options.getRole("role")
 		const mentionable = await interaction.options.getMentionable("mentionable")
-
+		const attachment = interaction.options.getAttachment("attachment")
 		await interaction.reply(
-			`You provided the following options:\n str: ${str}\n int: ${int}\n num: ${num}\n bool: ${bool}\n user: ${user?.id}\n channel: ${channel?.id}\n role: ${role?.id}\n mentionable: ${mentionable?.id}`
+			`You provided the following options:\n str: ${str}\n int: ${int}\n num: ${num}\n bool: ${bool}\n user: ${user?.id}\n channel: ${channel?.id}\n role: ${role?.id}\n mentionable: ${mentionable?.id}\n attachment: ${JSON.stringify(attachment)}`
 		)
 	}
 }

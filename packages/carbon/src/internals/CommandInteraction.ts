@@ -1,5 +1,6 @@
 import {
 	type APIApplicationCommandInteraction,
+	type APIChatInputApplicationCommandInteractionData,
 	ApplicationCommandType,
 	InteractionType
 } from "discord-api-types/v10"
@@ -32,7 +33,8 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 			client,
 			data.data.type === ApplicationCommandType.ChatInput
 				? (data.data.options ?? [])
-				: []
+				: [],
+			this.rawData.data as APIChatInputApplicationCommandInteractionData
 		)
 	}
 }

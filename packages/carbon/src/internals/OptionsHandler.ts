@@ -1,13 +1,19 @@
 import {
-	type APIApplicationCommandInteractionDataAttachmentOption,
 	type APIApplicationCommandInteractionDataBasicOption,
 	type APIApplicationCommandInteractionDataOption,
 	type APIChannel,
+	type APIChatInputApplicationCommandInteractionData,
 	ApplicationCommandOptionType,
 	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
-import { type Client, Role, User, channelFactory } from "../index.js"
+import {
+	type Client,
+	type ResolvedFile,
+	Role,
+	User,
+	channelFactory
+} from "../index.js"
 
 export type RawOptions = {
 	[key: string]:
@@ -25,12 +31,16 @@ export class OptionsHandler extends Base {
 	 */
 	readonly raw: APIApplicationCommandInteractionDataBasicOption[]
 
+	private interactionData?: APIChatInputApplicationCommandInteractionData
+
 	constructor(
 		client: Client,
-		options: APIApplicationCommandInteractionDataOption[]
+		options: APIApplicationCommandInteractionDataOption[],
+		interactionData?: APIChatInputApplicationCommandInteractionData
 	) {
 		super(client)
 		this.raw = []
+		this.interactionData = interactionData
 		for (const option of options) {
 			if (option.type === ApplicationCommandOptionType.Subcommand) {
 				for (const subOption of option.options ?? []) {
@@ -234,25 +244,29 @@ export class OptionsHandler extends Base {
 		}
 	}
 
-	public getAttachment(
-		key: string,
-		required?: false
-	): { name: string; url: string } | undefined
-	public getAttachment(
-		key: string,
-		required: true
-	): { name: string; url: string }
+	public getAttachment(key: string, required?: false): ResolvedFile | undefined
+	public getAttachment(key: string, required: true): ResolvedFile
 	public getAttachment(
 		key: string,
 		required = false
-	): { name: string; url: string } | undefined {
-		const data = this.raw.find(
+	): ResolvedFile | undefined {
+		if (!this.interactionData)
+			throw new Error(
+				"Interaction data is not available, this is a bug in Carbon."
+			)
+		const id = this.raw.find(
 			(x) =>
 				x.name === key && x.type === ApplicationCommandOptionType.Attachment
-		) as APIApplicationCommandInteractionDataAttachmentOption
+		)?.value
 		if (required) {
-			if (!data) throw new Error(`Missing required option: ${key}`)
-		} else if (!data) return undefined
-		return { name: data.name, url: data.value }
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
+		const attachment = this.interactionData.resolved?.attachments?.[id]
+		if (!attachment) {
+			if (required) throw new Error(`Missing required option: ${key}`)
+			return undefined
+		}
+		return attachment
 	}
 }

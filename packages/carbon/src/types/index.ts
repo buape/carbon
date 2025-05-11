@@ -1,4 +1,4 @@
-import type { APIAllowedMentions } from "discord-api-types/v10"
+import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Embed } from "../classes/Embed.js"
 import type { Container } from "../classes/components/Container.js"
@@ -85,6 +85,8 @@ export type MessagePayloadFile = {
 	 */
 	description?: string
 }
+
+export type ResolvedFile = APIAttachment
 
 export type ArrayOrSingle<T> = T | T[]
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
