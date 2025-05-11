@@ -1,4 +1,5 @@
 import {
+	type APIApplicationCommandInteractionDataAttachmentOption,
 	type APIApplicationCommandInteractionDataBasicOption,
 	type APIApplicationCommandInteractionDataOption,
 	type APIChannel,
@@ -231,5 +232,27 @@ export class OptionsHandler extends Base {
 		} catch {
 			return new Role<true>(this.client, id)
 		}
+	}
+
+	public getAttachment(
+		key: string,
+		required?: false
+	): { name: string; url: string } | undefined
+	public getAttachment(
+		key: string,
+		required: true
+	): { name: string; url: string }
+	public getAttachment(
+		key: string,
+		required = false
+	): { name: string; url: string } | undefined {
+		const data = this.raw.find(
+			(x) =>
+				x.name === key && x.type === ApplicationCommandOptionType.Attachment
+		) as APIApplicationCommandInteractionDataAttachmentOption
+		if (required) {
+			if (!data) throw new Error(`Missing required option: ${key}`)
+		} else if (!data) return undefined
+		return { name: data.name, url: data.value }
 	}
 }
