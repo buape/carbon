@@ -8,9 +8,9 @@ import type { MessagePayloadObject } from "../../types/index.js"
 import type { ComponentData } from "../../types/index.js"
 
 export class Paginator {
-	private pages: MessagePayloadObject[]
-	private currentPage = 0
-	public readonly id: string
+	readonly pages: MessagePayloadObject[]
+	readonly id: string
+	protected currentPage = 0
 	private timeout: NodeJS.Timeout | null = null
 	private readonly timeoutDuration: number
 
@@ -18,7 +18,7 @@ export class Paginator {
 		/**
 		 * The pages to display in the paginator, with no limit on the amount of pages
 		 */
-		pages: MessagePayloadObject[],
+		pages: typeof this.pages,
 		{
 			/**
 			 * The client to use for the paginator
