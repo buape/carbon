@@ -14,7 +14,12 @@ export type ComponentParserResult = {
 	data: Record<string, string | number | boolean>
 }
 
-export type ComponentData = ComponentParserResult["data"]
+export type ComponentData<
+	T extends
+		keyof ComponentParserResult["data"] = keyof ComponentParserResult["data"]
+> = {
+	[K in T]: ComponentParserResult["data"][K]
+}
 
 export type AllowedMentions = APIAllowedMentions
 export type TopLevelComponents =
