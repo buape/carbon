@@ -1,6 +1,7 @@
 import {
 	type APIMessageComponentButtonInteraction,
 	type APIMessageComponentInteraction,
+	type APIMessageComponentInteractionData,
 	type APIMessageComponentSelectMenuInteraction,
 	InteractionResponseType,
 	type RESTPostAPIInteractionCallbackJSONBody,
@@ -27,7 +28,7 @@ export class ComponentHandler extends Base {
 	oneOffComponents: Map<
 		`${string}-${string}`,
 		{
-			resolve: (id: string) => void
+			resolve: (data: APIMessageComponentInteractionData) => void
 		}
 	> = new Map()
 	/**
@@ -57,7 +58,7 @@ export class ComponentHandler extends Base {
 			)
 
 			if (oneOffComponent) {
-				oneOffComponent.resolve(data.data.custom_id)
+				oneOffComponent.resolve(data.data)
 				this.oneOffComponents.delete(
 					`${data.message.id}-${data.message.channel_id}`
 				)

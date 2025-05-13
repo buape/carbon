@@ -1,6 +1,7 @@
 import {
 	type APIChannel,
 	type APIInteraction,
+	type APIMessageComponentInteractionData,
 	InteractionResponseType,
 	type InteractionType,
 	MessageFlags,
@@ -276,8 +277,30 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		data: MessagePayload,
 		timeout = 300000
 	): Promise<
-		| { success: true; customId: string }
-		| { success: false; reason: "timed out" }
+		| {
+				/**
+				 * Whether the interaction was successful
+				 */
+				success: true
+				/**
+				 * The custom ID of the component that was pressed
+				 */
+				customId: string
+				/**
+				 * If this is a select menu, this will be the values of the selected options
+				 */
+				values?: string[]
+		  }
+		| {
+				/**
+				 * Whether the interaction was successful
+				 */
+				success: false
+				/**
+				 * The reason the interaction failed
+				 */
+				reason: "timed out"
+		  }
 	> {
 		const message = await this.reply(data, true)
 
@@ -289,10 +312,14 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				resolve({ success: false, reason: "timed out" })
 			}, timeout)
 			this.client.componentHandler.oneOffComponents.set(id, {
-				resolve: (customId: string) => {
+				resolve: (data: APIMessageComponentInteractionData) => {
 					clearTimeout(timer)
 					this.client.componentHandler.oneOffComponents.delete(id)
-					resolve({ success: true, customId })
+					resolve({
+						success: true,
+						customId: data.custom_id,
+						values: "values" in data ? data.values : undefined
+					})
 				}
 			})
 		})
