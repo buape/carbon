@@ -5,7 +5,6 @@ import {
 	type APIMessage,
 	type APIMessageInteractionMetadata,
 	type APIMessageReference,
-	type APIPoll,
 	type APIReaction,
 	type APIStickerItem,
 	type APIThreadChannel,
@@ -26,6 +25,7 @@ import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
+import { Poll } from "./Poll.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
 
@@ -204,9 +204,13 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The poll contained in the message
 	 */
-	get poll(): IfPartial<IsPartial, APIPoll | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.poll
+	get poll(): IfPartial<IsPartial, Poll | undefined> {
+		if (!this.rawData?.poll) return undefined as never
+		return new Poll(this.client, {
+			channelId: this.channelId,
+			messageId: this.id,
+			data: this.rawData.poll
+		})
 	}
 
 	/**

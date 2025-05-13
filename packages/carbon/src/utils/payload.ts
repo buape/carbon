@@ -1,6 +1,7 @@
 import {
 	type APIMessageTopLevelComponent,
 	MessageFlags,
+	type RESTAPIPoll,
 	type RESTPostAPIChannelMessageJSONBody
 } from "discord-api-types/v10"
 import type { MessagePayload } from "../types/index.js"
@@ -41,7 +42,20 @@ export const serializePayload = (
 		embeds: payload.embeds?.map((embed) => embed.serialize()),
 		components: payload.components?.map((row) =>
 			row.serialize()
-		) as APIMessageTopLevelComponent[]
+		) as APIMessageTopLevelComponent[],
+		poll: payload.poll
+			? ({
+					...payload.poll,
+					answers: payload.poll.answers.map((answer) => ({
+						poll_media: {
+							text: answer.text,
+							emoji: answer.emoji
+						}
+					})),
+					allow_multiselect: payload.poll.allowMultiselect,
+					layout_type: payload.poll.layoutType ?? 1
+				} satisfies RESTAPIPoll)
+			: undefined
 	}
 	if (defaultEphemeral) {
 		data.flags = payload.flags ? payload.flags | 64 : 64

@@ -1,0 +1,98 @@
+---
+title: Polls
+description: Working with polls in Carbon.
+icon: ListOrdered
+---
+
+Carbon provides robust support for Discord Polls, allowing you to both send new polls and interact with existing ones. This guide will walk you through how to work with polls in your Carbon bot.
+
+## The `Poll` Class
+
+The [`Poll`](/api/index/classes/Poll) class represents a poll that has been received from Discord, typically accessed through a `Message` object. This class is designed for reading and interacting with existing polls, not for creating new ones.
+
+The `Poll` class integrates seamlessly with Discord's message system, allowing you to access polls through the `poll` property of any `Message` object. Most properties are implemented as getters, providing safe, read-only access to the poll's data. The class also includes several interactive methods for common operations like ending polls or fetching voter information.
+
+## Sending Polls
+
+To create and send a new poll, include a `poll` object in your `MessagePayload` when sending a message. You can do this through methods like `interaction.reply()`, `message.reply()`, or `channel.send()`.
+
+Here's a practical example of a command that creates polls:
+
+```ts title="src/commands/poll.ts"
+import {
+	ApplicationCommandOptionType,
+	Command,
+	type CommandInteraction,
+	type CommandOptions
+} from "@buape/carbon"
+
+export default class PollCommand extends Command {
+	name = "poll"
+	description = "Sends a poll to the current channel."
+
+	options: CommandOptions = [
+		{
+			name: "question",
+			type: ApplicationCommandOptionType.String,
+			description: "The question for the poll.",
+			required: true
+		},
+		{
+			name: "answers",
+			type: ApplicationCommandOptionType.String,
+			description: "Comma-separated list of answers (e.g., Yes,No,Maybe). Max 10 answers, 55 chars each.",
+			required: true
+		},
+		{
+			name: "duration",
+			type: ApplicationCommandOptionType.Integer,
+			description: "Duration of the poll in hours (1-720).",
+			required: true,
+			min_value: 1,
+			max_value: 720
+		},
+		{
+			name: "multiselect",
+			type: ApplicationCommandOptionType.Boolean,
+			description: "Allow users to select multiple answers? (default: false)",
+			required: false
+		}
+	]
+
+	async run(interaction: CommandInteraction) {
+		const questionText = interaction.options.getString("question", true)
+		const answersString = interaction.options.getString("answers", true)
+		const durationHours = interaction.options.getInteger("duration", true)
+		const allowMultiselect = interaction.options.getBoolean("multiselect") ?? false
+
+		const answerTexts = answersString
+			.split(",")
+			.map((a) => a.trim())
+
+		await interaction.reply({
+			poll: {
+				question: {
+					text: questionText
+				},
+				answers: answerTexts.map((text) => ({ text })),
+				expiry: new Date().getTime() + durationHours * 60 * 60 * 1000,
+				allowMultiselect
+			}
+		})
+	}
+}
+```
+
+This example shows a complete poll command that:
+- Takes a question, comma-separated answers, duration, and optional multiselect flag as input
+- Validates the number of answers (2-10) and their length (max 55 chars)
+- Creates and sends a poll with the specified parameters
+- Uses proper error handling for invalid inputs
+
+## Working with Received Polls
+
+When you receive a message containing a poll, you can access and interact with it through the `Poll` class. 
+
+The `Poll` class provides a comprehensive set of properties and methods for working with polls. The `question` property gives you access to the poll question and any associated emoji, while the `answers` array contains all poll answers with their IDs and media content. You can check when a poll expires through the `expiry` property, which provides an ISO8601 timestamp, and determine if multiple answers are allowed with `allowMultiselect`. The `layoutType` property lets you know the poll's current layout, and when a poll is finalized, you can access vote counts through the `results` property. The `isFinalized` property helps you determine if a poll has ended.
+
+The class also includes several useful methods. The `getAnswerVoters()` method allows you to fetch the list of users who voted for a specific answer. If you need to end a poll, the `end()` method will do that and return the updated message data. 

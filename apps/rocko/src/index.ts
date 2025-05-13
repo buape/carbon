@@ -19,12 +19,14 @@ import ModalCommand from "./commands/testing/modal.js"
 import OptionsCommand from "./commands/testing/options.js"
 import PaginatorCommand from "./commands/testing/paginator.js"
 import PermissionCommand from "./commands/testing/permissions.js"
+import PollCommand from "./commands/testing/poll.js"
 import PrecheckCommand from "./commands/testing/precheck.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
 import { ApplicationAuthorized } from "./events/authorized.js"
 import { MessageCreate } from "./events/messageCreate.js"
+
 const linkedRoles = new LinkedRoles({
 	metadata: [
 		{
@@ -75,7 +77,8 @@ const client = new Client(
 			new MentionsCommand(),
 			new PrecheckCommand(),
 			new PaginatorCommand(),
-			new ConfirmCommand()
+			new ConfirmCommand(),
+			new PollCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},

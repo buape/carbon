@@ -185,7 +185,6 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				with_response: true
 			}
 		)) as RESTPostAPIInteractionCallbackWithResponseResult
-		console.log(`Done: ${done}`)
 		if (!done.resource?.message)
 			throw new Error(
 				`No resource returned for message from interaction callback: ${done.resource}`
