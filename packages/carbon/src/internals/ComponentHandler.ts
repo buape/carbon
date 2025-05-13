@@ -1,10 +1,10 @@
-import { Routes } from "discord-api-types/v9"
-import { InteractionResponseType } from "discord-api-types/v9"
-import type {
-	APIMessageComponentButtonInteraction,
-	APIMessageComponentInteraction,
-	APIMessageComponentSelectMenuInteraction,
-	RESTPostAPIInteractionCallbackJSONBody
+import {
+	type APIMessageComponentButtonInteraction,
+	type APIMessageComponentInteraction,
+	type APIMessageComponentSelectMenuInteraction,
+	InteractionResponseType,
+	type RESTPostAPIInteractionCallbackJSONBody,
+	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
@@ -61,14 +61,17 @@ export class ComponentHandler extends Base {
 				this.oneOffComponents.delete(
 					`${data.message.id}-${data.message.channel_id}`
 				)
-				await this.client.rest.post(
-					Routes.interactionCallback(data.id, data.token),
-					{
+				await this.client.rest
+					.post(Routes.interactionCallback(data.id, data.token), {
 						body: {
 							type: InteractionResponseType.DeferredMessageUpdate
 						} as RESTPostAPIInteractionCallbackJSONBody
-					}
-				)
+					})
+					.catch(() => {
+						console.warn(
+							`Failed to acknowledge one-off component interaction for message ${data.message.id}`
+						)
+					})
 			}
 			return
 		}

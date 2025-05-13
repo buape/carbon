@@ -428,7 +428,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	async disableAllButtons() {
 		if (!this.rawData) return
 		if (!this.rawData.components) return
-		await this.client.rest.patch(
+		const patched = (await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
@@ -441,7 +441,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 										...component,
 										components: component.components.map((c) => ({
 											...c,
-											disabled: true
+											...("disabled" in c ? { disabled: true } : {})
 										}))
 									}
 								}
@@ -466,6 +466,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 						}) ?? []
 				} satisfies RESTPatchAPIChannelMessageJSONBody
 			}
-		)
+		)) as APIMessage
+		this.setData(patched)
 	}
 }

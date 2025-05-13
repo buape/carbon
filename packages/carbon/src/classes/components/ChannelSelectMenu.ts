@@ -14,7 +14,7 @@ export abstract class ChannelSelectMenu extends AnySelectMenu {
 	abstract run(
 		interaction: ChannelSelectMenuInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	serializeOptions() {
 		return {

@@ -13,7 +13,7 @@ export abstract class MentionableSelectMenu extends AnySelectMenu {
 	abstract run(
 		interaction: MentionableSelectMenuInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	serializeOptions() {
 		return {

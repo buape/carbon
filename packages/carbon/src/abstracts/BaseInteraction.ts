@@ -265,25 +265,20 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	> {
 		const message = await this.reply(data, true)
 
-		return new Promise((resolve, reject) => {
+		const id: `${string}-${string}` = `${message.id}-${message.channelId}`
+
+		return new Promise((resolve) => {
 			const timer = setTimeout(() => {
-				this.client.componentHandler.oneOffComponents.delete(
-					`${message.id}-${message.channelId}`
-				)
-				reject({ success: false, reason: "timed out" })
+				this.client.componentHandler.oneOffComponents.delete(id)
+				resolve({ success: false, reason: "timed out" })
 			}, timeout)
-			this.client.componentHandler.oneOffComponents.set(
-				`${message.id}-${message.channelId}`,
-				{
-					resolve: (id: string) => {
-						clearTimeout(timer)
-						this.client.componentHandler.oneOffComponents.delete(
-							`${message.id}-${message.channelId}`
-						)
-						resolve({ success: true, customId: id })
-					}
+			this.client.componentHandler.oneOffComponents.set(id, {
+				resolve: (customId: string) => {
+					clearTimeout(timer)
+					this.client.componentHandler.oneOffComponents.delete(id)
+					resolve({ success: true, customId })
 				}
-			)
+			})
 		})
 	}
 }

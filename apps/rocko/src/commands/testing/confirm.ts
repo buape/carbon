@@ -1,6 +1,5 @@
 import {
 	Button,
-	type ButtonInteraction,
 	ButtonStyle,
 	Command,
 	type CommandInteraction,
@@ -13,26 +12,7 @@ export default class ConfirmCommand extends Command {
 	async run(interaction: CommandInteraction) {
 		const done = await interaction.replyAndWaitForComponent({
 			content: "Confirm the message",
-			components: [
-				new Row([
-					new (class extends Button {
-						label = "Confirm"
-						style = ButtonStyle.Success
-						customId = "x-confirm"
-						async run(interaction: ButtonInteraction) {
-							return interaction.acknowledge()
-						}
-					})(),
-					new (class extends Button {
-						label = "Cancel"
-						style = ButtonStyle.Danger
-						customId = "x-cancel"
-						async run(interaction: ButtonInteraction) {
-							return interaction.acknowledge()
-						}
-					})()
-				])
-			]
+			components: [new Row([new ConfirmButton(), new CancelButton()])]
 		})
 		if (done.success) {
 			await interaction.message?.disableAllButtons()
@@ -46,4 +26,16 @@ export default class ConfirmCommand extends Command {
 			})
 		}
 	}
+}
+
+class ConfirmButton extends Button {
+	label = "Confirm"
+	style = ButtonStyle.Success
+	customId = "x-confirm"
+}
+
+class CancelButton extends Button {
+	label = "Cancel"
+	style = ButtonStyle.Danger
+	customId = "x-cancel"
 }

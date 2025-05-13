@@ -22,7 +22,7 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 	abstract run(
 		interaction: AnySelectMenuInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	minValues?: number
 	maxValues?: number

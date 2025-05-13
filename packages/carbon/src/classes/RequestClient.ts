@@ -156,9 +156,6 @@ export class RequestClient {
 					.join("&")}`
 			: ""
 		const url = `${this.options.baseUrl}${path}${queryString}`
-		console.log(`Request: ${JSON.stringify(request)}`)
-		console.log(`URL: ${url}`)
-		console.log(`Query: ${queryString} (${query})`)
 		const headers = new Headers({
 			Authorization: `${this.options.tokenHeader} ${this.token}`
 		})

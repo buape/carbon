@@ -13,7 +13,7 @@ export abstract class StringSelectMenu extends AnySelectMenu {
 	abstract run(
 		interaction: StringSelectMenuInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	serializeOptions() {
 		return {

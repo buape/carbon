@@ -51,8 +51,14 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	customIdParser: (id: string) => ComponentParserResult = parseCustomId
 
 	abstract serialize: () => APIComponentInMessageActionRow
-	abstract run(
+
+	run(
 		interaction: BaseComponentInteraction,
 		data: ComponentData
-	): Promise<unknown>
+	): unknown | Promise<unknown> {
+		// Random things to show the vars as used
+		typeof interaction === "string"
+		typeof data === "string"
+		return
+	}
 }
