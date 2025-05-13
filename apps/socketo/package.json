@@ -11,10 +11,10 @@
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
 		"dotenv": "16.5.0",
-		"ws": "8.18.1"
+		"ws": "8.18.2"
 	},
 	"devDependencies": {
-		"@types/node": "22.14.1",
+		"@types/node": "22.15.17",
 		"tsc-watch": "6.2.1",
 		"typescript": "5.8.3"
 	}
