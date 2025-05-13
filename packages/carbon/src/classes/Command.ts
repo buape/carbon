@@ -29,7 +29,7 @@ export abstract class Command extends BaseCommand {
 	 * The function that is called when the command is ran
 	 * @param interaction The interaction that triggered the command
 	 */
-	abstract run(interaction: CommandInteraction): Promise<void>
+	abstract run(interaction: CommandInteraction): unknown | Promise<unknown>
 
 	/**
 	 * The function that is called when the command's autocomplete is triggered.

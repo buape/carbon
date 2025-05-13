@@ -13,7 +13,7 @@ export abstract class RoleSelectMenu extends AnySelectMenu {
 	abstract run(
 		interaction: RoleSelectMenuInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	serializeOptions() {
 		return {

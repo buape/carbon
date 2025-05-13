@@ -11,6 +11,7 @@ import MentionsCommand from "./commands/testing/allow_mentions.js"
 import AttachmentCommand from "./commands/testing/attachment.js"
 import ButtonCommand from "./commands/testing/button.js"
 import ComponentsV2 from "./commands/testing/components_v2.js"
+import ConfirmCommand from "./commands/testing/confirm.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
@@ -73,7 +74,8 @@ const client = new Client(
 			new UserCommand(),
 			new MentionsCommand(),
 			new PrecheckCommand(),
-			new PaginatorCommand()
+			new PaginatorCommand(),
+			new ConfirmCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
@@ -103,3 +105,5 @@ declare global {
 		}
 	}
 }
+
+//

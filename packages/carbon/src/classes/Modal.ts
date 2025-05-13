@@ -45,7 +45,7 @@ export abstract class Modal {
 	abstract run(
 		interaction: ModalInteraction,
 		data: ComponentData
-	): Promise<void>
+	): unknown | Promise<unknown>
 
 	serialize = (): APIModalInteractionResponseCallbackData => {
 		return {

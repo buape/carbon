@@ -56,7 +56,7 @@ export type QueuedRequest = {
 	method: string
 	path: string
 	data?: RequestData
-	query?: Record<string, string>
+	query?: Record<string, string | number | boolean>
 	resolve: (value?: unknown) => void
 	reject: (reason?: unknown) => void
 }
@@ -96,29 +96,37 @@ export class RequestClient {
 		}
 	}
 
-	async get(path: string, query?: Record<string, string>) {
+	async get(path: string, query?: QueuedRequest["query"]) {
 		return await this.request("GET", path, { query })
 	}
 
-	async post(path: string, data?: RequestData) {
-		return await this.request("POST", path, { data })
+	async post(path: string, data?: RequestData, query?: QueuedRequest["query"]) {
+		return await this.request("POST", path, { data, query })
 	}
 
-	async patch(path: string, data?: RequestData) {
-		return await this.request("PATCH", path, { data })
+	async patch(
+		path: string,
+		data?: RequestData,
+		query?: QueuedRequest["query"]
+	) {
+		return await this.request("PATCH", path, { data, query })
 	}
 
-	async put(path: string, data?: RequestData) {
-		return await this.request("PUT", path, { data })
+	async put(path: string, data?: RequestData, query?: QueuedRequest["query"]) {
+		return await this.request("PUT", path, { data, query })
 	}
 
-	async delete(path: string, data?: RequestData) {
-		return await this.request("DELETE", path, { data })
+	async delete(
+		path: string,
+		data?: RequestData,
+		query?: QueuedRequest["query"]
+	) {
+		return await this.request("DELETE", path, { data, query })
 	}
 	private async request(
 		method: string,
 		path: string,
-		{ data, query }: { data?: RequestData; query?: Record<string, string> }
+		{ data, query }: { data?: RequestData; query?: QueuedRequest["query"] }
 	): Promise<unknown> {
 		if (this.options.queueRequests) {
 			return new Promise((resolve, reject) => {
@@ -139,7 +147,15 @@ export class RequestClient {
 		await this.waitForRateLimit()
 
 		const { method, path, data, query } = request
-		const url = `${this.options.baseUrl}${path}${query ? `?${new URLSearchParams(query).toString()}` : ""}`
+		const queryString = query
+			? `?${Object.entries(query)
+					.map(
+						([key, value]) =>
+							`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+					)
+					.join("&")}`
+			: ""
+		const url = `${this.options.baseUrl}${path}${queryString}`
 		const headers = new Headers({
 			Authorization: `${this.options.tokenHeader} ${this.token}`
 		})
@@ -266,13 +282,14 @@ export class RequestClient {
 		const queueItem = this.queue.shift()
 		if (!queueItem) return
 
-		const { method, path, data, resolve, reject } = queueItem
+		const { method, path, data, query, resolve, reject } = queueItem
 
 		try {
 			const result = await this.executeRequest({
 				method,
 				path,
 				data,
+				query,
 				resolve,
 				reject
 			})
