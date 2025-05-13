@@ -1,0 +1,5 @@
+language: en-US
+enable_free_tier: true
+reviews:
+    auto_review:
+        ignore_title_keywords: ["Pending Releases"]
