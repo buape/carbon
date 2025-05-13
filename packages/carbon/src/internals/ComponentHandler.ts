@@ -72,6 +72,10 @@ export class ComponentHandler extends Base {
 							`Failed to acknowledge one-off component interaction for message ${data.message.id}`
 						)
 					})
+			} else {
+				throw new Error(
+					`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id} was received, did you forget to register the component? See https://carbon.buape.com/concepts/component-registration for more information.`
+				)
 			}
 			return
 		}

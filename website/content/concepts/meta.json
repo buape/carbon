@@ -1,5 +1,11 @@
 {
 	"title": "Concepts & Guides",
 	"icon": "BookOpen",
-	"pages": ["http-bots", "interaction-responses", "partial-structures"]
+	"pages": [
+		"http-bots",
+		"interaction-responses",
+		"prechecks",
+		"partial-structures",
+		"component-registration"
+	]
 }

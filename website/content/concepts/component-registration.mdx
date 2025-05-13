@@ -1,0 +1,81 @@
+---
+title: Component Registration & Persistence
+description: Understanding how components are registered and why it matters for persistence.
+---
+
+Working with interactive message components like buttons and select menus often involves handling user interactions sometime after the initial message was sent. Carbon needs a way to know which piece of code (specifically, which component class instance's `run` method) should be executed when a user clicks a button or selects an option, even if the bot has restarted or the application instance that sent the message is no longer running. This is handled through component registration.
+
+There are a few distinct ways components become known to Carbon's `ComponentHandler`, each with its own implications for persistence and use cases:
+
+### Persistent Registration (Global & Command-Specific)
+
+For components that need to be interactive indefinitely, even across application restarts or redeployments (crucial for serverless environments), you need to use persistent registration. This ensures the `ComponentHandler` has a long-term record of the component instance and its associated `customId` key.
+
+1.  **Global Registration:** You can provide an array of component *instances* to the `Client` constructor. These components are registered once when the client starts and remain active for the client's entire lifetime. This is ideal for components used across many commands or contexts, or components that aren't tied to a specific command flow.
+
+    ```ts title="src/index.ts"
+    import { Client, Button, ButtonStyle, type ButtonInteraction } from "@buape/carbon";
+    import { MyCommand } from "./commands/MyCommand.js";
+
+    class GlobalButton extends Button {
+    	customId = "global:action"
+    	label = "Global Action"
+    	style = ButtonStyle.Secondary
+
+    	async run(interaction: ButtonInteraction) { /* ... */ }
+    }
+
+    const client = new Client(
+    	{ /* ...client options... */ },
+    	{
+    		commands: [MyCommand],
+    		components: [new GlobalButton()] // Instance registered globally
+    	}
+    );
+    ```
+
+2.  **Command-Specific Registration:** You can define a `components` array containing component *instances* directly within your `Command` class. These components are registered by the `CommandHandler` just before the command's `run` method is invoked. This links the component's lifetime to the command's execution context and is suitable for components primarily used within that command.
+
+    ```ts title="src/commands/ping.ts"
+    import { Command, type CommandInteraction, Button, ButtonStyle, type ButtonInteraction, Row } from "@buape/carbon"
+
+    class PingButton extends Button { /* ... as before ... */ }
+
+    export default class PingCommand extends Command {
+    	name = "ping"
+    	description = "A simple ping command"
+    	components = [new PingButton()] // Instance registered with the command
+
+    	async run(interaction: CommandInteraction) {
+    		return interaction.reply({
+    			content: "Pong!",
+    			components: [new Row([new PingButton()])]
+    		})
+    	}
+    }
+    ```
+
+**Pros:** Ensures components remain interactive after restarts or on serverless platforms. Clearly defines the scope (global vs. command-specific).
+**Cons:** Requires explicit definition either globally or on the command.
+
+### Automatic Registration on Send (Internal & Non-Persistent)
+
+When you send a message using methods like `interaction.reply()` or `interaction.followUp()`, Carbon automatically inspects the `components` array in your message payload. If it finds interactive components (like Buttons, Select Menus within Rows, or as Section accessories) whose `customId` key hasn't already been registered via the persistent methods above, it registers them *temporarily*.
+
+**Important:** This automatic registration is **not persistent**. It only lasts for the current runtime session of your application. If your bot restarts or scales down to zero instances (common in serverless), these components will stop working because the `ComponentHandler` instance that knew about them is gone.
+
+**Pros:** Convenient for simple, short-lived interactions where persistence isn't required.
+**Cons:** **Does not survive restarts or serverless scale-downs.** Should not be relied upon for components needing long-term interactivity.
+
+### One-Off Components (`replyAndWaitForComponent`)
+
+A special case exists for waiting for a *single* interaction on a message: `interaction.replyAndWaitForComponent()`. When you use this method, the components in the message payload are *not* registered in the standard way (their `run` methods won't be called). Instead, the `ComponentHandler` temporarily tracks the message ID and waits for *any* component interaction on that message. When an interaction occurs, the promise returned by `replyAndWaitForComponent` resolves with the `customId` of the clicked component. This mechanism uses a separate internal map (`oneOffComponents`) in the `ComponentHandler` and automatically cleans up after the interaction occurs or a timeout is reached.
+
+**Pros:** Simple way to wait for a specific, single interaction without needing a persistent component class.
+**Cons:** Only works for the very next interaction on that message. Does not call the component's `run` method. Less flexible than persistent components for complex logic.
+
+### Troubleshooting: My Button/Select Stopped Working!
+
+If your components suddenly stop responding after a deployment, restart, or period of inactivity (especially on serverless), the most likely cause is that you relied on automatic registration.
+
+**Solution:** Ensure your component class instances are registered either **globally** (in the `Client` constructor) or **specifically on the command** that uses them. Verify that the `customId` key used in your message payload matches the `customId` key of a registered component instance. 
