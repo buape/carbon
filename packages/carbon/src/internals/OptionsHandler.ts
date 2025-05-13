@@ -1,6 +1,7 @@
 import {
 	type APIApplicationCommandInteractionDataBasicOption,
 	type APIApplicationCommandInteractionDataOption,
+	type APIAutocompleteApplicationCommandInteractionData,
 	type APIChannel,
 	type APIChatInputApplicationCommandInteractionData,
 	ApplicationCommandOptionType,
@@ -9,12 +10,12 @@ import {
 import { Base } from "../abstracts/Base.js"
 import {
 	type Client,
+	type CommandOptions,
 	type ResolvedFile,
 	Role,
 	User,
 	channelFactory
 } from "../index.js"
-
 export type RawOptions = {
 	[key: string]:
 		| APIApplicationCommandInteractionDataBasicOption["value"]
@@ -31,16 +32,28 @@ export class OptionsHandler extends Base {
 	 */
 	readonly raw: APIApplicationCommandInteractionDataBasicOption[]
 
-	private interactionData?: APIChatInputApplicationCommandInteractionData
+	private interactionData?:
+		| APIChatInputApplicationCommandInteractionData
+		| APIAutocompleteApplicationCommandInteractionData
+	private definitions?: CommandOptions
 
-	constructor(
-		client: Client,
-		options: APIApplicationCommandInteractionDataOption[],
-		interactionData?: APIChatInputApplicationCommandInteractionData
-	) {
+	constructor({
+		client,
+		options,
+		interactionData,
+		definitions
+	}: {
+		client: Client
+		options: APIApplicationCommandInteractionDataOption[]
+		interactionData:
+			| APIChatInputApplicationCommandInteractionData
+			| APIAutocompleteApplicationCommandInteractionData
+		definitions: CommandOptions
+	}) {
 		super(client)
 		this.raw = []
 		this.interactionData = interactionData
+		this.definitions = definitions
 		for (const option of options) {
 			if (option.type === ApplicationCommandOptionType.Subcommand) {
 				for (const subOption of option.options ?? []) {
@@ -76,6 +89,7 @@ export class OptionsHandler extends Base {
 			if (!value || typeof value !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!value || typeof value !== "string") return undefined
+		this.checkAgainstDefinition(key, value)
 		return value
 	}
 
@@ -100,6 +114,7 @@ export class OptionsHandler extends Base {
 			!Number.isSafeInteger(value)
 		)
 			return undefined
+		this.checkAgainstDefinition(key, value)
 		return value
 	}
 
@@ -119,6 +134,7 @@ export class OptionsHandler extends Base {
 			if (!value || typeof value !== "number")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!value || typeof value !== "number") return undefined
+		this.checkAgainstDefinition(key, value)
 		return value
 	}
 
@@ -268,5 +284,47 @@ export class OptionsHandler extends Base {
 			return undefined
 		}
 		return attachment
+	}
+
+	private checkAgainstDefinition(
+		key: string,
+		value: string | number | boolean
+	) {
+		const definition = this.definitions?.find((x) => x.name === key)
+		if (!definition) return
+		if (
+			definition.type === ApplicationCommandOptionType.String &&
+			typeof value === "string"
+		) {
+			if (definition.max_length && value.length > definition.max_length)
+				throw new Error(
+					`Invalid length for option ${key}: Should be less than ${definition.max_length} characters but is ${value.length} characters`
+				)
+			if (definition.min_length && value.length < definition.min_length)
+				throw new Error(
+					`Invalid length for option ${key}: Should be more than ${definition.min_length} characters but is ${value.length} characters`
+				)
+		}
+		if (
+			(definition.type === ApplicationCommandOptionType.Integer ||
+				definition.type === ApplicationCommandOptionType.Number) &&
+			typeof value === "number"
+		) {
+			if (definition.min_value && value < definition.min_value)
+				throw new Error(
+					`Invalid value for option ${key}: Should be more than ${definition.min_value} but is ${value}`
+				)
+			if (definition.max_value && value > definition.max_value)
+				throw new Error(
+					`Invalid value for option ${key}: Should be less than ${definition.max_value} but is ${value}`
+				)
+		}
+		if ("choices" in definition && definition.choices) {
+			const choice = definition.choices.find((x) => x.value === value)
+			if (!choice)
+				throw new Error(
+					`Invalid choice for option ${key}: Should be one of ${definition.choices?.map((x) => x.value).join(", ")} but is ${value}`
+				)
+		}
 	}
 }

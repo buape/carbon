@@ -94,8 +94,13 @@ export class CommandHandler extends Base {
 			}
 		}
 
-		const interaction = new CommandInteraction(this.client, rawInteraction, {
-			ephemeral: command.ephemeral
+		const interaction = new CommandInteraction({
+			client: this.client,
+			data: rawInteraction,
+			defaults: {
+				ephemeral: command.ephemeral
+			},
+			processingCommand: command
 		})
 
 		try {
@@ -120,11 +125,14 @@ export class CommandHandler extends Base {
 		const command = this.getCommand(rawInteraction)
 		if (!command) return false
 
-		const interaction = new AutocompleteInteraction(
-			this.client,
-			rawInteraction,
-			{ ephemeral: command.ephemeral }
-		)
+		const interaction = new AutocompleteInteraction({
+			client: this.client,
+			data: rawInteraction,
+			defaults: {
+				ephemeral: command.ephemeral
+			},
+			processingCommand: command
+		})
 
 		try {
 			const command = this.getCommand(rawInteraction)

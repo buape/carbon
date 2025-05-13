@@ -11,6 +11,7 @@ import {
 	type InteractionDefaults
 } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
+import type { Command } from "../classes/Command.js"
 import { OptionsHandler } from "./OptionsHandler.js"
 
 export class AutocompleteInteraction extends BaseInteraction<APIApplicationCommandAutocompleteInteraction> {
@@ -18,11 +19,17 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 	 * This is the options of the commands, parsed from the interaction data.
 	 */
 	options: AutocompleteOptionsHandler
-	constructor(
-		client: Client,
-		data: APIApplicationCommandAutocompleteInteraction,
+	constructor({
+		client,
+		data,
+		defaults,
+		processingCommand
+	}: {
+		client: Client
+		data: APIApplicationCommandAutocompleteInteraction
 		defaults: InteractionDefaults
-	) {
+		processingCommand?: Command
+	}) {
 		super(client, data, defaults)
 		if (data.type !== InteractionType.ApplicationCommandAutocomplete) {
 			throw new Error("Invalid interaction type was used to create this class")
@@ -31,10 +38,12 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 			throw new Error("Invalid command type was used to create this class")
 		}
 
-		this.options = new AutocompleteOptionsHandler(
+		this.options = new AutocompleteOptionsHandler({
 			client,
-			data.data.options ?? []
-		)
+			options: data.data.options ?? [],
+			interactionData: data.data,
+			definitions: processingCommand?.options ?? []
+		})
 	}
 
 	override async defer(): Promise<never> {
