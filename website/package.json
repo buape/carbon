@@ -30,12 +30,12 @@
 		"zod": "3.24.2"
 	},
 	"devDependencies": {
-		"@tailwindcss/postcss": "4.1.4",
+		"@tailwindcss/postcss": "4.1.6",
 		"@types/mdx": "2.0.13",
-		"@types/node": "22.14.1",
-		"@types/react": "19.1.2",
-		"@types/react-dom": "19.1.2",
+		"@types/node": "22.15.17",
+		"@types/react": "19.1.4",
+		"@types/react-dom": "19.1.5",
 		"postcss": "8.5.3",
-		"tailwindcss": "4.1.4"
+		"tailwindcss": "4.1.6"
 	}
 }
