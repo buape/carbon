@@ -11,11 +11,15 @@ export abstract class ChannelSelectMenu extends AnySelectMenu {
 	readonly isV2 = false
 	channelTypes?: APIChannelSelectComponent["channel_types"]
 	defaultValues?: APIChannelSelectComponent["default_values"]
-	abstract run(
+	run(
 		interaction: ChannelSelectMenuInteraction,
 		data: ComponentData
-	): unknown | Promise<unknown>
-
+	): unknown | Promise<unknown> {
+		// Random things to show the vars as used
+		typeof interaction === "string"
+		typeof data === "string"
+		return
+	}
 	serializeOptions() {
 		return {
 			type: this.type,

@@ -10,10 +10,15 @@ export abstract class RoleSelectMenu extends AnySelectMenu {
 	readonly type = ComponentType.RoleSelect as const
 	readonly isV2 = false
 	defaultValues?: APIRoleSelectComponent["default_values"]
-	abstract run(
+	run(
 		interaction: RoleSelectMenuInteraction,
 		data: ComponentData
-	): unknown | Promise<unknown>
+	): unknown | Promise<unknown> {
+		// Random things to show the vars as used
+		typeof interaction === "string"
+		typeof data === "string"
+		return
+	}
 
 	serializeOptions() {
 		return {

@@ -10,10 +10,15 @@ export abstract class StringSelectMenu extends AnySelectMenu {
 	readonly type = ComponentType.StringSelect as const
 	readonly isV2 = false
 	abstract options: APIStringSelectComponent["options"]
-	abstract run(
+	run(
 		interaction: StringSelectMenuInteraction,
 		data: ComponentData
-	): unknown | Promise<unknown>
+	): unknown | Promise<unknown> {
+		// Random things to show the vars as used
+		typeof interaction === "string"
+		typeof data === "string"
+		return
+	}
 
 	serializeOptions() {
 		return {

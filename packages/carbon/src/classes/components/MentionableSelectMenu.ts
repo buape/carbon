@@ -10,10 +10,15 @@ export abstract class MentionableSelectMenu extends AnySelectMenu {
 	readonly type = ComponentType.MentionableSelect as const
 	readonly isV2 = false
 	defaultValues?: APIMentionableSelectComponent["default_values"]
-	abstract run(
+	run(
 		interaction: MentionableSelectMenuInteraction,
 		data: ComponentData
-	): unknown | Promise<unknown>
+	): unknown | Promise<unknown> {
+		// Random things to show the vars as used
+		typeof interaction === "string"
+		typeof data === "string"
+		return
+	}
 
 	serializeOptions() {
 		return {
