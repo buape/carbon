@@ -21,11 +21,11 @@
 		},
 		{
 			"matchPackageNames": ["wrangler"],
-			"schedule": ["0 0 1/14 * *"]
+			"schedule": ["* 0 1/14 * *"]
 		},
 		{
 			"matchDepTypes": ["devDependencies"],
-			"schedule": ["0 0 1/14 * *"],
+			"schedule": ["* 0 1/14 * *"],
 			"groupName": "devDependencies"
 		},
 		{
@@ -34,6 +34,6 @@
 		}
 	],
 	"labels": ["dependencies"],
-	"schedule": ["0 0 */7 * *"],
+	"schedule": ["* 0 */7 * *"],
 	"gitIgnoredAuthors": ["119761697+buapebot@users.noreply.github.com"]
 }
