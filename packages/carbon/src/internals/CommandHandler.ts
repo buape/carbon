@@ -6,6 +6,7 @@ import {
 	ApplicationCommandType
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
+import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import { Command } from "../classes/Command.js"
 import { CommandWithSubcommandGroups } from "../classes/CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
@@ -86,6 +87,12 @@ export class CommandHandler extends Base {
 	) {
 		const command = this.getCommand(rawInteraction)
 		if (!command) return false
+
+		if (command.components) {
+			for (const component of command.components as BaseMessageInteractiveComponent[]) {
+				this.client.componentHandler.registerComponent(component)
+			}
+		}
 
 		const interaction = new CommandInteraction(this.client, rawInteraction, {
 			ephemeral: command.ephemeral

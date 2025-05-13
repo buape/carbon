@@ -5,6 +5,7 @@ import {
 import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
+	type BaseMessageInteractiveComponent,
 	InteractionContextType,
 	type Permission
 } from "../index.js"
@@ -64,6 +65,12 @@ export abstract class BaseCommand {
 	 * This can be overridden by server admins.
 	 */
 	permission?: ArrayOrSingle<(typeof Permission)[keyof typeof Permission]>
+
+	/**
+	 * The components that this command uses.
+	 * These will be registered with the client when the command is initialized.
+	 */
+	components?: BaseMessageInteractiveComponent[]
 
 	/**
 	 * Serializes the command into a JSON object that can be sent to Discord

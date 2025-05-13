@@ -12,7 +12,6 @@ import {
 } from "discord-api-types/v10"
 import {
 	BaseMessageInteractiveComponent,
-	Button,
 	type Client,
 	Container,
 	Embed,
@@ -100,12 +99,21 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		return new GuildMember(this.client, this.rawData.member, this.guild)
 	}
 
-	private autoRegisterComponents(data: MessagePayload) {
+	/**
+	 * @internal
+	 * Automatically register components found in a message payload when sending the message.
+	 */
+	private _internalAutoRegisterComponentsOnSend(data: MessagePayload) {
 		if (typeof data !== "string" && data.components) {
-			this.registerComponents(data.components)
+			this._internalRegisterComponentsOnSend(data.components)
 		}
 	}
-	private registerComponents(components: TopLevelComponents[]) {
+
+	/**
+	 * @internal
+	 * Register components found in a message payload when sending the message.
+	 */
+	private _internalRegisterComponentsOnSend(components: TopLevelComponents[]) {
 		for (const component of components) {
 			if (component instanceof Row) {
 				for (const childComponent of component.components) {
@@ -123,11 +131,20 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					}
 				}
 			} else if (component instanceof Section) {
-				if (component.accessory instanceof Button) {
-					this.client.componentHandler.registerComponent(component.accessory)
+				if (component.accessory instanceof BaseMessageInteractiveComponent) {
+					const key = component.accessory.customIdParser(
+						component.accessory.customId
+					).key
+					const existingComponent =
+						this.client.componentHandler.components.find(
+							(comp) => comp.customIdParser(comp.customId).key === key
+						)
+					if (!existingComponent) {
+						this.client.componentHandler.registerComponent(component.accessory)
+					}
 				}
 			} else if (component instanceof Container) {
-				this.registerComponents(component.components)
+				this._internalRegisterComponentsOnSend(component.components)
 			}
 		}
 	}
@@ -141,7 +158,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		const serialized = serializePayload(data, this.defaultEphemeral)
 
 		// Auto-register any components in the message
-		if (!overrideAutoRegister) this.autoRegisterComponents(data)
+		if (!overrideAutoRegister) this._internalAutoRegisterComponentsOnSend(data)
 
 		if (this._deferred) {
 			const message = (await this.client.rest.patch(
@@ -234,7 +251,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		const serialized = serializePayload(reply)
 
 		// Auto-register any components in the message
-		this.autoRegisterComponents(reply)
+		this._internalAutoRegisterComponentsOnSend(reply)
 
 		await this.client.rest.post(
 			Routes.webhook(this.client.options.clientId, this.rawData.token),

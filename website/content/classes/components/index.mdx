@@ -5,23 +5,40 @@ index: true
 
 Components are used to create interactive elements in your bot, such as buttons, select menus, and text inputs.
 
-Components are automatically registered when they are used in a message. The registration happens when you use the component in a message, either through `reply`, `followUp`, or any other method that sends a message with components.
+## Component Registration
+
+For a component's `run` method to be executed when a user interacts with it, the component needs to be registered with the client's `ComponentHandler`.
+This ensures that even after a bot restart, the handler knows which code to execute for a given `customId`.
+There are three ways to register components:
+
+### 1. Global Registration
+
+You can register components globally when you initialize the `Client`.
+These components will be active for the lifetime of the client.
+
+```ts title="src/index.ts"
+import { Client } from "@buape/carbon";
+import { MyButton } from "./components/MyButton.js";
+import { MyCommand } from "./commands/MyCommand.js";
+
+const client = new Client(
+	{ /* ...client options... */ },
+	{
+		commands: [MyCommand],
+		// Globally register MyButton
+		components: [new MyButton()]
+	}
+);
+```
+
+### 2. Command-Specific Registration
+
+You can associate components directly with a specific command by adding a `components` property to your command class.
+These components are registered just before the command's `run` method is executed.
+This is useful for components that are only relevant to a particular command.
 
 ```ts title="src/commands/ping.ts"
-import { Command, type CommandInteraction } from "@buape/carbon"
-
-export default class PingCommand extends Command {
-	name = "ping"
-	description = "A simple ping command"
-	defer = false
-
-	async run(interaction: CommandInteraction) {
-		return interaction.reply({
-			content: "Pong!",
-			components: [new Row([new PingButton()])]
-		})
-	}
-}
+import { Command, type CommandInteraction, Button, ButtonStyle, type ButtonInteraction, Row } from "@buape/carbon"
 
 class PingButton extends Button {
 	customId = "ping:action=click"
@@ -34,7 +51,30 @@ class PingButton extends Button {
 		})
 	}
 }
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "A simple ping command"
+	defer = false
+
+	// Register PingButton specifically for this command
+	components = [new PingButton()]
+
+	async run(interaction: CommandInteraction) {
+		return interaction.reply({
+			content: "Pong!",
+			// Use an *instance* of the button here
+			components: [new Row([new PingButton()])]
+		})
+	}
+}
 ```
+
+### 3. Automatic Registration on Send (Internal)
+
+Components are automatically registered when they are used in a message. The registration happens when you use the component in a message, either through `reply`, `followUp`, or any other method that sends a message with components.
+
+**Important:** This automatic registration only persists components for the current session. If the bot restarts, components registered this way will no longer be handled. This method is primarily an internal mechanism and should generally **not** be relied upon for persistent components. Prefer global or command-specific registration for components that need to respond to interactions after potential restarts.
 
 ## Custom ID System
 

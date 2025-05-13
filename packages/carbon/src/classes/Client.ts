@@ -14,6 +14,7 @@ import {
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { BaseListener } from "../abstracts/BaseListener.js"
+import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
@@ -108,6 +109,10 @@ export class Client {
 	 */
 	listeners: BaseListener[] = []
 	/**
+	 * The components that the client has globally registered
+	 */
+	components: BaseMessageInteractiveComponent[] = []
+	/**
 	 * The rest client used to interact with the Discord API
 	 */
 	rest: RequestClient
@@ -143,6 +148,7 @@ export class Client {
 		handlers: {
 			commands?: BaseCommand[]
 			listeners?: BaseListener[]
+			components?: BaseMessageInteractiveComponent[]
 		},
 		plugins: Plugin[] = []
 	) {
@@ -155,6 +161,7 @@ export class Client {
 		this.options = options
 		this.commands = handlers.commands ?? []
 		this.listeners = handlers.listeners ?? []
+		this.components = handlers.components ?? []
 
 		// Remove trailing slashes from the base URL
 		options.baseUrl = options.baseUrl.replace(/\/+$/, "")
@@ -163,6 +170,15 @@ export class Client {
 		this.componentHandler = new ComponentHandler(this)
 		this.modalHandler = new ModalHandler(this)
 		this.eventHandler = new EventHandler(this)
+
+		for (const component of this.components) {
+			this.componentHandler.registerComponent(component)
+		}
+		for (const command of this.commands) {
+			for (const component of command.components ?? []) {
+				this.componentHandler.registerComponent(component)
+			}
+		}
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
 

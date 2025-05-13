@@ -88,6 +88,11 @@ export type MessagePayloadFile = {
 
 export type ResolvedFile = APIAttachment
 
+export type BaseMessageInteractiveComponentConstructor = new (
+	// biome-ignore lint/suspicious/noExplicitAny: This is a constructor
+	...args: any[]
+) => BaseMessageInteractiveComponent
+
 export type ArrayOrSingle<T> = T | T[]
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 
