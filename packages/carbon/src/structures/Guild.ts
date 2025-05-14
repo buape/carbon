@@ -235,4 +235,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			throw e
 		}
 	}
+
+	/**
+	 * Fetch all channels in the guild.
+	 * Note: This does not include threads.
+	 */
+	async fetchChannels() {
+		const channels = (await this.client.rest.get(
+			Routes.guildChannels(this.id)
+		)) as APIChannel[]
+		return channels.map((channel) => channelFactory(this.client, channel))
+	}
 }
