@@ -125,6 +125,21 @@ export type MessagePayloadFile = {
 	description?: string
 }
 
+export type VoiceState = {
+	guildId?: string
+	channelId: string | null
+	userId: string
+	sessionId: string
+	deaf: boolean
+	mute: boolean
+	selfDeaf: boolean
+	selfMute: boolean
+	selfStream: boolean
+	selfVideo: boolean
+	suppress: boolean
+	requestToSpeakTimestamp: string | null
+}
+
 export type ResolvedFile = APIAttachment
 
 export type BaseMessageInteractiveComponentConstructor = new (

@@ -1,8 +1,12 @@
-import type { APIGuildMember, GuildMemberFlags } from "discord-api-types/v10"
+import type {
+	APIGuildMember,
+	APIVoiceState,
+	GuildMemberFlags
+} from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { maxPermissions } from "../permissions.js"
-import type { IfPartial } from "../types/index.js"
+import type { IfPartial, VoiceState } from "../types/index.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
@@ -135,6 +139,27 @@ export class GuildMember<
 	get pending(): IfPartial<IsPartial, boolean> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.pending ?? false
+	}
+
+	async getVoiceState(): Promise<VoiceState | null> {
+		const voiceState = (await this.client.rest.get(
+			`/guilds/${this.guild.id}/members/${this.user.id}/voice`
+		)) as APIVoiceState
+		if (!voiceState) return null
+		return {
+			channelId: voiceState.channel_id ?? null,
+			guildId: this.guild.id,
+			userId: this.user.id,
+			sessionId: voiceState.session_id,
+			deaf: voiceState.deaf ?? false,
+			mute: voiceState.mute ?? false,
+			selfDeaf: voiceState.self_deaf ?? false,
+			selfMute: voiceState.self_mute ?? false,
+			selfStream: voiceState.self_stream ?? false,
+			selfVideo: voiceState.self_video ?? false,
+			suppress: voiceState.suppress ?? false,
+			requestToSpeakTimestamp: voiceState.request_to_speak_timestamp ?? null
+		}
 	}
 
 	async getPermissions(): Promise<IfPartial<IsPartial, bigint[]>> {
