@@ -34,11 +34,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data
 	}
-	// private setField(key: keyof APIGuild, value: unknown) {
-	// 	if (!this.rawData)
-	// 		throw new Error("Cannot set field without having data... smh")
-	// 	Reflect.set(this.rawData, key, value)
-	// }
+
+	private setField(key: keyof APIGuild, value: unknown) {
+		if (!this.rawData)
+			throw new Error("Cannot set field without having data... smh")
+		Reflect.set(this.rawData, key, value)
+	}
 
 	/**
 	 * The ID of the guild
@@ -163,7 +164,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				...data
 			}
 		})) as APIRole
-		return new Role(this.client, role)
+		const roleClass = new Role(this.client, role)
+		this.setField(
+			"roles",
+			Array.isArray(this.roles) ? [...this.roles, roleClass] : [roleClass]
+		)
+		return roleClass
 	}
 
 	/**
@@ -245,5 +251,29 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			Routes.guildChannels(this.id)
 		)) as APIChannel[]
 		return channels.map((channel) => channelFactory(this.client, channel))
+	}
+
+	/**
+	 * Fetch a role from the guild by ID
+	 */
+	async fetchRole(roleId: string) {
+		const role = (await this.client.rest.get(
+			Routes.guildRole(this.id, roleId)
+		)) as APIRole
+		return new Role(this.client, role)
+	}
+
+	/**
+	 * Fetch all roles in the guild
+	 */
+	async fetchRoles() {
+		const roles = (await this.client.rest.get(
+			Routes.guildRoles(this.id)
+		)) as APIRole[]
+		this.setField(
+			"roles",
+			roles.map((role) => new Role(this.client, role))
+		)
+		return roles.map((role) => new Role(this.client, role))
 	}
 }
