@@ -153,13 +153,14 @@ export class GuildMember<
 	/**
 	 * Set the nickname of the member
 	 */
-	async setNickname(nickname: string | null): Promise<void> {
+	async setNickname(nickname: string | null, reason?: string): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					nick: nickname
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("nick", nickname)
@@ -168,10 +169,12 @@ export class GuildMember<
 	/**
 	 * Add a role to the member
 	 */
-	async addRole(roleId: string): Promise<void> {
+	async addRole(roleId: string, reason?: string): Promise<void> {
 		await this.client.rest.put(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`,
-			{}
+			{
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+			}
 		)
 		this.roles?.push(new Role<true>(this.client, roleId))
 	}
@@ -179,9 +182,12 @@ export class GuildMember<
 	/**
 	 * Remove a role from the member
 	 */
-	async removeRole(roleId: string): Promise<void> {
+	async removeRole(roleId: string, reason?: string): Promise<void> {
 		await this.client.rest.delete(
-			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`
+			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`,
+			{
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+			}
 		)
 		const roles = this.roles?.filter((role) => role.id !== roleId)
 		if (roles) this.setField("roles", roles)
@@ -190,9 +196,12 @@ export class GuildMember<
 	/**
 	 * Kick the member from the guild
 	 */
-	async kick(): Promise<void> {
+	async kick(reason?: string): Promise<void> {
 		await this.client.rest.delete(
-			`/guilds/${this.guild?.id}/members/${this.user?.id}`
+			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
+			{
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+			}
 		)
 	}
 
@@ -208,7 +217,10 @@ export class GuildMember<
 				body: {
 					reason: options.reason,
 					delete_message_days: options.deleteMessageDays
-				}
+				},
+				headers: options.reason
+					? { "X-Audit-Log-Reason": options.reason }
+					: undefined
 			}
 		)
 	}
@@ -216,13 +228,14 @@ export class GuildMember<
 	/**
 	 * Mute a member in voice channels
 	 */
-	async muteMember(): Promise<void> {
+	async muteMember(reason?: string): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					mute: true
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("mute", true)
@@ -231,13 +244,14 @@ export class GuildMember<
 	/**
 	 * Unmute a member in voice channels
 	 */
-	async unmuteMember(): Promise<void> {
+	async unmuteMember(reason?: string): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					mute: false
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("mute", false)
@@ -246,13 +260,14 @@ export class GuildMember<
 	/**
 	 * Deafen a member in voice channels
 	 */
-	async deafenMember(): Promise<void> {
+	async deafenMember(reason?: string): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					deaf: true
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("deaf", true)
@@ -261,13 +276,14 @@ export class GuildMember<
 	/**
 	 * Undeafen a member in voice channels
 	 */
-	async undeafenMember(): Promise<void> {
+	async undeafenMember(reason?: string): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					deaf: false
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("deaf", false)
@@ -276,13 +292,17 @@ export class GuildMember<
 	/**
 	 * Set or remove a timeout for a member in the guild
 	 */
-	async timeoutMember(communicationDisabledUntil: string): Promise<void> {
+	async timeoutMember(
+		communicationDisabledUntil: string,
+		reason?: string
+	): Promise<void> {
 		await this.client.rest.patch(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
 			{
 				body: {
 					communication_disabled_until: communicationDisabledUntil
-				}
+				},
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
 		this.setField("communication_disabled_until", communicationDisabledUntil)
