@@ -8,6 +8,7 @@ import {
 } from "@buape/carbon/linked-roles"
 import PingCommand from "./commands/ping.js"
 import MentionsCommand from "./commands/testing/allow_mentions.js"
+import AskCommand from "./commands/testing/ask.js"
 import AttachmentCommand from "./commands/testing/attachment.js"
 import ButtonCommand from "./commands/testing/button.js"
 import ComponentsV2 from "./commands/testing/components_v2.js"
@@ -78,7 +79,8 @@ const client = new Client(
 			new PrecheckCommand(),
 			new PaginatorCommand(),
 			new ConfirmCommand(),
-			new PollCommand()
+			new PollCommand(),
+			new AskCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
