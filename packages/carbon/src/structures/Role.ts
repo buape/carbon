@@ -165,22 +165,24 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the name of the role
+	 * @param reason The reason for changing the name (will be shown in audit log)
 	 */
-	async setName(guildId: string, name: string) {
+	async setName(guildId: string, name: string, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: {
-				name
-			}
+			body: { name },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("name", name)
 	}
 
 	/**
 	 * Set the color of the role
+	 * @param reason The reason for changing the color (will be shown in audit log)
 	 */
-	async setColor(guildId: string, color: number) {
+	async setColor(guildId: string, color: number, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { color }
+			body: { color },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("color", color)
 	}
@@ -188,40 +190,48 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Set the icon of the role
 	 * @param icon The unicode emoji or icon URL to set
+	 * @param reason The reason for changing the icon (will be shown in audit log)
 	 */
-	async setIcon(guildId: string, icon: string) {
+	async setIcon(guildId: string, icon: string, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { icon }
+			body: { icon },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("icon", icon)
 	}
 
 	/**
 	 * Set the mentionable status of the role
+	 * @param reason The reason for changing the mentionable status (will be shown in audit log)
 	 */
-	async setMentionable(guildId: string, mentionable: boolean) {
+	async setMentionable(guildId: string, mentionable: boolean, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { mentionable }
+			body: { mentionable },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("mentionable", mentionable)
 	}
 
 	/**
 	 * Set the hoisted status of the role
+	 * @param reason The reason for changing the hoisted status (will be shown in audit log)
 	 */
-	async setHoisted(guildId: string, hoisted: boolean) {
+	async setHoisted(guildId: string, hoisted: boolean, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { hoist: hoisted }
+			body: { hoist: hoisted },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("hoist", hoisted)
 	}
 
 	/**
 	 * Set the position of the role
+	 * @param reason The reason for changing the position (will be shown in audit log)
 	 */
-	async setPosition(guildId: string, position: number) {
+	async setPosition(guildId: string, position: number, reason?: string) {
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { position }
+			body: { position },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("position", position)
 	}
@@ -229,16 +239,28 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Set the permissions of the role
 	 * @param permissions The permissions to set
+	 * @param reason The reason for changing the permissions (will be shown in audit log)
 	 */
-	async setPermissions(guildId: string, permissions: bigint[]) {
+	async setPermissions(
+		guildId: string,
+		permissions: bigint[],
+		reason?: string
+	) {
 		const permValue = permissions.reduce((acc, perm) => acc | perm, BigInt(0))
 		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
-			body: { permissions: permValue.toString() }
+			body: { permissions: permValue.toString() },
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
 		this.setField("permissions", permValue.toString())
 	}
 
-	async delete(guildId: string) {
-		await this.client.rest.delete(Routes.guildRole(guildId, this.id))
+	/**
+	 * Delete the role
+	 * @param reason The reason for deleting the role (will be shown in audit log)
+	 */
+	async delete(guildId: string, reason?: string) {
+		await this.client.rest.delete(Routes.guildRole(guildId, this.id), {
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+		})
 	}
 }

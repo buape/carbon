@@ -64,6 +64,7 @@ export type QueuedRequest = {
 export type RequestData = {
 	body?: unknown
 	rawBody?: boolean
+	headers?: Record<string, string>
 }
 
 /**
@@ -159,6 +160,14 @@ export class RequestClient {
 		const headers = new Headers({
 			Authorization: `${this.options.tokenHeader} ${this.token}`
 		})
+
+		// Add custom headers if provided
+		if (data?.headers) {
+			for (const [key, value] of Object.entries(data.headers)) {
+				headers.set(key, value)
+			}
+		}
+
 		this.abortController = new AbortController()
 		let body: BodyInit | undefined
 
