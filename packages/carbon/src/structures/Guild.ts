@@ -191,13 +191,41 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get a member in the guild by ID
+	 * @param memberId The ID of the member to fetch
+	 * @param bypassCache Whether to bypass the cache and fetch fresh data
+	 * @returns A Promise that resolves to a GuildMember or null if not found
 	 */
-	async fetchMember(memberId: string) {
+	async fetchMember(
+		memberId: string,
+		bypassCache = false
+	): Promise<GuildMember<false, true> | null> {
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client instanceof ClientWithCaching) {
+			const cachedMember = this.client.cache.get(
+				"member",
+				`${this.id}:${memberId}`
+			)
+			if (cachedMember) {
+				return cachedMember
+			}
+		}
+
 		try {
+			const partialGuild = new Guild<true>(this.client, this.id)
 			const member = (await this.client.rest.get(
 				Routes.guildMember(this.id, memberId)
 			)) as APIGuildMember
-			return new GuildMember(this.client, member, this)
+			const memberObject = new GuildMember<false, true>(
+				this.client,
+				member,
+				partialGuild
+			)
+
+			if (this.client instanceof ClientWithCaching) {
+				this.client.cache.set("member", `${this.id}:${memberId}`, memberObject)
+			}
+
+			return memberObject
 		} catch (e) {
 			if (e instanceof DiscordError) {
 				if (e.status === 404) return null
@@ -209,11 +237,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Fetch all members in the guild
 	 * @param limit The maximum number of members to fetch (max 1000, default 100, set to "all" to fetch all members)
-	 * @param after The highest user id in the previous page
 	 * @returns A Promise that resolves to an array of GuildMember objects
 	 * @experimental
 	 */
-	async fetchMembers(limit: number | "all" = 100) {
+	async fetchMembers(
+		limit: number | "all" = 100
+	): Promise<GuildMember<false, IsPartial>[]> {
 		if (limit === "all") {
 			const members = []
 			let after = undefined
@@ -233,13 +262,59 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 					after = newMembers[newMembers.length - 1]?.user.id
 				}
 			}
-			return members.map((member) => new GuildMember(this.client, member, this))
+			const memberObjects = members.map(
+				(member) => new GuildMember<false, IsPartial>(this.client, member, this)
+			)
+
+			// Update cache if client has caching enabled
+			if (this.client instanceof ClientWithCaching) {
+				for (const member of memberObjects) {
+					const memberData = members.find((m) => m.user.id === member.user.id)
+					if (!memberData) continue
+					// Create a new member instance with IsPartial=true for the cache
+					const cacheMember = new GuildMember<false, true>(
+						this.client,
+						memberData,
+						new Guild<true>(this.client, this.id)
+					)
+					this.client.cache.set(
+						"member",
+						`${this.id}:${member.user.id}`,
+						cacheMember
+					)
+				}
+			}
+
+			return memberObjects
 		}
 		const cappedLimit = Math.min(limit, 1000)
 		const members = (await this.client.rest.get(Routes.guildMembers(this.id), {
 			limit: cappedLimit.toString()
 		})) as APIGuildMember[]
-		return members.map((member) => new GuildMember(this.client, member, this))
+		const memberObjects = members.map(
+			(member) => new GuildMember<false, IsPartial>(this.client, member, this)
+		)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			for (const member of memberObjects) {
+				const memberData = members.find((m) => m.user.id === member.user.id)
+				if (!memberData) continue
+				// Create a new member instance with IsPartial=true for the cache
+				const cacheMember = new GuildMember<false, true>(
+					this.client,
+					memberData,
+					new Guild<true>(this.client, this.id)
+				)
+				this.client.cache.set(
+					"member",
+					`${this.id}:${member.user.id}`,
+					cacheMember
+				)
+			}
+		}
+
+		return memberObjects
 	}
 
 	/**
@@ -260,14 +335,26 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
-	 * Fetch all channels in the guild.
-	 * Note: This does not include threads.
+	 * Fetch all channels in the guild
+	 * @returns A Promise that resolves to an array of channel objects
 	 */
-	async fetchChannels() {
+	async fetchChannels(): Promise<ReturnType<typeof channelFactory>[]> {
 		const channels = (await this.client.rest.get(
 			Routes.guildChannels(this.id)
 		)) as APIChannel[]
-		return channels.map((channel) => channelFactory(this.client, channel))
+		const channelObjects = channels.map((channel) =>
+			channelFactory(this.client, channel)
+		)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			for (const channel of channelObjects) {
+				if (!channel) continue
+				this.client.cache.set("channel", channel.id, channel)
+			}
+		}
+
+		return channelObjects
 	}
 
 	/**
@@ -282,15 +369,21 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch all roles in the guild
+	 * @returns A Promise that resolves to an array of Role objects
 	 */
-	async fetchRoles() {
+	async fetchRoles(): Promise<Role[]> {
 		const roles = (await this.client.rest.get(
 			Routes.guildRoles(this.id)
 		)) as APIRole[]
-		this.setField(
-			"roles",
-			roles.map((role) => new Role(this.client, role))
-		)
-		return roles.map((role) => new Role(this.client, role))
+		const roleObjects = roles.map((role) => new Role(this.client, role))
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			for (const role of roleObjects) {
+				this.client.cache.set("role", `${this.id}:${role.id}`, role)
+			}
+		}
+
+		return roleObjects
 	}
 }

@@ -346,13 +346,27 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Get the channel the message was sent in
 	 */
-	async fetchChannel() {
+	async fetchChannel(bypassCache = false) {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
+
+		if (!bypassCache && this.client instanceof ClientWithCaching) {
+			const cachedChannel = this.client.cache.get("channel", this.channelId)
+			if (cachedChannel) {
+				return cachedChannel
+			}
+		}
+
 		const data = (await this.client.rest.get(
 			Routes.channel(this.channelId)
 		)) as APIChannel
-		return channelFactory(this.client, data)
+		const channel = channelFactory(this.client, data)
+
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set("channel", this.channelId, channel)
+		}
+
+		return channel
 	}
 
 	/**
