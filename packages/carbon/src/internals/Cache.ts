@@ -16,11 +16,6 @@ type CacheEntry<T> = {
 
 export interface CacheOptions {
 	/**
-	 * Whether caching is enabled
-	 * @default true
-	 */
-	enabled: boolean
-	/**
 	 * Time in milliseconds after which cache entries expire
 	 * @default 300000 (5 minutes)
 	 */
@@ -43,7 +38,6 @@ export class Cache {
 
 	constructor(options: Partial<CacheOptions> = {}) {
 		this.options = {
-			enabled: options.enabled ?? true,
 			ttl: options.ttl ?? 300000 // 5 minutes default
 		}
 		this.scheduleCleanup(this.options.ttl * 2)
@@ -53,8 +47,6 @@ export class Cache {
 		type: T,
 		key: string
 	): CacheTypes[T] | undefined {
-		if (!this.options.enabled) return undefined
-
 		const entry = this.caches[type].get(key)
 		if (!entry) return undefined
 
@@ -68,8 +60,6 @@ export class Cache {
 	}
 
 	set<T extends keyof CacheTypes>(type: T, key: string, value: CacheTypes[T]) {
-		if (!this.options.enabled) return
-
 		this.caches[type].set(key, {
 			value,
 			timestamp: Date.now()

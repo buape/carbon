@@ -51,18 +51,17 @@ The caching options include:
 - `enabled`: Whether caching is enabled (default: true)
 - `ttl`: Time in milliseconds after which cache entries expire (default: 300000 - 5 minutes)
 
-You can also provide a custom cache instance:
+You can also provide a custom cache instance for integration with other caching setups such as redis:
 
 ```ts title="src/index.ts"
 const customCache = new Cache({
-    enabled: true,
     ttl: 600000 // 10 minutes
 })
 
 const client = new ClientWithCaching({
     // ... other options ...
     customCache
-}, [new PingCommand()])
+})
 ```
 
 ### Cache Methods
