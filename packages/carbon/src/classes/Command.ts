@@ -6,7 +6,7 @@ import {
 	type AutocompleteInteraction,
 	BaseCommand,
 	type CommandInteraction
-} from "../index.js"
+} from "../index.ts"
 
 export type CommandOptions = APIApplicationCommandBasicOption[]
 
