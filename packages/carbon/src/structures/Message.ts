@@ -305,7 +305,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!bypassCache && this.client instanceof ClientWithCaching) {
 			const cachedMessage = this.client.cache.get(
 				"message",
-				`${this.channelId}:${this.id}`
+				this.client.cache.createCompositeKey([this.channelId, this.id])
 			)
 			if (cachedMessage) {
 				this.setData(cachedMessage.rawData)
@@ -324,7 +324,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (this.client instanceof ClientWithCaching) {
 			this.client.cache.set(
 				"message",
-				`${this.channelId}:${this.id}`,
+				this.client.cache.createCompositeKey([this.channelId, this.id]),
 				this as Message<false>
 			)
 		}

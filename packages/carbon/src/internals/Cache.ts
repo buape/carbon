@@ -23,6 +23,11 @@ export interface CacheOptions {
 	 * @default 300000 (5 minutes)
 	 */
 	ttl: number
+	/**
+	 * Time in milliseconds between cleanup runs
+	 * @default 600000 (10 minutes)
+	 */
+	cleanupInterval?: number
 }
 
 export class Cache {
@@ -43,9 +48,20 @@ export class Cache {
 
 	constructor(options: Partial<CacheOptions> = {}) {
 		this.options = {
-			ttl: options.ttl ?? 300000 // 5 minutes default
+			ttl: options.ttl ?? 300000, // 5 minutes default
+			cleanupInterval: options.cleanupInterval ?? 600000 // 10 minutes default
 		}
-		this.scheduleCleanup(this.options.ttl * 2)
+		this.scheduleCleanup(this.options.cleanupInterval)
+	}
+
+	/**
+	 * Creates a composite key from multiple parts to be the caching key.
+	 * This is in its own function to make it easier to override if needed.
+	 * @param parts The parts to join into a composite key
+	 * @returns A composite key string
+	 */
+	createCompositeKey(parts: string[]): string {
+		return parts.join(":")
 	}
 
 	get<T extends keyof CacheTypes>(

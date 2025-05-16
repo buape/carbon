@@ -203,7 +203,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		if (!bypassCache && this.client instanceof ClientWithCaching) {
 			const cachedMember = this.client.cache.get(
 				"member",
-				`${this.id}:${memberId}`
+				this.client.cache.createCompositeKey([this.id, memberId])
 			)
 			if (cachedMember) {
 				return cachedMember
@@ -222,7 +222,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			)
 
 			if (this.client instanceof ClientWithCaching) {
-				this.client.cache.set("member", `${this.id}:${memberId}`, memberObject)
+				this.client.cache.set(
+					"member",
+					this.client.cache.createCompositeKey([this.id, memberId]),
+					memberObject
+				)
 			}
 
 			return memberObject
@@ -279,7 +283,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 					)
 					this.client.cache.set(
 						"member",
-						`${this.id}:${member.user.id}`,
+						this.client.cache.createCompositeKey([this.id, member.user.id]),
 						cacheMember
 					)
 				}
@@ -308,7 +312,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				)
 				this.client.cache.set(
 					"member",
-					`${this.id}:${member.user.id}`,
+					this.client.cache.createCompositeKey([this.id, member.user.id]),
 					cacheMember
 				)
 			}
@@ -380,7 +384,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		// Update cache if client has caching enabled
 		if (this.client instanceof ClientWithCaching) {
 			for (const role of roleObjects) {
-				this.client.cache.set("role", `${this.id}:${role.id}`, role)
+				this.client.cache.set(
+					"role",
+					this.client.cache.createCompositeKey([this.id, role.id]),
+					role
+				)
 			}
 		}
 

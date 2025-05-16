@@ -148,7 +148,7 @@ export class GuildMember<
 		if (this.client instanceof ClientWithCaching) {
 			const cachedVoiceState = this.client.cache.get(
 				"voiceState",
-				`${this.guild.id}:${this.user.id}`
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
 			if (cachedVoiceState) {
 				return cachedVoiceState
@@ -179,7 +179,7 @@ export class GuildMember<
 		if (this.client instanceof ClientWithCaching) {
 			this.client.cache.set(
 				"voiceState",
-				`${this.guild.id}:${this.user.id}`,
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				voiceStateData
 			)
 		}
@@ -195,7 +195,7 @@ export class GuildMember<
 		if (this.client instanceof ClientWithCaching) {
 			const cachedPermissions = this.client.cache.get(
 				"permissions",
-				`${this.guild.id}:${this.user.id}`
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
 			if (cachedPermissions) {
 				return cachedPermissions
@@ -215,7 +215,7 @@ export class GuildMember<
 		if (this.client instanceof ClientWithCaching) {
 			this.client.cache.set(
 				"permissions",
-				`${this.guild.id}:${this.user.id}`,
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				filteredPermissions
 			)
 		}
@@ -386,7 +386,7 @@ export class GuildMember<
 		if (!bypassCache && this.client instanceof ClientWithCaching) {
 			const cachedMember = this.client.cache.get(
 				"member",
-				`${this.guild.id}:${this.user.id}`
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
 			if (cachedMember) {
 				this.setData(cachedMember.rawData)
@@ -405,7 +405,7 @@ export class GuildMember<
 		if (this.client instanceof ClientWithCaching) {
 			this.client.cache.set(
 				"member",
-				`${this.guild.id}:${this.user.id}`,
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				this as GuildMember<false, true>
 			)
 		}

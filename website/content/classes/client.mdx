@@ -40,22 +40,23 @@ const client = new ClientWithCaching({
     publicKey: " ... ",
     token: " ... ",
     caching: {
-        enabled: true,
-        ttl: 300000 // 5 minutes
+        ttl: 300000, // 5 minutes
+        cleanupInterval: 600000 // 10 minutes
     }
 }, [new PingCommand()])
 ```
 
 The caching options include:
 
-- `enabled`: Whether caching is enabled (default: true)
 - `ttl`: Time in milliseconds after which cache entries expire (default: 300000 - 5 minutes)
+- `cleanupInterval`: Time in milliseconds between automatic cache cleanup runs (default: 600000 - 10 minutes)
 
 You can also provide a custom cache instance for integration with other caching setups such as redis:
 
 ```ts title="src/index.ts"
 const customCache = new Cache({
-    ttl: 600000 // 10 minutes
+    ttl: 600000, // 10 minutes
+    cleanupInterval: 1200000 // 20 minutes
 })
 
 const client = new ClientWithCaching({
