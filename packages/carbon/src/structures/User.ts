@@ -7,10 +7,10 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import type { MessagePayload } from "../types/index.js"
 import type { IfPartial } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
+import { isClientWithCaching } from "../utils/typeChecks.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
@@ -154,7 +154,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetch(bypassCache = false): Promise<User<false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && this.client instanceof ClientWithCaching) {
+		if (!bypassCache && isClientWithCaching(this.client)) {
 			const cachedUser = this.client.cache.get("user", this.id)
 			if (cachedUser) {
 				this.setData(cachedUser.rawData)
@@ -170,7 +170,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (this.client instanceof ClientWithCaching) {
+		if (isClientWithCaching(this.client)) {
 			this.client.cache.set("user", this.id, this as User<false>)
 		}
 

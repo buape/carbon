@@ -6,8 +6,8 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import type { IfPartial } from "../types/index.js"
+import { isClientWithCaching } from "../utils/typeChecks.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -158,7 +158,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetch(guildId: string, bypassCache = false): Promise<Role<false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && this.client instanceof ClientWithCaching) {
+		if (!bypassCache && isClientWithCaching(this.client)) {
 			const cachedRole = this.client.cache.get(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id])
@@ -177,7 +177,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (this.client instanceof ClientWithCaching) {
+		if (isClientWithCaching(this.client)) {
 			this.client.cache.set(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id]),

@@ -5,9 +5,9 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
+import { isClientWithCaching } from "../utils/typeChecks.js"
 import { Base } from "./Base.js"
 
 export abstract class BaseChannel<
@@ -84,7 +84,7 @@ export abstract class BaseChannel<
 	 */
 	async fetch(bypassCache = false): Promise<BaseChannel<Type, false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && this.client instanceof ClientWithCaching) {
+		if (!bypassCache && isClientWithCaching(this.client)) {
 			const cachedChannel = this.client.cache.get("channel", this.id)
 			if (cachedChannel) {
 				this.setData(
@@ -102,7 +102,7 @@ export abstract class BaseChannel<
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (this.client instanceof ClientWithCaching) {
+		if (isClientWithCaching(this.client)) {
 			const channel = channelFactory(this.client, newData)
 			this.client.cache.set("channel", this.id, channel)
 		}

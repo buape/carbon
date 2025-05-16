@@ -20,11 +20,11 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import { Embed } from "../classes/Embed.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
+import { isClientWithCaching } from "../utils/typeChecks.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Poll } from "./Poll.js"
 import { Role } from "./Role.js"
@@ -302,7 +302,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			throw new Error("Cannot fetch message without channel ID")
 
 		// Check cache if client has caching enabled
-		if (!bypassCache && this.client instanceof ClientWithCaching) {
+		if (!bypassCache && isClientWithCaching(this.client)) {
 			const cachedMessage = this.client.cache.get(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id])
@@ -321,7 +321,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (this.client instanceof ClientWithCaching) {
+		if (isClientWithCaching(this.client)) {
 			this.client.cache.set(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id]),
@@ -350,7 +350,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
 
-		if (!bypassCache && this.client instanceof ClientWithCaching) {
+		if (!bypassCache && isClientWithCaching(this.client)) {
 			const cachedChannel = this.client.cache.get("channel", this.channelId)
 			if (cachedChannel) {
 				return cachedChannel
@@ -362,7 +362,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		)) as APIChannel
 		const channel = channelFactory(this.client, data)
 
-		if (this.client instanceof ClientWithCaching) {
+		if (isClientWithCaching(this.client)) {
 			this.client.cache.set("channel", this.channelId, channel)
 		}
 
