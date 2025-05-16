@@ -26,7 +26,7 @@ export interface GatewayForwarderPluginOptions extends GatewayPluginOptions {
 }
 
 export class GatewayForwarderPlugin extends GatewayPlugin {
-	readonly id = "gateway-forwarder"
+	override readonly id = "gateway-forwarder" as "gateway"
 
 	protected config: GatewayForwarderPluginOptions
 	private privateKey: ReturnType<typeof createPrivateKey>
