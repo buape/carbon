@@ -144,11 +144,23 @@ export class GuildMember<
 	}
 
 	async getVoiceState(): Promise<VoiceState | null> {
+		// Check cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			const cachedVoiceState = this.client.cache.get(
+				"voiceState",
+				`${this.guild.id}:${this.user.id}`
+			)
+			if (cachedVoiceState) {
+				return cachedVoiceState
+			}
+		}
+
 		const voiceState = (await this.client.rest.get(
 			`/guilds/${this.guild.id}/members/${this.user.id}/voice`
 		)) as APIVoiceState
 		if (!voiceState) return null
-		return {
+
+		const voiceStateData = {
 			channelId: voiceState.channel_id ?? null,
 			guildId: this.guild.id,
 			userId: this.user.id,
@@ -162,6 +174,17 @@ export class GuildMember<
 			suppress: voiceState.suppress ?? false,
 			requestToSpeakTimestamp: voiceState.request_to_speak_timestamp ?? null
 		}
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set(
+				"voiceState",
+				`${this.guild.id}:${this.user.id}`,
+				voiceStateData
+			)
+		}
+
+		return voiceStateData
 	}
 
 	async getPermissions(): Promise<IfPartial<IsPartial, bigint[]>> {

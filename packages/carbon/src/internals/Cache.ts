@@ -1,4 +1,5 @@
 import type { Client } from "../classes/Client.js"
+import type { GuildMember } from "../structures/GuildMember.js"
 
 export type CacheTypes = {
 	user: Awaited<ReturnType<typeof Client.prototype.fetchUser>>
@@ -7,6 +8,7 @@ export type CacheTypes = {
 	role: Awaited<ReturnType<typeof Client.prototype.fetchRole>>
 	member: Awaited<ReturnType<typeof Client.prototype.fetchMember>>
 	message: Awaited<ReturnType<typeof Client.prototype.fetchMessage>>
+	voiceState: Awaited<ReturnType<typeof GuildMember.prototype.getVoiceState>>
 }
 
 type CacheEntry<T> = {
@@ -32,7 +34,8 @@ export class Cache {
 		channel: new Map(),
 		role: new Map(),
 		member: new Map(),
-		message: new Map()
+		message: new Map(),
+		voiceState: new Map()
 	}
 	private cleanupIntervalId?: NodeJS.Timeout
 
