@@ -153,7 +153,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const newData = (await this.client.rest.get(
 			Routes.guild(this.id)
 		)) as APIGuild
-		if (!newData) throw new Error(`Guild ${this.id}not found`)
+		if (!newData) throw new Error(`Guild ${this.id} not found`)
 
 		this.setData(newData)
 

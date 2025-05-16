@@ -39,12 +39,14 @@ export class Cache {
 		member: new Map(),
 		message: new Map()
 	}
+	private cleanupIntervalId?: NodeJS.Timeout
 
 	constructor(options: Partial<CacheOptions> = {}) {
 		this.options = {
 			enabled: options.enabled ?? true,
 			ttl: options.ttl ?? 300000 // 5 minutes default
 		}
+		this.scheduleCleanup(this.options.ttl * 2)
 	}
 
 	get<T extends keyof CacheTypes>(
@@ -130,5 +132,29 @@ export class Cache {
 
 	hasCache(type: keyof CacheTypes, key: string): boolean {
 		return this.get(type, key) !== undefined
+	}
+
+	/**
+	 * Schedules periodic cleanup of expired cache entries
+	 * @param interval Time in milliseconds between cleanup runs
+	 * @default 60000 (1 minute)
+	 */
+	private scheduleCleanup(interval = 60000) {
+		// Clear any existing interval
+		if (this.cleanupIntervalId) {
+			clearInterval(this.cleanupIntervalId)
+		}
+
+		this.cleanupIntervalId = setInterval(() => this.purgeCache(), interval)
+	}
+
+	/**
+	 * Stops the periodic cleanup if it's running
+	 */
+	stopCleanup() {
+		if (this.cleanupIntervalId) {
+			clearInterval(this.cleanupIntervalId)
+			this.cleanupIntervalId = undefined
+		}
 	}
 }
