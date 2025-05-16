@@ -190,6 +190,18 @@ export class GuildMember<
 	async getPermissions(): Promise<IfPartial<IsPartial, bigint[]>> {
 		if (!this.rawData) return undefined as never
 		if (this.guild.ownerId === this.user.id) return maxPermissions
+
+		// Check cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			const cachedPermissions = this.client.cache.get(
+				"permissions",
+				`${this.guild.id}:${this.user.id}`
+			)
+			if (cachedPermissions) {
+				return cachedPermissions
+			}
+		}
+
 		const permissions = await Promise.all(
 			this.roles.map(async (x) => {
 				if (x.partial) await x.fetch(this.guild.id)
@@ -197,7 +209,18 @@ export class GuildMember<
 				return BigInt(x.permissions)
 			})
 		)
-		return permissions.filter((x) => x !== undefined)
+		const filteredPermissions = permissions.filter((x) => x !== undefined)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set(
+				"permissions",
+				`${this.guild.id}:${this.user.id}`,
+				filteredPermissions
+			)
+		}
+
+		return filteredPermissions
 	}
 
 	/**

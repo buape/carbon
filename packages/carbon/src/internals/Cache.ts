@@ -9,6 +9,7 @@ export type CacheTypes = {
 	member: Awaited<ReturnType<typeof Client.prototype.fetchMember>>
 	message: Awaited<ReturnType<typeof Client.prototype.fetchMessage>>
 	voiceState: Awaited<ReturnType<typeof GuildMember.prototype.getVoiceState>>
+	permissions: bigint[]
 }
 
 type CacheEntry<T> = {
@@ -35,7 +36,8 @@ export class Cache {
 		role: new Map(),
 		member: new Map(),
 		message: new Map(),
-		voiceState: new Map()
+		voiceState: new Map(),
+		permissions: new Map()
 	}
 	private cleanupIntervalId?: NodeJS.Timeout
 
