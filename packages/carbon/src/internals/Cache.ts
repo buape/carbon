@@ -100,8 +100,8 @@ export class Cache {
 			for (const [key, entry] of map.entries()) {
 				const timestamp = entry.timestamp
 				if (
-					(before && timestamp > before) ||
-					(after && timestamp < after) ||
+					(before && timestamp < before) ||
+					(after && timestamp > after) ||
 					now - timestamp > this.options.ttl
 				) {
 					map.delete(key)

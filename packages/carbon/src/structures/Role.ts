@@ -6,6 +6,7 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import type { IfPartial } from "../types/index.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
@@ -151,15 +152,36 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this role.
 	 * If the role is partial, this will fetch all the data for the role and populate the fields.
 	 * If the role is not partial, all fields will be updated with new values from Discord.
+	 * @param guildId The ID of the guild the role is in
+	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial Role
 	 */
-	async fetch(guildId: string): Promise<Role<false>> {
+	async fetch(guildId: string, bypassCache = false): Promise<Role<false>> {
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client instanceof ClientWithCaching) {
+			const cachedRole = this.client.cache.get("role", `${guildId}:${this.id}`)
+			if (cachedRole) {
+				this.setData(cachedRole.rawData)
+				return this as Role<false>
+			}
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guildRole(guildId, this.id)
 		)) as APIRole
 		if (!newData) throw new Error(`Role ${this.id} not found`)
 
 		this.setData(newData)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set(
+				"role",
+				`${guildId}:${this.id}`,
+				this as Role<false>
+			)
+		}
+
 		return this as Role<false>
 	}
 

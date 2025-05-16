@@ -1,10 +1,12 @@
-import type {
-	APIGuildMember,
-	APIVoiceState,
-	GuildMemberFlags
+import {
+	type APIGuildMember,
+	type APIVoiceState,
+	type GuildMemberFlags,
+	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import { maxPermissions } from "../permissions.js"
 import type { IfPartial, VoiceState } from "../types/index.js"
 import type { Guild } from "./Guild.js"
@@ -331,5 +333,37 @@ export class GuildMember<
 			}
 		)
 		this.setField("communication_disabled_until", communicationDisabledUntil)
+	}
+
+	async fetch(bypassCache = false): Promise<GuildMember<false, true>> {
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client instanceof ClientWithCaching) {
+			const cachedMember = this.client.cache.get(
+				"member",
+				`${this.guild.id}:${this.user.id}`
+			)
+			if (cachedMember) {
+				this.setData(cachedMember.rawData)
+				return this as GuildMember<false, true>
+			}
+		}
+
+		const newData = (await this.client.rest.get(
+			Routes.guildMember(this.guild.id, this.user.id)
+		)) as APIGuildMember
+		if (!newData) throw new Error(`Member ${this.user.id} not found`)
+
+		this.setData(newData)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set(
+				"member",
+				`${this.guild.id}:${this.user.id}`,
+				this as GuildMember<false, true>
+			)
+		}
+
+		return this as GuildMember<false, true>
 	}
 }

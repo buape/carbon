@@ -8,6 +8,7 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { ClientWithCaching } from "../classes/ClientWithCaching.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
@@ -136,15 +137,31 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this guild.
 	 * If the guild is partial, this will fetch all the data for the guild and populate the fields.
 	 * If the guild is not partial, all fields will be updated with new values from Discord.
+	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial Guild
 	 */
-	async fetch(): Promise<Guild<false>> {
+	async fetch(bypassCache = false): Promise<Guild<false>> {
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client instanceof ClientWithCaching) {
+			const cachedGuild = this.client.cache.get("guild", this.id)
+			if (cachedGuild) {
+				this.setData(cachedGuild.rawData)
+				return this as Guild<false>
+			}
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guild(this.id)
 		)) as APIGuild
 		if (!newData) throw new Error(`Guild ${this.id}not found`)
 
 		this.setData(newData)
+
+		// Update cache if client has caching enabled
+		if (this.client instanceof ClientWithCaching) {
+			this.client.cache.set("guild", this.id, this as Guild<false>)
+		}
+
 		return this as Guild<false>
 	}
 
