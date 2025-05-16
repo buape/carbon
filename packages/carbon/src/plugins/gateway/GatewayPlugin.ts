@@ -26,7 +26,7 @@ interface HelloData {
 }
 
 export class GatewayPlugin extends Plugin {
-	protected id = "gateway"
+	readonly id = "gateway"
 	protected client?: Client
 	protected config: GatewayPluginOptions
 	protected state: GatewayState

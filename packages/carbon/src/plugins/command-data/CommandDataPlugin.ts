@@ -1,3 +1,4 @@
+import { type APIApplicationCommand, Routes } from "discord-api-types/v10"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 
@@ -14,11 +15,34 @@ export class CommandDataPlugin extends Plugin {
 	}
 
 	public registerRoutes(client: Client) {
-		client.routes.push({
-			method: "GET",
-			path: "/commands",
-			handler: this.handleCommandDataRequest.bind(this)
-		})
+		client.routes.push(
+			{
+				method: "GET",
+				path: "/commands",
+				handler: this.handleCommandDataRequest.bind(this)
+			},
+			{
+				method: "GET",
+				path: "/commands/full",
+				handler: this.handleFullCommandDataRequest.bind(this)
+			}
+		)
+	}
+
+	private discordCommandData: APIApplicationCommand[] | null = null
+	public async handleFullCommandDataRequest() {
+		if (!this.client)
+			return new Response("Client not registered", { status: 500 })
+		if (this.discordCommandData)
+			return new Response(JSON.stringify(this.discordCommandData), {
+				status: 200,
+				headers: { "Content-Type": "application/json" }
+			})
+		const commands = (await this.client.rest.get(
+			Routes.applicationCommands(this.client.options.clientId)
+		)) as APIApplicationCommand[]
+		this.discordCommandData = commands
+		return new Response(JSON.stringify(commands), { status: 200 })
 	}
 
 	public async handleCommandDataRequest() {
