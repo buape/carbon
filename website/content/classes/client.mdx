@@ -27,3 +27,66 @@ Here we have created a client with the following options:
 - `token`: The Discord token of your bot
 
 And we have also provided it with a list of commands, which in this case is just the `PingCommand` we created earlier.
+
+## Using Caching
+
+Carbon provides built-in caching support through the `ClientWithCaching` class. This class extends the base `Client` class and adds caching capabilities for various Discord entities.
+
+```ts title="src/index.ts"
+const client = new ClientWithCaching({
+    baseUrl: " ... ",
+    deploySecret: " ... ",
+    clientId: " ... ",
+    publicKey: " ... ",
+    token: " ... ",
+    caching: {
+        enabled: true,
+        ttl: 300000 // 5 minutes
+    }
+}, [new PingCommand()])
+```
+
+The caching options include:
+
+- `enabled`: Whether caching is enabled (default: true)
+- `ttl`: Time in milliseconds after which cache entries expire (default: 300000 - 5 minutes)
+
+You can also provide a custom cache instance:
+
+```ts title="src/index.ts"
+const customCache = new Cache({
+    enabled: true,
+    ttl: 600000 // 10 minutes
+})
+
+const client = new ClientWithCaching({
+    // ... other options ...
+    customCache
+}, [new PingCommand()])
+```
+
+### Cache Methods
+
+The `ClientWithCaching` class provides several methods for managing the cache:
+
+```ts
+// Purge cache entries based on filters
+client.purgeCache({
+    type: "user", // Optional: specific cache type to purge
+    before: Date.now() - 3600000, // Optional: purge entries older than 1 hour
+    after: Date.now() - 1800000 // Optional: purge entries newer than 30 minutes
+})
+
+// Clear entire cache or specific type
+client.clearCache() // Clear all cache
+client.clearCache("user") // Clear only user cache
+```
+
+### Bypassing Cache
+
+All fetch methods support an optional `bypassCache` parameter to skip the cache:
+
+```ts
+// This will always fetch from Discord API, ignoring cache
+const user = await client.fetchUser("123456789", true)
+```
