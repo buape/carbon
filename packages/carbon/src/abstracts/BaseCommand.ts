@@ -82,37 +82,37 @@ export abstract class BaseCommand {
 		}
 		// Only chat input commands can have descriptions
 		if (this.type === ApplicationCommandType.ChatInput) {
-			const data: RESTPostAPIApplicationCommandsJSONBody = {
-				name: this.name,
-				name_localizations: this.nameLocalizations,
-				description: this.description ?? "",
-				description_localizations: this.descriptionLocalizations,
-				type: this.type,
-				options: this.serializeOptions(),
-				integration_types: this.integrationTypes,
-				contexts: this.contexts,
-				default_member_permissions: Array.isArray(this.permission)
-					? this.permission.reduce((a, p) => a | p, 0n).toString()
-					: this.permission
-						? `${this.permission}`
-						: null
-			}
+		    const data: RESTPostAPIApplicationCommandsJSONBody = {
+		      name: this.name,
+		      name_localizations: this.nameLocalizations,
+		      description: this.description !== undefined ? this.description : "",
+		      description_localizations: this.descriptionLocalizations,
+		      type: this.type,
+		      options: this.serializeOptions(),
+		      integration_types: this.integrationTypes,
+		      contexts: this.contexts,
+		      default_member_permissions: Array.isArray(this.permission)
+		        ? this.permission.reduce((a, p) => a | p, 0n).toString()
+		        : this.permission
+		          ? `${this.permission}`
+		          : null
+		    }	
 
 			return data
 		}
 		const data: RESTPostAPIApplicationCommandsJSONBody = {
-			name: this.name,
-			name_localizations: this.nameLocalizations,
-			type: this.type,
-			options: this.serializeOptions(),
-			integration_types: this.integrationTypes,
-			contexts: this.contexts,
-			default_member_permissions: Array.isArray(this.permission)
-				? this.permission.reduce((a, p) => a | p, 0n).toString()
-				: this.permission
-					? `${this.permission}`
-					: null
-		}
+		    name: this.name,
+		    name_localizations: this.nameLocalizations,
+		    type: this.type,
+		    options: this.serializeOptions(),
+		    integration_types: this.integrationTypes,
+		    contexts: this.contexts,
+		    default_member_permissions: Array.isArray(this.permission)
+		      ? this.permission.reduce((a, p) => a | p, 0n).toString()
+		      : this.permission
+			? `${this.permission}`
+			: null
+		  }
 
 		return data
 	}
