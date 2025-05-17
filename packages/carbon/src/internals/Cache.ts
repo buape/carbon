@@ -31,8 +31,8 @@ export interface CacheOptions {
 }
 
 export class Cache {
-	private options: CacheOptions
-	private caches: {
+	protected options: CacheOptions
+	protected caches: {
 		[K in keyof CacheTypes]: Map<string, CacheEntry<CacheTypes[K]>>
 	} = {
 		user: new Map(),
@@ -44,7 +44,7 @@ export class Cache {
 		voiceState: new Map(),
 		permissions: new Map()
 	}
-	private cleanupIntervalId?: NodeJS.Timeout
+	protected cleanupIntervalId?: NodeJS.Timeout
 
 	constructor(options: Partial<CacheOptions> = {}) {
 		this.options = {
@@ -91,7 +91,7 @@ export class Cache {
 		})
 	}
 
-	clearCache(type?: keyof CacheTypes) {
+	async clearCache(type?: keyof CacheTypes): Promise<void> {
 		if (type) {
 			this.caches[type].clear()
 		} else {
@@ -101,13 +101,13 @@ export class Cache {
 		}
 	}
 
-	purgeCache(
+	async purgeCache(
 		options: {
 			type?: keyof CacheTypes
 			before?: number
 			after?: number
 		} = {}
-	) {
+	): Promise<void> {
 		const { type, before, after } = options
 		const now = Date.now()
 
@@ -135,7 +135,7 @@ export class Cache {
 		}
 	}
 
-	getCacheSize(type?: keyof CacheTypes): number {
+	async getCacheSize(type?: keyof CacheTypes): Promise<number> {
 		if (type) {
 			return this.caches[type].size
 		}
@@ -145,7 +145,7 @@ export class Cache {
 		)
 	}
 
-	hasCache(type: keyof CacheTypes, key: string): boolean {
+	async hasCache(type: keyof CacheTypes, key: string): Promise<boolean> {
 		return this.get(type, key) !== undefined
 	}
 
@@ -154,7 +154,7 @@ export class Cache {
 	 * @param interval Time in milliseconds between cleanup runs
 	 * @default 60000 (1 minute)
 	 */
-	private scheduleCleanup(interval = 60000) {
+	private async scheduleCleanup(interval = 60000) {
 		// Clear any existing interval
 		if (this.cleanupIntervalId) {
 			clearInterval(this.cleanupIntervalId)
@@ -166,7 +166,7 @@ export class Cache {
 	/**
 	 * Stops the periodic cleanup if it's running
 	 */
-	stopCleanup() {
+	async stopCleanup() {
 		if (this.cleanupIntervalId) {
 			clearInterval(this.cleanupIntervalId)
 			this.cleanupIntervalId = undefined
