@@ -1,8 +1,21 @@
 import {
 	type APIChannel,
+	type APIEmoji,
 	type APIGuild,
 	type APIGuildMember,
+	type APIGuildWelcomeScreen,
+	type APIIncidentsData,
 	type APIRole,
+	type APISticker,
+	type GuildDefaultMessageNotifications,
+	type GuildExplicitContentFilter,
+	type GuildFeature,
+	type GuildHubType,
+	type GuildMFALevel,
+	type GuildNSFWLevel,
+	type GuildPremiumTier,
+	type GuildSystemChannelFlags,
+	type GuildVerificationLevel,
 	type RESTPostAPIGuildRoleJSONBody,
 	Routes
 } from "discord-api-types/v10"
@@ -130,6 +143,312 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	get preferredLocale(): IfPartial<IsPartial, string> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.preferred_locale
+	}
+
+	/**
+	 * The discovery splash hash of the guild.
+	 * You can use {@link Guild.discoverySplashUrl} to get the URL of the discovery splash.
+	 */
+	get discoverySplash(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.discovery_splash
+	}
+
+	/**
+	 * Get the URL of the guild's discovery splash
+	 */
+	get discoverySplashUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.discoverySplash) return null
+		return `https://cdn.discordapp.com/discovery-splashes/${this.id}/${this.discoverySplash}.png`
+	}
+
+	/**
+	 * Whether the user is the owner of the guild
+	 */
+	get owner(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.owner ?? false
+	}
+
+	/**
+	 * Total permissions for the user in the guild (excludes overrides)
+	 */
+	get permissions(): IfPartial<IsPartial, bigint> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.permissions as never
+	}
+
+	/**
+	 * ID of afk channel
+	 */
+	get afkChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.afk_channel_id
+	}
+
+	/**
+	 * afk timeout in seconds, can be set to: `60`, `300`, `900`, `1800`, `3600`
+	 */
+	get afkTimeout(): IfPartial<IsPartial, 1800 | 3600 | 60 | 300 | 900> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.afk_timeout
+	}
+
+	/**
+	 * Whether the guild widget is enabled
+	 */
+	get widgetEnabled(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.widget_enabled ?? false
+	}
+
+	/**
+	 * The channel id that the widget will generate an invite to, or `null` if set to no invite
+	 */
+	get widgetChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.widget_channel_id ?? null
+	}
+
+	/**
+	 * Verification level required for the guild
+	 */
+	get verificationLevel(): IfPartial<IsPartial, GuildVerificationLevel> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.verification_level
+	}
+
+	/**
+	 * Default message notifications level
+	 */
+	get defaultMessageNotifications(): IfPartial<
+		IsPartial,
+		GuildDefaultMessageNotifications
+	> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.default_message_notifications
+	}
+
+	/**
+	 * Explicit content filter level
+	 */
+	get explicitContentFilter(): IfPartial<
+		IsPartial,
+		GuildExplicitContentFilter
+	> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.explicit_content_filter
+	}
+
+	/**
+	 * Custom guild emojis
+	 */
+	get emojis(): IfPartial<IsPartial, APIEmoji[]> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.emojis
+	}
+
+	/**
+	 * Enabled guild features
+	 */
+	get features(): IfPartial<IsPartial, GuildFeature[]> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.features
+	}
+
+	/**
+	 * Required MFA level for the guild
+	 */
+	get mfaLevel(): IfPartial<IsPartial, GuildMFALevel> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.mfa_level
+	}
+
+	/**
+	 * Application id of the guild creator if it is bot-created
+	 */
+	get applicationId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.application_id
+	}
+
+	/**
+	 * The id of the channel where guild notices such as welcome messages and boost events are posted
+	 */
+	get systemChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.system_channel_id
+	}
+
+	/**
+	 * System channel flags
+	 */
+	get systemChannelFlags(): IfPartial<IsPartial, GuildSystemChannelFlags> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.system_channel_flags
+	}
+
+	/**
+	 * The id of the channel where Community guilds can display rules and/or guidelines
+	 */
+	get rulesChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.rules_channel_id
+	}
+
+	/**
+	 * The maximum number of presences for the guild (`null` is always returned, apart from the largest of guilds)
+	 */
+	get maxPresences(): IfPartial<IsPartial, number | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.max_presences ?? null
+	}
+
+	/**
+	 * The maximum number of members for the guild
+	 */
+	get maxMembers(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.max_members ?? 0
+	}
+
+	/**
+	 * The vanity url code for the guild
+	 */
+	get vanityUrlCode(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.vanity_url_code
+	}
+
+	/**
+	 * Banner hash
+	 * You can use {@link Guild.bannerUrl} to get the URL of the banner.
+	 */
+	get banner(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.banner
+	}
+
+	/**
+	 * Get the URL of the guild's banner
+	 */
+	get bannerUrl(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		if (!this.banner) return null
+		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
+	}
+
+	/**
+	 * Premium tier (Server Boost level)
+	 */
+	get premiumTier(): IfPartial<IsPartial, GuildPremiumTier> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.premium_tier
+	}
+
+	/**
+	 * The number of boosts this guild currently has
+	 */
+	get premiumSubscriptionCount(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.premium_subscription_count ?? 0
+	}
+
+	/**
+	 * The id of the channel where admins and moderators of Community guilds receive notices from Discord
+	 */
+	get publicUpdatesChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.public_updates_channel_id
+	}
+
+	/**
+	 * The maximum amount of users in a video channel
+	 */
+	get maxVideoChannelUsers(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.max_video_channel_users ?? 0
+	}
+
+	/**
+	 * The maximum amount of users in a stage video channel
+	 */
+	get maxStageVideoChannelUsers(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.max_stage_video_channel_users ?? 0
+	}
+
+	/**
+	 * Approximate number of members in this guild
+	 */
+	get approximateMemberCount(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.approximate_member_count ?? 0
+	}
+
+	/**
+	 * Approximate number of non-offline members in this guild
+	 */
+	get approximatePresenceCount(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.approximate_presence_count ?? 0
+	}
+
+	/**
+	 * The welcome screen of a Community guild, shown to new members
+	 */
+	get welcomeScreen(): IfPartial<IsPartial, APIGuildWelcomeScreen | undefined> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.welcome_screen
+	}
+
+	/**
+	 * The nsfw level of the guild
+	 */
+	get nsfwLevel(): IfPartial<IsPartial, GuildNSFWLevel> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.nsfw_level
+	}
+
+	/**
+	 * Custom guild stickers
+	 */
+	get stickers(): IfPartial<IsPartial, APISticker[]> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.stickers
+	}
+
+	/**
+	 * Whether the guild has the boost progress bar enabled
+	 */
+	get premiumProgressBarEnabled(): IfPartial<IsPartial, boolean> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.premium_progress_bar_enabled
+	}
+
+	/**
+	 * The type of Student Hub the guild is
+	 */
+	get hubType(): IfPartial<IsPartial, GuildHubType | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.hub_type
+	}
+
+	/**
+	 * The id of the channel where admins and moderators of Community guilds receive safety alerts from Discord
+	 */
+	get safetyAlertsChannelId(): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.safety_alerts_channel_id
+	}
+
+	/**
+	 * The incidents data for this guild
+	 */
+	get incidentsData(): IfPartial<IsPartial, APIIncidentsData | null> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.incidents_data
 	}
 
 	/**
