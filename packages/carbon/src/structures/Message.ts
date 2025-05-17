@@ -293,17 +293,41 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this message.
 	 * If the message is partial, this will fetch all the data for the message and populate the fields.
 	 * If the message is not partial, all fields will be updated with new values from Discord.
+	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial Message
 	 */
-	async fetch(): Promise<Message<false>> {
+	async fetch(bypassCache = false): Promise<Message<false>> {
 		if (!this.channelId)
 			throw new Error("Cannot fetch message without channel ID")
+
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client.isCaching()) {
+			const cachedMessage = this.client.cache.get(
+				"message",
+				this.client.cache.createCompositeKey([this.channelId, this.id])
+			)
+			if (cachedMessage) {
+				this.setData(cachedMessage.rawData)
+				return this as Message<false>
+			}
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.channelMessage(this.channelId, this.id)
 		)) as APIMessage
 		if (!newData) throw new Error(`Message ${this.id} not found`)
 
 		this.setData(newData)
+
+		// Update cache if client has caching enabled
+		if (this.client.isCaching()) {
+			this.client.cache.set(
+				"message",
+				this.client.cache.createCompositeKey([this.channelId, this.id]),
+				this as Message<false>
+			)
+		}
+
 		return this as Message<false>
 	}
 
@@ -321,13 +345,27 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Get the channel the message was sent in
 	 */
-	async fetchChannel() {
+	async fetchChannel(bypassCache = false) {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
+
+		if (!bypassCache && this.client.isCaching()) {
+			const cachedChannel = this.client.cache.get("channel", this.channelId)
+			if (cachedChannel) {
+				return cachedChannel
+			}
+		}
+
 		const data = (await this.client.rest.get(
 			Routes.channel(this.channelId)
 		)) as APIChannel
-		return channelFactory(this.client, data)
+		const channel = channelFactory(this.client, data)
+
+		if (this.client.isCaching()) {
+			this.client.cache.set("channel", this.channelId, channel)
+		}
+
+		return channel
 	}
 
 	/**

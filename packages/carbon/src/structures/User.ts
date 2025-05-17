@@ -148,15 +148,31 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this user.
 	 * If the user is partial, this will fetch all the data for the user and populate the fields.
 	 * If the user is not partial, all fields will be updated with new values from Discord.
+	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial User
 	 */
-	async fetch(): Promise<User<false>> {
+	async fetch(bypassCache = false): Promise<User<false>> {
+		// Check cache if client has caching enabled
+		if (!bypassCache && this.client.isCaching()) {
+			const cachedUser = this.client.cache.get("user", this.id)
+			if (cachedUser) {
+				this.setData(cachedUser.rawData)
+				return this as User<false>
+			}
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.user(this.id)
 		)) as APIUser
 		if (!newData) throw new Error(`User ${this.id} not found`)
 
 		this.setData(newData)
+
+		// Update cache if client has caching enabled
+		if (this.client.isCaching()) {
+			this.client.cache.set("user", this.id, this as User<false>)
+		}
+
 		return this as User<false>
 	}
 
