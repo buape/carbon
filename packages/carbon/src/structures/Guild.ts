@@ -11,7 +11,6 @@ import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
-import { isClientWithCaching } from "../utils/typeChecks.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"
 
@@ -142,7 +141,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetch(bypassCache = false): Promise<Guild<false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedGuild = this.client.cache.get("guild", this.id)
 			if (cachedGuild) {
 				this.setData(cachedGuild.rawData)
@@ -158,7 +157,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set("guild", this.id, this as Guild<false>)
 		}
 
@@ -200,7 +199,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		bypassCache = false
 	): Promise<GuildMember<false, true> | null> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedMember = this.client.cache.get(
 				"member",
 				this.client.cache.createCompositeKey([this.id, memberId])
@@ -221,7 +220,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				partialGuild
 			)
 
-			if (isClientWithCaching(this.client)) {
+			if (this.client.isCaching()) {
 				this.client.cache.set(
 					"member",
 					this.client.cache.createCompositeKey([this.id, memberId]),
@@ -271,7 +270,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			)
 
 			// Update cache if client has caching enabled
-			if (isClientWithCaching(this.client)) {
+			if (this.client.isCaching()) {
 				for (const member of memberObjects) {
 					const memberData = members.find((m) => m.user.id === member.user.id)
 					if (!memberData) continue
@@ -300,7 +299,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			for (const member of memberObjects) {
 				const memberData = members.find((m) => m.user.id === member.user.id)
 				if (!memberData) continue
@@ -351,7 +350,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			for (const channel of channelObjects) {
 				if (!channel) continue
 				this.client.cache.set("channel", channel.id, channel)
@@ -382,7 +381,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const roleObjects = roles.map((role) => new Role(this.client, role))
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			for (const role of roleObjects) {
 				this.client.cache.set(
 					"role",

@@ -47,6 +47,10 @@ export class ClientWithCaching extends Client {
 				: new Cache(options.caching)
 	}
 
+	override isCaching(): this is ClientWithCaching {
+		return true
+	}
+
 	override async fetchUser(
 		id: string,
 		bypassCache = false

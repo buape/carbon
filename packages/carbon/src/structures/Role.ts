@@ -7,7 +7,6 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial } from "../types/index.js"
-import { isClientWithCaching } from "../utils/typeChecks.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -158,7 +157,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetch(guildId: string, bypassCache = false): Promise<Role<false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedRole = this.client.cache.get(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id])
@@ -177,7 +176,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id]),

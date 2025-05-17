@@ -8,7 +8,6 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { maxPermissions } from "../permissions.js"
 import type { IfPartial, VoiceState } from "../types/index.js"
-import { isClientWithCaching } from "../utils/typeChecks.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
@@ -145,7 +144,7 @@ export class GuildMember<
 
 	async getVoiceState(): Promise<VoiceState | null> {
 		// Check cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			const cachedVoiceState = this.client.cache.get(
 				"voiceState",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
@@ -176,7 +175,7 @@ export class GuildMember<
 		}
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set(
 				"voiceState",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
@@ -192,7 +191,7 @@ export class GuildMember<
 		if (this.guild.ownerId === this.user.id) return maxPermissions
 
 		// Check cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			const cachedPermissions = this.client.cache.get(
 				"permissions",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
@@ -212,7 +211,7 @@ export class GuildMember<
 		const filteredPermissions = permissions.filter((x) => x !== undefined)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set(
 				"permissions",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
@@ -383,7 +382,7 @@ export class GuildMember<
 
 	async fetch(bypassCache = false): Promise<GuildMember<false, true>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedMember = this.client.cache.get(
 				"member",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
@@ -402,7 +401,7 @@ export class GuildMember<
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set(
 				"member",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),

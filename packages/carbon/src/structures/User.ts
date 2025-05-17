@@ -10,7 +10,6 @@ import type { Client } from "../classes/Client.js"
 import type { MessagePayload } from "../types/index.js"
 import type { IfPartial } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
-import { isClientWithCaching } from "../utils/typeChecks.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
@@ -154,7 +153,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetch(bypassCache = false): Promise<User<false>> {
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedUser = this.client.cache.get("user", this.id)
 			if (cachedUser) {
 				this.setData(cachedUser.rawData)
@@ -170,7 +169,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set("user", this.id, this as User<false>)
 		}
 

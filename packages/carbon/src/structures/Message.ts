@@ -24,7 +24,6 @@ import { Embed } from "../classes/Embed.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
-import { isClientWithCaching } from "../utils/typeChecks.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Poll } from "./Poll.js"
 import { Role } from "./Role.js"
@@ -302,7 +301,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			throw new Error("Cannot fetch message without channel ID")
 
 		// Check cache if client has caching enabled
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedMessage = this.client.cache.get(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id])
@@ -321,7 +320,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		this.setData(newData)
 
 		// Update cache if client has caching enabled
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id]),
@@ -350,7 +349,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
 
-		if (!bypassCache && isClientWithCaching(this.client)) {
+		if (!bypassCache && this.client.isCaching()) {
 			const cachedChannel = this.client.cache.get("channel", this.channelId)
 			if (cachedChannel) {
 				return cachedChannel
@@ -362,7 +361,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		)) as APIChannel
 		const channel = channelFactory(this.client, data)
 
-		if (isClientWithCaching(this.client)) {
+		if (this.client.isCaching()) {
 			this.client.cache.set("channel", this.channelId, channel)
 		}
 

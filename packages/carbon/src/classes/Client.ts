@@ -31,6 +31,7 @@ import {
 	subtleCrypto,
 	valueToUint8Array
 } from "../utils/index.js"
+import type { ClientWithCaching } from "./ClientWithCaching.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 /**
@@ -344,6 +345,10 @@ export class Client {
 		} catch (_) {
 			return false
 		}
+	}
+
+	isCaching(): this is ClientWithCaching {
+		return false
 	}
 
 	// ======================== Begin Fetchers ================================================
