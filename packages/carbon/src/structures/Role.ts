@@ -158,7 +158,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	async fetch(guildId: string, bypassCache = false): Promise<Role<false>> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedRole = this.client.cache.get(
+			const cachedRole = await this.client.cache.get(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id])
 			)
@@ -177,7 +177,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set(
+			await this.client.cache.set(
 				"role",
 				this.client.cache.createCompositeKey([guildId, this.id]),
 				this as Role<false>

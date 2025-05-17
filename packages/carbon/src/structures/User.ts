@@ -154,7 +154,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	async fetch(bypassCache = false): Promise<User<false>> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedUser = this.client.cache.get("user", this.id)
+			const cachedUser = await this.client.cache.get("user", this.id)
 			if (cachedUser) {
 				this.setData(cachedUser.rawData)
 				return this as User<false>
@@ -170,7 +170,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set("user", this.id, this as User<false>)
+			await this.client.cache.set("user", this.id, this as User<false>)
 		}
 
 		return this as User<false>

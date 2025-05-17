@@ -142,7 +142,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	async fetch(bypassCache = false): Promise<Guild<false>> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedGuild = this.client.cache.get("guild", this.id)
+			const cachedGuild = await this.client.cache.get("guild", this.id)
 			if (cachedGuild) {
 				this.setData(cachedGuild.rawData)
 				return this as Guild<false>
@@ -158,7 +158,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set("guild", this.id, this as Guild<false>)
+			await this.client.cache.set("guild", this.id, this as Guild<false>)
 		}
 
 		return this as Guild<false>
@@ -200,7 +200,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	): Promise<GuildMember<false, true> | null> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedMember = this.client.cache.get(
+			const cachedMember = await this.client.cache.get(
 				"member",
 				this.client.cache.createCompositeKey([this.id, memberId])
 			)
@@ -221,7 +221,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			)
 
 			if (this.client.isCaching()) {
-				this.client.cache.set(
+				await this.client.cache.set(
 					"member",
 					this.client.cache.createCompositeKey([this.id, memberId]),
 					memberObject
@@ -280,7 +280,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 						memberData,
 						new Guild<true>(this.client, this.id)
 					)
-					this.client.cache.set(
+					await this.client.cache.set(
 						"member",
 						this.client.cache.createCompositeKey([this.id, member.user.id]),
 						cacheMember
@@ -309,7 +309,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 					memberData,
 					new Guild<true>(this.client, this.id)
 				)
-				this.client.cache.set(
+				await this.client.cache.set(
 					"member",
 					this.client.cache.createCompositeKey([this.id, member.user.id]),
 					cacheMember
@@ -353,7 +353,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		if (this.client.isCaching()) {
 			for (const channel of channelObjects) {
 				if (!channel) continue
-				this.client.cache.set("channel", channel.id, channel)
+				await this.client.cache.set("channel", channel.id, channel)
 			}
 		}
 
@@ -383,7 +383,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
 			for (const role of roleObjects) {
-				this.client.cache.set(
+				await this.client.cache.set(
 					"role",
 					this.client.cache.createCompositeKey([this.id, role.id]),
 					role

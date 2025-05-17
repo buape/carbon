@@ -56,11 +56,11 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchUser> {
 		if (!bypassCache) {
-			const user = this.cache.get("user", id)
+			const user = await this.cache.get("user", id)
 			if (user) return user
 		}
 		const user = await super.fetchUser(id)
-		this.cache.set("user", id, user)
+		await this.cache.set("user", id, user)
 		return user
 	}
 
@@ -69,11 +69,11 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchGuild> {
 		if (!bypassCache) {
-			const guild = this.cache.get("guild", id)
+			const guild = await this.cache.get("guild", id)
 			if (guild) return guild
 		}
 		const guild = await super.fetchGuild(id)
-		this.cache.set("guild", id, guild)
+		await this.cache.set("guild", id, guild)
 		return guild
 	}
 
@@ -82,11 +82,11 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchChannel> {
 		if (!bypassCache) {
-			const channel = this.cache.get("channel", id)
+			const channel = await this.cache.get("channel", id)
 			if (channel) return channel
 		}
 		const channel = await super.fetchChannel(id)
-		this.cache.set("channel", id, channel)
+		await this.cache.set("channel", id, channel)
 		return channel
 	}
 
@@ -96,14 +96,18 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchRole> {
 		if (!bypassCache) {
-			const role = this.cache.get(
+			const role = await this.cache.get(
 				"role",
 				this.cache.createCompositeKey([guildId, id])
 			)
 			if (role) return role
 		}
 		const role = await super.fetchRole(guildId, id)
-		this.cache.set("role", this.cache.createCompositeKey([guildId, id]), role)
+		await this.cache.set(
+			"role",
+			this.cache.createCompositeKey([guildId, id]),
+			role
+		)
 		return role
 	}
 
@@ -113,14 +117,14 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchMember> {
 		if (!bypassCache) {
-			const member = this.cache.get(
+			const member = await this.cache.get(
 				"member",
 				this.cache.createCompositeKey([guildId, id])
 			)
 			if (member) return member
 		}
 		const member = await super.fetchMember(guildId, id)
-		this.cache.set(
+		await this.cache.set(
 			"member",
 			this.cache.createCompositeKey([guildId, id]),
 			member
@@ -134,14 +138,14 @@ export class ClientWithCaching extends Client {
 		bypassCache = false
 	): ReturnType<typeof Client.prototype.fetchMessage> {
 		if (!bypassCache) {
-			const message = this.cache.get(
+			const message = await this.cache.get(
 				"message",
 				this.cache.createCompositeKey([channelId, messageId])
 			)
 			if (message) return message
 		}
 		const message = await super.fetchMessage(channelId, messageId)
-		this.cache.set(
+		await this.cache.set(
 			"message",
 			this.cache.createCompositeKey([channelId, messageId]),
 			message

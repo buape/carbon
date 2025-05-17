@@ -302,7 +302,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedMessage = this.client.cache.get(
+			const cachedMessage = await this.client.cache.get(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id])
 			)
@@ -321,7 +321,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set(
+			await this.client.cache.set(
 				"message",
 				this.client.cache.createCompositeKey([this.channelId, this.id]),
 				this as Message<false>
@@ -350,7 +350,10 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			throw new Error("Cannot fetch channel without channel ID")
 
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedChannel = this.client.cache.get("channel", this.channelId)
+			const cachedChannel = await this.client.cache.get(
+				"channel",
+				this.channelId
+			)
 			if (cachedChannel) {
 				return cachedChannel
 			}
@@ -362,7 +365,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		const channel = channelFactory(this.client, data)
 
 		if (this.client.isCaching()) {
-			this.client.cache.set("channel", this.channelId, channel)
+			await this.client.cache.set("channel", this.channelId, channel)
 		}
 
 		return channel

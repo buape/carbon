@@ -145,7 +145,7 @@ export class GuildMember<
 	async getVoiceState(): Promise<VoiceState | null> {
 		// Check cache if client has caching enabled
 		if (this.client.isCaching()) {
-			const cachedVoiceState = this.client.cache.get(
+			const cachedVoiceState = await this.client.cache.get(
 				"voiceState",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
@@ -176,7 +176,7 @@ export class GuildMember<
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set(
+			await this.client.cache.set(
 				"voiceState",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				voiceStateData
@@ -192,7 +192,7 @@ export class GuildMember<
 
 		// Check cache if client has caching enabled
 		if (this.client.isCaching()) {
-			const cachedPermissions = this.client.cache.get(
+			const cachedPermissions = await this.client.cache.get(
 				"permissions",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
@@ -212,7 +212,7 @@ export class GuildMember<
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set(
+			await this.client.cache.set(
 				"permissions",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				filteredPermissions
@@ -383,7 +383,7 @@ export class GuildMember<
 	async fetch(bypassCache = false): Promise<GuildMember<false, true>> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedMember = this.client.cache.get(
+			const cachedMember = await this.client.cache.get(
 				"member",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
 			)
@@ -402,7 +402,7 @@ export class GuildMember<
 
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
-			this.client.cache.set(
+			await this.client.cache.set(
 				"member",
 				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
 				this as GuildMember<false, true>

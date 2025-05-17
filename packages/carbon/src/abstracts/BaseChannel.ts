@@ -84,7 +84,7 @@ export abstract class BaseChannel<
 	async fetch(bypassCache = false): Promise<BaseChannel<Type, false>> {
 		// Check cache if client has caching enabled
 		if (!bypassCache && this.client.isCaching()) {
-			const cachedChannel = this.client.cache.get("channel", this.id)
+			const cachedChannel = await this.client.cache.get("channel", this.id)
 			if (cachedChannel) {
 				this.setData(
 					cachedChannel.rawData as Extract<APIChannel, { type: Type }>
@@ -103,7 +103,7 @@ export abstract class BaseChannel<
 		// Update cache if client has caching enabled
 		if (this.client.isCaching()) {
 			const channel = channelFactory(this.client, newData)
-			this.client.cache.set("channel", this.id, channel)
+			await this.client.cache.set("channel", this.id, channel)
 		}
 
 		return this as BaseChannel<Type, false>

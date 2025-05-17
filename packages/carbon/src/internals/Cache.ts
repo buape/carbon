@@ -64,10 +64,10 @@ export class Cache {
 		return parts.join(":")
 	}
 
-	get<T extends keyof CacheTypes>(
+	async get<T extends keyof CacheTypes>(
 		type: T,
 		key: string
-	): CacheTypes[T] | undefined {
+	): Promise<CacheTypes[T] | undefined> {
 		const entry = this.caches[type].get(key)
 		if (!entry) return undefined
 
@@ -80,7 +80,11 @@ export class Cache {
 		return entry.value
 	}
 
-	set<T extends keyof CacheTypes>(type: T, key: string, value: CacheTypes[T]) {
+	async set<T extends keyof CacheTypes>(
+		type: T,
+		key: string,
+		value: CacheTypes[T]
+	) {
 		this.caches[type].set(key, {
 			value,
 			timestamp: Date.now()
