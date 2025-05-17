@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.4.1
+
+### Patch Changes
+
+- 51df9d3: chore: bump dependencies
+
 ## 0.4.0
 
 ### Minor Changes
