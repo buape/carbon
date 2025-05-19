@@ -82,6 +82,7 @@ export * from "./structures/GuildThreadChannel.js"
 export * from "./structures/Message.js"
 export * from "./structures/Role.js"
 export * from "./structures/User.js"
+export * from "./structures/Webhook.js"
 
 // ----- Misc -----
 export * from "discord-api-types/v10"

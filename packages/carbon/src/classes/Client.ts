@@ -26,6 +26,7 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
+import { Webhook, type WebhookInput } from "../structures/Webhook.js"
 import {
 	concatUint8Arrays,
 	subtleCrypto,
@@ -417,6 +418,16 @@ export class Client {
 			Routes.channelMessage(channelId, messageId)
 		)) as APIMessage
 		return new Message(this, message)
+	}
+
+	/**
+	 * Fetch a webhook from the Discord API
+	 * @param input The webhook data, ID and token, or webhook URL
+	 * @returns The webhook data
+	 */
+	async fetchWebhook(input: WebhookInput) {
+		const webhook = new Webhook(this, input)
+		return webhook.fetch()
 	}
 
 	// ======================== End Fetchers ================================================

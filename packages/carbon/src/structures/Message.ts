@@ -337,9 +337,16 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	async delete() {
 		if (!this.channelId)
 			throw new Error("Cannot delete message without channel ID")
-		return await this.client.rest.delete(
+		await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete(
+				"message",
+				this.client.cache.createCompositeKey([this.channelId, this.id])
+			)
+		}
 	}
 
 	/**

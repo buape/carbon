@@ -108,4 +108,15 @@ export abstract class BaseChannel<
 
 		return this as BaseChannel<Type, false>
 	}
+
+	/**
+	 * Delete the channel
+	 */
+	async delete() {
+		await this.client.rest.delete(Routes.channel(this.id))
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete("channel", this.id)
+		}
+	}
 }

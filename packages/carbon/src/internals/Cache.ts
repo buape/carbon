@@ -1,5 +1,6 @@
 import type { Client } from "../classes/Client.js"
 import type { GuildMember } from "../structures/GuildMember.js"
+import type { Webhook } from "../structures/Webhook.js"
 
 export type CacheTypes = {
 	user: Awaited<ReturnType<typeof Client.prototype.fetchUser>>
@@ -10,6 +11,7 @@ export type CacheTypes = {
 	message: Awaited<ReturnType<typeof Client.prototype.fetchMessage>>
 	voiceState: Awaited<ReturnType<typeof GuildMember.prototype.getVoiceState>>
 	permissions: bigint[]
+	webhook: Webhook<false>
 }
 
 type CacheEntry<T> = {
@@ -42,7 +44,8 @@ export class Cache {
 		member: new Map(),
 		message: new Map(),
 		voiceState: new Map(),
-		permissions: new Map()
+		permissions: new Map(),
+		webhook: new Map()
 	}
 	protected cleanupIntervalId?: NodeJS.Timeout
 
@@ -89,6 +92,10 @@ export class Cache {
 			value,
 			timestamp: Date.now()
 		})
+	}
+
+	async delete(type: keyof CacheTypes, key: string): Promise<void> {
+		this.caches[type].delete(key)
 	}
 
 	async clearCache(type?: keyof CacheTypes): Promise<void> {

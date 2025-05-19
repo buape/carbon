@@ -286,5 +286,12 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(Routes.guildRole(guildId, this.id), {
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete(
+				"role",
+				this.client.cache.createCompositeKey([guildId, this.id])
+			)
+		}
 	}
 }

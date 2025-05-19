@@ -487,7 +487,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Leave the guild
 	 */
 	async leave() {
-		return await this.client.rest.delete(Routes.guild(this.id))
+		await this.client.rest.delete(Routes.guild(this.id))
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete("guild", this.id)
+		}
 	}
 
 	/**

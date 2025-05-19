@@ -275,6 +275,13 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete(
+				"member",
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
+			)
+		}
 	}
 
 	/**
@@ -295,6 +302,13 @@ export class GuildMember<
 					: undefined
 			}
 		)
+
+		if (this.client.isCaching()) {
+			await this.client.cache.delete(
+				"member",
+				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
+			)
+		}
 	}
 
 	/**
