@@ -32,10 +32,17 @@ export interface CacheOptions {
 	cleanupInterval?: number
 }
 
-export class Cache {
+export class Cache<
+	CustomTypes extends { [K in keyof CustomTypes]: unknown } = {
+		[key: string]: unknown
+	}
+> {
 	protected options: CacheOptions
 	protected caches: {
-		[K in keyof CacheTypes]: Map<string, CacheEntry<CacheTypes[K]>>
+		[K in keyof (CacheTypes & CustomTypes)]: Map<
+			string,
+			CacheEntry<(CacheTypes & CustomTypes)[K]>
+		>
 	} = {
 		user: new Map(),
 		guild: new Map(),
@@ -46,6 +53,11 @@ export class Cache {
 		voiceState: new Map(),
 		permissions: new Map(),
 		webhook: new Map()
+	} as {
+		[K in keyof (CacheTypes & CustomTypes)]: Map<
+			string,
+			CacheEntry<(CacheTypes & CustomTypes)[K]>
+		>
 	}
 	protected cleanupIntervalId?: NodeJS.Timeout
 
@@ -67,10 +79,10 @@ export class Cache {
 		return parts.join(":")
 	}
 
-	async get<T extends keyof CacheTypes>(
+	async get<T extends keyof (CacheTypes & CustomTypes)>(
 		type: T,
 		key: string
-	): Promise<CacheTypes[T] | undefined> {
+	): Promise<(CacheTypes & CustomTypes)[T] | undefined> {
 		const entry = this.caches[type].get(key)
 		if (!entry) return undefined
 
@@ -83,22 +95,25 @@ export class Cache {
 		return entry.value
 	}
 
-	async set<T extends keyof CacheTypes>(
+	async set<T extends keyof (CacheTypes & CustomTypes)>(
 		type: T,
 		key: string,
-		value: CacheTypes[T]
-	) {
+		value: (CacheTypes & CustomTypes)[T]
+	): Promise<void> {
 		this.caches[type].set(key, {
 			value,
 			timestamp: Date.now()
 		})
 	}
 
-	async delete(type: keyof CacheTypes, key: string): Promise<void> {
+	async delete(
+		type: keyof (CacheTypes & CustomTypes),
+		key: string
+	): Promise<void> {
 		this.caches[type].delete(key)
 	}
 
-	async clearCache(type?: keyof CacheTypes): Promise<void> {
+	async clearCache(type?: keyof (CacheTypes & CustomTypes)): Promise<void> {
 		if (type) {
 			this.caches[type].clear()
 		} else {
@@ -110,7 +125,7 @@ export class Cache {
 
 	async purgeCache(
 		options: {
-			type?: keyof CacheTypes
+			type?: keyof (CacheTypes & CustomTypes)
 			before?: number
 			after?: number
 		} = {}
@@ -119,7 +134,10 @@ export class Cache {
 		const now = Date.now()
 
 		const purgeMap = (
-			map: Map<string, CacheEntry<CacheTypes[keyof CacheTypes]>>
+			map: Map<
+				string,
+				CacheEntry<(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]>
+			>
 		) => {
 			for (const [key, entry] of map.entries()) {
 				const timestamp = entry.timestamp
@@ -134,15 +152,29 @@ export class Cache {
 		}
 
 		if (type) {
-			purgeMap(this.caches[type])
+			purgeMap(
+				this.caches[type] as Map<
+					string,
+					CacheEntry<
+						(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]
+					>
+				>
+			)
 		} else {
 			for (const cache of Object.values(this.caches)) {
-				purgeMap(cache)
+				purgeMap(
+					cache as Map<
+						string,
+						CacheEntry<
+							(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]
+						>
+					>
+				)
 			}
 		}
 	}
 
-	async getCacheSize(type?: keyof CacheTypes): Promise<number> {
+	async getCacheSize(type?: keyof (CacheTypes & CustomTypes)): Promise<number> {
 		if (type) {
 			return this.caches[type].size
 		}
@@ -152,7 +184,10 @@ export class Cache {
 		)
 	}
 
-	async hasCache(type: keyof CacheTypes, key: string): Promise<boolean> {
+	async hasCache(
+		type: keyof (CacheTypes & CustomTypes),
+		key: string
+	): Promise<boolean> {
 		return this.get(type, key) !== undefined
 	}
 
