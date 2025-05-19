@@ -119,4 +119,12 @@ export abstract class BaseChannel<
 			await this.client.cache.delete("channel", this.id)
 		}
 	}
+
+	/**
+	 * Returns the Discord mention format for this channel
+	 * @returns The mention string in the format <#channelId>
+	 */
+	toString(): string {
+		return `<#${this.id}>`
+	}
 }

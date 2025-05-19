@@ -148,6 +148,14 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
+	 * Returns the Discord mention format for this role
+	 * @returns The mention string in the format <@&roleId>
+	 */
+	toString(): string {
+		return `<@&${this.id}>`
+	}
+
+	/**
 	 * Fetch updated data for this role.
 	 * If the role is partial, this will fetch all the data for the role and populate the fields.
 	 * If the role is not partial, all fields will be updated with new values from Discord.

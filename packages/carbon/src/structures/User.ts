@@ -145,6 +145,14 @@ export class User<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
+	 * Returns the Discord mention format for this user
+	 * @returns The mention string in the format <@userId>
+	 */
+	toString(): string {
+		return `<@${this.id}>`
+	}
+
+	/**
 	 * Fetch updated data for this user.
 	 * If the user is partial, this will fetch all the data for the user and populate the fields.
 	 * If the user is not partial, all fields will be updated with new values from Discord.
