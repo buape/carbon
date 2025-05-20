@@ -185,292 +185,499 @@ export type ListenerEventRawData = {
 }
 
 export type ListenerEventData = {
-	[ListenerEvent.ApplicationAuthorized]: {
+	[ListenerEvent.ApplicationAuthorized]: Omit<
+		APIWebhookEventApplicationAuthorizedData,
+		"guild" | "user"
+	> & {
 		guild?: Guild
 		user: User
-	} & Omit<
-		ListenerEventRawData[typeof ListenerEvent.ApplicationAuthorized],
+	}
+	[ListenerEvent.EntitlementCreate]: Omit<
+		APIWebhookEventEntitlementCreateData,
 		"guild" | "user"
-	>
-	[ListenerEvent.EntitlementCreate]: APIWebhookEventEntitlementCreateData & {
+	> & {
 		guild?: Guild<true>
 		user?: User<true>
 	}
 	[ListenerEvent.QuestUserEnrollment]: APIWebhookEventQuestUserEnrollmentData
-	[ListenerEvent.ApplicationCommandPermissionsUpdate]: GatewayApplicationCommandPermissionsUpdateDispatchData & {
+	[ListenerEvent.ApplicationCommandPermissionsUpdate]: Omit<
+		GatewayApplicationCommandPermissionsUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.AutoModerationActionExecution]: GatewayAutoModerationActionExecutionDispatchData & {
+	[ListenerEvent.AutoModerationActionExecution]: Omit<
+		GatewayAutoModerationActionExecutionDispatchData,
+		"guild" | "user" | "message"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 		message?: Message<true>
 	}
-	[ListenerEvent.AutoModerationRuleCreate]: GatewayAutoModerationRuleCreateDispatchData & {
+	[ListenerEvent.AutoModerationRuleCreate]: Omit<
+		GatewayAutoModerationRuleCreateDispatchData,
+		"guild" | "creator"
+	> & {
 		guild: Guild<true>
 		creator: User<true>
 	}
-	[ListenerEvent.AutoModerationRuleDelete]: GatewayAutoModerationRuleDeleteDispatchData & {
+	[ListenerEvent.AutoModerationRuleDelete]: Omit<
+		GatewayAutoModerationRuleDeleteDispatchData,
+		"guild" | "creator"
+	> & {
 		guild: Guild<true>
 		creator: User<true>
 	}
-	[ListenerEvent.AutoModerationRuleUpdate]: GatewayAutoModerationRuleUpdateDispatchData & {
+	[ListenerEvent.AutoModerationRuleUpdate]: Omit<
+		GatewayAutoModerationRuleUpdateDispatchData,
+		"guild" | "creator"
+	> & {
 		guild: Guild<true>
 		creator: User<true>
 	}
-	[ListenerEvent.ChannelCreate]: GatewayChannelCreateDispatchData & {
+	[ListenerEvent.ChannelCreate]: Omit<
+		GatewayChannelCreateDispatchData,
+		"channel"
+	> & {
 		channel?: AnyChannel
 	}
-	[ListenerEvent.ChannelDelete]: GatewayChannelDeleteDispatchData & {
+	[ListenerEvent.ChannelDelete]: Omit<
+		GatewayChannelDeleteDispatchData,
+		"channel"
+	> & {
 		channel?: AnyChannel
 	}
-	[ListenerEvent.ChannelPinsUpdate]: GatewayChannelPinsUpdateDispatchData & {
+	[ListenerEvent.ChannelPinsUpdate]: Omit<
+		GatewayChannelPinsUpdateDispatchData,
+		"guild" | "channel"
+	> & {
 		guild?: Guild<true>
 		channel?: AnyChannel
 	}
-	[ListenerEvent.ChannelUpdate]: GatewayChannelUpdateDispatchData & {
+	[ListenerEvent.ChannelUpdate]: Omit<
+		GatewayChannelUpdateDispatchData,
+		"channel"
+	> & {
 		channel?: AnyChannel
 	}
-	[ListenerEvent.EntitlementDelete]: GatewayEntitlementDeleteDispatchData & {
+	[ListenerEvent.EntitlementDelete]: Omit<
+		GatewayEntitlementDeleteDispatchData,
+		"guild" | "user"
+	> & {
 		guild?: Guild<true>
 		user?: User<true>
 	}
-	[ListenerEvent.EntitlementUpdate]: GatewayEntitlementUpdateDispatchData & {
+	[ListenerEvent.EntitlementUpdate]: Omit<
+		GatewayEntitlementUpdateDispatchData,
+		"guild" | "user"
+	> & {
 		guild?: Guild<true>
 		user?: User<true>
 	}
-	[ListenerEvent.GuildAuditLogEntryCreate]: GatewayGuildAuditLogEntryCreateDispatchData & {
+	[ListenerEvent.GuildAuditLogEntryCreate]: Omit<
+		GatewayGuildAuditLogEntryCreateDispatchData,
+		"guild" | "user" | "target"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 		target?: User<true>
 	}
-	[ListenerEvent.GuildBanAdd]: GatewayGuildBanAddDispatchData & {
+	[ListenerEvent.GuildBanAdd]: Omit<
+		GatewayGuildBanAddDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<false>
 	}
-	[ListenerEvent.GuildBanRemove]: GatewayGuildBanRemoveDispatchData & {
+	[ListenerEvent.GuildBanRemove]: Omit<
+		GatewayGuildBanRemoveDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<false>
 	}
-	[ListenerEvent.GuildCreate]: GatewayGuildCreateDispatchData & {
+	[ListenerEvent.GuildCreate]: Omit<GatewayGuildCreateDispatchData, "guild"> & {
 		guild: Guild
 	}
-	[ListenerEvent.GuildDelete]: GatewayGuildDeleteDispatchData & {
+	[ListenerEvent.GuildDelete]: Omit<GatewayGuildDeleteDispatchData, "guild"> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildEmojisUpdate]: GatewayGuildEmojisUpdateDispatchData & {
+	[ListenerEvent.GuildEmojisUpdate]: Omit<
+		GatewayGuildEmojisUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildIntegrationsUpdate]: GatewayGuildIntegrationsUpdateDispatchData & {
+	[ListenerEvent.GuildIntegrationsUpdate]: Omit<
+		GatewayGuildIntegrationsUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildMemberAdd]: GatewayGuildMemberAddDispatchData & {
+	[ListenerEvent.GuildMemberAdd]: Omit<
+		GatewayGuildMemberAddDispatchData,
+		"guild" | "member"
+	> & {
 		guild: Guild<true>
 		member: GuildMember
 	}
-	[ListenerEvent.GuildMemberRemove]: GatewayGuildMemberRemoveDispatchData & {
+	[ListenerEvent.GuildMemberRemove]: Omit<
+		GatewayGuildMemberRemoveDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<false>
 	}
-	[ListenerEvent.GuildMemberUpdate]: GatewayGuildMemberUpdateDispatchData & {
+	[ListenerEvent.GuildMemberUpdate]: Omit<
+		GatewayGuildMemberUpdateDispatchData,
+		"guild" | "member"
+	> & {
 		guild: Guild<true>
 		member: GuildMember
 	}
-	[ListenerEvent.GuildMembersChunk]: GatewayGuildMembersChunkDispatchData & {
+	[ListenerEvent.GuildMembersChunk]: Omit<
+		GatewayGuildMembersChunkDispatchData,
+		"guild" | "members"
+	> & {
 		guild: Guild<true>
 		members: GuildMember<false, true>[]
 	}
-	[ListenerEvent.GuildRoleCreate]: GatewayGuildRoleCreateDispatchData & {
+	[ListenerEvent.GuildRoleCreate]: Omit<
+		GatewayGuildRoleCreateDispatchData,
+		"guild" | "role"
+	> & {
 		guild: Guild<true>
 		role: Role
 	}
-	[ListenerEvent.GuildRoleDelete]: GatewayGuildRoleDeleteDispatchData & {
+	[ListenerEvent.GuildRoleDelete]: Omit<
+		GatewayGuildRoleDeleteDispatchData,
+		"guild" | "role"
+	> & {
 		guild: Guild<true>
 		role: Role<true>
 	}
-	[ListenerEvent.GuildRoleUpdate]: GatewayGuildRoleUpdateDispatchData & {
+	[ListenerEvent.GuildRoleUpdate]: Omit<
+		GatewayGuildRoleUpdateDispatchData,
+		"guild" | "role"
+	> & {
 		guild: Guild<true>
 		role: Role
 	}
-	[ListenerEvent.GuildScheduledEventCreate]: GatewayGuildScheduledEventCreateDispatchData & {
+	[ListenerEvent.GuildScheduledEventCreate]: Omit<
+		GatewayGuildScheduledEventCreateDispatchData,
+		"guild" | "creator"
+	> & {
 		guild: Guild<true>
 		creator?: User
 	}
-	[ListenerEvent.GuildScheduledEventDelete]: GatewayGuildScheduledEventDeleteDispatchData & {
+	[ListenerEvent.GuildScheduledEventDelete]: Omit<
+		GatewayGuildScheduledEventDeleteDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildScheduledEventUpdate]: GatewayGuildScheduledEventUpdateDispatchData & {
+	[ListenerEvent.GuildScheduledEventUpdate]: Omit<
+		GatewayGuildScheduledEventUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildScheduledEventUserAdd]: GatewayGuildScheduledEventUserAddDispatchData & {
+	[ListenerEvent.GuildScheduledEventUserAdd]: Omit<
+		GatewayGuildScheduledEventUserAddDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 	}
-	[ListenerEvent.GuildScheduledEventUserRemove]: GatewayGuildScheduledEventUserRemoveDispatchData & {
+	[ListenerEvent.GuildScheduledEventUserRemove]: Omit<
+		GatewayGuildScheduledEventUserRemoveDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 	}
-	[ListenerEvent.GuildSoundboardSoundCreate]: GatewayGuildSoundboardSoundCreateDispatchData & {
+	[ListenerEvent.GuildSoundboardSoundCreate]: Omit<
+		GatewayGuildSoundboardSoundCreateDispatchData,
+		"guild"
+	> & {
 		guild?: Guild<true>
 	}
-	[ListenerEvent.GuildSoundboardSoundDelete]: GatewayGuildSoundboardSoundDeleteDispatchData & {
+	[ListenerEvent.GuildSoundboardSoundDelete]: Omit<
+		GatewayGuildSoundboardSoundDeleteDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildSoundboardSoundUpdate]: GatewayGuildSoundboardSoundUpdateDispatchData & {
+	[ListenerEvent.GuildSoundboardSoundUpdate]: Omit<
+		GatewayGuildSoundboardSoundUpdateDispatchData,
+		"guild"
+	> & {
 		guild?: Guild<true>
 	}
-	[ListenerEvent.GuildSoundboardSoundsUpdate]: GatewayGuildSoundboardSoundsUpdateDispatchData & {
+	[ListenerEvent.GuildSoundboardSoundsUpdate]: Omit<
+		GatewayGuildSoundboardSoundsUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.SoundboardSounds]: GatewayGuildSoundboardSoundsUpdateDispatchData & {
+	[ListenerEvent.SoundboardSounds]: Omit<
+		GatewayGuildSoundboardSoundsUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildStickersUpdate]: GatewayGuildStickersUpdateDispatchData & {
+	[ListenerEvent.GuildStickersUpdate]: Omit<
+		GatewayGuildStickersUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.GuildUpdate]: GatewayGuildUpdateDispatchData & {
+	[ListenerEvent.GuildUpdate]: Omit<GatewayGuildUpdateDispatchData, "guild"> & {
 		guild: Guild
 	}
-	[ListenerEvent.IntegrationCreate]: GatewayIntegrationCreateDispatchData & {
+	[ListenerEvent.IntegrationCreate]: Omit<
+		GatewayIntegrationCreateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.IntegrationDelete]: GatewayIntegrationDeleteDispatchData & {
+	[ListenerEvent.IntegrationDelete]: Omit<
+		GatewayIntegrationDeleteDispatchData,
+		"guild" | "application"
+	> & {
 		guild: Guild<true>
 		application?: User<true>
 	}
-	[ListenerEvent.IntegrationUpdate]: GatewayIntegrationUpdateDispatchData & {
+	[ListenerEvent.IntegrationUpdate]: Omit<
+		GatewayIntegrationUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.InteractionCreate]: GatewayInteractionCreateDispatchData & {
+	[ListenerEvent.InteractionCreate]: Omit<
+		GatewayInteractionCreateDispatchData,
+		"guild" | "member" | "user"
+	> & {
 		guild?: Guild<true>
 		member?: GuildMember
 		user: User
 	}
-	[ListenerEvent.InviteCreate]: GatewayInviteCreateDispatchData & {
+	[ListenerEvent.InviteCreate]: Omit<
+		GatewayInviteCreateDispatchData,
+		"guild" | "inviter" | "targetUser"
+	> & {
 		guild: Guild<true>
 		inviter?: User<true>
 		targetUser?: User<true>
 	}
-	[ListenerEvent.InviteDelete]: GatewayInviteDeleteDispatchData & {
+	[ListenerEvent.InviteDelete]: Omit<
+		GatewayInviteDeleteDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.MessageCreate]: GatewayMessageCreateDispatchData & {
+	[ListenerEvent.MessageCreate]: Omit<
+		GatewayMessageCreateDispatchData,
+		"member" | "author"
+	> & {
 		guild?: Guild<true>
 		member?: GuildMember<false, true>
 		author: User
 		message: Message
 	}
-	[ListenerEvent.MessageDelete]: GatewayMessageDeleteDispatchData & {
+	[ListenerEvent.MessageDelete]: Omit<
+		GatewayMessageDeleteDispatchData,
+		"guild"
+	> & {
 		guild?: Guild<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessageDeleteBulk]: GatewayMessageDeleteBulkDispatchData & {
+	[ListenerEvent.MessageDeleteBulk]: Omit<
+		GatewayMessageDeleteBulkDispatchData,
+		"guild"
+	> & {
 		guild?: Guild<true>
 		messages: Message<true>[]
 	}
-	[ListenerEvent.MessageReactionAdd]: GatewayMessageReactionAddDispatchData & {
+	[ListenerEvent.MessageReactionAdd]: Omit<
+		GatewayMessageReactionAddDispatchData,
+		"guild" | "member"
+	> & {
 		guild?: Guild<true>
 		member?: GuildMember
 		user: User<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessageReactionRemove]: GatewayMessageReactionRemoveDispatchData & {
+	[ListenerEvent.MessageReactionRemove]: Omit<
+		GatewayMessageReactionRemoveDispatchData,
+		"guild"
+	> & {
 		guild?: Guild<true>
 		user: User<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessageReactionRemoveAll]: GatewayMessageReactionRemoveAllDispatchData & {
+	[ListenerEvent.MessageReactionRemoveAll]: Omit<
+		GatewayMessageReactionRemoveAllDispatchData,
+		"guild" | "message"
+	> & {
 		guild?: Guild<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessageReactionRemoveEmoji]: GatewayMessageReactionRemoveEmojiDispatchData & {
+	[ListenerEvent.MessageReactionRemoveEmoji]: Omit<
+		GatewayMessageReactionRemoveEmojiDispatchData,
+		"guild" | "message"
+	> & {
 		guild?: Guild<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessageUpdate]: GatewayMessageUpdateDispatchData & {
+	[ListenerEvent.MessageUpdate]: Omit<
+		GatewayMessageUpdateDispatchData,
+		"guild" | "message"
+	> & {
 		guild?: Guild<true>
 		message: Message
 	}
-	[ListenerEvent.PresenceUpdate]: GatewayPresenceUpdateDispatchData & {
+	[ListenerEvent.PresenceUpdate]: Omit<
+		GatewayPresenceUpdateDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 	}
-	[ListenerEvent.Ready]: GatewayReadyDispatchData & {
+	[ListenerEvent.Ready]: Omit<GatewayReadyDispatchData, "user"> & {
 		user: User
 	}
 	[ListenerEvent.Resumed]: GatewayResumedDispatch["d"]
-	[ListenerEvent.StageInstanceCreate]: GatewayStageInstanceCreateDispatchData & {
+	[ListenerEvent.StageInstanceCreate]: Omit<
+		GatewayStageInstanceCreateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.StageInstanceDelete]: GatewayStageInstanceDeleteDispatchData & {
+	[ListenerEvent.StageInstanceDelete]: Omit<
+		GatewayStageInstanceDeleteDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.StageInstanceUpdate]: GatewayStageInstanceUpdateDispatchData & {
+	[ListenerEvent.StageInstanceUpdate]: Omit<
+		GatewayStageInstanceUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.SubscriptionCreate]: GatewaySubscriptionCreateDispatchData & {
+	[ListenerEvent.SubscriptionCreate]: Omit<
+		GatewaySubscriptionCreateDispatchData,
+		"user"
+	> & {
 		user?: User<true>
 	}
-	[ListenerEvent.SubscriptionDelete]: GatewaySubscriptionDeleteDispatchData & {
+	[ListenerEvent.SubscriptionDelete]: Omit<
+		GatewaySubscriptionDeleteDispatchData,
+		"user"
+	> & {
 		user?: User<true>
 	}
-	[ListenerEvent.SubscriptionUpdate]: GatewaySubscriptionUpdateDispatchData & {
+	[ListenerEvent.SubscriptionUpdate]: Omit<
+		GatewaySubscriptionUpdateDispatchData,
+		"user"
+	> & {
 		user?: User<true>
 	}
-	[ListenerEvent.ThreadCreate]: GatewayThreadCreateDispatchData & {
+	[ListenerEvent.ThreadCreate]: Omit<
+		GatewayThreadCreateDispatchData,
+		"guild" | "thread"
+	> & {
 		guild?: Guild<true>
 		thread: GuildThreadChannel<ThreadChannelType>
 	}
-	[ListenerEvent.ThreadDelete]: GatewayThreadDeleteDispatchData & {
+	[ListenerEvent.ThreadDelete]: Omit<
+		GatewayThreadDeleteDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.ThreadListSync]: GatewayThreadListSyncDispatchData & {
+	[ListenerEvent.ThreadListSync]: Omit<
+		GatewayThreadListSyncDispatchData,
+		"guild" | "threads"
+	> & {
 		guild: Guild<true>
 		threads: GuildThreadChannel<ThreadChannelType>[]
 	}
-	[ListenerEvent.ThreadMemberUpdate]: GatewayThreadMemberUpdateDispatchData & {
+	[ListenerEvent.ThreadMemberUpdate]: Omit<
+		GatewayThreadMemberUpdateDispatchData,
+		"guild" | "thread" | "member"
+	> & {
 		guild: Guild<true>
 		thread: GuildThreadChannel<ThreadChannelType, true>
 		member?: GuildMember<false, true>
 	}
-	[ListenerEvent.ThreadMembersUpdate]: GatewayThreadMembersUpdateDispatchData & {
+	[ListenerEvent.ThreadMembersUpdate]: Omit<
+		GatewayThreadMembersUpdateDispatchData,
+		"guild" | "thread" | "added_members"
+	> & {
 		guild: Guild<true>
 		thread: GuildThreadChannel<ThreadChannelType, true>
 		addedMembers?: GuildMember<false, true>[]
 		removedMembers?: User<true>[]
 	}
-	[ListenerEvent.ThreadUpdate]: GatewayThreadUpdateDispatchData & {
+	[ListenerEvent.ThreadUpdate]: Omit<
+		GatewayThreadUpdateDispatchData,
+		"guild" | "thread"
+	> & {
 		guild?: Guild<true>
 		thread: GuildThreadChannel<ThreadChannelType, true>
 	}
-	[ListenerEvent.TypingStart]: GatewayTypingStartDispatchData & {
+	[ListenerEvent.TypingStart]: Omit<
+		GatewayTypingStartDispatchData,
+		"guild" | "member" | "user"
+	> & {
 		guild?: Guild<true>
 		member?: GuildMember<false, true>
 		user: User<true>
 	}
-	[ListenerEvent.UserUpdate]: GatewayUserUpdateDispatchData & {
+	[ListenerEvent.UserUpdate]: Omit<GatewayUserUpdateDispatchData, "user"> & {
 		user: User
 	}
-	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData & {
+	[ListenerEvent.VoiceServerUpdate]: Omit<
+		GatewayVoiceServerUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.VoiceStateUpdate]: GatewayVoiceStateUpdateDispatchData & {
+	[ListenerEvent.VoiceStateUpdate]: Omit<
+		GatewayVoiceStateUpdateDispatchData,
+		"guild" | "member"
+	> & {
 		guild?: Guild<true>
 		member?: GuildMember<false, true>
 	}
-	[ListenerEvent.WebhooksUpdate]: GatewayWebhooksUpdateDispatchData & {
+	[ListenerEvent.WebhooksUpdate]: Omit<
+		GatewayWebhooksUpdateDispatchData,
+		"guild"
+	> & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.MessagePollVoteAdd]: GatewayMessagePollVoteDispatchData & {
+	[ListenerEvent.MessagePollVoteAdd]: Omit<
+		GatewayMessagePollVoteDispatchData,
+		"guild" | "user" | "message"
+	> & {
 		guild?: Guild<true>
 		user: User<true>
 		message: Message<true>
 	}
-	[ListenerEvent.MessagePollVoteRemove]: GatewayMessagePollVoteDispatchData & {
+	[ListenerEvent.MessagePollVoteRemove]: Omit<
+		GatewayMessagePollVoteDispatchData,
+		"guild" | "user" | "message"
+	> & {
 		guild?: Guild<true>
 		user: User<true>
 		message: Message<true>
 	}
-	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData & {
+	[ListenerEvent.VoiceChannelEffectSend]: Omit<
+		GatewayVoiceChannelEffectSendDispatchData,
+		"guild" | "user"
+	> & {
 		guild: Guild<true>
 		user: User<true>
 	}
