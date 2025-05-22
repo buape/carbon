@@ -2,9 +2,9 @@ packages:
   - apps/*
   - packages/*
   - website
-
 onlyBuiltDependencies:
   - '@biomejs/biome'
+  - '@tailwindcss/oxide'
   - core-js-pure
   - esbuild
   - lefthook

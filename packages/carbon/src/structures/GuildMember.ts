@@ -29,7 +29,7 @@ export class GuildMember<
 		this.setData(rawData)
 	}
 
-	private rawData: APIGuildMember | null = null
+	protected rawData: APIGuildMember | null = null
 	private setData(data: typeof this.rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data

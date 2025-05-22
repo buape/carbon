@@ -52,7 +52,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	private rawData: APIMessage | null = null
+	protected rawData: APIMessage | null = null
 	private setData(data: typeof this.rawData) {
 		this.rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")

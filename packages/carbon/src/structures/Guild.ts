@@ -42,7 +42,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	private rawData: APIGuild | null = null
+	protected rawData: APIGuild | null = null
 	private setData(data: typeof this.rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data

@@ -14,204 +14,149 @@ export type CacheTypes = {
 	webhook: Webhook<false>
 }
 
-type CacheEntry<T> = {
-	value: T
-	timestamp: number
+export interface CacheEntry<V> {
+	value: V
+	expiresAt?: number
 }
 
 export interface CacheOptions {
-	/**
-	 * Time in milliseconds after which cache entries expire
-	 * @default 300000 (5 minutes)
-	 */
-	ttl: number
-	/**
-	 * Time in milliseconds between cleanup runs
-	 * @default 600000 (10 minutes)
-	 */
-	cleanupInterval?: number
+	defaultExpiry?: number
 }
 
 export class Cache<
-	CustomTypes extends { [K in keyof CustomTypes]: unknown } = {
-		[key: string]: unknown
-	}
+	K extends keyof CacheTypes | string,
+	V = K extends keyof CacheTypes ? CacheTypes[K] : unknown
 > {
-	protected options: CacheOptions
-	protected caches: {
-		[K in keyof (CacheTypes & CustomTypes)]: Map<
-			string,
-			CacheEntry<(CacheTypes & CustomTypes)[K]>
-		>
-	} = {
-		user: new Map(),
-		guild: new Map(),
-		channel: new Map(),
-		role: new Map(),
-		member: new Map(),
-		message: new Map(),
-		voiceState: new Map(),
-		permissions: new Map(),
-		webhook: new Map()
-	} as {
-		[K in keyof (CacheTypes & CustomTypes)]: Map<
-			string,
-			CacheEntry<(CacheTypes & CustomTypes)[K]>
-		>
-	}
-	protected cleanupIntervalId?: NodeJS.Timeout
+	private cache: Map<K, CacheEntry<V>> = new Map()
+	private defaultExpiry: number = 1000 * 60 * 60 * 24 // 1 day
 
-	constructor(options: Partial<CacheOptions> = {}) {
-		this.options = {
-			ttl: options.ttl ?? 300000, // 5 minutes default
-			cleanupInterval: options.cleanupInterval ?? 600000 // 10 minutes default
+	constructor(options: CacheOptions = {}) {
+		if (options.defaultExpiry) {
+			this.defaultExpiry = options.defaultExpiry
 		}
-		this.scheduleCleanup(this.options.cleanupInterval)
 	}
 
 	/**
-	 * Creates a composite key from multiple parts to be the caching key.
-	 * This is in its own function to make it easier to override if needed.
-	 * @param parts The parts to join into a composite key
-	 * @returns A composite key string
+	 * Get a value from the cache
+	 * @param key The key to get
+	 * @returns The value if it exists and hasn't expired, undefined otherwise
 	 */
-	createCompositeKey(parts: string[]): string {
-		return parts.join(":")
-	}
-
-	async get<T extends keyof (CacheTypes & CustomTypes)>(
-		type: T,
-		key: string
-	): Promise<(CacheTypes & CustomTypes)[T] | undefined> {
-		const entry = this.caches[type].get(key)
+	public get(key: K): V | undefined {
+		const entry = this.cache.get(key)
 		if (!entry) return undefined
 
-		// Check if entry is expired
-		if (Date.now() - entry.timestamp > this.options.ttl) {
-			this.caches[type].delete(key)
+		if (entry.expiresAt && entry.expiresAt < Date.now()) {
+			this.delete(key)
 			return undefined
 		}
 
 		return entry.value
 	}
 
-	async set<T extends keyof (CacheTypes & CustomTypes)>(
-		type: T,
-		key: string,
-		value: (CacheTypes & CustomTypes)[T]
-	): Promise<void> {
-		this.caches[type].set(key, {
-			value,
-			timestamp: Date.now()
-		})
-	}
-
-	async delete(
-		type: keyof (CacheTypes & CustomTypes),
-		key: string
-	): Promise<void> {
-		this.caches[type].delete(key)
-	}
-
-	async clearCache(type?: keyof (CacheTypes & CustomTypes)): Promise<void> {
-		if (type) {
-			this.caches[type].clear()
-		} else {
-			for (const cache of Object.values(this.caches)) {
-				cache.clear()
-			}
-		}
-	}
-
-	async purgeCache(
-		options: {
-			type?: keyof (CacheTypes & CustomTypes)
-			before?: number
-			after?: number
-		} = {}
-	): Promise<void> {
-		const { type, before, after } = options
-		const now = Date.now()
-
-		const purgeMap = (
-			map: Map<
-				string,
-				CacheEntry<(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]>
-			>
-		) => {
-			for (const [key, entry] of map.entries()) {
-				const timestamp = entry.timestamp
-				if (
-					(before && timestamp < before) ||
-					(after && timestamp > after) ||
-					now - timestamp > this.options.ttl
-				) {
-					map.delete(key)
-				}
-			}
-		}
-
-		if (type) {
-			purgeMap(
-				this.caches[type] as Map<
-					string,
-					CacheEntry<
-						(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]
-					>
-				>
-			)
-		} else {
-			for (const cache of Object.values(this.caches)) {
-				purgeMap(
-					cache as Map<
-						string,
-						CacheEntry<
-							(CacheTypes & CustomTypes)[keyof (CacheTypes & CustomTypes)]
-						>
-					>
-				)
-			}
-		}
-	}
-
-	async getCacheSize(type?: keyof (CacheTypes & CustomTypes)): Promise<number> {
-		if (type) {
-			return this.caches[type].size
-		}
-		return Object.values(this.caches).reduce(
-			(acc, cache) => acc + cache.size,
-			0
-		)
-	}
-
-	async hasCache(
-		type: keyof (CacheTypes & CustomTypes),
-		key: string
-	): Promise<boolean> {
-		return this.get(type, key) !== undefined
+	/**
+	 * Set a value in the cache
+	 * @param key The key to set
+	 * @param value The value to set
+	 * @param expiresIn Optional time in milliseconds until the entry expires
+	 */
+	public set(key: K, value: V, expiresIn?: number): void {
+		const expiresAt = expiresIn ? Date.now() + expiresIn : this.defaultExpiry
+		this.cache.set(key, { value, expiresAt })
 	}
 
 	/**
-	 * Schedules periodic cleanup of expired cache entries
-	 * @param interval Time in milliseconds between cleanup runs
-	 * @default 60000 (1 minute)
+	 * Delete a value from the cache
+	 * @param key The key to delete
+	 * @returns Whether the key was deleted
 	 */
-	private async scheduleCleanup(interval = 60000) {
-		// Clear any existing interval
-		if (this.cleanupIntervalId) {
-			clearInterval(this.cleanupIntervalId)
-		}
-
-		this.cleanupIntervalId = setInterval(() => this.purgeCache(), interval)
+	public delete(key: K): boolean {
+		return this.cache.delete(key)
 	}
 
 	/**
-	 * Stops the periodic cleanup if it's running
+	 * Clear all values of a specific type from the cache
+	 * @param type The type to clear
 	 */
-	async stopCleanup() {
-		if (this.cleanupIntervalId) {
-			clearInterval(this.cleanupIntervalId)
-			this.cleanupIntervalId = undefined
+	public clearType(type: K): void {
+		for (const [key] of this.cache) {
+			if (key === type) {
+				this.delete(key)
+			}
 		}
+	}
+
+	/**
+	 * Clear all values from the cache
+	 */
+	public clear(): void {
+		this.cache.clear()
+	}
+
+	/**
+	 * Get the size of the cache
+	 */
+	public get size(): number {
+		return this.cache.size
+	}
+
+	/**
+	 * Check if a key exists in the cache and hasn't expired
+	 * @param key The key to check
+	 */
+	public has(key: K): boolean {
+		const entry = this.cache.get(key)
+		if (!entry) return false
+
+		if (entry.expiresAt && entry.expiresAt < Date.now()) {
+			this.delete(key)
+			return false
+		}
+
+		return true
+	}
+
+	/**
+	 * Get all keys in the cache that haven't expired
+	 */
+	public keys(): K[] {
+		const keys: K[] = []
+		for (const [key, entry] of this.cache) {
+			if (entry.expiresAt && entry.expiresAt < Date.now()) {
+				this.delete(key)
+				continue
+			}
+			keys.push(key)
+		}
+		return keys
+	}
+
+	/**
+	 * Get all values in the cache that haven't expired
+	 */
+	public values(): V[] {
+		const values: V[] = []
+		for (const [key, entry] of this.cache) {
+			if (entry.expiresAt && entry.expiresAt < Date.now()) {
+				this.delete(key)
+				continue
+			}
+			values.push(entry.value)
+		}
+		return values
+	}
+
+	/**
+	 * Get all entries in the cache that haven't expired
+	 */
+	public entries(): [K, V][] {
+		const entries: [K, V][] = []
+		for (const [key, entry] of this.cache) {
+			if (entry.expiresAt && entry.expiresAt < Date.now()) {
+				this.delete(key)
+				continue
+			}
+			entries.push([key, entry.value])
+		}
+		return entries
 	}
 }

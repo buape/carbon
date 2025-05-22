@@ -138,6 +138,14 @@ export class Client {
 	 * @internal
 	 */
 	eventHandler: EventHandler
+	/**
+	 * The ID of the shard this client is running on, if sharding is enabled
+	 */
+	shardId?: number
+	/**
+	 * The total number of shards, if sharding is enabled
+	 */
+	totalShards?: number
 
 	/**
 	 * Creates a new client

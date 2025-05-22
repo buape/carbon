@@ -13,7 +13,7 @@ import { User } from "./User.js"
 export class Poll extends Base {
 	private channelId: string
 	private messageId: string
-	private rawData: APIPoll
+	protected rawData: APIPoll
 
 	constructor(
 		client: Client,

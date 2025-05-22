@@ -89,6 +89,12 @@ export class GatewayPlugin extends Plugin {
 			}
 		}
 
+		// Set shard information on the client
+		if (this.config.shard) {
+			client.shardId = this.config.shard[0]
+			client.totalShards = this.config.shard[1]
+		}
+
 		this.connect()
 	}
 

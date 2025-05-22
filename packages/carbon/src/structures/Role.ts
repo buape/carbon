@@ -23,7 +23,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	private rawData: APIRole | null = null
+	protected rawData: APIRole | null = null
 	private setData(data: typeof this.rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data

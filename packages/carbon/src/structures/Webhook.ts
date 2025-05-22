@@ -52,7 +52,7 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	private rawData: APIWebhook | null = null
+	protected rawData: APIWebhook | null = null
 	private setData(data: typeof this.rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data

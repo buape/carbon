@@ -27,7 +27,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	private rawData: APIUser | null = null
+	protected rawData: APIUser | null = null
 	private setData(data: typeof this.rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this.rawData = data

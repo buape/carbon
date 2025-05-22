@@ -1,7 +1,8 @@
-import type {
-	APIChannel,
-	APIGuildMember,
-	ThreadChannelType
+import {
+	type APIChannel,
+	type APIGuildMember,
+	ChannelType,
+	type ThreadChannelType
 } from "discord-api-types/v10"
 import { BaseListener } from "../abstracts/BaseListener.js"
 import { channelFactory } from "../functions/channelFactory.js"
@@ -10,6 +11,7 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
+import { ThreadMember } from "../structures/ThreadMember.js"
 import { User } from "../structures/User.js"
 import {
 	ListenerEvent,
@@ -35,6 +37,8 @@ export abstract class ApplicationAuthorizedListener extends BaseListener {
 		return {
 			guild,
 			user,
+			rawGuild: data.guild,
+			rawUser: data.user,
 			...restData
 		}
 	}
@@ -186,9 +190,12 @@ export abstract class ChannelCreateListener extends BaseListener {
 		data: ListenerEventRawData[this["type"]],
 		client: Client
 	): ListenerEventData[this["type"]] {
-		const channel = channelFactory(client, data as APIChannel)
+		const rawChannel = data
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		const channel = channelFactory(client, rawChannel)!
 		return {
 			channel,
+			rawChannel,
 			...data
 		}
 	}
@@ -205,9 +212,12 @@ export abstract class ChannelDeleteListener extends BaseListener {
 		data: ListenerEventRawData[this["type"]],
 		client: Client
 	): ListenerEventData[this["type"]] {
-		const channel = channelFactory(client, data as APIChannel)
+		const rawChannel = data
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		const channel = channelFactory(client, rawChannel)!
 		return {
 			channel,
+			rawChannel,
 			...data
 		}
 	}
@@ -229,7 +239,7 @@ export abstract class ChannelPinsUpdateListener extends BaseListener {
 			: undefined
 		const channel = channelFactory(client, {
 			id: data.channel_id,
-			type: 0
+			type: ChannelType.GuildText
 		} as APIChannel)
 		return {
 			guild,
@@ -250,8 +260,11 @@ export abstract class ChannelUpdateListener extends BaseListener {
 		data: ListenerEventRawData[this["type"]],
 		client: Client
 	): ListenerEventData[this["type"]] {
-		const channel = channelFactory(client, data as APIChannel)
+		const rawChannel = data
+		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		const channel = channelFactory(client, rawChannel)!
 		return {
+			rawChannel,
 			channel,
 			...data
 		}
@@ -345,6 +358,7 @@ export abstract class GuildBanAddListener extends BaseListener {
 		return {
 			...data,
 			guild,
+			rawUser: data.user,
 			user
 		}
 	}
@@ -366,7 +380,8 @@ export abstract class GuildBanRemoveListener extends BaseListener {
 		return {
 			...data,
 			user,
-			guild
+			guild,
+			rawUser: data.user
 		}
 	}
 }
@@ -459,11 +474,7 @@ export abstract class GuildMemberAddListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const guild = new Guild<true>(client, data.guild_id)
-		const member = new GuildMember<false, false>(
-			client,
-			data,
-			guild as unknown as Guild<false>
-		)
+		const member = new GuildMember<false, true>(client, data, guild)
 		return {
 			guild,
 			member,
@@ -488,7 +499,8 @@ export abstract class GuildMemberRemoveListener extends BaseListener {
 		return {
 			...data,
 			guild,
-			user
+			user,
+			rawUser: data.user
 		}
 	}
 }
@@ -516,14 +528,11 @@ export abstract class GuildMemberUpdateListener extends BaseListener {
 				global_name: data.user.global_name ?? null
 			}
 		}
-		const member = new GuildMember<false, false>(
-			client,
-			memberData,
-			guild as unknown as Guild<false>
-		)
+		const member = new GuildMember<false, true>(client, memberData, guild)
 		return {
 			guild,
 			member,
+			rawMember: data,
 			...data
 		}
 	}
@@ -547,6 +556,7 @@ export abstract class GuildMembersChunkListener extends BaseListener {
 		return {
 			...data,
 			guild,
+			rawMembers: data.members,
 			members: guildMembers
 		}
 	}
@@ -568,6 +578,7 @@ export abstract class GuildRoleCreateListener extends BaseListener {
 		return {
 			...data,
 			guild,
+			rawRole: data.role,
 			role
 		}
 	}
@@ -610,6 +621,7 @@ export abstract class GuildRoleUpdateListener extends BaseListener {
 		return {
 			...data,
 			guild,
+			rawRole: data.role,
 			role
 		}
 	}
@@ -631,8 +643,9 @@ export abstract class GuildScheduledEventCreateListener extends BaseListener {
 		return {
 			...data,
 			guild,
+			rawCreator: data.creator,
 			creator
-		} as ListenerEventData[this["type"]]
+		}
 	}
 }
 
@@ -846,8 +859,11 @@ export abstract class IntegrationCreateListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const guild = new Guild<true>(client, data.guild_id)
+		const user = data.user ? new User(client, data.user) : undefined
 		return {
 			guild,
+			user,
+			rawUser: data.user,
 			...data
 		}
 	}
@@ -895,6 +911,59 @@ export abstract class IntegrationUpdateListener extends BaseListener {
 	}
 }
 
+export abstract class InviteCreateListener extends BaseListener {
+	readonly type = ListenerEvent.InviteCreate
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = data.guild_id
+			? new Guild<true>(client, data.guild_id)
+			: undefined
+		const inviter = data.inviter ? new User(client, data.inviter) : undefined
+		const targetUser = data.target_user
+			? new User(client, data.target_user)
+			: undefined
+		return {
+			guild,
+			inviter,
+			targetUser,
+			rawInviter: data.inviter,
+			rawTargetUser: data.target_user,
+			...data
+		}
+	}
+}
+
+export abstract class InviteDeleteListener extends BaseListener {
+	readonly type = ListenerEvent.InviteDelete
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = data.guild_id
+			? new Guild<true>(client, data.guild_id)
+			: undefined
+		const channel = guild ? guild.fetchChannel(data.channel_id) : undefined
+		return {
+			guild,
+			channel,
+			rawChannel: data.channel_id,
+			...data
+		}
+	}
+}
+
 export abstract class MessageCreateListener extends BaseListener {
 	readonly type = ListenerEvent.MessageCreate
 	abstract handle(
@@ -927,7 +996,65 @@ export abstract class MessageCreateListener extends BaseListener {
 			guild,
 			member,
 			author,
-			message
+			message,
+			rawMessage: data,
+			rawMember: data.member,
+			rawAuthor: data.author
+		}
+	}
+}
+
+export abstract class MessageDeleteListener extends BaseListener {
+	readonly type = ListenerEvent.MessageDelete
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = data.guild_id
+			? new Guild<true>(client, data.guild_id)
+			: undefined
+		const message = new Message<true>(client, {
+			id: data.id,
+			channelId: data.channel_id
+		})
+		return {
+			guild,
+			message,
+			...data
+		}
+	}
+}
+
+export abstract class MessageDeleteBulkListener extends BaseListener {
+	readonly type = ListenerEvent.MessageDeleteBulk
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = data.guild_id
+			? new Guild<true>(client, data.guild_id)
+			: undefined
+		const messages = data.ids.map(
+			(id) =>
+				new Message<true>(client, {
+					id,
+					channelId: data.channel_id
+				})
+		)
+		return {
+			guild,
+			messages,
+			...data
 		}
 	}
 }
@@ -960,6 +1087,7 @@ export abstract class MessageReactionAddListener extends BaseListener {
 			...restData,
 			guild,
 			member,
+			rawMember: data.member,
 			user,
 			message
 		} as ListenerEventData[this["type"]]
@@ -1105,6 +1233,7 @@ export abstract class ReadyListener extends BaseListener {
 		const user = new User(client, data.user)
 		return {
 			...data,
+			rawUser: data.user,
 			user
 		}
 	}
@@ -1295,10 +1424,16 @@ export abstract class ThreadListSyncListener extends BaseListener {
 		const threads = data.threads.map(
 			(thread) => new GuildThreadChannel(client, thread)
 		)
+		const members = data.members.map((member) => {
+			return new ThreadMember(client, member, data.guild_id)
+		})
 		return {
 			...data,
 			guild,
-			threads
+			threads,
+			members,
+			rawMembers: data.members,
+			rawThreads: data.threads
 		}
 	}
 }
@@ -1324,7 +1459,7 @@ export abstract class ThreadMemberUpdateListener extends BaseListener {
 			data.id
 		)
 		const member = data.member
-			? new GuildMember<false, true>(client, data.member, guild)
+			? new ThreadMember(client, data, data.guild_id)
 			: undefined
 		return {
 			...data,
@@ -1355,16 +1490,9 @@ export abstract class ThreadMembersUpdateListener extends BaseListener {
 			client,
 			data.id
 		)
-		const addedMembers = (data.added_members
-			?.map((member) =>
-				member.member
-					? new GuildMember<false, true>(client, member.member, guild)
-					: undefined
-			)
-			.filter((member) => member !== undefined) ?? []) as GuildMember<
-			false,
-			true
-		>[]
+		const addedMembers = data.added_members?.map(
+			(member) => new ThreadMember(client, member, data.guild_id)
+		)
 		const removedMembers = data.removed_member_ids?.map(
 			(id) => new User<true>(client, id)
 		)
@@ -1431,6 +1559,7 @@ export abstract class TypingStartListener extends BaseListener {
 			guild,
 			member,
 			user,
+			rawMember: data.member,
 			...data
 		}
 	}
@@ -1494,6 +1623,7 @@ export abstract class VoiceStateUpdateListener extends BaseListener {
 				: undefined
 		return {
 			...data,
+			rawMember: data.member,
 			guild,
 			member
 		}
