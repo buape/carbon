@@ -29,8 +29,9 @@ export class User<IsPartial extends boolean = false> extends Base {
 
 	protected _rawData: APIUser | null = null
 	get rawData(): Readonly<APIUser> {
-		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
-		return this._rawData;
+		if (!this._rawData)
+			throw new Error("Cannot get data without having data... smh")
+		return this._rawData
 	}
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")

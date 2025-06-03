@@ -25,8 +25,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	protected _rawData: APIRole | null = null
 	get rawData(): Readonly<APIRole> {
-		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
-		return this._rawData;
+		if (!this._rawData)
+			throw new Error("Cannot get data without having data... smh")
+		return this._rawData
 	}
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")

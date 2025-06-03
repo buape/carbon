@@ -54,8 +54,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 
 	protected _rawData: APIMessage | null = null
 	get rawData(): Readonly<APIMessage> {
-		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
-		return this._rawData;
+		if (!this._rawData)
+			throw new Error("Cannot get data without having data... smh")
+		return this._rawData
 	}
 	private setData(data: typeof this._rawData) {
 		this._rawData = data

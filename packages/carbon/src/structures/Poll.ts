@@ -30,8 +30,9 @@ export class Poll extends Base {
 	}
 
 	get rawData(): Readonly<APIPoll> {
-		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
-		return this._rawData;
+		if (!this._rawData)
+			throw new Error("Cannot get data without having data... smh")
+		return this._rawData
 	}
 
 	get question() {

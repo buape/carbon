@@ -31,8 +31,9 @@ export class GuildMember<
 
 	protected _rawData: APIGuildMember | null = null
 	get rawData(): Readonly<APIGuildMember> {
-		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
-		return this._rawData;
+		if (!this._rawData)
+			throw new Error("Cannot get data without having data... smh")
+		return this._rawData
 	}
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
