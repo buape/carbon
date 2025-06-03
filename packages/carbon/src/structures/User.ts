@@ -21,20 +21,24 @@ export class User<IsPartial extends boolean = false> extends Base {
 		if (typeof rawDataOrId === "string") {
 			this.id = rawDataOrId
 		} else {
-			this.rawData = rawDataOrId
+			this._rawData = rawDataOrId
 			this.id = rawDataOrId.id
 			this.setData(rawDataOrId)
 		}
 	}
 
-	protected rawData: APIUser | null = null
-	private setData(data: typeof this.rawData) {
+	protected _rawData: APIUser | null = null
+	get rawData(): Readonly<APIUser> {
+		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
+		return this._rawData;
+	}
+	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
+		this._rawData = data
 	}
 	// private setField(key: keyof APIUser, value: unknown) {
-	// 	if (!this.rawData) throw new Error("Cannot set field without having data... smh")
-	// 	Reflect.set(this.rawData, key, value)
+	// 	if (!this._rawData) throw new Error("Cannot set field without having data... smh")
+	// 	Reflect.set(this._rawData, key, value)
 	// }
 
 	/**
@@ -47,47 +51,47 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * If this is true, you should use {@link User.fetch} to get the full data of the user.
 	 */
 	get partial(): IsPartial {
-		return (this.rawData === null) as never
+		return (this._rawData === null) as never
 	}
 
 	/**
 	 * The username of the user.
 	 */
 	get username(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.username
+		if (!this._rawData) return undefined as never
+		return this._rawData.username
 	}
 
 	/**
 	 * The global name of the user.
 	 */
 	get globalName(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.global_name
+		if (!this._rawData) return undefined as never
+		return this._rawData.global_name
 	}
 
 	/**
 	 * The discriminator of the user.
 	 */
 	get discriminator(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.discriminator
+		if (!this._rawData) return undefined as never
+		return this._rawData.discriminator
 	}
 
 	/**
 	 * Is this user a bot?
 	 */
 	get bot(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.bot ?? false
+		if (!this._rawData) return undefined as never
+		return this._rawData.bot ?? false
 	}
 
 	/**
 	 * Is this user a system user?
 	 */
 	get system(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.system ?? false
+		if (!this._rawData) return undefined as never
+		return this._rawData.system ?? false
 	}
 
 	/**
@@ -95,8 +99,8 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * @see https://discord.com/developers/docs/resources/user#user-object-user-flags
 	 */
 	get flags(): IfPartial<IsPartial, UserFlags | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.public_flags
+		if (!this._rawData) return undefined as never
+		return this._rawData.public_flags
 	}
 
 	/**
@@ -105,15 +109,15 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 
 	get avatar(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.avatar
+		if (!this._rawData) return undefined as never
+		return this._rawData.avatar
 	}
 
 	/**
 	 * Get the URL of the user's avatar
 	 */
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
+		if (!this._rawData) return undefined as never
 		if (!this.avatar) return null
 		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
 	}
@@ -123,15 +127,15 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * You can use {@link User.bannerUrl} to get the URL of the banner.
 	 */
 	get banner(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.banner ?? null
+		if (!this._rawData) return undefined as never
+		return this._rawData.banner ?? null
 	}
 
 	/**
 	 * Get the URL of the user's banner
 	 */
 	get bannerUrl(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
+		if (!this._rawData) return undefined as never
 		if (!this.banner) return null
 		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
 	}
@@ -140,8 +144,8 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * The accent color of the user.
 	 */
 	get accentColor(): IfPartial<IsPartial, number | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.accent_color ?? null
+		if (!this._rawData) return undefined as never
+		return this._rawData.accent_color ?? null
 	}
 
 	/**

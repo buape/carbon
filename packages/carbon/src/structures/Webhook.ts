@@ -52,10 +52,14 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	protected rawData: APIWebhook | null = null
-	private setData(data: typeof this.rawData) {
+	protected _rawData: APIWebhook | null = null
+	get rawData(): Readonly<APIWebhook> {
+		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
+		return this._rawData;
+	}
+	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
+		this._rawData = data
 	}
 
 	/**
@@ -78,7 +82,7 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * If this is true, you should use {@link Webhook.fetch} to get the full data of the webhook.
 	 */
 	get partial(): IsPartial {
-		return (this.rawData === null) as never
+		return (this._rawData === null) as never
 	}
 
 	/**
@@ -86,24 +90,24 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * @see https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-types
 	 */
 	get type(): IfPartial<IsPartial, WebhookType> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.type
+		if (!this._rawData) return undefined as never
+		return this._rawData.type
 	}
 
 	/**
 	 * The guild id this webhook is for
 	 */
 	get guildId(): IfPartial<IsPartial, string | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.guild_id
+		if (!this._rawData) return undefined as never
+		return this._rawData.guild_id
 	}
 
 	/**
 	 * The channel id this webhook is for
 	 */
 	get channelId(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.channel_id
+		if (!this._rawData) return undefined as never
+		return this._rawData.channel_id
 	}
 
 	/**
@@ -111,31 +115,31 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * Not returned when getting a webhook with its token
 	 */
 	get user(): IfPartial<IsPartial, User | undefined> {
-		if (!this.rawData?.user) return undefined as never
-		return new User(this.client, this.rawData.user)
+		if (!this._rawData?.user) return undefined as never
+		return new User(this.client, this._rawData.user)
 	}
 
 	/**
 	 * The default name of the webhook
 	 */
 	get name(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.name
+		if (!this._rawData) return undefined as never
+		return this._rawData.name
 	}
 
 	/**
 	 * The default avatar of the webhook
 	 */
 	get avatar(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.avatar
+		if (!this._rawData) return undefined as never
+		return this._rawData.avatar
 	}
 
 	/**
 	 * Get the URL of the webhook's avatar
 	 */
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
+		if (!this._rawData) return undefined as never
 		if (!this.avatar) return null
 		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
 	}
@@ -144,8 +148,8 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * The bot/OAuth2 application that created this webhook
 	 */
 	get applicationId(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.application_id
+		if (!this._rawData) return undefined as never
+		return this._rawData.application_id
 	}
 
 	/**
@@ -156,8 +160,8 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 		IsPartial,
 		APIWebhook["source_guild"] | undefined
 	> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.source_guild
+		if (!this._rawData) return undefined as never
+		return this._rawData.source_guild
 	}
 
 	/**
@@ -168,8 +172,8 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 		IsPartial,
 		APIWebhook["source_channel"] | undefined
 	> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.source_channel
+		if (!this._rawData) return undefined as never
+		return this._rawData.source_channel
 	}
 
 	/**
@@ -177,8 +181,8 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * Only returned by the webhooks OAuth2 flow
 	 */
 	get url(): IfPartial<IsPartial, string | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.url
+		if (!this._rawData) return undefined as never
+		return this._rawData.url
 	}
 
 	/**

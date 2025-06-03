@@ -52,9 +52,13 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		}
 	}
 
-	protected rawData: APIMessage | null = null
-	private setData(data: typeof this.rawData) {
-		this.rawData = data
+	protected _rawData: APIMessage | null = null
+	get rawData(): Readonly<APIMessage> {
+		if (!this._rawData) throw new Error("Cannot get data without having data... smh")
+		return this._rawData;
+	}
+	private setData(data: typeof this._rawData) {
+		this._rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")
 	}
 
@@ -73,23 +77,23 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * If this is true, you should use {@link Message.fetch} to get the full data of the message.
 	 */
 	get partial(): IsPartial {
-		return (this.rawData === null) as never
+		return (this._rawData === null) as never
 	}
 
 	/**
 	 * If this message is a response to an interaction, this is the ID of the interaction's application
 	 */
 	get applicationId(): IfPartial<IsPartial, string | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.application_id
+		if (!this._rawData) return undefined as never
+		return this._rawData.application_id
 	}
 
 	/**
 	 * The attachments of the message
 	 */
 	get attachments(): IfPartial<IsPartial, APIAttachment[]> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.attachments ?? []
+		if (!this._rawData) return undefined as never
+		return this._rawData.attachments ?? []
 	}
 
 	/**
@@ -99,38 +103,38 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		IsPartial,
 		NonNullable<APIMessage["components"]>
 	> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.components ?? []
+		if (!this._rawData) return undefined as never
+		return this._rawData.components ?? []
 	}
 
 	/**
 	 * The content of the message
 	 */
 	get content(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.content ?? ""
+		if (!this._rawData) return undefined as never
+		return this._rawData.content ?? ""
 	}
 
 	get embeds(): IfPartial<IsPartial, Embed[]> {
-		if (!this.rawData) return undefined as never
-		if (!this.rawData?.embeds) return []
-		return this.rawData.embeds.map((embed) => new Embed(embed))
+		if (!this._rawData) return undefined as never
+		if (!this._rawData?.embeds) return []
+		return this._rawData.embeds.map((embed) => new Embed(embed))
 	}
 
 	/**
 	 * If this message was edited, this is the timestamp of the edit
 	 */
 	get editedTimestamp(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.edited_timestamp as never
+		if (!this._rawData) return undefined as never
+		return this._rawData.edited_timestamp as never
 	}
 
 	/**
 	 * The flags of the message
 	 */
 	get flags(): IfPartial<IsPartial, MessageFlags> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.flags as never
+		if (!this._rawData) return undefined as never
+		return this._rawData.flags as never
 	}
 
 	/**
@@ -140,25 +144,25 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		IsPartial,
 		APIMessageInteractionMetadata | undefined
 	> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.interaction_metadata
+		if (!this._rawData) return undefined as never
+		return this._rawData.interaction_metadata
 	}
 
 	/**
 	 * Whether the message mentions everyone
 	 */
 	get mentionedEveryone(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.mention_everyone
+		if (!this._rawData) return undefined as never
+		return this._rawData.mention_everyone
 	}
 
 	/**
 	 * The users mentioned in the message
 	 */
 	get mentionedUsers(): IfPartial<IsPartial, User[]> {
-		if (!this.rawData) return undefined as never
-		if (!this.rawData?.mentions) return []
-		return this.rawData.mentions.map(
+		if (!this._rawData) return undefined as never
+		if (!this._rawData?.mentions) return []
+		return this._rawData.mentions.map(
 			(mention) => new User(this.client, mention)
 		)
 	}
@@ -167,9 +171,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * The roles mentioned in the message
 	 */
 	get mentionedRoles(): IfPartial<IsPartial, Role<true>[]> {
-		if (!this.rawData) return undefined as never
-		if (!this.rawData?.mention_roles) return []
-		return this.rawData.mention_roles.map(
+		if (!this._rawData) return undefined as never
+		if (!this._rawData?.mention_roles) return []
+		return this._rawData.mention_roles.map(
 			(mention) => new Role<true>(this.client, mention)
 		)
 	}
@@ -181,35 +185,35 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		IsPartial,
 		APIMessageReference | undefined
 	> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.message_reference
+		if (!this._rawData) return undefined as never
+		return this._rawData.message_reference
 	}
 
 	/**
 	 * The referenced message itself
 	 */
 	get referencedMessage(): IfPartial<IsPartial, Message | null> {
-		if (!this.rawData?.referenced_message) return null as never
-		return new Message(this.client, this.rawData?.referenced_message)
+		if (!this._rawData?.referenced_message) return null as never
+		return new Message(this.client, this._rawData?.referenced_message)
 	}
 
 	/**
 	 * Whether the message is pinned
 	 */
 	get pinned(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.pinned
+		if (!this._rawData) return undefined as never
+		return this._rawData.pinned
 	}
 
 	/**
 	 * The poll contained in the message
 	 */
 	get poll(): IfPartial<IsPartial, Poll | undefined> {
-		if (!this.rawData?.poll) return undefined as never
+		if (!this._rawData?.poll) return undefined as never
 		return new Poll(this.client, {
 			channelId: this.channelId,
 			messageId: this.id,
-			data: this.rawData.poll
+			data: this._rawData.poll
 		})
 	}
 
@@ -217,57 +221,57 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * The approximate position of the message in the channel
 	 */
 	get position(): IfPartial<IsPartial, number | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.position
+		if (!this._rawData) return undefined as never
+		return this._rawData.position
 	}
 
 	/**
 	 * The reactions on the message
 	 */
 	get reactions(): IfPartial<IsPartial, APIReaction[]> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.reactions ?? []
+		if (!this._rawData) return undefined as never
+		return this._rawData.reactions ?? []
 	}
 
 	/**
 	 * The stickers in the message
 	 */
 	get stickers(): IfPartial<IsPartial, APIStickerItem[]> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.sticker_items ?? []
+		if (!this._rawData) return undefined as never
+		return this._rawData.sticker_items ?? []
 	}
 
 	/**
 	 * The timestamp of the original message
 	 */
 	get timestamp(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.timestamp
+		if (!this._rawData) return undefined as never
+		return this._rawData.timestamp
 	}
 
 	/**
 	 * Whether the message is a TTS message
 	 */
 	get tts(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.tts
+		if (!this._rawData) return undefined as never
+		return this._rawData.tts
 	}
 
 	/**
 	 * The type of the message
 	 */
 	get type(): IfPartial<IsPartial, MessageType> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.type
+		if (!this._rawData) return undefined as never
+		return this._rawData.type
 	}
 
 	/**
 	 * Get the author of the message
 	 */
 	get author(): IfPartial<IsPartial, User | null> {
-		if (!this.rawData) return null as never
-		if (this.rawData?.webhook_id) return null as never // TODO: Add webhook user
-		return new User(this.client, this.rawData.author)
+		if (!this._rawData) return null as never
+		if (this._rawData?.webhook_id) return null as never // TODO: Add webhook user
+		return new User(this.client, this._rawData.author)
 	}
 
 	/**
@@ -279,11 +283,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			ChannelType.PublicThread | ChannelType.AnnouncementThread
 		> | null
 	> {
-		if (!this.rawData) return null as never
-		if (!this.rawData?.thread) return null
+		if (!this._rawData) return null as never
+		if (!this._rawData?.thread) return null
 		return channelFactory(
 			this.client,
-			this.rawData?.thread
+			this._rawData?.thread
 		) as GuildThreadChannel<
 			ChannelType.PublicThread | ChannelType.AnnouncementThread
 		>
@@ -478,15 +482,15 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * Disable all buttons on the message except for link buttons
 	 */
 	async disableAllButtons() {
-		if (!this.rawData) return
-		if (!this.rawData.components) return
+		if (!this._rawData) return
+		if (!this._rawData.components) return
 		const patched = (await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
-					...this.rawData,
+					...this._rawData,
 					components:
-						this.rawData.components?.map((component) => {
+						this._rawData.components?.map((component) => {
 							const disable = (component: APIComponentInContainer) => {
 								if (component.type === ComponentType.ActionRow) {
 									return {
