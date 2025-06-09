@@ -185,18 +185,22 @@ export class GatewayPlugin extends Plugin {
 				case GatewayOpcodes.Dispatch: {
 					const payload1 = payload as GatewayDispatchPayload
 					const t1 = payload1.t as ListenerEventType
-					if (!Object.values(ListenerEvent).includes(t1)) {
-						throw new Error(`Unknown event type: ${t1}`)
-					}
-					if (t1 === "READY") {
-						const readyData = d as ReadyEventData
-						this.state.sessionId = readyData.session_id
-						this.state.resumeGatewayUrl = readyData.resume_gateway_url
-					}
-					if (t && this.client) {
-						if (!this.config.eventFilter || this.config.eventFilter?.(t1)) {
-							this.client.eventHandler.handleEvent(payload1.d, t1)
+					try {
+						if (!Object.values(ListenerEvent).includes(t1)) {
+							throw new Error(`Unknown event type: ${t1}`)
 						}
+						if (t1 === "READY") {
+							const readyData = d as ReadyEventData
+							this.state.sessionId = readyData.session_id
+							this.state.resumeGatewayUrl = readyData.resume_gateway_url
+						}
+						if (t && this.client) {
+							if (!this.config.eventFilter || this.config.eventFilter?.(t1)) {
+								this.client.eventHandler.handleEvent(payload1.d, t1)
+							}
+						}
+					} catch (err) {
+						console.error(err)
 					}
 					break
 				}
