@@ -161,7 +161,7 @@ export class GatewayPlugin extends Plugin {
 						reconnectCallback: () => {
 							if (closed) {
 								throw new Error(
-									"Attempted to reconnect zombie connect after disconnecting first (this shouldn't be possible)"
+									"Attempted to reconnect zombie connection after disconnecting first (this shouldn't be possible)"
 								)
 							}
 							closed = true
@@ -230,7 +230,6 @@ export class GatewayPlugin extends Plugin {
 					}
 					closed = true
 					this.state.sequence = this.sequence
-					console.log("[setupWebSocket SEQUENCE] sequene:", this.state.sequence)
 					this.ws?.close(3024)
 					this.handleReconnect()
 					break
