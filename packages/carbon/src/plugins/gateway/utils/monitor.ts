@@ -39,7 +39,11 @@ export class ConnectionMonitor extends EventEmitter {
 			interval: config.interval ?? 60000,
 			latencyThreshold: config.latencyThreshold ?? 1000
 		}
-		this.metricsInterval = setInterval(() => {
+		this.metricsInterval = this.createMetricsInterval()
+	}
+
+	private createMetricsInterval(): NodeJS.Timeout {
+		return setInterval(() => {
 			this.metrics.uptime = Date.now() - this.startTime
 			this.emit("metrics", this.getMetrics())
 
@@ -88,6 +92,13 @@ export class ConnectionMonitor extends EventEmitter {
 
 	public recordMessageSent(): void {
 		this.metrics.messagesSent++
+	}
+
+	public resetUptime(): void {
+		clearInterval(this.metricsInterval)
+		this.metrics.uptime = 0
+		this.startTime = Date.now()
+		this.metricsInterval = this.createMetricsInterval()
 	}
 
 	public getMetrics(): ConnectionMetrics {

@@ -99,6 +99,8 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	public connect(resume = false): void {
+		this.ws?.close()
+
 		const url =
 			resume && this.state.resumeGatewayUrl
 				? this.state.resumeGatewayUrl
@@ -111,9 +113,9 @@ export class GatewayPlugin extends Plugin {
 
 	public disconnect(): void {
 		stopHeartbeat(this)
+		this.monitor.resetUptime()
 		this.ws?.close()
 		this.ws = null
-		this.monitor.destroy()
 	}
 
 	protected createWebSocket(url: string): WebSocket {
@@ -125,6 +127,8 @@ export class GatewayPlugin extends Plugin {
 
 	protected setupWebSocket(): void {
 		if (!this.ws) return
+
+		let closed = false
 
 		this.ws.on("open", () => {
 			this.reconnectAttempts = 0
@@ -154,7 +158,15 @@ export class GatewayPlugin extends Plugin {
 					const interval = helloData.heartbeat_interval
 					startHeartbeat(this, {
 						interval,
-						reconnectCallback: () => this.handleZombieConnection()
+						reconnectCallback: () => {
+							if (closed) {
+								throw new Error(
+									"Attempted to reconnect zombie connect after disconnecting first (this shouldn't be possible)"
+								)
+							}
+							closed = true
+							this.handleZombieConnection()
+						}
 					})
 
 					if (this.canResume()) {
@@ -173,8 +185,9 @@ export class GatewayPlugin extends Plugin {
 				case GatewayOpcodes.Dispatch: {
 					const payload1 = payload as GatewayDispatchPayload
 					const t1 = payload1.t as ListenerEventType
-					if (!Object.values(ListenerEvent).includes(t1))
+					if (!Object.values(ListenerEvent).includes(t1)) {
 						throw new Error(`Unknown event type: ${t1}`)
+					}
 					if (t1 === "READY") {
 						const readyData = d as ReadyEventData
 						this.state.sessionId = readyData.session_id
@@ -191,11 +204,13 @@ export class GatewayPlugin extends Plugin {
 				case GatewayOpcodes.InvalidSession: {
 					const canResume = Boolean(d)
 					setTimeout(() => {
+						closed = true
 						if (canResume && this.canResume()) {
 							this.connect(true)
 						} else {
 							this.state.sessionId = null
 							this.state.resumeGatewayUrl = null
+							this.state.sequence = null
 							this.sequence = null
 							this.connect(false)
 						}
@@ -204,6 +219,15 @@ export class GatewayPlugin extends Plugin {
 				}
 
 				case GatewayOpcodes.Reconnect:
+					if (closed) {
+						throw new Error(
+							"Attempted to reconnect gateway after disconnecting first (this shouldn't be possible)"
+						)
+					}
+					closed = true
+					this.state.sequence = this.sequence
+					console.log("[setupWebSocket SEQUENCE] sequene:", this.state.sequence)
+					this.ws?.close(3024)
 					this.handleReconnect()
 					break
 			}
@@ -215,6 +239,10 @@ export class GatewayPlugin extends Plugin {
 				`WebSocket connection closed with code ${code}`
 			)
 			this.monitor.recordReconnect()
+
+			if (closed) return
+			closed = true
+
 			this.handleClose(code)
 		})
 
@@ -235,6 +263,8 @@ export class GatewayPlugin extends Plugin {
 			maxDelay = 30000
 		} = this.config.reconnect ?? {}
 
+		this.disconnect()
+
 		if (this.reconnectAttempts >= maxAttempts) {
 			this.emitter.emit(
 				"error",
@@ -242,6 +272,7 @@ export class GatewayPlugin extends Plugin {
 					`Max reconnect attempts (${maxAttempts}) reached${options.code ? ` after code ${options.code}` : ""}`
 				)
 			)
+			this.monitor.destroy()
 			return
 		}
 
@@ -257,6 +288,7 @@ export class GatewayPlugin extends Plugin {
 						new Error(`Fatal Gateway error: ${options.code}`)
 					)
 					this.reconnectAttempts = maxAttempts
+					this.monitor.destroy()
 					return
 				}
 
@@ -264,6 +296,7 @@ export class GatewayPlugin extends Plugin {
 				case GatewayCloseCodes.SessionTimedOut: {
 					this.state.sessionId = null
 					this.state.resumeGatewayUrl = null
+					this.state.sequence = null
 					this.sequence = null
 					options.forceNoResume = true
 					break
@@ -271,17 +304,15 @@ export class GatewayPlugin extends Plugin {
 			}
 		}
 
-		this.reconnectAttempts++
 		const backoffTime = Math.min(
 			baseDelay * 2 ** this.reconnectAttempts,
 			maxDelay
 		)
+		this.reconnectAttempts++
 
 		if (options.isZombieConnection) {
 			this.monitor.recordZombieConnection()
 		}
-
-		this.disconnect()
 
 		const shouldResume = !options.forceNoResume && this.canResume()
 		this.emitter.emit(
@@ -309,11 +340,12 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	protected resume(): void {
-		if (!this.client || !this.state.sessionId || this.sequence === null) return
+		if (!this.client || !this.state.sessionId || this.state.sequence === null)
+			return
 		const payload = createResumePayload({
 			token: this.client.options.token,
 			sessionId: this.state.sessionId,
-			sequence: this.sequence
+			sequence: this.state.sequence
 		})
 		this.send(payload)
 	}
