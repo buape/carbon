@@ -111,6 +111,10 @@ You can now run your bot using:
 
 Finally, to deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This will send your command data to Discord to register them with your bot.
 </Step>
+
+<Callout type="info">
+To deploy commands to specific guilds, add a `guildIds` property to your command classes with an array of guild IDs. To deploy all commands to certain guilds during development, set the `devGuilds` option in your client config (e.g., from an environment variable). Commands with `guildIds` are only available in those guilds; commands without are deployed globally. If `devGuilds` is set, all commands are deployed to those guilds instead of globally.
+</Callout>
 </Steps>
 
 ## Deploying to Production

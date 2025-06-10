@@ -34,6 +34,8 @@ import {
 } from "../utils/index.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
+type SerializedCommand = ReturnType<BaseCommand["serialize"]>
+
 /**
  * The options used for initializing the client
  */
@@ -83,6 +85,11 @@ export interface ClientOptions {
 	 * @default false
 	 */
 	disableEventsRoute?: boolean
+	/**
+	 * A list of guild IDs to deploy all commands to during development (guild command deployment is instant and rate-limited higher).
+	 * If set, all commands will be deployed to these guilds instead of globally.
+	 */
+	devGuilds?: string[]
 }
 
 /**
@@ -230,19 +237,50 @@ export class Client {
 	 * @returns A response
 	 */
 	public async handleDeployRequest() {
-		const commands = this.commands
-			.filter((c) => c.name !== "*")
-			.map((c) => c.serialize())
-		await this.rest.put(
-			Routes.applicationCommands(this.options.clientId), //
-			{ body: commands }
-		)
+		const commands = this.commands.filter((c) => c.name !== "*")
+		const globalCommands = commands.filter((c) => !c.guildIds)
+		const guildCommandsMap: Record<string, SerializedCommand[]> = {}
+		for (const command of commands) {
+			if (command.guildIds) {
+				for (const guildId of command.guildIds) {
+					if (!guildCommandsMap[guildId]) guildCommandsMap[guildId] = []
+					guildCommandsMap[guildId].push(command.serialize())
+				}
+			}
+		}
+
+		// If devGuilds is set, deploy all commands to those guilds (for development)
+		if (this.options.devGuilds && this.options.devGuilds.length > 0) {
+			for (const guildId of this.options.devGuilds) {
+				await this.rest.put(
+					Routes.applicationGuildCommands(this.options.clientId, guildId),
+					{ body: commands.map((c) => c.serialize()) }
+				)
+			}
+			return new Response("OK (devGuilds)", { status: 202 })
+		}
+
+		// Deploy guild-specific commands
+		for (const [guildId, cmds] of Object.entries(guildCommandsMap)) {
+			await this.rest.put(
+				Routes.applicationGuildCommands(this.options.clientId, guildId),
+				{ body: cmds }
+			)
+		}
+
+		// Deploy global commands
+		if (globalCommands.length > 0) {
+			await this.rest.put(Routes.applicationCommands(this.options.clientId), {
+				body: globalCommands.map((c) => c.serialize())
+			})
+		}
 		return new Response("OK", { status: 202 })
 	}
 
 	/**
 	 * Handle an interaction request from Discord
 	 * @param req The request to handle
+	 * @param ctx The context for the request
 	 * @returns A response
 	 */
 	public async handleEventsRequest(req: Request) {

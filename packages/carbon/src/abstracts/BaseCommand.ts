@@ -73,6 +73,12 @@ export abstract class BaseCommand {
 	components?: BaseMessageInteractiveComponent[]
 
 	/**
+	 * The guild IDs this command should be deployed to (guild-specific deployment).
+	 * If not set, the command is deployed globally.
+	 */
+	guildIds?: string[]
+
+	/**
 	 * Serializes the command into a JSON object that can be sent to Discord
 	 * @internal
 	 */
