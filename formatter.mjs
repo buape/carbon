@@ -69,4 +69,28 @@ export function load(app) {
 			)
 		}
 	)
+
+	// Escape '#' in inline code for private fields (e.g., `#myPrivateProp`)
+	app.renderer.on(
+		MarkdownPageEvent.END,
+		/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent} page */
+		(page) => {
+			if (!page.contents) return
+			// Replace `#identifier` with `\#identifier` inside inline code
+			page.contents = page.contents.replace(/`#([a-zA-Z0-9_]+)`/g, "`\\#$1`")
+		}
+	)
+
+	// Escape '#' at the start of identifiers in code blocks
+	app.renderer.on(
+		MarkdownPageEvent.END,
+		/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent} page */
+		(page) => {
+			if (!page.contents) return
+			// Escape # in code blocks
+			page.contents = page.contents.replace(/(```[\s\S]*?```)/g, (block) =>
+				block.replace(/#([a-zA-Z0-9_]+)/g, "\\#$1")
+			)
+		}
+	)
 }
