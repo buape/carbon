@@ -19,7 +19,7 @@ import { CommandInteraction } from "discord.js"
 export default class MyCommand extends Command {
 	public override async preCheck(interaction: CommandInteraction): Promise<true | unknown> {
 		// Check if the user has a specific role
-		if (!interaction.member?.roles.cache.has("123456789")) {
+		if (!interaction.member?.roles.find(x => x.id === "123456789")) {
 			await interaction.reply("You don't have permission to use this command!")
 			return false
 		}

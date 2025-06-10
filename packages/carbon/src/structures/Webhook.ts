@@ -183,30 +183,15 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch this webhook's data
-	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial Webhook
 	 */
-	async fetch(bypassCache = false): Promise<Webhook<false>> {
-		// Check cache if client has caching enabled
-		if (!bypassCache && this.client.isCaching()) {
-			const cachedWebhook = await this.client.cache.get("webhook", this.id)
-			if (cachedWebhook) {
-				this.setData(cachedWebhook.rawData)
-				return this as Webhook<false>
-			}
-		}
-
+	async fetch(): Promise<Webhook<false>> {
 		const newData = (await this.client.rest.get(
 			Routes.webhook(this.id)
 		)) as RESTGetAPIWebhookResult
 		if (!newData) throw new Error(`Webhook ${this.id} not found`)
 
 		this.setData(newData)
-
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set("webhook", this.id, this as Webhook<false>)
-		}
 
 		return this as Webhook<false>
 	}
@@ -223,11 +208,6 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 
 		this.setData(newData)
 
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set("webhook", this.id, this as Webhook<false>)
-		}
-
 		return this as Webhook<false>
 	}
 
@@ -237,10 +217,6 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 */
 	async delete(): Promise<void> {
 		await this.client.rest.delete(Routes.webhook(this.id))
-
-		if (this.client.isCaching()) {
-			await this.client.cache.delete("webhook", this.id)
-		}
 	}
 
 	/**

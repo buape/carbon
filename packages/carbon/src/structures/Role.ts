@@ -160,37 +160,15 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * If the role is partial, this will fetch all the data for the role and populate the fields.
 	 * If the role is not partial, all fields will be updated with new values from Discord.
 	 * @param guildId The ID of the guild the role is in
-	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial Role
 	 */
-	async fetch(guildId: string, bypassCache = false): Promise<Role<false>> {
-		// Check cache if client has caching enabled
-		if (!bypassCache && this.client.isCaching()) {
-			const cachedRole = await this.client.cache.get(
-				"role",
-				this.client.cache.createCompositeKey([guildId, this.id])
-			)
-			if (cachedRole) {
-				this.setData(cachedRole.rawData)
-				return this as Role<false>
-			}
-		}
-
+	async fetch(guildId: string): Promise<Role<false>> {
 		const newData = (await this.client.rest.get(
 			Routes.guildRole(guildId, this.id)
 		)) as APIRole
 		if (!newData) throw new Error(`Role ${this.id} not found`)
 
 		this.setData(newData)
-
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set(
-				"role",
-				this.client.cache.createCompositeKey([guildId, this.id]),
-				this as Role<false>
-			)
-		}
 
 		return this as Role<false>
 	}
@@ -294,12 +272,5 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(Routes.guildRole(guildId, this.id), {
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
-
-		if (this.client.isCaching()) {
-			await this.client.cache.delete(
-				"role",
-				this.client.cache.createCompositeKey([guildId, this.id])
-			)
-		}
 	}
 }

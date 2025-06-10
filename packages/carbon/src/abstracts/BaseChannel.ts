@@ -5,7 +5,6 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
 import { Base } from "./Base.js"
 
@@ -78,33 +77,15 @@ export abstract class BaseChannel<
 
 	/**
 	 * Fetches the channel from the API.
-	 * @param bypassCache Whether to bypass the cache and fetch fresh data
 	 * @returns A Promise that resolves to a non-partial channel
 	 */
-	async fetch(bypassCache = false): Promise<BaseChannel<Type, false>> {
-		// Check cache if client has caching enabled
-		if (!bypassCache && this.client.isCaching()) {
-			const cachedChannel = await this.client.cache.get("channel", this.id)
-			if (cachedChannel) {
-				this.setData(
-					cachedChannel.rawData as Extract<APIChannel, { type: Type }>
-				)
-				return this as BaseChannel<Type, false>
-			}
-		}
-
+	async fetch(): Promise<BaseChannel<Type, false>> {
 		const newData = (await this.client.rest.get(
 			Routes.channel(this.id)
 		)) as Extract<APIChannel, { type: Type }>
 		if (!newData) throw new Error(`Channel ${this.id} not found`)
 
 		this.setData(newData)
-
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			const channel = channelFactory(this.client, newData)
-			await this.client.cache.set("channel", this.id, channel)
-		}
 
 		return this as BaseChannel<Type, false>
 	}
@@ -114,10 +95,6 @@ export abstract class BaseChannel<
 	 */
 	async delete() {
 		await this.client.rest.delete(Routes.channel(this.id))
-
-		if (this.client.isCaching()) {
-			await this.client.cache.delete("channel", this.id)
-		}
 	}
 
 	/**

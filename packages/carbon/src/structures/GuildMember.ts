@@ -143,17 +143,6 @@ export class GuildMember<
 	}
 
 	async getVoiceState(): Promise<VoiceState | null> {
-		// Check cache if client has caching enabled
-		if (this.client.isCaching()) {
-			const cachedVoiceState = await this.client.cache.get(
-				"voiceState",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
-			)
-			if (cachedVoiceState) {
-				return cachedVoiceState
-			}
-		}
-
 		const voiceState = (await this.client.rest.get(
 			`/guilds/${this.guild.id}/members/${this.user.id}/voice`
 		)) as APIVoiceState
@@ -174,32 +163,12 @@ export class GuildMember<
 			requestToSpeakTimestamp: voiceState.request_to_speak_timestamp ?? null
 		}
 
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set(
-				"voiceState",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
-				voiceStateData
-			)
-		}
-
 		return voiceStateData
 	}
 
 	async getPermissions(): Promise<IfPartial<IsPartial, bigint[]>> {
 		if (!this.rawData) return undefined as never
 		if (this.guild.ownerId === this.user.id) return maxPermissions
-
-		// Check cache if client has caching enabled
-		if (this.client.isCaching()) {
-			const cachedPermissions = await this.client.cache.get(
-				"permissions",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
-			)
-			if (cachedPermissions) {
-				return cachedPermissions
-			}
-		}
 
 		const permissions = await Promise.all(
 			this.roles.map(async (x) => {
@@ -209,15 +178,6 @@ export class GuildMember<
 			})
 		)
 		const filteredPermissions = permissions.filter((x) => x !== undefined)
-
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set(
-				"permissions",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
-				filteredPermissions
-			)
-		}
 
 		return filteredPermissions
 	}
@@ -275,13 +235,6 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
-
-		if (this.client.isCaching()) {
-			await this.client.cache.delete(
-				"member",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
-			)
-		}
 	}
 
 	/**
@@ -302,13 +255,6 @@ export class GuildMember<
 					: undefined
 			}
 		)
-
-		if (this.client.isCaching()) {
-			await this.client.cache.delete(
-				"member",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
-			)
-		}
 	}
 
 	/**
@@ -394,34 +340,13 @@ export class GuildMember<
 		this.setField("communication_disabled_until", communicationDisabledUntil)
 	}
 
-	async fetch(bypassCache = false): Promise<GuildMember<false, true>> {
-		// Check cache if client has caching enabled
-		if (!bypassCache && this.client.isCaching()) {
-			const cachedMember = await this.client.cache.get(
-				"member",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id])
-			)
-			if (cachedMember) {
-				this.setData(cachedMember.rawData)
-				return this as GuildMember<false, true>
-			}
-		}
-
+	async fetch(): Promise<GuildMember<false, true>> {
 		const newData = (await this.client.rest.get(
 			Routes.guildMember(this.guild.id, this.user.id)
 		)) as APIGuildMember
 		if (!newData) throw new Error(`Member ${this.user.id} not found`)
 
 		this.setData(newData)
-
-		// Update cache if client has caching enabled
-		if (this.client.isCaching()) {
-			await this.client.cache.set(
-				"member",
-				this.client.cache.createCompositeKey([this.guild.id, this.user.id]),
-				this as GuildMember<false, true>
-			)
-		}
 
 		return this as GuildMember<false, true>
 	}
