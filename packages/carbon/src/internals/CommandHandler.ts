@@ -14,6 +14,24 @@ import { AutocompleteInteraction } from "./AutocompleteInteraction.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
 export class CommandHandler extends Base {
+	private getSubcommand(
+		command: CommandWithSubcommands,
+		rawInteraction:
+			| APIApplicationCommandAutocompleteInteraction
+			| APIApplicationCommandInteraction
+	): Command {
+		if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
+			throw new Error("Subcommands must be used with ChatInput")
+		}
+		const data = rawInteraction.data
+		const subcommand = command.subcommands.find(
+			(x) => x.name === data.options?.[0]?.name
+		)
+		if (!subcommand) throw new Error("Subcommand not found")
+
+		return subcommand
+	}
+
 	private getCommand(
 		rawInteraction:
 			| APIApplicationCommandAutocompleteInteraction
@@ -33,7 +51,13 @@ export class CommandHandler extends Base {
 			const subcommandGroupName = data.options?.find(
 				(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
 			)?.name
-			if (!subcommandGroupName) throw new Error("No subcommand group name")
+			if (!subcommandGroupName) {
+				try {
+					return this.getSubcommand(command, rawInteraction)
+				} catch {
+					throw new Error("No subcommand group name or subcommand found")
+				}
+			}
 
 			const subcommandGroup = command.subcommandGroups.find(
 				(x) => x.name === subcommandGroupName
@@ -60,16 +84,7 @@ export class CommandHandler extends Base {
 		}
 
 		if (command instanceof CommandWithSubcommands) {
-			if (rawInteraction.data.type !== ApplicationCommandType.ChatInput) {
-				throw new Error("Subcommands must be used with ChatInput")
-			}
-			const data = rawInteraction.data
-			const subcommand = command.subcommands.find(
-				(x) => x.name === data.options?.[0]?.name
-			)
-			if (!subcommand) throw new Error("Subcommand not found")
-
-			return subcommand
+			return this.getSubcommand(command, rawInteraction)
 		}
 
 		if (command instanceof Command) {

@@ -25,6 +25,16 @@ class Command2 extends Command {
 	}
 }
 
+class Command3 extends Command {
+	name = "command3"
+	description = "Subcommand 3"
+	defer = true
+
+	async run(interaction: CommandInteraction) {
+		await interaction.reply({ content: "Subcommand 3" })
+	}
+}
+
 class SubcommandsCommand1 extends CommandWithSubcommands {
 	name = "subcommand1"
 	description = "Subcommands!"
@@ -46,4 +56,5 @@ export default class SubcommandGroupsCommand extends CommandWithSubcommandGroups
 	description = "Subcommand group!"
 
 	subcommandGroups = [new SubcommandsCommand1(), new SubcommandsCommand2()]
+	subcommands = [new Command3()]
 }
