@@ -1,5 +1,52 @@
 # @buape/carbon
 
+## 0.9.0
+
+### Minor Changes
+
+- 379b2b7: feat: Guild#fetchMembers method
+- 4b4141d: feat: support commands only in specific guilds
+- b5367f6: feat: add a Paginator class (implemented as a plugin)
+- 891892a: feat: Poll support
+- 7681111: fix: Clean up Listener types, provide raw data for overridden types
+- e39de8e: feat: voice state for GuildMember
+- 36ab053: feat: prechecks
+- 1666d1d: feat: full command data route
+- 6af69df: feat: name and description localizations
+- 0852797: feat: OptionsHandler#getAttachment
+- 8d01c89: feat: Fetch all channels in a guild
+- 314b16f: feat: mount components when used, allowing for custom constructor setups
+- 3cdcd07: feat: add new and improved global registering of components
+- 4650235: feat: Caching
+- 6b8c1b9: feat: add sharding to the forwarder plugin
+- 314b16f: feat: implement a custom ID parser system for component data specific to each usage of a component
+- 8f57795: feat: add fetchRole and fetchRoles methods on a guild
+- 7b2b785: feat: Message#disableAllButtons
+- 23ad89f: feat: more Guild properties
+- 7b2b785: feat: one off components (e.g. confirmation prompts)
+- e7e6da9: feat: add an error and docs page for missing components
+- ebc7d8b: feat: add more validation for incoming options
+- e0b6544: feat: command data plugin
+- 7b2b785: feat: have Interaction#reply return a Message you can use
+- 7681111: feat: ThreadMember structure
+- 4b0dfff: feat: toString() methods to generate mention strings
+- bebe424: feat: enforce the 25 choices limit with a console warning
+- ed32210: feat: add a way to fetch a guildmember's permissions
+- 6daed34: feat: Webhook support
+- aeaa47a: feat: return a Message object when you use Channel#send
+
+### Patch Changes
+
+- 1a347b4: feat: add preferred locale to guild
+- 4fa2e35: fix: ignore event filter on gateway plugins if not set
+- 3591b56: fix(temp): add a patch workaround for https://github.com/buape/carbon/issues/247
+- e2b2c69: Fixed gateway's reconnection system
+- 8e80185: fix: don't assume that channels and members always exist
+- c36a702: fix: update container id from 15 to 17
+- bc4a36a: fix: allow description to be optional for commands
+- 51df9d3: chore: bump dependencies
+- fd678c2: fix: fixed sharding on createIdentifyPayload
+
 ## 0.8.0
 
 ### Minor Changes
