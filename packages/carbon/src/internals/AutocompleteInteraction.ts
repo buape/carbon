@@ -69,13 +69,20 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 			value: string
 		}[]
 	) {
+		let safeChoices = choices
+		if (choices.length > 25) {
+			console.warn(
+				`[Carbon] Autocomplete only supports up to 25 choices. Received ${choices.length}. Only the first 25 will be sent.`
+			)
+			safeChoices = choices.slice(0, 25)
+		}
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.ApplicationCommandAutocompleteResult,
 					data: {
-						choices
+						choices: safeChoices
 					}
 				}
 			}

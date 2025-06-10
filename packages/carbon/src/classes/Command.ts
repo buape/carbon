@@ -2,6 +2,7 @@ import {
 	type APIApplicationCommandBasicOption,
 	ApplicationCommandType
 } from "discord-api-types/v10"
+import { enforceChoicesLimit } from "../functions/enforceChoicesLimit.js"
 import {
 	type AutocompleteInteraction,
 	BaseCommand,
@@ -61,6 +62,6 @@ export abstract class Command extends BaseCommand {
 	 * @internal
 	 */
 	serializeOptions() {
-		return this.options
+		return enforceChoicesLimit(this.options)
 	}
 }
