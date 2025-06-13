@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.10.0
+
+### Minor Changes
+
+- ac7e683: feat: add support for subcommands alongside subcommand groups
+
 ## 0.9.0
 
 ### Minor Changes
