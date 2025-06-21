@@ -146,8 +146,8 @@ importers:
         specifier: 4.20250513.0
         version: 4.20250513.0
       '@hono/node-server':
-        specifier: 1.14.1
-        version: 1.14.1(hono@4.6.5)
+        specifier: 1.14.4
+        version: 1.14.4(hono@4.6.5)
       '@types/bun':
         specifier: 1.2.13
         version: 1.2.13
@@ -619,8 +619,8 @@ packages:
   '@gerrit0/mini-shiki@3.4.0':
     resolution: {integrity: sha512-48lKoQegmfJ0iyR/jRz5OrYOSM3WewG9YWCPqUvYFEC54shQO8RsAaspaK/2PRHVVnjekRqfAFvq8pwCpIo5ig==}
 
-  '@hono/node-server@1.14.1':
-    resolution: {integrity: sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==}
+  '@hono/node-server@1.14.4':
+    resolution: {integrity: sha512-DnxpshhYewr2q9ZN8ez/M5mmc3sucr8CT1sIgIy1bkeUXut9XWDkqHoFHRhWIQgkYnKpVRxunyhK7WzpJeJ6qQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -3872,6 +3872,7 @@ packages:
   wrangler@4.15.0:
     resolution: {integrity: sha512-1fCdp2BQ5OtoNQU63/tjLmikmHIB1Vjh2gCs6K+DPz0f1U9PpQusPkcDv0UVONtH82XSfZGNFHZ5s5jPzwHFjw==}
     engines: {node: '>=18.0.0'}
+    deprecated: Please downgrade to v4.14.4
     hasBin: true
     peerDependencies:
       '@cloudflare/workers-types': ^4.20250508.0
@@ -4294,7 +4295,7 @@ snapshots:
       '@shikijs/types': 3.4.0
       '@shikijs/vscode-textmate': 10.0.2
 
-  '@hono/node-server@1.14.1(hono@4.6.5)':
+  '@hono/node-server@1.14.4(hono@4.6.5)':
     dependencies:
       hono: 4.6.5
     optional: true
