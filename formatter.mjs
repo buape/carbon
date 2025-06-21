@@ -93,4 +93,24 @@ export function load(app) {
 			)
 		}
 	)
+
+	// Escape `#` in the Discord mention format
+	app.renderer.on(
+		MarkdownPageEvent.END,
+		/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent} page */
+		(page) => {
+			if (!page.contents) return
+			page.contents = page.contents.replace(/<#(.+?)>/g, "`<#$1>`")
+		}
+	)
+
+	// Escape `@` in the Discord mention format
+	app.renderer.on(
+		MarkdownPageEvent.END,
+		/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent} page */
+		(page) => {
+			if (!page.contents) return
+			page.contents = page.contents.replace(/<@(.+?)>/g, "`<@$1>`")
+		}
+	)
 }
