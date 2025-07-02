@@ -13,3 +13,4 @@ build/
 packages/*/docs/
 website/content/api
 website/.source
+.open-next/

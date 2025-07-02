@@ -13,11 +13,6 @@
 		"dev": {
 			"persistent": true
 		},
-		"web:build": {
-			"outputs": ["website/out/**"]
-		},
-		"web:start": {},
-		"web:dev": {},
 		"docs": {
 			"dependsOn": ["build", "^docs"],
 			"inputs": [

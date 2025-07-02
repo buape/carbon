@@ -18,10 +18,14 @@
 		"publish:snapshot": "changeset version --snapshot beta && pnpm run build && changeset publish --tag beta --no-git-tag ",
 		"start": "turbo run start --filter !demo-cloudo",
 		"test": "vitest",
-		"web": "pnpm run web:docs && turbo run web:dev",
-		"web:build": "pnpm run web:docs && turbo run web:build",
-		"web:docs": "turbo run docs",
-		"web:start": "turbo run web:start"
+		"web": "pnpm run docs --filter website",
+		"web:build": "cd website && pnpm run docs && pnpm run build",
+		"web:cf-typegen": "cd website && pnpm run cf-typegen",
+		"web:dev": "cd website && pnpm run dev",
+		"web:deploy": "cd website && pnpm run deploy",
+		"web:docs": "cd website && pnpm run docs",
+		"web:export": "cd website && pnpm run export",
+		"web:start": "cd website && pnpm run start"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
