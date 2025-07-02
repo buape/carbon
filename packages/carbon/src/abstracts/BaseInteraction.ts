@@ -104,7 +104,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 * @internal
 	 * Automatically register components found in a message payload when sending the message.
 	 */
-	private _internalAutoRegisterComponentsOnSend(data: MessagePayload) {
+	protected _internalAutoRegisterComponentsOnSend(data: MessagePayload) {
 		if (typeof data !== "string" && data.components) {
 			this._internalRegisterComponentsOnSend(data.components)
 		}

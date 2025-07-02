@@ -44,6 +44,10 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 	 */
 	async update(data: MessagePayload) {
 		const serialized = serializePayload(data)
+
+		// Auto-register any components in the message
+		this._internalAutoRegisterComponentsOnSend(data)
+
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
