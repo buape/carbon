@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
 	"account_id": "cb8680c9bbcf0c359fccbb5e634df935",
-	"name": "website",
+	"name": "carbon-website",
 	"compatibility_date": "2025-07-02",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": {
