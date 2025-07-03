@@ -149,8 +149,8 @@ importers:
         specifier: 1.14.1
         version: 1.14.1(hono@4.6.5)
       '@types/bun':
-        specifier: 1.2.13
-        version: 1.2.13
+        specifier: 1.2.18
+        version: 1.2.18(@types/react@19.1.4)
       '@types/ws':
         specifier: 8.18.1
         version: 8.18.1
@@ -2379,8 +2379,8 @@ packages:
     resolution: {integrity: sha512-Kqo+gKJleFB+GkKiSHCCb4RB46VDBTWRKdp08RQ4rtL60+SU89M6F7gpTGG/4nL2eYD98mOKp3Lyzfk/Auht7A==}
     hasBin: true
 
-  '@types/bun@1.2.13':
-    resolution: {integrity: sha512-u6vXep/i9VBxoJl3GjZsl/BFIsvML8DfVDO0RYLEwtSZSp981kEO1V5NwRcO1CPJ7AmvpbnDCiMKo3JvbDEjAg==}
+  '@types/bun@1.2.18':
+    resolution: {integrity: sha512-Xf6RaWVheyemaThV0kUfaAUvCNokFr+bH8Jxp+tTZfx7dAPA8z9ePnP9S9+Vspzuxxx9JRAXhnyccRj3GyCMdQ==}
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -2623,8 +2623,10 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  bun-types@1.2.13:
-    resolution: {integrity: sha512-rRjA1T6n7wto4gxhAO/ErZEtOXyEZEmnIHQfl0Dt1QQSB4QV0iP6BZ9/YB5fZaHFQ2dwHFrmPaRQ9GGMX01k9Q==}
+  bun-types@1.2.18:
+    resolution: {integrity: sha512-04+Eha5NP7Z0A9YgDAzMk5PHR16ZuLVa83b26kH5+cp1qZW4F6FmAURngE7INf4tKOvCE69vYvDEwoNl1tGiWw==}
+    peerDependencies:
+      '@types/react': ^19
 
   busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
@@ -8086,9 +8088,11 @@ snapshots:
       semver: 7.6.2
       update-check: 1.5.4
 
-  '@types/bun@1.2.13':
+  '@types/bun@1.2.18(@types/react@19.1.4)':
     dependencies:
-      bun-types: 1.2.13
+      bun-types: 1.2.18(@types/react@19.1.4)
+    transitivePeerDependencies:
+      - '@types/react'
     optional: true
 
   '@types/debug@4.1.12':
@@ -8333,9 +8337,10 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.2.13:
+  bun-types@1.2.18(@types/react@19.1.4):
     dependencies:
       '@types/node': 22.15.17
+      '@types/react': 19.1.4
     optional: true
 
   busboy@1.6.0:
