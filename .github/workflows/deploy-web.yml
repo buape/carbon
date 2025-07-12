@@ -1,0 +1,21 @@
+name: Deploy Web
+
+on:
+    workflow_dispatch:
+
+jobs:
+    deploy:
+        name: Deploy Web
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+
+            - name: Setup
+              uses: ./.github/actions/setup
+
+            - name: Deploy Web
+              run: pnpm run web:deploy
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }} 
