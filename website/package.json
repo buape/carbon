@@ -5,9 +5,9 @@
 	"type": "module",
 	"scripts": {
 		"postinstall": "fumadocs-mdx",
-		"build": "sh ./copy-api.sh && bun generate-llm-txt.mjs && next build",
+		"build": "sh ./copy-api.sh && node generate-llm-txt.mjs && next build",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-		"dev": "sh ./copy-api.sh && bun generate-llm-txt.mjs && next dev"
+		"dev": "sh ./copy-api.sh && node generate-llm-txt.mjs && next dev"
 	},
 	"dependencies": {
 		"@t3-oss/env-nextjs": "0.13.4",
