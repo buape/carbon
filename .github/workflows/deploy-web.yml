@@ -11,6 +11,16 @@ jobs:
             - name: Check out code
               uses: actions/checkout@v4
 
+            - name: Cache Next.js build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ~/.pnpm-store
+                      ${{ github.workspace }}/website/.next/cache
+                  key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
             - name: Setup
               uses: ./.github/actions/setup
 
