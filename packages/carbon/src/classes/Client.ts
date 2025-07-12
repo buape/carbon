@@ -280,7 +280,6 @@ export class Client {
 	/**
 	 * Handle an interaction request from Discord
 	 * @param req The request to handle
-	 * @param ctx The context for the request
 	 * @returns A response
 	 */
 	public async handleEventsRequest(req: Request) {

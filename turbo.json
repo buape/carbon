@@ -14,7 +14,7 @@
 			"persistent": true
 		},
 		"docs": {
-			"dependsOn": ["build", "^docs"],
+			"dependsOn": ["^docs"],
 			"inputs": [
 				"src/**",
 				"typedoc.json",

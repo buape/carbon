@@ -1,19 +1,19 @@
 import { GatewayOpcodes, type GatewayPayload } from "../types.js"
 
-interface IdentifyProperties {
+export interface IdentifyProperties {
 	os: string
 	browser: string
 	device: string
 }
 
-interface IdentifyData {
+export interface IdentifyData {
 	token: string
 	properties: IdentifyProperties
 	intents: number
 	shard?: [number, number]
 }
 
-interface ResumeData {
+export interface ResumeData {
 	token: string
 	sessionId: string
 	sequence: number

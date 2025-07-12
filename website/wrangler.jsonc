@@ -20,5 +20,8 @@
 			"binding": "NEXT_INC_CACHE_R2_BUCKET",
 			"bucket_name": "carbon-cache"
 		}
-	]
+	],
+	"observability": {
+		"enabled": true
+	}
 }

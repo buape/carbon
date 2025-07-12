@@ -4,7 +4,7 @@
 	"private": true,
 	"repository": "github:buape/carbon",
 	"scripts": {
-		"build": "turbo run build",
+		"build": "turbo run build --filter !website",
 		"changeset": "changeset add",
 		"ci": "pnpm build --filter !website",
 		"cf": "pnpm build --filter @buape/carbon... && turbo run dev --filter demo-cloudo",
@@ -19,12 +19,11 @@
 		"start": "turbo run start --filter !demo-cloudo",
 		"test": "vitest",
 		"web": "pnpm run docs --filter website",
-		"web:build": "cd website && pnpm run docs && pnpm run build",
+		"web:build": "cd website && pnpm run web:docs && pnpm run build",
 		"web:cf-typegen": "cd website && pnpm run cf-typegen",
-		"web:dev": "cd website && pnpm run dev",
-		"web:deploy": "cd website && pnpm run deploy",
-		"web:docs": "cd website && pnpm run docs",
-		"web:export": "cd website && pnpm run export",
+		"web:dev": "pnpm run web:docs && cd website && pnpm run dev",
+		"web:deploy": "pnpm run web:docs && cd website && pnpm run deploy",
+		"web:docs": "pnpm run build && turbo run docs",
 		"web:start": "cd website && pnpm run start"
 	},
 	"devDependencies": {
