@@ -1,5 +1,16 @@
 # @buape/carbon
 
+## 0.10.0
+
+### Minor Changes
+
+- ac7e683: feat: add support for subcommands alongside subcommand groups
+
+### Patch Changes
+
+- 4818a7e: fix: make Interaction#update() register components automatically like the other methods
+- 028b0d3: chore(deps): update dependency @types/bun to v1.2.18
+
 ## 0.9.0
 
 ### Minor Changes
