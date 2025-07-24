@@ -345,7 +345,7 @@ export class Client {
 	 * Validate a request from Discord
 	 * @param req The request to validate
 	 */
-	private async validateDiscordRequest(req: Request) {
+	protected async validateDiscordRequest(req: Request) {
 		const body = await req.clone().text()
 		const signature = req.headers.get("X-Signature-Ed25519")
 		const timestamp = req.headers.get("X-Signature-Timestamp")
