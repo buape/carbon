@@ -40,6 +40,7 @@ export class GatewayPlugin extends Plugin {
 	public shardId?: number
 	public totalShards?: number
 	protected gatewayInfo?: APIGatewayBotInfo
+	public isConnected = false
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
@@ -116,6 +117,7 @@ export class GatewayPlugin extends Plugin {
 		this.monitor.resetUptime()
 		this.ws?.close()
 		this.ws = null
+		this.isConnected = false
 	}
 
 	protected createWebSocket(url: string): WebSocket {
@@ -174,6 +176,7 @@ export class GatewayPlugin extends Plugin {
 					} else {
 						this.identify()
 					}
+					this.isConnected = true
 					break
 				}
 
