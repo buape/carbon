@@ -5,11 +5,15 @@ import Logo from "~/public/CarbonLogo.png"
 import { baseUrl, metadataImage } from "./metadata"
 
 export const GET = metadataImage.createAPI(async (page) => {
-	// Fetch font data at runtime
+	// Fetch font data from CDN
 	const [fontRegular, fontBold]: [ArrayBuffer, ArrayBuffer] = await Promise.all(
 		[
-			fetch(`${baseUrl}/Rubik-Regular.ttf`).then((res) => res.arrayBuffer()),
-			fetch(`${baseUrl}/Rubik-Bold.ttf`).then((res) => res.arrayBuffer())
+			fetch("https://cdn.buape.com/fonts/Rubik-Regular.ttf").then((res) =>
+				res.arrayBuffer()
+			),
+			fetch("https://cdn.buape.com/fonts/Rubik-Bold.ttf").then((res) =>
+				res.arrayBuffer()
+			)
 		]
 	)
 
