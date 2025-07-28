@@ -22,6 +22,11 @@ Handlebars.registerHelper(
 	"or", //
 	(...args) => args.slice(0, -1).some(Boolean)
 )
+// a && b && c && d && e && f
+Handlebars.registerHelper(
+	"and", //
+	(...args) => args.slice(0, -1).every(Boolean)
+)
 // Needed for accessing object properties with invalid names (e.g. @ / -)
 // k ? o[k] : undefined
 Handlebars.registerHelper(
