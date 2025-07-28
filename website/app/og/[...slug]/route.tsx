@@ -1,16 +1,18 @@
-import { readFileSync } from "node:fs"
 import { generateOGImage } from "fumadocs-ui/og"
-import { notFound } from "next/navigation"
-import type { ImageResponse } from "next/og"
-import type { NextRequest } from "next/server"
 import { utils } from "~/app/source"
 
-const font = readFileSync("./app/og/[...slug]/Rubik-Regular.ttf")
-const fontBold = readFileSync("./app/og/[...slug]/Rubik-Bold.ttf")
 import Logo from "~/public/CarbonLogo.png"
 import { baseUrl, metadataImage } from "./metadata"
 
-export const GET = metadataImage.createAPI((page) => {
+export const GET = metadataImage.createAPI(async (page) => {
+	// Fetch font data at runtime
+	const [fontRegular, fontBold]: [ArrayBuffer, ArrayBuffer] = await Promise.all(
+		[
+			fetch(`${baseUrl}/Rubik-Regular.ttf`).then((res) => res.arrayBuffer()),
+			fetch(`${baseUrl}/Rubik-Bold.ttf`).then((res) => res.arrayBuffer())
+		]
+	)
+
 	return generateOGImage({
 		primaryTextColor: "rgb(240,240,240)",
 		primaryColor: "rgb(145,234,228)",
@@ -29,7 +31,7 @@ export const GET = metadataImage.createAPI((page) => {
 		fonts: [
 			{
 				name: "Rubik Regular",
-				data: font,
+				data: fontRegular,
 				weight: 400
 			},
 			{
