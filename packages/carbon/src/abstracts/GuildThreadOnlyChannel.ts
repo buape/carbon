@@ -1,11 +1,13 @@
 import type {
 	APIGuildForumDefaultReactionEmoji,
 	APIGuildForumTag,
+	APIThreadChannel,
 	APIThreadOnlyChannel,
 	ChannelType,
 	SortOrderType,
 	ThreadChannelType
 } from "discord-api-types/v10"
+import { Routes } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { Message } from "../structures/Message.js"
 import type { MessagePayload } from "../types/index.js"
@@ -89,5 +91,29 @@ export abstract class GuildThreadOnlyChannel<
 			postId
 		)
 		return await channel.send(message)
+	}
+
+	async createPost(
+		name: string,
+		message: MessagePayload,
+		options?: {
+			autoArchiveDuration?: number
+			rateLimitPerUser?: number
+			appliedTags?: string[]
+		}
+	): Promise<GuildThreadChannel<ThreadChannelType>> {
+		const response = (await this.client.rest.post(Routes.threads(this.id), {
+			body: {
+				name,
+				message,
+				auto_archive_duration: options?.autoArchiveDuration,
+				rate_limit_per_user: options?.rateLimitPerUser,
+				applied_tags: options?.appliedTags
+			}
+		})) as APIThreadChannel
+		return new GuildThreadChannel<ThreadChannelType, false>(
+			this.client,
+			response as Extract<APIThreadChannel, { type: ThreadChannelType }>
+		)
 	}
 }
