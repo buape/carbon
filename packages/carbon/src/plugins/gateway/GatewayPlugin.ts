@@ -380,6 +380,10 @@ export class GatewayPlugin extends Plugin {
 		if (this.ws && this.ws.readyState === 1) {
 			this.ws.send(JSON.stringify(payload))
 			this.monitor.recordMessageSent()
+
+			if (payload.op === GatewayOpcodes.Heartbeat) {
+				this.monitor.recordHeartbeat()
+			}
 		}
 	}
 
