@@ -1,5 +1,20 @@
 # @buape/carbon
 
+## 0.10.0
+
+### Minor Changes
+
+- ac7e683: feat: add support for subcommands alongside subcommand groups
+- 1aa8613: feat: make Client#validateDiscordRequest protected so it can be overridden
+- 0a6ec9e: feat: add ping tracking to the gateway plugin
+- 4031390: feat: add a isConnected to the gateway plugin
+
+### Patch Changes
+
+- 4818a7e: fix: make Interaction#update() register components automatically like the other methods
+- 028b0d3: chore(deps): update dependency @types/bun to v1.2.18
+- f273125: feat: add a createPost function for forum channels
+
 ## 0.9.0
 
 ### Minor Changes
