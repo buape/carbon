@@ -38,6 +38,14 @@ export class ShardingPlugin extends Plugin {
 		this.maxConcurrency = options.maxConcurrency ?? 1
 	}
 
+	get ping() {
+		const pings: Record<number, number | null> = {}
+		for (const [shardId, shard] of this.shards) {
+			pings[shardId] = shard.ping
+		}
+		return pings
+	}
+
 	public async registerClient(client: Client): Promise<void> {
 		this.client = client
 
