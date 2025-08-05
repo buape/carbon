@@ -41,6 +41,7 @@ export class GatewayPlugin extends Plugin {
 	public totalShards?: number
 	protected gatewayInfo?: APIGatewayBotInfo
 	public isConnected = false
+	protected pings: number[] = []
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
@@ -67,6 +68,12 @@ export class GatewayPlugin extends Plugin {
 		this.monitor.on("warning", (warning: string) =>
 			this.emitter.emit("warning", warning)
 		)
+	}
+
+	get ping() {
+		return this.pings.length
+			? this.pings.reduce((a, b) => a + b, 0) / this.pings.length
+			: null
 	}
 
 	public async registerClient(client: Client): Promise<void> {
@@ -118,6 +125,7 @@ export class GatewayPlugin extends Plugin {
 		this.ws?.close()
 		this.ws = null
 		this.isConnected = false
+		this.pings = []
 	}
 
 	protected createWebSocket(url: string): WebSocket {
@@ -180,10 +188,20 @@ export class GatewayPlugin extends Plugin {
 					break
 				}
 
-				case GatewayOpcodes.HeartbeatAck:
+				case GatewayOpcodes.HeartbeatAck: {
 					this.lastHeartbeatAck = true
 					this.monitor.recordHeartbeatAck()
+					// Record the latency for ping averaging
+					const latency = this.monitor.getMetrics().latency
+					if (latency > 0) {
+						this.pings.push(latency)
+						// Keep only the last 10 pings to prevent unbounded growth
+						if (this.pings.length > 10) {
+							this.pings.shift()
+						}
+					}
 					break
+				}
 
 				case GatewayOpcodes.Dispatch: {
 					const payload1 = payload as GatewayDispatchPayload
@@ -219,6 +237,7 @@ export class GatewayPlugin extends Plugin {
 							this.state.resumeGatewayUrl = null
 							this.state.sequence = null
 							this.sequence = null
+							this.pings = []
 							this.connect(false)
 						}
 					}, 5000)
@@ -304,6 +323,7 @@ export class GatewayPlugin extends Plugin {
 					this.state.resumeGatewayUrl = null
 					this.state.sequence = null
 					this.sequence = null
+					this.pings = []
 					options.forceNoResume = true
 					break
 				}
