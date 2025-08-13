@@ -378,7 +378,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot edit message without channel ID")
 		const serialized = serializePayload(data)
-		const message = (await this.client.rest.patch(
+		const newMessage = (await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
@@ -386,7 +386,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				} satisfies RESTPatchAPIChannelMessageJSONBody
 			}
 		)) as APIMessage
-		return new Message(this.client, message)
+		this.setData(newMessage)
+		return this as Message
 	}
 
 	/**
