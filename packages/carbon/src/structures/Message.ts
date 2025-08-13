@@ -378,14 +378,14 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot edit message without channel ID")
 		const serialized = serializePayload(data)
-		const message = await this.client.rest.patch(
+		const message = (await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
 					...serialized
 				} satisfies RESTPatchAPIChannelMessageJSONBody
 			}
-		)
+		)) as APIMessage
 		return new Message(this.client, message)
 	}
 
@@ -401,17 +401,19 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!channel) throw new Error(`Channel ${channelId} not found`)
 		if (!("send" in channel))
 			throw new Error(`Cannot forward message to channel ${channelId}`)
-		const message = await this.client.rest.post(Routes.channelMessages(channelId), {
-			body: {
-				message_reference: {
-					type: MessageReferenceType.Forward,
-					message_id: this.id,
-					channel_id: this.channelId
-				}
-			} satisfies RESTPostAPIChannelMessageJSONBody
-		})
+		const message = (await this.client.rest.post(
+			Routes.channelMessages(channelId),
+			{
+				body: {
+					message_reference: {
+						type: MessageReferenceType.Forward,
+						message_id: this.id,
+						channel_id: this.channelId
+					}
+				} satisfies RESTPostAPIChannelMessageJSONBody
+			}
+		)) as APIMessage
 		return new Message(this.client, message)
-
 	}
 
 	/**
@@ -423,15 +425,18 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot reply to message without channel ID")
 		const serialized = serializePayload(data)
-		const message = await this.client.rest.post(Routes.channelMessages(this.channelId), {
-			body: {
-				...serialized,
-				message_reference: {
-					type: MessageReferenceType.Default,
-					message_id: this.id
-				}
-			} satisfies RESTPostAPIChannelMessageJSONBody
-		})
+		const message = (await this.client.rest.post(
+			Routes.channelMessages(this.channelId),
+			{
+				body: {
+					...serialized,
+					message_reference: {
+						type: MessageReferenceType.Default,
+						message_id: this.id
+					}
+				} satisfies RESTPostAPIChannelMessageJSONBody
+			}
+		)) as APIMessage
 		return new Message(this.client, message)
 	}
 
