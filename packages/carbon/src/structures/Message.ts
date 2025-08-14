@@ -374,18 +374,20 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * @param data - The data to edit the message with
 	 * @returns A Promise that resolves to the edited message
 	 */
-	async edit(data: MessagePayload) {
+	async edit(data: MessagePayload): Promise<Message> {
 		if (!this.channelId)
 			throw new Error("Cannot edit message without channel ID")
 		const serialized = serializePayload(data)
-		await this.client.rest.patch(
+		const newMessage = (await this.client.rest.patch(
 			Routes.channelMessage(this.channelId, this.id),
 			{
 				body: {
 					...serialized
 				} satisfies RESTPatchAPIChannelMessageJSONBody
 			}
-		)
+		)) as APIMessage
+		this.setData(newMessage)
+		return this as Message
 	}
 
 	/**
@@ -393,22 +395,26 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * @param channelId - The ID of the channel to forward the message to
 	 * @returns A Promise that resolves to the forwarded message
 	 */
-	async forward(channelId: string) {
+	async forward(channelId: string): Promise<Message> {
 		if (!this.channelId)
 			throw new Error("Cannot forward message without channel ID")
 		const channel = await this.client.fetchChannel(channelId)
 		if (!channel) throw new Error(`Channel ${channelId} not found`)
 		if (!("send" in channel))
 			throw new Error(`Cannot forward message to channel ${channelId}`)
-		await this.client.rest.post(Routes.channelMessages(channelId), {
-			body: {
-				message_reference: {
-					type: MessageReferenceType.Forward,
-					message_id: this.id,
-					channel_id: this.channelId
-				}
-			} satisfies RESTPostAPIChannelMessageJSONBody
-		})
+		const message = (await this.client.rest.post(
+			Routes.channelMessages(channelId),
+			{
+				body: {
+					message_reference: {
+						type: MessageReferenceType.Forward,
+						message_id: this.id,
+						channel_id: this.channelId
+					}
+				} satisfies RESTPostAPIChannelMessageJSONBody
+			}
+		)) as APIMessage
+		return new Message(this.client, message)
 	}
 
 	/**
@@ -416,19 +422,23 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * @param data - The data to reply with
 	 * @returns A Promise that resolves to the replied message
 	 */
-	async reply(data: MessagePayload) {
+	async reply(data: MessagePayload): Promise<Message> {
 		if (!this.channelId)
 			throw new Error("Cannot reply to message without channel ID")
 		const serialized = serializePayload(data)
-		await this.client.rest.post(Routes.channelMessages(this.channelId), {
-			body: {
-				...serialized,
-				message_reference: {
-					type: MessageReferenceType.Default,
-					message_id: this.id
-				}
-			} satisfies RESTPostAPIChannelMessageJSONBody
-		})
+		const message = (await this.client.rest.post(
+			Routes.channelMessages(this.channelId),
+			{
+				body: {
+					...serialized,
+					message_reference: {
+						type: MessageReferenceType.Default,
+						message_id: this.id
+					}
+				} satisfies RESTPostAPIChannelMessageJSONBody
+			}
+		)) as APIMessage
+		return new Message(this.client, message)
 	}
 
 	/**
