@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-Made edit, forward, and reply methods on Message return the correct values as specified in their tags.
+fix: Made Message#edit, Message#forward, and Message#reply methods properly return a Message class
