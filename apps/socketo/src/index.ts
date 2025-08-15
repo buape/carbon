@@ -2,8 +2,9 @@ import "dotenv/config"
 import { Client } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
 import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"
+import GatewayTestCommand from "./commands/gateway-test.js"
 import PingCommand from "./commands/ping.js"
-import { MessageCreate } from "./events/messageCreate.js"
+// import { MessageCreate } from "./events/messageCreate.js"
 import { Ready } from "./events/ready.js"
 
 const client = new Client(
@@ -17,16 +18,21 @@ const client = new Client(
 	{
 		commands: [
 			// commands/*
-			new PingCommand()
+			new PingCommand(),
+			new GatewayTestCommand()
 		],
-		listeners: [new Ready(), new MessageCreate()]
+		listeners: [
+			new Ready()
+			// new MessageCreate()
+		]
 	},
 	[
 		new ShardingPlugin({
 			intents:
 				GatewayIntents.Guilds |
 				GatewayIntents.GuildMessages |
-				GatewayIntents.MessageContent
+				GatewayIntents.MessageContent |
+				GatewayIntents.GuildMembers // Required for RequestGuildMembers
 		})
 	]
 )
@@ -41,7 +47,7 @@ console.log(
 	})}`
 )
 
-createServer(client, { port: 3001 })
+createServer(client, { port: 3000 })
 
 declare global {
 	namespace NodeJS {

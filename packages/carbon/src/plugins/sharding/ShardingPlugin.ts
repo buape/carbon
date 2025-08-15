@@ -149,7 +149,9 @@ export class ShardingPlugin extends Plugin {
 	 */
 	public getShardForGuild(guildId: string): GatewayPlugin | undefined {
 		const totalShards = this.config.totalShards
-		if (!totalShards) return undefined
+		if (!totalShards) {
+			return undefined
+		}
 
 		const shardId = this.calculateShardId(guildId, totalShards)
 		return this.shards.get(shardId)
@@ -158,7 +160,7 @@ export class ShardingPlugin extends Plugin {
 	/**
 	 * Discord's sharding formula
 	 */
-	protected calculateShardId(guildId: string, totalShards: number): number {
+	public calculateShardId(guildId: string, totalShards: number): number {
 		if (!/^\d+$/.test(guildId)) {
 			throw new Error("Invalid guild ID")
 		}

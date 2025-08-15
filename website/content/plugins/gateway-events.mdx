@@ -1,0 +1,354 @@
+---
+title: Gateway Event Sending
+description: How to send events through the Gateway to update bot presence, voice state, and request guild members.
+icon: Send
+---
+
+While Carbon's Gateway plugin is primarily designed to receive events from Discord, it also supports sending specific events back to Discord through the Gateway connection. This functionality lets you update your bot's presence, manage voice state, and request guild member data - all through the same WebSocket connection that receives events.
+
+The event sending system includes built-in rate limiting (120 events per 60 seconds per shard), proper sharding support, and comprehensive error handling to ensure reliable operation across all deployment scenarios.
+
+## Overview of Gateway Event Types
+
+Carbon supports sending three types of Gateway events to Discord:
+
+**Update Presence** - Change your bot's status, activities, and online presence. This includes setting custom activities like "Playing a game", "Listening to music", or "Watching a stream", as well as updating the bot's online status (online, idle, do not disturb, or invisible).
+
+**Update Voice State** - Join or leave voice channels programmatically. While most bots use this for music functionality or voice-based features, it can also be used for administrative purposes like temporarily joining channels for monitoring.
+
+**Request Guild Members** - Request member data from Discord for guilds where your bot doesn't have all member information cached. This is especially useful for larger servers where Discord doesn't send all member data by default, or when you need fresh member information with presence data. The response for this is sent back via the `GUILD_MEMBERS_CHUNK` event, so you will need a [GuildMembersChunkListener](/api/index/classes/GuildMembersChunkListener) to receive the data.
+
+## Basic Usage Examples
+
+Here are practical examples of how to use each event type in your Carbon bot.
+
+### Updating Bot Presence
+
+```typescript title="src/commands/ping.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { ShardingPlugin } from "@buape/carbon/sharding"
+
+export default class PingCommand extends Command {
+	name = "ping"
+	description = "Replies with Pong!"
+
+	async run(interaction: CommandInteraction) {
+		// Test gateway event sending functionality with sharding
+		const shardingPlugin =
+			interaction.client.getPlugin<ShardingPlugin>("sharding")
+
+		interaction.reply(
+			`Pong!\n${Object.entries(shardingPlugin?.ping ?? {})
+				.map(([shard, ping]) => `Shard ${shard}: ${ping}ms`)
+				.join("\n")}`
+		)
+	}
+}
+```
+
+### Requesting Guild Members
+
+```typescript title="src/commands/gateway-test.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { ShardingPlugin } from "@buape/carbon/sharding"
+
+export default class GatewayTestCommand extends Command {
+	name = "gateway-test"
+	description = "Test gateway event sending functionality"
+
+	async run(interaction: CommandInteraction) {
+		const shardingPlugin =
+			interaction.client.getPlugin<ShardingPlugin>("sharding")
+		const gateway = interaction.guild
+			? shardingPlugin?.getShardForGuild(interaction.guild.id)
+			: shardingPlugin?.shards.values().next().value
+
+		if (!gateway) {
+			await interaction.reply("Gateway plugin not found")
+			return
+		}
+
+		if (!gateway.isConnected) {
+			await interaction.reply("Gateway is not connected")
+			return
+		}
+
+		if (interaction.guild) {
+			gateway.requestGuildMembers({
+				guild_id: interaction.guild.id,
+				query: "",
+				limit: 0,
+				presences: false
+			})
+			await interaction.reply("Guild members requested")
+		} else {
+			await interaction.reply("Not in a guild")
+		}
+	}
+}
+```
+
+## Working with Sharding
+
+When your bot uses sharding (required for 2,500+ servers), you need to send events through the correct shard. Carbon makes this easy with automatic shard routing.
+
+### Automatic Shard Selection
+
+```typescript title="src/commands/sharded-status.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { ShardingPlugin } from "@buape/carbon/plugins/sharding"
+
+export default class ShardedStatusCommand extends Command {
+	name = "sharded-status"
+	description = "Update status with sharding support"
+
+	async run(interaction: CommandInteraction) {
+		const sharding = interaction.client.getPlugin<ShardingPlugin>("sharding")
+		
+		if (!sharding) {
+			await interaction.reply("Sharding plugin not found")
+			return
+		}
+
+		// Get the correct shard for this guild (or any shard for global updates)
+		const gateway = interaction.guild 
+			? sharding.getShardForGuild(interaction.guild.id)
+			: sharding.shards.values().next().value
+
+		if (!gateway?.isConnected) {
+			await interaction.reply("No connected gateway found")
+			return
+		}
+
+		try {
+			gateway.updatePresence({
+				since: null,
+				activities: [{
+					name: `Shard ${gateway.shardId}`,
+					type: 3,	// Watching
+					details: `Managing ${sharding.shards.size} shards`
+				}],
+				status: "online",
+				afk: false
+			})
+
+			await interaction.reply(`Status updated on shard ${gateway.shardId}`)
+		} catch (error) {
+			await interaction.reply(`Status update failed: ${error.message}`)
+		}
+	}
+}
+```
+
+### Broadcasting to All Shards
+
+```typescript title="src/commands/broadcast-status.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { ShardingPlugin } from "@buape/carbon/plugins/sharding"
+
+export default class BroadcastStatusCommand extends Command {
+	name = "broadcast-status"
+	description = "Update status across all shards"
+
+	async run(interaction: CommandInteraction) {
+		const sharding = interaction.client.getPlugin<ShardingPlugin>("sharding")
+		
+		if (!sharding) {
+			await interaction.reply("Sharding plugin not found")
+			return
+		}
+
+		let successCount = 0
+		let errorCount = 0
+
+		// Update presence on all connected shards
+		for (const [shardId, gateway] of sharding.shards) {
+			if (!gateway.isConnected) {
+				errorCount++
+				continue
+			}
+
+			try {
+				gateway.updatePresence({
+					since: null,
+					activities: [{
+						name: "Carbon Framework",
+						type: 0,
+						details: `Shard ${shardId}/${sharding.shards.size}`
+					}],
+					status: "online",
+					afk: false
+				})
+				successCount++
+			} catch {
+				errorCount++
+			}
+		}
+
+		await interaction.reply(
+			`Status broadcast complete: ${successCount} success, ${errorCount} failed`
+		)
+	}
+}
+```
+
+## Rate Limiting and Connection Health
+
+Carbon implements Discord's Gateway rate limiting automatically. You get 120 events per 60 seconds per shard, with essential events (heartbeats, identify, resume) exempt from limits.
+
+### Checking Rate Limit Status
+
+```typescript title="src/commands/rate-limit.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { GatewayPlugin } from "@buape/carbon/plugins/gateway"
+
+export default class RateLimitCommand extends Command {
+	name = "rate-limit"
+	description = "Check Gateway rate limit status"
+
+	async run(interaction: CommandInteraction) {
+	const gateway = interaction.client.getPlugin<GatewayPlugin>("gateway")
+	
+	if (!gateway) {
+		await interaction.reply("Gateway plugin not found")
+		return
+	}
+
+	const status = gateway.getRateLimitStatus()
+	
+	await interaction.reply([
+		"**Gateway Rate Limit Status**",
+		`• Remaining events: ${status.remainingEvents}/120`,
+		`• Current events: ${status.currentEventCount}`,
+		`• Reset in: ${status.resetTime}ms`,
+		`• Connection: ${gateway.isConnected ? "Connected" : "Disconnected"}`,
+		`• Average ping: ${gateway.ping ? `${Math.round(gateway.ping)}ms` : "Unknown"}`
+	].join("\n"))
+	}
+}
+```
+
+### Handling Rate Limit Errors
+
+```typescript title="src/utils/safe-gateway-send.ts"
+import type { GatewayPlugin } from "@buape/carbon/plugins/gateway"
+import type { UpdatePresenceData } from "@buape/carbon/plugins/gateway"
+
+export async function safeUpdatePresence(
+	gateway: GatewayPlugin,
+	data: UpdatePresenceData
+): Promise<{ success: boolean; error?: string }> {
+	if (!gateway.isConnected) {
+	return { success: false, error: "Gateway not connected" }
+	}
+
+	const rateLimitStatus = gateway.getRateLimitStatus()
+	if (rateLimitStatus.remainingEvents === 0) {
+	return { 
+		success: false, 
+		error: `Rate limited. Reset in ${rateLimitStatus.resetTime}ms` 
+	}
+	}
+
+	try {
+	gateway.updatePresence(data)
+	return { success: true }
+	} catch (error) {
+	return { 
+		success: false, 
+		error: error instanceof Error ? error.message : String(error)
+	}
+	}
+}
+```
+
+## Activity Types and Presence Options
+
+When updating your bot's presence, you have several activity types and status options available.
+
+### Rich Presence Examples
+
+```typescript title="src/commands/rich-presence.ts"
+import { Command, type CommandInteraction } from "@buape/carbon"
+import type { GatewayPlugin } from "@buape/carbon/plugins/gateway"
+
+export default class RichPresenceCommand extends Command {
+	name = "rich-presence"
+	description = "Set a detailed rich presence"
+
+	async run(interaction: CommandInteraction) {
+	const gateway = interaction.client.getPlugin<GatewayPlugin>("gateway")
+	
+	if (!gateway?.isConnected) {
+		await interaction.reply("Gateway not connected")
+		return
+	}
+
+	try {
+		gateway.updatePresence({
+		since: null,
+		activities: [{
+			name: "Carbon Development",
+			type: 0, // Playing
+			details: "Building Discord bots",
+			state: "In TypeScript",
+		}],
+		status: "online"
+		})
+
+		await interaction.reply("Rich presence updated!")
+	} catch (error) {
+		await interaction.reply(`Presence update failed: ${error.message}`)
+	}
+	}
+}
+```
+
+## Error Handling Patterns
+
+Gateway events can fail for various reasons. Here's how to handle them gracefully.
+
+### Connection State Validation
+
+```typescript title="src/utils/gateway-validator.ts"
+import type { GatewayPlugin } from "@buape/carbon/plugins/gateway"
+import type { ShardingPlugin } from "@buape/carbon/plugins/sharding"
+
+export function validateGatewayConnection(
+	gateway: GatewayPlugin | undefined
+): { valid: boolean; error?: string } {
+	if (!gateway) {
+	return { valid: false, error: "Gateway plugin not found" }
+	}
+
+	if (!gateway.isConnected) {
+	return { valid: false, error: "Gateway not connected" }
+	}
+
+	const rateLimitStatus = gateway.getRateLimitStatus()
+	if (rateLimitStatus.remainingEvents === 0) {
+	return { 
+		valid: false, 
+		error: `Rate limited. ${rateLimitStatus.resetTime}ms until reset` 
+	}
+	}
+
+	return { valid: true }
+}
+
+export function getGatewayForGuild(
+	client: Client,
+	guildId?: string
+): GatewayPlugin | undefined {
+	const sharding = client.getPlugin<ShardingPlugin>("sharding")
+	
+	if (sharding) {
+	return guildId 
+		? sharding.getShardForGuild(guildId)
+		: sharding.shards.values().next().value
+	}
+	
+	return client.getPlugin<GatewayPlugin>("gateway")
+}
+```
+

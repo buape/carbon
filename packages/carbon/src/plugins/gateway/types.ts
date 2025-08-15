@@ -67,6 +67,68 @@ export interface GatewayPayload {
 	t?: string | null
 }
 
+export interface UpdatePresenceData {
+	since: number | null
+	activities: Activity[]
+	status: "online" | "dnd" | "idle" | "invisible" | "offline"
+	afk: boolean
+}
+
+export interface Activity {
+	name: string
+	type: number
+	url?: string | null
+	created_at?: number
+	timestamps?: {
+		start?: number
+		end?: number
+	}
+	application_id?: string
+	details?: string | null
+	state?: string | null
+	emoji?: {
+		name: string
+		id?: string
+		animated?: boolean
+	} | null
+	party?: {
+		id?: string
+		size?: [number, number]
+	}
+	assets?: {
+		large_image?: string
+		large_text?: string
+		small_image?: string
+		small_text?: string
+	}
+	secrets?: {
+		join?: string
+		spectate?: string
+		match?: string
+	}
+	instance?: boolean
+	flags?: number
+	buttons?: string[]
+}
+
+export interface UpdateVoiceStateData {
+	guild_id: string
+	channel_id: string | null
+	self_mute: boolean
+	self_deaf: boolean
+}
+
+export interface RequestGuildMembersData {
+	guild_id: string
+	/** Query string (empty string "" requests all members). Either query or user_ids is required. */
+	query?: string
+	limit: number
+	presences?: boolean
+	/** Specific user IDs to request. Either query or user_ids is required. */
+	user_ids?: string | string[]
+	nonce?: string
+}
+
 export type ReadyEventData = GatewayReadyDispatchData
 
 export const GatewayIntents = GatewayIntentBits

@@ -103,7 +103,7 @@ export class Client {
 	/**
 	 * The plugins that the client has registered
 	 */
-	plugins: Plugin[] = []
+	plugins: { id: string; plugin: Plugin }[] = []
 	/**
 	 * The options used to initialize the client
 	 */
@@ -202,12 +202,16 @@ export class Client {
 		for (const plugin of plugins) {
 			plugin.registerClient?.(this)
 			plugin.registerRoutes?.(this)
-			this.plugins.push(plugin)
+			this.plugins.push({ id: plugin.id, plugin })
 		}
 
 		if (options.autoDeploy) {
 			this.handleDeployRequest()
 		}
+	}
+
+	public getPlugin<T extends Plugin>(id: string): T | undefined {
+		return this.plugins.find((p) => p.id === id)?.plugin as T | undefined
 	}
 
 	private appendRoutes() {

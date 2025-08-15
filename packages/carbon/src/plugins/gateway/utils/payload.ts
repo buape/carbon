@@ -1,4 +1,10 @@
-import { GatewayOpcodes, type GatewayPayload } from "../types.js"
+import {
+	GatewayOpcodes,
+	type GatewayPayload,
+	type RequestGuildMembersData,
+	type UpdatePresenceData,
+	type UpdateVoiceStateData
+} from "../types.js"
 
 export interface IdentifyProperties {
 	os: string
@@ -67,5 +73,32 @@ export function createResumePayload(data: ResumeData): GatewayPayload {
 			session_id: data.sessionId,
 			seq: data.sequence
 		}
+	}
+}
+
+export function createUpdatePresencePayload(
+	data: UpdatePresenceData
+): GatewayPayload {
+	return {
+		op: GatewayOpcodes.PresenceUpdate,
+		d: data
+	}
+}
+
+export function createUpdateVoiceStatePayload(
+	data: UpdateVoiceStateData
+): GatewayPayload {
+	return {
+		op: GatewayOpcodes.VoiceStateUpdate,
+		d: data
+	}
+}
+
+export function createRequestGuildMembersPayload(
+	data: RequestGuildMembersData
+): GatewayPayload {
+	return {
+		op: GatewayOpcodes.RequestGuildMembers,
+		d: data
 	}
 }

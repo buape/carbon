@@ -7,19 +7,27 @@ import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
 import {
 	type APIGatewayBotInfo,
 	GatewayCloseCodes,
+	GatewayIntents,
 	GatewayOpcodes,
 	type GatewayPayload,
 	type GatewayPluginOptions,
 	type GatewayState,
-	type ReadyEventData
+	type ReadyEventData,
+	type RequestGuildMembersData,
+	type UpdatePresenceData,
+	type UpdateVoiceStateData
 } from "./types.js"
 import { startHeartbeat, stopHeartbeat } from "./utils/heartbeat.js"
 import { type ConnectionMetrics, ConnectionMonitor } from "./utils/monitor.js"
 import {
 	createIdentifyPayload,
+	createRequestGuildMembersPayload,
 	createResumePayload,
+	createUpdatePresencePayload,
+	createUpdateVoiceStatePayload,
 	validatePayload
 } from "./utils/payload.js"
+import { GatewayRateLimit } from "./utils/rateLimit.js"
 
 interface HelloData {
 	heartbeat_interval: number
@@ -32,6 +40,7 @@ export class GatewayPlugin extends Plugin {
 	protected state: GatewayState
 	protected ws: WebSocket | null = null
 	protected monitor: ConnectionMonitor
+	protected rateLimit: GatewayRateLimit
 	public heartbeatInterval?: NodeJS.Timeout
 	public sequence: number | null = null
 	public lastHeartbeatAck = true
@@ -59,6 +68,7 @@ export class GatewayPlugin extends Plugin {
 			resumeGatewayUrl: null
 		}
 		this.monitor = new ConnectionMonitor()
+		this.rateLimit = new GatewayRateLimit()
 		this.emitter = new EventEmitter()
 		this.gatewayInfo = gatewayInfo
 
@@ -258,7 +268,7 @@ export class GatewayPlugin extends Plugin {
 			}
 		})
 
-		this.ws.on("close", (code: number) => {
+		this.ws.on("close", (code: number, _reason: Buffer) => {
 			this.emitter.emit(
 				"debug",
 				`WebSocket connection closed with code ${code}`
@@ -373,13 +383,29 @@ export class GatewayPlugin extends Plugin {
 			sessionId: this.state.sessionId,
 			sequence: this.state.sequence
 		})
-		this.send(payload)
+		this.send(payload, true)
 	}
 
-	public send(payload: GatewayPayload): void {
+	public send(payload: GatewayPayload, skipRateLimit = false): void {
 		if (this.ws && this.ws.readyState === 1) {
+			// Skip rate limiting for essential connection events
+			const isEssentialEvent =
+				payload.op === GatewayOpcodes.Heartbeat ||
+				payload.op === GatewayOpcodes.Identify ||
+				payload.op === GatewayOpcodes.Resume
+
+			if (!skipRateLimit && !isEssentialEvent && !this.rateLimit.canSend()) {
+				throw new Error(
+					`Gateway rate limit exceeded. ${this.rateLimit.getRemainingEvents()} events remaining. Reset in ${this.rateLimit.getResetTime()}ms`
+				)
+			}
+
 			this.ws.send(JSON.stringify(payload))
 			this.monitor.recordMessageSent()
+
+			if (!isEssentialEvent) {
+				this.rateLimit.recordEvent()
+			}
 
 			if (payload.op === GatewayOpcodes.Heartbeat) {
 				this.monitor.recordHeartbeat()
@@ -399,6 +425,105 @@ export class GatewayPlugin extends Plugin {
 			},
 			...(this.config.shard ? { shard: this.config.shard } : {})
 		})
+		this.send(payload, true)
+	}
+
+	/**
+	 * Update the bot's presence (status, activity, etc.)
+	 * @param data Presence data to update
+	 */
+	public updatePresence(data: UpdatePresenceData): void {
+		if (!this.isConnected) {
+			throw new Error("Gateway is not connected")
+		}
+		const payload = createUpdatePresencePayload(data)
 		this.send(payload)
+	}
+
+	/**
+	 * Update the bot's voice state
+	 * @param data Voice state data to update
+	 */
+	public updateVoiceState(data: UpdateVoiceStateData): void {
+		if (!this.isConnected) {
+			throw new Error("Gateway is not connected")
+		}
+
+		const payload = createUpdateVoiceStatePayload(data)
+		this.send(payload)
+	}
+
+	/**
+	 * Request guild members from Discord. The data will come in through the GUILD_MEMBERS_CHUNK event, not as a return on this function.
+	 * @param data Guild members request data
+	 */
+	public requestGuildMembers(data: RequestGuildMembersData): void {
+		if (!this.isConnected) {
+			throw new Error("Gateway is not connected")
+		}
+
+		const hasGuildMembersIntent =
+			(this.config.intents & GatewayIntents.GuildMembers) !== 0
+		if (!hasGuildMembersIntent) {
+			throw new Error(
+				"GUILD_MEMBERS intent is required for requestGuildMembers operation"
+			)
+		}
+
+		if (data.presences) {
+			const hasPresencesIntent =
+				(this.config.intents & GatewayIntents.GuildPresences) !== 0
+			if (!hasPresencesIntent) {
+				throw new Error(
+					"GUILD_PRESENCES intent is required when requesting presences"
+				)
+			}
+		}
+
+		if (!data.query && data.query !== "" && !data.user_ids) {
+			throw new Error(
+				"Either 'query' or 'user_ids' field is required for requestGuildMembers"
+			)
+		}
+
+		const payload = createRequestGuildMembersPayload(data)
+		this.send(payload)
+	}
+
+	/**
+	 * Get the current rate limit status
+	 */
+	public getRateLimitStatus() {
+		return {
+			remainingEvents: this.rateLimit.getRemainingEvents(),
+			resetTime: this.rateLimit.getResetTime(),
+			currentEventCount: this.rateLimit.getCurrentEventCount()
+		}
+	}
+
+	/**
+	 * Get information about configured intents
+	 */
+	public getIntentsInfo() {
+		return {
+			intents: this.config.intents,
+			hasGuilds: (this.config.intents & GatewayIntents.Guilds) !== 0,
+			hasGuildMembers:
+				(this.config.intents & GatewayIntents.GuildMembers) !== 0,
+			hasGuildPresences:
+				(this.config.intents & GatewayIntents.GuildPresences) !== 0,
+			hasGuildMessages:
+				(this.config.intents & GatewayIntents.GuildMessages) !== 0,
+			hasMessageContent:
+				(this.config.intents & GatewayIntents.MessageContent) !== 0
+		}
+	}
+
+	/**
+	 * Check if a specific intent is enabled
+	 * @param intent The intent to check
+	 */
+	public hasIntent(intent: number): boolean {
+		return (this.config.intents & intent) !== 0
 	}
 }
