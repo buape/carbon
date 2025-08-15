@@ -12,10 +12,11 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-    release:
-        name: Release
-        runs-on: ubuntu-latest
-        steps:
+	release:
+		name: Release
+		runs-on: ubuntu-latest
+		if: "!contains(github.event.head_commit.message, 'chore: update changelog and release')"
+		steps:
             - name: Check out code
               uses: actions/checkout@v4
 
