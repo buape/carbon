@@ -33,7 +33,7 @@
 		"@hono/node-server": "1.14.1",
 		"@types/bun": "1.2.20",
 		"@types/ws": "8.18.1",
-		"ws": "8.18.2"
+		"ws": "8.18.3"
 	},
 	"files": [
 		"dist",
