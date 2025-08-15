@@ -368,13 +368,26 @@ export class Client {
 			// Try each public key until one works
 			for (const publicKey of publicKeys) {
 				try {
+					const publicKeyBuffer = valueToUint8Array(publicKey, "hex")
+					const signatureBuffer = valueToUint8Array(signature, "hex")
+
+					// Create proper ArrayBuffer for Web Crypto API
+					const publicKeyArrayBuffer = new ArrayBuffer(publicKeyBuffer.length)
+					new Uint8Array(publicKeyArrayBuffer).set(publicKeyBuffer)
+
+					const signatureArrayBuffer = new ArrayBuffer(signatureBuffer.length)
+					new Uint8Array(signatureArrayBuffer).set(signatureBuffer)
+
+					const messageArrayBuffer = new ArrayBuffer(message.length)
+					new Uint8Array(messageArrayBuffer).set(message)
+
 					const isValid = await subtleCrypto.verify(
 						{
 							name: "ed25519"
 						},
 						await subtleCrypto.importKey(
 							"raw",
-							valueToUint8Array(publicKey, "hex"),
+							publicKeyArrayBuffer,
 							{
 								name: "ed25519",
 								namedCurve: "ed25519"
@@ -382,8 +395,8 @@ export class Client {
 							false,
 							["verify"]
 						),
-						valueToUint8Array(signature, "hex"),
-						message
+						signatureArrayBuffer,
+						messageArrayBuffer
 					)
 					if (isValid) return true
 				} catch {
