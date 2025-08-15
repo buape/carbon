@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.4.2
+
+### Patch Changes
+
+- b35a1f7: fix: missing "and" helper for plugins
+
 ## 0.4.1
 
 ### Patch Changes
