@@ -31,7 +31,7 @@
 	"optionalDependencies": {
 		"@cloudflare/workers-types": "4.20250513.0",
 		"@hono/node-server": "1.14.1",
-		"@types/bun": "1.2.18",
+		"@types/bun": "1.2.20",
 		"@types/ws": "8.18.1",
 		"ws": "8.18.2"
 	},
