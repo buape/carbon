@@ -1,5 +1,27 @@
 # @buape/carbon
 
+## 0.10.0
+
+### Minor Changes
+
+- ac7e683: feat: add support for subcommands alongside subcommand groups
+- 1aa8613: feat: make Client#validateDiscordRequest protected so it can be overridden
+- 4a2e54b: feat: Add support for sending gateway events
+- 0a6ec9e: feat: add ping tracking to the gateway plugin
+- e48999f: feat: add a Go To Page button for the Paginator
+- 4031390: feat: add a isConnected to the gateway plugin
+
+### Patch Changes
+
+- 4818a7e: fix: make Interaction#update() register components automatically like the other methods
+- d3a6f2c: chore(deps): update dependency @hono/node-server to v1.18.2
+- 028b0d3: chore(deps): update dependency @types/bun to v1.2.18
+- 2d28b80: chore(deps): update dependency @types/bun to v1.2.20
+- 252dbfd: chore(deps): update dependency ws to v8.18.3
+- 93641eb: fix: Made Message#edit, Message#forward, and Message#reply methods properly return a Message class
+- f273125: feat: add a createPost function for forum channels
+- 07a8385: fix: resolve TypeScript build errors in Web Crypto API usage
+
 ## 0.9.0
 
 ### Minor Changes
