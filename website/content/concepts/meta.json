@@ -3,6 +3,7 @@
 	"icon": "BookOpen",
 	"pages": [
 		"http-bots",
+		"routes",
 		"interaction-responses",
 		"prechecks",
 		"partial-structures",

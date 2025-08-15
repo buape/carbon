@@ -1,0 +1,203 @@
+---
+title: HTTP Routes
+description: A comprehensive list of all HTTP routes that Carbon uses for Discord bot interactions and management.
+icon: Route
+---
+
+Carbon provides several HTTP routes for handling Discord interactions, command deployment, and plugin functionality. This page documents all available routes that Carbon can handle.
+
+## Core Routes
+
+These are the fundamental routes that Carbon provides out of the box when you create a client.
+
+<RouteCard
+	method="POST"
+	path="/interactions"
+	purpose="Receives interaction events from Discord"
+	protected={false}
+	canBeDisabled="Yes (via disableInteractionsRoute option)"
+	description="This is the primary route where Discord sends all interaction events (slash commands, button clicks, select menu selections, etc.). This should be configured as your 'Interactions Endpoint URL' in your Discord application settings."
+/>
+
+<RouteCard
+	method="POST"
+	path="/events"
+	purpose="Receives Gateway events (when using Gateway Forwarder)"
+	protected={false}
+	canBeDisabled="Yes (via disableEventsRoute option)"
+	description="This route receives Gateway events forwarded from another Carbon instance running the Gateway Forwarder plugin. Used for hybrid setups where you want Gateway events in a serverless environment."
+/>
+
+<RouteCard
+	method="GET"
+	path="/deploy"
+	purpose="Deploys commands to Discord"
+	protected={true}
+	canBeDisabled="Yes (via disableDeployRoute option)"
+	description="This route triggers the deployment of all registered commands to Discord's API. It requires authentication via the deploySecret parameter."
+/>
+
+## Plugin Routes
+
+These routes are added by Carbon plugins and provide additional functionality.
+
+### Command Data Plugin Routes
+
+The Command Data Plugin adds routes for retrieving command information.
+
+<RouteCard
+	method="GET"
+	path="/commands"
+	purpose="Returns command data in Discord API format"
+	protected={false}
+	plugin="CommandDataPlugin"
+	description="Returns an array of command data objects that can be sent to Discord's API for command registration."
+/>
+
+<RouteCard
+	method="GET"
+	path="/commands/full"
+	purpose="Returns full command data from Discord's API"
+	protected={false}
+	plugin="CommandDataPlugin"
+	description="Fetches and returns the complete command data from Discord's API, including command IDs and other metadata."
+/>
+
+### Linked Roles Plugin Routes
+
+The Linked Roles plugin adds routes for Discord's Linked Roles functionality.
+
+<RouteCard
+	method="GET"
+	path="/linked-roles/deploy"
+	purpose="Deploys linked roles metadata to Discord"
+	protected={true}
+	plugin="LinkedRoles"
+	description="Registers or updates the linked roles metadata for your application."
+/>
+
+<RouteCard
+	method="GET"
+	path="/linked-roles/verify-user"
+	purpose="Initiates user verification flow"
+	protected={false}
+	plugin="LinkedRoles"
+	description="Starts the OAuth2 flow for users to connect their accounts and verify linked roles."
+/>
+
+<RouteCard
+	method="GET"
+	path="/linked-roles/verify-user/callback"
+	purpose="Handles OAuth2 callback for user verification"
+	protected={false}
+	plugin="LinkedRoles"
+	description="Processes the OAuth2 callback after a user authorizes your application."
+/>
+
+## Route Configuration
+
+### Disabling Routes
+
+You can disable specific routes when creating your client:
+
+```typescript
+const client = new Client({
+	baseUrl: "https://your-bot.com",
+	clientId: "your-client-id",
+	publicKey: "your-public-key",
+	token: "your-bot-token",
+	
+	// Disable specific routes
+	disableDeployRoute: true,
+	disableInteractionsRoute: false,
+	disableEventsRoute: true
+})
+```
+
+### Protected Routes
+
+Some routes require authentication via a deploy secret:
+
+```typescript
+const client = new Client({
+	baseUrl: "https://your-bot.com",
+	deploySecret: "your-secret-key",
+	// ... other options
+})
+
+// Protected routes require: ?secret=your-secret-key
+```
+
+### Custom Routes via Plugins
+
+Plugins can register additional routes using the `registerRoutes` method:
+
+```typescript
+import { Plugin } from "@buape/carbon"
+
+class MyCustomPlugin extends Plugin {
+	readonly id = "my-plugin"
+	
+	registerRoutes(client: Client) {
+		client.routes.push({
+			method: "GET",
+			path: "/my-custom-route",
+			handler: this.handleRequest.bind(this),
+			protected: false,
+			disabled: false
+		})
+	}
+	
+	private handleRequest(req: Request) {
+		return new Response("Hello from custom route!")
+	}
+}
+```
+
+## Route Interface
+
+All routes in Carbon implement this interface:
+
+```typescript
+interface Route {
+	/** The HTTP method of the route */
+	method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+	
+	/** The relative path of the route */
+	path: `/${string}`
+	
+	/** The handler function for the route */
+	handler(req: Request, ctx?: Context): Response | Promise<Response>
+	
+	/** Whether this route requires authentication */
+	protected?: boolean
+	
+	/** Whether this route is disabled */
+	disabled?: boolean
+}
+```
+
+## Debugging Routes
+
+You can see which routes are active by logging them after client initialization:
+
+```typescript
+const client = new Client(/* ... */)
+
+console.log("Active routes:")
+client.routes
+	.filter(route => !route.disabled)
+	.forEach(route => {
+		console.log(`  ${route.method} ${route.path}${route.protected ? ' (protected)' : ''}`)
+	})
+```
+
+This will output something like:
+```
+Active routes:
+	GET /deploy (protected)
+	POST /interactions
+	POST /events
+	GET /commands
+	GET /commands/full
+```

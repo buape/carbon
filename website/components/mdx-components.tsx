@@ -4,6 +4,7 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import defaultComponents from "fumadocs-ui/mdx"
 import type { MDXComponents } from "mdx/types"
 import { PackageManager } from "./package-manager"
+import { RouteCard } from "./route-card"
 
 export function useMDXComponents() {
 	return {
@@ -19,6 +20,7 @@ export function useMDXComponents() {
 		Tab,
 		ImageZoom,
 
-		PackageManager
+		PackageManager,
+		RouteCard
 	}
 }
