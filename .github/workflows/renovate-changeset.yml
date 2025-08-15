@@ -11,7 +11,7 @@ jobs:
         runs-on: ubuntu-latest
         if: ${{ github.actor == 'renovate[bot]' }}
         steps:
-            - uses: mscharley/dependency-changesets-action@v1.1.4
+            - uses: mscharley/dependency-changesets-action@v1.1.8
               with:
                   token: ${{ secrets.BUAPEBOT_SECRET }}
                   changeset-folder: ".changeset"
