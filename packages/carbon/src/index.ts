@@ -85,6 +85,9 @@ export * from "./structures/ThreadMember.js"
 export * from "./structures/User.js"
 export * from "./structures/Webhook.js"
 
+// ----- Plugins -----
+export * from "./plugins/paginator/index.js"
+
 // ----- Misc -----
 export * from "discord-api-types/v10"
 export * from "./types/index.js"

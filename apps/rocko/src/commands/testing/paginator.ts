@@ -1,42 +1,44 @@
-import { Command, type CommandInteraction, Embed } from "@buape/carbon"
-import { Paginator } from "@buape/carbon/paginator"
+import {
+	Command,
+	type CommandInteraction,
+	Embed,
+	Paginator
+} from "@buape/carbon"
 
 export default class PaginatorCommand extends Command {
 	name = "paginator"
-	description = "Test the paginator functionality"
+	description = "Test the paginator with go-to-page functionality"
 
 	async run(interaction: CommandInteraction) {
-		const pages = [
-			{
-				embeds: [
-					new Embed({
-						title: "Page 1",
-						description: "This is the first page of the paginator test.",
-						color: 0x00ff00
-					})
-				]
-			},
-			{
-				embeds: [
-					new Embed({
-						title: "Page 2",
-						description: "This is the second page of the paginator test.",
-						color: 0xff0000
-					})
-				]
-			},
-			{
-				embeds: [
-					new Embed({
-						title: "Page 3",
-						description: "This is the third page of the paginator test.",
-						color: 0x0000ff
-					})
-				]
-			}
-		]
+		// Create multiple pages for testing
+		const pages = Array.from({ length: 10 }, (_, i) => {
+			const embed = new Embed()
+			embed.title = `Page ${i + 1}`
+			embed.description = `This is page ${i + 1} out of 10 pages.`
+			embed.color = 0x3498db
+			embed.fields = [
+				{
+					name: "Page Info",
+					value: "You can navigate using the buttons below.",
+					inline: false
+				},
+				{
+					name: "Go-to-Page",
+					value: `Click the page number button (${i + 1} / 10) to jump to a specific page!`,
+					inline: false
+				}
+			]
 
-		const paginator = new Paginator(pages, { client: interaction.client })
+			return {
+				embeds: [embed]
+			}
+		})
+
+		const paginator = new Paginator(pages, {
+			client: interaction.client,
+			userId: interaction.user?.id // Restrict to the user who ran the command
+		})
+
 		await paginator.send(interaction)
 	}
 }

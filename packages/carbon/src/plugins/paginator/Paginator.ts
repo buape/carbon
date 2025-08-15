@@ -1,11 +1,13 @@
-import { ButtonStyle } from "discord-api-types/v10"
+import { ButtonStyle, MessageFlags } from "discord-api-types/v10"
 import type { Client } from "../../classes/Client.js"
 import { Button } from "../../classes/components/Button.js"
 import { Row } from "../../classes/components/Row.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
 import type { CommandInteraction } from "../../internals/CommandInteraction.js"
+import type { ModalInteraction } from "../../internals/ModalInteraction.js"
 import type { MessagePayloadObject } from "../../types/index.js"
 import type { ComponentData } from "../../types/index.js"
+import { GoToPageModal } from "./GoToPageModal.js"
 
 export class Paginator {
 	readonly pages: MessagePayloadObject[]
@@ -101,6 +103,21 @@ export class Paginator {
 		await interaction.update(this.getCurrentPageWithButtons())
 	}
 
+	public async goToPageFromModal(
+		pageIndex: number,
+		interaction: ModalInteraction
+	) {
+		if (pageIndex < 0 || pageIndex >= this.pages.length) {
+			return interaction.reply({
+				content: "Invalid page number",
+				flags: MessageFlags.Ephemeral
+			})
+		}
+		this.currentPage = pageIndex
+		this.startTimeout()
+		await interaction.update(this.getCurrentPageWithButtons())
+	}
+
 	private createNavigationButtons(disabled = false): Row {
 		const backButton = new DirectionButton({
 			paginatorId: this.id,
@@ -109,17 +126,12 @@ export class Paginator {
 			label: "Back"
 		})
 
-		const pageNumber = new (class extends Button {
-			label: string
-			customId = "x-pageNumber"
-			style = ButtonStyle.Secondary
-			disabled = true
-			constructor(currentPage: number, totalPages: number) {
-				super()
-				this.label = `${currentPage + 1} / ${totalPages}`
-			}
-			async run() {}
-		})(this.currentPage, this.pages.length)
+		const pageNumber = new PageNumberButton(
+			this.id,
+			this.currentPage,
+			this.pages.length,
+			disabled
+		)
 
 		const nextButton = new DirectionButton({
 			paginatorId: this.id,
@@ -188,5 +200,42 @@ class DirectionButton extends Button {
 		if (paginator.userId && paginator.userId !== interaction.user?.id)
 			return interaction.acknowledge()
 		await paginator.goToPage(goToPage, interaction)
+	}
+}
+
+class PageNumberButton extends Button {
+	label: string
+	customId: string
+	style = ButtonStyle.Secondary
+	disabled: boolean
+
+	constructor(
+		paginatorId: string,
+		currentPage: number,
+		totalPages: number,
+		disabled: boolean
+	) {
+		super()
+		this.label = `${currentPage + 1} / ${totalPages}`
+		this.customId = `paginator-page:id=${paginatorId};max=${totalPages}`
+		this.disabled = disabled || totalPages <= 1
+	}
+
+	async run(interaction: ButtonInteraction, data: ComponentData) {
+		const paginatorId = data.id as string
+		const maxPages = data.max as number
+		const paginator = interaction.client.paginators.find(
+			(p) => p.id === paginatorId
+		)
+		if (!paginator)
+			return interaction.reply({
+				content: "Paginator not found in memory",
+				flags: MessageFlags.Ephemeral
+			})
+		if (paginator.userId && paginator.userId !== interaction.user?.id)
+			return interaction.acknowledge()
+
+		const modal = new GoToPageModal(paginatorId, maxPages)
+		await interaction.showModal(modal)
 	}
 }

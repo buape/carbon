@@ -5,6 +5,7 @@ declare module "../../classes/Client.js" {
 }
 
 import { Client } from "../../classes/Client.js"
+import { GoToPageModal } from "./GoToPageModal.js"
 import { Paginator } from "./Paginator.js"
 
 Object.assign(Client.prototype, {
@@ -12,4 +13,4 @@ Object.assign(Client.prototype, {
 	paginators: [] as Paginator[]
 })
 
-export { Paginator }
+export { Paginator, GoToPageModal }
