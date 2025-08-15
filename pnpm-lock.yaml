@@ -146,8 +146,8 @@ importers:
         specifier: 4.20250513.0
         version: 4.20250513.0
       '@hono/node-server':
-        specifier: 1.14.1
-        version: 1.14.1(hono@4.6.5)
+        specifier: 1.18.2
+        version: 1.18.2(hono@4.6.5)
       '@types/bun':
         specifier: 1.2.20
         version: 1.2.20(@types/react@19.1.4)
@@ -1013,8 +1013,8 @@ packages:
   '@gerrit0/mini-shiki@3.4.0':
     resolution: {integrity: sha512-48lKoQegmfJ0iyR/jRz5OrYOSM3WewG9YWCPqUvYFEC54shQO8RsAaspaK/2PRHVVnjekRqfAFvq8pwCpIo5ig==}
 
-  '@hono/node-server@1.14.1':
-    resolution: {integrity: sha512-vmbuM+HPinjWzPe7FFPWMMQMsbKE9gDPhaH0FFdqbGpkT5lp++tcWDTxwBl5EgS5y6JVgIaCdjeHRfQ4XRBRjQ==}
+  '@hono/node-server@1.18.2':
+    resolution: {integrity: sha512-icgNvC0vRYivzyuSSaUv9ttcwtN8fDyd1k3AOIBDJgYd84tXRZSS6na8X54CY/oYoFTNhEmZraW/Rb9XYwX4KA==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4
@@ -6580,7 +6580,7 @@ snapshots:
       '@shikijs/types': 3.4.0
       '@shikijs/vscode-textmate': 10.0.2
 
-  '@hono/node-server@1.14.1(hono@4.6.5)':
+  '@hono/node-server@1.18.2(hono@4.6.5)':
     dependencies:
       hono: 4.6.5
     optional: true
