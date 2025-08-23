@@ -1,6 +1,6 @@
 import { MessageFlags, TextInputStyle } from "discord-api-types/v10"
 import { Modal } from "../../classes/Modal.js"
-import { Row } from "../../classes/components/Row.js"
+import { Label } from "../../classes/components/Label.js"
 import { TextInput } from "../../classes/components/TextInput.js"
 import type { ModalInteraction } from "../../internals/ModalInteraction.js"
 import type { ComponentData } from "../../types/index.js"
@@ -9,7 +9,7 @@ export class GoToPageModal extends Modal {
 	title = "Go to Page"
 	customId: string
 
-	components = [new Row([new PageNumberInput()])]
+	components = [new PageNumberLabel()]
 
 	constructor(paginatorId: string, maxPages: number) {
 		super()
@@ -51,8 +51,16 @@ export class GoToPageModal extends Modal {
 	}
 }
 
-class PageNumberInput extends TextInput {
+class PageNumberLabel extends Label {
 	label = "Page Number"
+	description = "Enter the page number you want to go to"
+
+	constructor() {
+		super(new PageNumberInput())
+	}
+}
+
+class PageNumberInput extends TextInput {
 	customId = "page"
 	style = TextInputStyle.Short
 	placeholder = "Enter page number..."

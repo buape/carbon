@@ -8,7 +8,7 @@ export abstract class BaseComponent {
 	/**
 	 * The type of the component
 	 */
-	abstract readonly type: ComponentType
+	abstract readonly type: ComponentType | number // Allow number for new component types not yet in ComponentType
 
 	/**
 	 * Whether the component is a v2 component and requires the IS_COMPONENTS_V2 flag
