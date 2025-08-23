@@ -1,13 +1,8 @@
-import type {
-	APIActionRowComponent,
-	APIModalInteractionResponseCallbackData,
-	APITextInputComponent
-} from "discord-api-types/v10"
-import type { BaseModalComponent } from "../abstracts/BaseModalComponent.js"
+import type { APIModalInteractionResponseCallbackData } from "discord-api-types/v10"
 import type { ModalInteraction } from "../internals/ModalInteraction.js"
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
 import { parseCustomId } from "../utils/customIdParser.js"
-import type { Row } from "./components/Row.js"
+import type { Label } from "./components/Label.js"
 
 export abstract class Modal {
 	/**
@@ -18,7 +13,7 @@ export abstract class Modal {
 	/**
 	 * The components of the modal
 	 */
-	components: Row<BaseModalComponent>[] = []
+	components: Label[] = []
 
 	/**
 	 * The custom ID of the component.
@@ -51,10 +46,9 @@ export abstract class Modal {
 		return {
 			title: this.title,
 			custom_id: this.customId,
-			components: this.components.map(
-				(row) =>
-					row.serialize() as unknown as APIActionRowComponent<APITextInputComponent>
-			)
+			// TODO: Remove this once discord-api-types is updated
+			// @ts-expect-error - Label components are not yet in discord-api-types
+			components: this.components.map((label) => label.serialize())
 		}
 	}
 }

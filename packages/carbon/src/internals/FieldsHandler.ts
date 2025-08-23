@@ -8,9 +8,13 @@ import type { APIModalSubmitInteraction, Client } from "../index.js"
  */
 export class FieldsHandler extends Base {
 	/**
-	 * The raw options that were in the interaction data, before they were parsed.
+	 * The raw text input options that were in the interaction data, before they were parsed.
 	 */
-	readonly raw: { [key: string]: string } = {}
+	readonly rawText: { [key: string]: string } = {}
+	/**
+	 * The raw string select options that were in the interaction data, before they were parsed.
+	 */
+	readonly rawStringSelect: { [key: string]: string[] } = {}
 	/**
 	 * The errors that were encountered while parsing the options.
 	 */
@@ -18,12 +22,23 @@ export class FieldsHandler extends Base {
 
 	constructor(client: Client, interaction: APIModalSubmitInteraction) {
 		super(client)
-		interaction.data.components.map((row) => {
-			row.components.map((component) => {
+		interaction.data.components.map((rowOrLabel) => {
+			if (rowOrLabel.type === ComponentType.ActionRow) {
+				rowOrLabel.components.map((component) => {
+					if (component.type === ComponentType.TextInput) {
+						this.rawText[component.custom_id] = component.value
+					}
+				})
+			} else if (rowOrLabel.type === 18) {
+				// TODO: Remove this once discord-api-types is updated
+				// @ts-expect-error - Label components are not yet in discord-api-types
+				const component = rowOrLabel.component
 				if (component.type === ComponentType.TextInput) {
-					this.raw[component.custom_id] = component.value
+					this.rawText[component.custom_id] = component.value
+				} else if (component.type === ComponentType.StringSelect) {
+					this.rawStringSelect[component.custom_id] = component.values
 				}
-			})
+			}
 		})
 	}
 
@@ -35,11 +50,22 @@ export class FieldsHandler extends Base {
 	public getText(key: string, required?: false): string | undefined
 	public getText(key: string, required: true): string
 	public getText(key: string, required = false) {
-		const value = this.raw[key]
+		const value = this.rawText[key]
 		if (required) {
 			if (!value || typeof value !== "string")
 				throw new Error(`Missing required field: ${key}`)
 		} else if (!value || typeof value !== "string") return undefined
+		return value
+	}
+
+	public getStringSelect(key: string, required?: false): string[] | undefined
+	public getStringSelect(key: string, required: true): string[]
+	public getStringSelect(key: string, required = false) {
+		const value = this.rawStringSelect[key]
+		if (required) {
+			if (!value || !Array.isArray(value))
+				throw new Error(`Missing required field: ${key}`)
+		} else if (!value || !Array.isArray(value)) return undefined
 		return value
 	}
 }
