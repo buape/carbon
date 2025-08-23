@@ -1,0 +1,99 @@
+---
+title: "Migration Guide"
+description: "Breaking changes guide for Carbon framework updates"
+icon: SendToBack
+---
+
+# Migration Guide
+
+This guide covers breaking changes across Carbon versions and how to migrate your code.
+
+## v0.11.0 - Modal Structure Changes
+
+Carbon now uses Discord's new Label-based modal structure. The old Row-based approach is no longer supported.
+
+### Breaking Changes Overview
+
+We've changed how modal components work in v0.11.0 to match Discord's new API. `Modal.components` only takes `Label[]` now - no more Rows. The `label` field is gone from TextInput since Labels handle that now. Everything needs to be wrapped in Labels. Oh, and if you want dropdowns in modals, you'll need to use `ModalStringSelectMenu` instead of the regular one.
+
+### Migration Required
+
+#### ❌ Old Structure (No Longer Supported) - 0.10.0
+```typescript
+import { Modal, Row, TextInput, TextInputStyle } from "@buape/carbon"
+
+class OldModal extends Modal {
+	title = "Old Modal"
+	customId = "old-modal"
+	
+	// ❌ This will cause TypeScript errors
+	components = [
+		new Row([new NameTextInput()]),
+		new Row([new AgeTextInput()])
+	]
+}
+
+class NameTextInput extends TextInput {
+	customId = "name"
+	label = "What is your name?" // ❌ Property removed
+	style = TextInputStyle.Short
+}
+```
+
+#### ✅ New Structure (Required) - 0.11.0
+```typescript
+import { Modal, Label, TextInput, ModalStringSelectMenu, TextInputStyle } from "@buape/carbon"
+
+class NewModal extends Modal {
+	title = "New Modal" 
+	customId = "new-modal"
+	
+	components = [
+		new NameLabel(),
+		new PreferencesLabel()
+	]
+}
+
+class NameTextInput extends TextInput {
+	customId = "name"
+	style = TextInputStyle.Short
+	placeholder = "Enter your name"
+}
+class NameLabel extends Label {
+	label = "Your Name"
+	description = "Please enter your full name"
+	
+	constructor() {
+		super(new NameTextInput())
+	}
+}
+
+
+class FavoriteColorSelect extends ModalStringSelectMenu {
+	customId = "color"
+	placeholder = "Choose your favorite color"
+	required = true
+	options = [
+		{ label: "Red", value: "red" },
+		{ label: "Blue", value: "blue" }
+	]
+}
+class PreferencesLabel extends Label {
+	label = "Favorite Color"
+	description = "Choose your preferred color"
+	
+	constructor() {
+		super(new FavoriteColorSelect())
+	}
+}
+
+
+```
+
+### Benefits of New Structure
+
+Labels let you group related stuff together and add descriptions so users actually know what you're asking for. Plus you can finally use dropdowns in modals, which is pretty nice. And yeah, it keeps your bot working with Discord's latest changes.
+
+### Migration Steps
+
+First, swap out `Row` for `Label` in your imports. Each Label can only contain one component now - so you'll need separate Label classes for each TextInput. Move the label text from TextInput's `label` field to the Label's `label` property and pass the component through the Label's constructor. Delete the `label` field from your TextInput classes entirely since Labels handle that now. Update your Modal's `components` to use Labels instead of Rows. Test everything to make sure it still works.

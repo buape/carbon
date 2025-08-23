@@ -36,14 +36,20 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 
 	serialize = (): APISelectMenuComponent => {
 		const options = this.serializeOptions()
-		return {
+		const extra = this.serializeExtra()
+		const data = {
 			...options,
 			custom_id: this.customId,
 			disabled: this.disabled,
 			placeholder: this.placeholder,
 			min_values: this.minValues,
-			max_values: this.maxValues
+			max_values: this.maxValues,
+			...extra
 		}
+		for (const key of this.serializeDeleteKeys) {
+			delete (data as Record<string, unknown>)[key]
+		}
+		return data
 	}
 
 	abstract serializeOptions():
@@ -68,4 +74,12 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 				type: ComponentType.MentionableSelect
 				default_values: APIMentionableSelectComponent["default_values"]
 		  }
+
+	serializeExtra(): Record<string, unknown> {
+		return {}
+	}
+
+	protected get serializeDeleteKeys(): string[] {
+		return []
+	}
 }
