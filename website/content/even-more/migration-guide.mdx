@@ -15,6 +15,7 @@ Carbon now uses Discord's new Label-based modal structure. The old Row-based app
 ### Breaking Changes Overview
 
 We've changed how modal components work in v0.11.0 to match Discord's new API. `Modal.components` only takes `Label[]` now - no more Rows. The `label` field is gone from TextInput since Labels handle that now. Everything needs to be wrapped in Labels. Oh, and if you want dropdowns in modals, you'll need to use `ModalStringSelectMenu` instead of the regular one.
+You can now use `interaction.fields.getText` and `interaction.fields.getStringSelect` to get the values of each of the different types of fields.
 
 ### Migration Required
 
