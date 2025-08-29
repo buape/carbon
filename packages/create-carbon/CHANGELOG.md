@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.5.0
+
+### Minor Changes
+
+- 9d206f1: feat: add support for nodejs-style process.env in cloudflare and cleanup template files
+
 ## 0.4.2
 
 ### Patch Changes
