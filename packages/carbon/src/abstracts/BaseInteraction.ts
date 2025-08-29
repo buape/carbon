@@ -42,9 +42,16 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	 */
 	type: InteractionType
 	/**
-	 * The raw data of the interaction
+	 * The internal raw data of the interaction
 	 */
-	rawData: T
+	protected _rawData: T
+
+	/**
+	 * The raw Discord API data for this interaction
+	 */
+	get rawData(): Readonly<T> {
+		return this._rawData
+	}
 	/**
 	 * The user who sent the interaction
 	 */
@@ -60,44 +67,44 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 
 	constructor(client: Client, data: T, defaults: InteractionDefaults) {
 		super(client)
-		this.rawData = data
+		this._rawData = data
 		this.type = data.type
 		this.userId =
-			this.rawData.user?.id || this.rawData.member?.user.id || undefined
+			this._rawData.user?.id || this._rawData.member?.user.id || undefined
 		if (defaults.ephemeral) this.defaultEphemeral = defaults.ephemeral
 	}
 
 	get embeds(): Embed[] | null {
-		if (!this.rawData.message) return null
-		return this.rawData.message.embeds.map((embed) => new Embed(embed))
+		if (!this._rawData.message) return null
+		return this._rawData.message.embeds.map((embed) => new Embed(embed))
 	}
 
 	get message(): Message | null {
-		if (!this.rawData.message) return null
-		return new Message(this.client, this.rawData.message)
+		if (!this._rawData.message) return null
+		return new Message(this.client, this._rawData.message)
 	}
 
 	get guild(): Guild<true> | null {
-		if (!this.rawData.guild_id) return null
-		return new Guild<true>(this.client, this.rawData.guild_id)
+		if (!this._rawData.guild_id) return null
+		return new Guild<true>(this.client, this._rawData.guild_id)
 	}
 
 	get user(): User | null {
-		if (this.rawData.user) return new User(this.client, this.rawData.user)
-		if (this.rawData.member)
-			return new User(this.client, this.rawData.member.user)
+		if (this._rawData.user) return new User(this.client, this._rawData.user)
+		if (this._rawData.member)
+			return new User(this.client, this._rawData.member.user)
 		return null
 	}
 
 	get channel() {
-		if (!this.rawData.channel) return null
-		return channelFactory(this.client, this.rawData.channel as APIChannel)
+		if (!this._rawData.channel) return null
+		return channelFactory(this.client, this._rawData.channel as APIChannel)
 	}
 
 	get member() {
-		if (!this.rawData.member) return null
+		if (!this._rawData.member) return null
 		if (!this.guild) return null
-		return new GuildMember(this.client, this.rawData.member, this.guild)
+		return new GuildMember(this.client, this._rawData.member, this.guild)
 	}
 
 	/**
@@ -165,7 +172,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			const message = (await this.client.rest.patch(
 				Routes.webhookMessage(
 					this.client.options.clientId,
-					this.rawData.token,
+					this._rawData.token,
 					"@original"
 				),
 				{
@@ -175,7 +182,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			return new Message(this.client, message)
 		}
 		const done = (await this.client.rest.post(
-			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.ChannelMessageWithSource,
@@ -202,7 +209,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		if (this._deferred) return
 		this._deferred = true
 		await this.client.rest.post(
-			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.DeferredChannelMessageWithSource,
@@ -234,7 +241,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		}
 
 		await this.client.rest.post(
-			Routes.interactionCallback(this.rawData.id, this.rawData.token),
+			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
 				body: {
 					type: InteractionResponseType.Modal,
@@ -254,7 +261,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this._internalAutoRegisterComponentsOnSend(reply)
 
 		await this.client.rest.post(
-			Routes.webhook(this.client.options.clientId, this.rawData.token),
+			Routes.webhook(this.client.options.clientId, this._rawData.token),
 			{
 				body: {
 					...serialized

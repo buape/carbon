@@ -1,8 +1,4 @@
-import {
-	type APIGroupDMChannel,
-	type ChannelType,
-	Routes
-} from "discord-api-types/v10"
+import { type ChannelType, Routes } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
 import type { IfPartial } from "../types/index.js"
 import { Message } from "./Message.js"
@@ -14,8 +10,6 @@ import { User } from "./User.js"
 export class GroupDmChannel<
 	IsPartial extends boolean = false
 > extends BaseChannel<ChannelType.GroupDM, IsPartial> {
-	declare rawData: APIGroupDMChannel | null
-
 	/**
 	 * The name of the channel.
 	 */

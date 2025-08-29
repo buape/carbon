@@ -1,8 +1,4 @@
-import {
-	type APIDMChannel,
-	type ChannelType,
-	Routes
-} from "discord-api-types/v10"
+import { type ChannelType, Routes } from "discord-api-types/v10"
 import type { APIMessage } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
@@ -15,8 +11,6 @@ export class DmChannel<IsPartial extends boolean = false> extends BaseChannel<
 	ChannelType.DM,
 	IsPartial
 > {
-	declare rawData: APIDMChannel | null
-
 	/**
 	 * The name of the channel. This is always null for DM channels.
 	 */

@@ -13,7 +13,7 @@ import { User } from "./User.js"
 export class Poll extends Base {
 	private channelId: string
 	private messageId: string
-	protected rawData: APIPoll
+	protected _rawData: APIPoll
 
 	constructor(
 		client: Client,
@@ -26,35 +26,42 @@ export class Poll extends Base {
 		super(client)
 		this.channelId = channelId
 		this.messageId = messageId
-		this.rawData = data
+		this._rawData = data
+	}
+
+	/**
+	 * The raw Discord API data for this poll
+	 */
+	get rawData(): Readonly<APIPoll> {
+		return this._rawData
 	}
 
 	get question() {
-		return this.rawData.question
+		return this._rawData.question
 	}
 
 	get answers(): ReadonlyArray<APIPollAnswer> {
-		return this.rawData.answers
+		return this._rawData.answers
 	}
 
 	get allowMultiselect(): boolean {
-		return this.rawData.allow_multiselect
+		return this._rawData.allow_multiselect
 	}
 
 	get layoutType(): APIPoll["layout_type"] {
-		return this.rawData.layout_type
+		return this._rawData.layout_type
 	}
 
 	get results(): APIPoll["results"] | undefined {
-		return this.rawData.results
+		return this._rawData.results
 	}
 
 	get expiry(): string {
-		return this.rawData.expiry
+		return this._rawData.expiry
 	}
 
 	get isFinalized(): boolean {
-		return this.rawData.results !== undefined
+		return this._rawData.results !== undefined
 	}
 
 	async getAnswerVoters(answerId: number): Promise<User[]> {

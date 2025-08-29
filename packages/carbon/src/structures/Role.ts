@@ -17,21 +17,32 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		if (typeof rawDataOrId === "string") {
 			this.id = rawDataOrId
 		} else {
-			this.rawData = rawDataOrId
+			this._rawData = rawDataOrId
 			this.id = rawDataOrId.id
 			this.setData(rawDataOrId)
 		}
 	}
 
-	protected rawData: APIRole | null = null
-	private setData(data: typeof this.rawData) {
+	protected _rawData: APIRole | null = null
+	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
-		this.rawData = data
+		this._rawData = data
 	}
 	private setField(key: keyof APIRole, value: unknown) {
-		if (!this.rawData)
+		if (!this._rawData)
 			throw new Error("Cannot set field without having data... smh")
-		Reflect.set(this.rawData, key, value)
+		Reflect.set(this._rawData, key, value)
+	}
+
+	/**
+	 * The raw Discord API data for this role
+	 */
+	get rawData(): Readonly<APIRole> {
+		if (!this._rawData)
+			throw new Error(
+				"Cannot access rawData on partial Role. Use fetch() to populate data."
+			)
+		return this._rawData
 	}
 
 	/**
@@ -44,23 +55,23 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * If this is true, you should use {@link Role.fetch} to get the full data of the role.
 	 */
 	get partial(): IsPartial {
-		return (this.rawData === null) as never
+		return (this._rawData === null) as never
 	}
 
 	/**
 	 * The name of the role.
 	 */
 	get name(): IfPartial<IsPartial, string> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.name
+		if (!this._rawData) return undefined as never
+		return this._rawData.name
 	}
 
 	/**
 	 * The color of the role.
 	 */
 	get color(): IfPartial<IsPartial, number> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.color
+		if (!this._rawData) return undefined as never
+		return this._rawData.color
 	}
 
 	/**
@@ -68,15 +79,15 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * You can use {@link Role.iconUrl} to get the URL of the icon.
 	 */
 	get icon(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.icon ?? null
+		if (!this._rawData) return undefined as never
+		return this._rawData.icon ?? null
 	}
 
 	/**
 	 * Get the URL of the role's icon
 	 */
 	get iconUrl(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
+		if (!this._rawData) return undefined as never
 		if (!this.icon) return null as never
 		return `https://cdn.discordapp.com/role-icons/${this.id}/${this.icon}.png`
 	}
@@ -85,48 +96,48 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * If this role is mentionable.
 	 */
 	get mentionable(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.mentionable
+		if (!this._rawData) return undefined as never
+		return this._rawData.mentionable
 	}
 
 	/**
 	 * If this role is hoisted.
 	 */
 	get hoisted(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.hoist
+		if (!this._rawData) return undefined as never
+		return this._rawData.hoist
 	}
 
 	/**
 	 * The position of the role.
 	 */
 	get position(): IfPartial<IsPartial, number> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.position
+		if (!this._rawData) return undefined as never
+		return this._rawData.position
 	}
 
 	/**
 	 * The permissions of the role.
 	 */
 	get permissions(): IfPartial<IsPartial, bigint> {
-		if (!this.rawData) return undefined as never
-		return BigInt(this.rawData.permissions)
+		if (!this._rawData) return undefined as never
+		return BigInt(this._rawData.permissions)
 	}
 
 	/**
 	 * If this role is managed by an integration.
 	 */
 	get managed(): IfPartial<IsPartial, boolean> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.managed
+		if (!this._rawData) return undefined as never
+		return this._rawData.managed
 	}
 
 	/**
 	 * The unicode emoji for the role.
 	 */
 	get unicodeEmoji(): IfPartial<IsPartial, string | null> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.unicode_emoji ?? null
+		if (!this._rawData) return undefined as never
+		return this._rawData.unicode_emoji ?? null
 	}
 
 	/**
@@ -134,8 +145,8 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-flags
 	 */
 	get flags(): IfPartial<IsPartial, RoleFlags> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.flags
+		if (!this._rawData) return undefined as never
+		return this._rawData.flags
 	}
 
 	/**
@@ -143,8 +154,8 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure
 	 */
 	get tags(): IfPartial<IsPartial, APIRoleTags | undefined> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.tags
+		if (!this._rawData) return undefined as never
+		return this._rawData.tags
 	}
 
 	/**
