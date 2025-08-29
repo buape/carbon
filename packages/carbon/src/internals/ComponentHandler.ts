@@ -87,49 +87,151 @@ export class ComponentHandler extends Base {
 			const interaction = new ButtonInteraction(
 				this.client,
 				data as APIMessageComponentButtonInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else if (component instanceof RoleSelectMenu) {
 			const interaction = new RoleSelectMenuInteraction(
 				this.client,
 				data as APIMessageComponentSelectMenuInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else if (component instanceof ChannelSelectMenu) {
 			const interaction = new ChannelSelectMenuInteraction(
 				this.client,
 				data as APIMessageComponentSelectMenuInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else if (component instanceof MentionableSelectMenu) {
 			const interaction = new MentionableSelectMenuInteraction(
 				this.client,
 				data as APIMessageComponentSelectMenuInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else if (component instanceof StringSelectMenu) {
 			const interaction = new StringSelectMenuInteraction(
 				this.client,
 				data as APIMessageComponentSelectMenuInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else if (component instanceof UserSelectMenu) {
 			const interaction = new UserSelectMenuInteraction(
 				this.client,
 				data as APIMessageComponentSelectMenuInteraction,
-				{ ephemeral: component.ephemeral }
+				{
+					ephemeral:
+						typeof component.ephemeral === "function"
+							? false
+							: component.ephemeral
+				}
 			)
-			if (component.defer) await interaction.defer()
+
+			// Resolve ephemeral setting if it's a function
+			if (typeof component.ephemeral === "function") {
+				interaction.setDefaultEphemeral(component.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof component.defer === "function"
+					? component.defer(interaction)
+					: component.defer
+
+			if (shouldDefer) await interaction.defer()
 			await component.run(interaction, parsed.data)
 		} else {
 			throw new Error(

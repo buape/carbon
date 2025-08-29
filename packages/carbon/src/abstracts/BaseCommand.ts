@@ -6,6 +6,7 @@ import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
 	type BaseMessageInteractiveComponent,
+	type ConditionalCommandOption,
 	InteractionContextType,
 	type Permission
 } from "../index.js"
@@ -33,13 +34,15 @@ export abstract class BaseCommand {
 	 */
 	descriptionLocalizations?: Record<string, string>
 	/**
-	 * Whether the command response should be automatically deferred
+	 * Whether the command response should be automatically deferred.
+	 * Can be a boolean or a function that receives the interaction and returns a boolean.
 	 */
-	defer = false
+	defer: boolean | ConditionalCommandOption = false
 	/**
-	 * Whether the command response should be ephemeral
+	 * Whether the command response should be ephemeral.
+	 * Can be a boolean or a function that receives the interaction and returns a boolean.
 	 */
-	ephemeral = false
+	ephemeral: boolean | ConditionalCommandOption = false
 	/**
 	 * The type of the command
 	 */

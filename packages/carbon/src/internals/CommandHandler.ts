@@ -113,7 +113,10 @@ export class CommandHandler extends Base {
 			client: this.client,
 			data: rawInteraction,
 			defaults: {
-				ephemeral: command.ephemeral
+				ephemeral:
+					typeof command.ephemeral === "function"
+						? false // Will be resolved later after interaction is created
+						: command.ephemeral
 			},
 			processingCommand: command
 		})
@@ -121,7 +124,18 @@ export class CommandHandler extends Base {
 		try {
 			const command = this.getCommand(rawInteraction)
 
-			if (command.defer) {
+			// Resolve ephemeral setting if it's a function
+			if (typeof command.ephemeral === "function") {
+				interaction.setDefaultEphemeral(command.ephemeral(interaction))
+			}
+
+			// Resolve defer setting if it's a function
+			const shouldDefer =
+				typeof command.defer === "function"
+					? command.defer(interaction)
+					: command.defer
+
+			if (shouldDefer) {
 				await interaction.defer()
 			}
 			if (command.preCheck) {
@@ -144,7 +158,10 @@ export class CommandHandler extends Base {
 			client: this.client,
 			data: rawInteraction,
 			defaults: {
-				ephemeral: command.ephemeral
+				ephemeral:
+					typeof command.ephemeral === "function"
+						? false // Autocomplete interactions don't use ephemeral typically, but resolve for consistency
+						: command.ephemeral
 			},
 			processingCommand: command
 		})

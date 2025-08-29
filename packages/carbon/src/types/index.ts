@@ -1,4 +1,5 @@
 import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
+import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Embed } from "../classes/Embed.js"
 import type { Container } from "../classes/components/Container.js"
@@ -8,6 +9,7 @@ import type { Row } from "../classes/components/Row.js"
 import type { Section } from "../classes/components/Section.js"
 import type { Separator } from "../classes/components/Separator.js"
 import type { TextDisplay } from "../classes/components/TextDisplay.js"
+import type { CommandInteraction } from "../internals/CommandInteraction.js"
 
 export type ComponentParserResult = {
 	key: string
@@ -22,6 +24,20 @@ export type ComponentData<
 }
 
 export type AllowedMentions = APIAllowedMentions
+
+/**
+ * A function that takes a command interaction and returns a boolean value
+ */
+export type ConditionalCommandOption = (
+	interaction: CommandInteraction
+) => boolean
+
+/**
+ * A function that takes a component interaction and returns a boolean value
+ */
+export type ConditionalComponentOption = (
+	interaction: BaseComponentInteraction
+) => boolean
 export type TopLevelComponents =
 	| Row<BaseMessageInteractiveComponent>
 	| Container

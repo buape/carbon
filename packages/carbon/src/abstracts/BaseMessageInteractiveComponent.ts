@@ -2,7 +2,11 @@ import type {
 	APIComponentInMessageActionRow,
 	ComponentType
 } from "discord-api-types/v10"
-import type { ComponentData, ComponentParserResult } from "../types/index.js"
+import type {
+	ComponentData,
+	ComponentParserResult,
+	ConditionalComponentOption
+} from "../types/index.js"
 import { parseCustomId } from "../utils/customIdParser.js"
 import { BaseComponent } from "./BaseComponent.js"
 import type { BaseComponentInteraction } from "./BaseComponentInteraction.js"
@@ -20,13 +24,15 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	readonly isV2 = false
 
 	/**
-	 * Whether the component response should be automatically deferred
+	 * Whether the component response should be automatically deferred.
+	 * Can be a boolean or a function that receives the interaction and returns a boolean.
 	 */
-	defer = false
+	defer: boolean | ConditionalComponentOption = false
 	/**
-	 * Whether the component response should be ephemeral
+	 * Whether the component response should be ephemeral.
+	 * Can be a boolean or a function that receives the interaction and returns a boolean.
 	 */
-	ephemeral = false
+	ephemeral: boolean | ConditionalComponentOption = false
 
 	/**
 	 * The custom ID of the component.

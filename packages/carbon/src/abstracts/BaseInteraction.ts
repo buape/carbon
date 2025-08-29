@@ -201,6 +201,14 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	}
 
 	/**
+	 * Set the default ephemeral value for this interaction
+	 * @internal
+	 */
+	setDefaultEphemeral(ephemeral: boolean) {
+		this.defaultEphemeral = ephemeral
+	}
+
+	/**
 	 * Defer the interaction response. This is used automatically by commands that are set to defer.
 	 * If the interaction is already deferred, this will do nothing.
 	 * @internal
