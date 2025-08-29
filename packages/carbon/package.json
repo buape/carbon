@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"repository": "github:buape/carbon",

@@ -1,5 +1,25 @@
 # @buape/carbon
 
+## 0.11.0
+
+### Minor Changes
+
+- acd2a9c: feat: new pinned messages routes
+- e729515: feat: updated to new Label components in modals
+
+  #### 🚨 Breaking Changes to Modals
+
+  Carbon now uses Discord's new Label-based modal structure. The old Row-based approach is no longer supported. You can find out more info in [our migration guide](https://carbon.buape.com/even-more/migration-guide)
+
+- fc680c4: feat: allow functions to be passed to set ephemeral and defer capabilities
+- b35008a: feat: allow option-specific autocomplete functions
+- f2b3c0b: feat: allow readonly access to the rawData for all classes
+- ecab49d: feat: add new ApplicationDeauthorizedEvent
+
+### Patch Changes
+
+- ecab49d: fix: remove `position` from thread channels
+
 ## 0.10.0
 
 ### Minor Changes
