@@ -1,5 +1,6 @@
 import type {
-	APIComponentInModalActionRow,
+	APILabelComponent,
+	APITextInputComponent,
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "./BaseComponent.js"
@@ -9,5 +10,5 @@ export abstract class BaseModalComponent extends BaseComponent {
 
 	readonly isV2 = false
 
-	abstract serialize: () => APIComponentInModalActionRow
+	abstract serialize: () => APITextInputComponent | APILabelComponent
 }

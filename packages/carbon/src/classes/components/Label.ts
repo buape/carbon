@@ -1,19 +1,15 @@
+import {
+	type APILabelComponent,
+	type APIStringSelectComponent,
+	ComponentType
+} from "discord-api-types/v10"
 // ComponentType import removed as we define COMPONENT_TYPE_LABEL locally
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
-import type { ModalStringSelectMenu } from "./ModalStringSelectMenu.js"
+import type { StringSelectMenu } from "./StringSelectMenu.js"
 import type { TextInput } from "./TextInput.js"
 
-interface APILabelComponent {
-	type: 18
-	label: string
-	description?: string
-	component: unknown
-}
-
 export abstract class Label extends BaseModalComponent {
-	// TODO: Remove this once discord-api-types is updated
-	// @ts-expect-error - Label component type not yet in discord-api-types
-	readonly type = 18
+	readonly type = ComponentType.Label
 	readonly isV2 = false
 
 	/**
@@ -27,28 +23,26 @@ export abstract class Label extends BaseModalComponent {
 	description?: string
 
 	/**
-	 * The component within this label (TextInput or ModalStringSelectMenu)
+	 * The component within this label (TextInput or StringSelectMenu)
 	 */
-	component: TextInput | ModalStringSelectMenu
+	component: TextInput | StringSelectMenu
 
 	/**
 	 * The custom ID of the label - required by BaseModalComponent
 	 */
 	customId = "label"
 
-	constructor(component: TextInput | ModalStringSelectMenu) {
+	constructor(component: TextInput | StringSelectMenu) {
 		super()
 		this.component = component
 	}
 
-	// TODO: Remove this once discord-api-types is updated
-	// @ts-expect-error - Label component type not yet in discord-api-types
 	serialize = (): APILabelComponent => {
 		return {
-			type: 18,
+			type: this.type,
 			label: this.label,
 			description: this.description,
-			component: this.component.serialize()
+			component: this.component.serialize() as APIStringSelectComponent
 		}
 	}
 }

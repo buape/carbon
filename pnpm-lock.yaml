@@ -139,8 +139,8 @@ importers:
         specifier: ^22.15.17
         version: 22.17.2
       discord-api-types:
-        specifier: 0.38.5
-        version: 0.38.5
+        specifier: 0.38.22
+        version: 0.38.22
     optionalDependencies:
       '@cloudflare/workers-types':
         specifier: 4.20250513.0
@@ -2999,8 +2999,8 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
-  discord-api-types@0.38.5:
-    resolution: {integrity: sha512-2sRkDRid39myMMeRzVTWLc2PyafSxu6k3LHpkB1Lx6IVzqycRnIhOedCbXg3IYpbJhKvA7ErNAh0DA/nXG/1Uw==}
+  discord-api-types@0.38.22:
+    resolution: {integrity: sha512-2gnYrgXN3yTlv2cKBISI/A8btZwsSZLwKpIQXeI1cS8a7W7wP3sFVQOm3mPuuinTD8jJCKGPGNH399zE7Un1kA==}
 
   dot-case@2.1.1:
     resolution: {integrity: sha512-HnM6ZlFqcajLsyudHq7LeeLDr2rFAVYtDv/hV5qchQEidSck8j9OPUsXY9KwJv/lHMtYlX4DjRQqwFYa+0r8Ug==}
@@ -8934,7 +8934,7 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  discord-api-types@0.38.5: {}
+  discord-api-types@0.38.22: {}
 
   dot-case@2.1.1:
     dependencies:

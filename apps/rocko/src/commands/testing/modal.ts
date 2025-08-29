@@ -4,7 +4,7 @@ import {
 	Label,
 	Modal,
 	type ModalInteraction,
-	ModalStringSelectMenu,
+	StringSelectMenu,
 	TextInput,
 	TextInputStyle
 } from "@buape/carbon"
@@ -95,7 +95,7 @@ class PreferencesLabel extends Label {
 
 	constructor() {
 		super(
-			new (class extends ModalStringSelectMenu {
+			new (class extends StringSelectMenu {
 				customId = "color"
 				required = true
 				maxValues = 3

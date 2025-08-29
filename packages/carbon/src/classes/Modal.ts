@@ -46,8 +46,6 @@ export abstract class Modal {
 		return {
 			title: this.title,
 			custom_id: this.customId,
-			// TODO: Remove this once discord-api-types is updated
-			// @ts-expect-error - Label components are not yet in discord-api-types
 			components: this.components.map((label) => label.serialize())
 		}
 	}

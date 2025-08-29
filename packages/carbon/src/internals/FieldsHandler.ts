@@ -29,9 +29,7 @@ export class FieldsHandler extends Base {
 						this.rawText[component.custom_id] = component.value
 					}
 				})
-			} else if (rowOrLabel.type === 18) {
-				// TODO: Remove this once discord-api-types is updated
-				// @ts-expect-error - Label components are not yet in discord-api-types
+			} else if (rowOrLabel.type === ComponentType.Label) {
 				const component = rowOrLabel.component
 				if (component.type === ComponentType.TextInput) {
 					this.rawText[component.custom_id] = component.value

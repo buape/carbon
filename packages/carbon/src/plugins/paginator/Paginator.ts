@@ -118,7 +118,7 @@ export class Paginator {
 		await interaction.update(this.getCurrentPageWithButtons())
 	}
 
-	private createNavigationButtons(disabled = false): Row {
+	private createNavigationButtons(disabled = false): Row<Button> {
 		const backButton = new DirectionButton({
 			paginatorId: this.id,
 			goToPage: this.currentPage - 1,
