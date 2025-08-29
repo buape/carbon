@@ -1614,9 +1614,10 @@ export abstract class VoiceStateUpdateListener extends BaseListener {
 		data: ListenerEventRawData[this["type"]],
 		client: Client
 	): ListenerEventData[this["type"]] {
-		const guild = data.guild_id
-			? new Guild<true>(client, data.guild_id)
-			: undefined
+		const guild =
+			"guild_id" in data && typeof data.guild_id === "string"
+				? new Guild<true>(client, data.guild_id)
+				: undefined
 		const member =
 			guild && data.member
 				? new GuildMember<false, true>(client, data.member, guild)

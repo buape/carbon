@@ -4,7 +4,7 @@ description: Modals are popup forms that can be used to collect user input.
 icon: Captions
 ---
 
-Modals are popup forms that can be used to collect user input. They are created by extending the [`Modal`](/api/index/classes/Modal) class, and adding a `title` and `components` property. All the components must be [`TextInput`](/api/index/classes/TextInput) classes.
+Modals are popup forms that can be used to collect user input. They are created by extending the [`Modal`](/api/index/classes/Modal) class, and adding a `title` and `components` property. The components must be [`Label`](/api/index/classes/Label) classes that each contain a single [`TextInput`](/api/index/classes/TextInput) or [`StringSelectMenu`](/api/index/classes/StringSelectMenu) component.
 
 Modals are automatically registered when they are shown to a user. The registration happens when you call `showModal` on an interaction.
 
@@ -13,9 +13,9 @@ import {
 	Command, 
 	type CommandInteraction, 
 	type ComponentData, 
+	Label,
 	type Modal, 
 	type ModalInteraction, 
-	Row, 
 	TextInput, 
 	TextInputStyle
 } from "@buape/carbon"
@@ -34,8 +34,8 @@ class TestModal extends Modal {
 	customId = "test-modal:action=submit"
 
 	components = [
-		new Row([new TextInputName()]),
-		new Row([new TextInputAge()])
+		new NameLabel(),
+		new AgeLabel()
 	]
 
 	async run(interaction: ModalInteraction, data: ComponentData) {
@@ -47,16 +47,34 @@ class TestModal extends Modal {
 	}
 }
 
-class TextInputName extends TextInput {
+class NameLabel extends Label {
 	label = "What is your name?"
+	description = "Enter your full name"
+	
+	constructor() {
+		super(new TextInputName())
+	}
+}
+
+class AgeLabel extends Label {
+	label = "How old are you?"
+	description = "Enter your age in years"
+	
+	constructor() {
+		super(new TextInputAge())
+	}
+}
+
+class TextInputName extends TextInput {
 	customId = "name"
 	style = TextInputStyle.Short
+	placeholder = "Enter your name"
 }
 
 class TextInputAge extends TextInput {
-	label = "How old are you?"
 	customId = "age"
 	style = TextInputStyle.Short
+	placeholder = "Enter your age"
 }
 ```
 
@@ -76,13 +94,22 @@ class EditUserModal extends Modal {
 	customId = "edit-user:userId=123456789"
 
 	components = [
-		new Row([new TextInputName()])
+		new UserNameLabel()
 	]
 
 	async run(interaction: ModalInteraction) {
 		const { userId } = interaction.customIdParser(interaction.customId).data
 		const name = interaction.fields.getText("name")
 		// Edit user with ID userId to have name name
+	}
+}
+
+class UserNameLabel extends Label {
+	label = "User Name"
+	description = "Enter the new name for this user"
+	
+	constructor() {
+		super(new TextInputName())
 	}
 }
 ```

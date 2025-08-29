@@ -1,0 +1,97 @@
+---
+title: Label
+description: Labels are wrapper components used in Modals to organize and describe form inputs.
+icon: Tag
+---
+
+Labels are wrapper components used in [Modals](/api/classes/modals) to organize and describe form inputs. They are created by extending the `Label` class and contain a single form component such as a `TextInput` or `StringSelectMenu`.
+
+## Creating a Label
+
+To create a label, you need to create a class that extends the `Label` class. This class will wrap a single form component and provide descriptive text.
+
+```ts title="src/components/name-label.ts"
+import { Label, TextInput, TextInputStyle } from "@buape/carbon";
+
+export default class NameLabel extends Label {
+	label = "What is your name?"
+	description = "Enter your full name"
+	
+	constructor() {
+		super(new NameTextInput())
+	}
+}
+
+class NameTextInput extends TextInput {
+	customId = "name"
+	style = TextInputStyle.Short
+	placeholder = "Enter your name"
+}
+```
+
+In this example, we have created a label that wraps a text input for collecting a user's name. The label provides both a title and description to help guide the user.
+
+## Label Properties
+
+### Required Properties
+
+- `label`: The main text displayed for this section of the form
+- `component`: The form component contained within this label (passed to constructor)
+
+### Optional Properties
+
+- `description`: Additional text that provides more context about what the user should enter
+- `customId`: A unique identifier for the label (defaults to "label")
+
+## Label with Select Menu
+
+Labels can also contain select menus for dropdown options:
+
+```ts title="src/components/color-label.ts"
+import { Label, StringSelectMenu } from "@buape/carbon";
+
+export default class ColorLabel extends Label {
+	label = "Favorite Color"
+	description = "Choose your preferred color"
+	
+	constructor() {
+		super(new ColorSelectMenu())
+	}
+}
+
+class ColorSelectMenu extends StringSelectMenu {
+	customId = "color"
+	placeholder = "Select a color"
+	options = [
+		{ label: "Red", value: "red" },
+		{ label: "Blue", value: "blue" },
+		{ label: "Green", value: "green" }
+	]
+}
+```
+
+## Usage in Modals
+
+Labels are used as the main components in modal forms:
+
+```ts title="src/modals/user-info.ts"
+import { Modal, type ModalInteraction } from "@buape/carbon";
+
+export default class UserInfoModal extends Modal {
+	title = "User Information"
+	customId = "user-info"
+	
+	components = [
+		new NameLabel(),
+		new ColorLabel()
+	]
+	
+	async run(interaction: ModalInteraction) {
+		const name = interaction.fields.getText("name")
+		const color = interaction.fields.getText("color")
+		await interaction.reply(`Hello ${name}, your favorite color is ${color}!`)
+	}
+}
+```
+
+Labels provide better organization and user experience by grouping related form elements together with clear descriptions.

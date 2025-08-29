@@ -121,7 +121,7 @@ export class GuildMember<
 	/**
 	 * The joined date of the member
 	 */
-	get joinedAt(): IfPartial<IsPartial, string> {
+	get joinedAt(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.joined_at
 	}

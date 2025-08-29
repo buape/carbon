@@ -78,8 +78,6 @@ export abstract class TextInput extends BaseModalComponent {
 	placeholder?: string
 
 	serialize = (): APITextInputComponent => {
-		// TODO: Remove this once discord-api-types is updated
-		// @ts-expect-error - TextInput component type not yet in discord-api-types
 		return {
 			type: ComponentType.TextInput,
 			custom_id: this.customId,

@@ -4,6 +4,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "../../abstracts/BaseComponent.js"
+import type { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
 import type { File } from "./File.js"
 import type { MediaGallery } from "./MediaGallery.js"
 import type { Row } from "./Row.js"
@@ -16,7 +17,7 @@ export abstract class Container extends BaseComponent {
 	readonly isV2 = true
 
 	abstract components: (
-		| Row
+		| Row<BaseMessageInteractiveComponent>
 		| TextDisplay
 		| Section
 		| MediaGallery

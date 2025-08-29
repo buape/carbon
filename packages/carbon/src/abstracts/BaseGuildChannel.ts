@@ -39,14 +39,6 @@ export abstract class BaseGuildChannel<
 	}
 
 	/**
-	 * The position of the channel in the channel list.
-	 */
-	get position(): IfPartial<IsPartial, number> {
-		if (!this.rawData) return undefined as never
-		return this.rawData.position
-	}
-
-	/**
 	 * The ID of the parent category for the channel.
 	 */
 	get parentId(): IfPartial<IsPartial, string | null> {
@@ -82,19 +74,6 @@ export abstract class BaseGuildChannel<
 			}
 		})
 		this.setField("name", name)
-	}
-
-	/**
-	 * Set the position of the channel
-	 * @param position The new position of the channel
-	 */
-	async setPosition(position: number) {
-		await this.client.rest.patch(Routes.channel(this.id), {
-			body: {
-				position
-			}
-		})
-		this.setField("position", position)
 	}
 
 	/**

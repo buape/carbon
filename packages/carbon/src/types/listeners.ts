@@ -1,84 +1,83 @@
 import {
+	type APIWebhookEventApplicationAuthorizedData,
+	type APIWebhookEventApplicationDeauthorizedData,
+	type APIWebhookEventEntitlementCreateData,
+	type APIWebhookEventQuestUserEnrollmentData,
 	ApplicationWebhookEventType,
-	GatewayDispatchEvents
-} from "discord-api-types/v9"
-import type {
-	APIWebhookEventApplicationAuthorizedData,
-	APIWebhookEventEntitlementCreateData,
-	APIWebhookEventQuestUserEnrollmentData,
-	GatewayApplicationCommandPermissionsUpdateDispatchData,
-	GatewayAutoModerationActionExecutionDispatchData,
-	GatewayAutoModerationRuleCreateDispatchData,
-	GatewayAutoModerationRuleDeleteDispatchData,
-	GatewayAutoModerationRuleUpdateDispatchData,
-	GatewayChannelCreateDispatchData,
-	GatewayChannelDeleteDispatchData,
-	GatewayChannelPinsUpdateDispatchData,
-	GatewayChannelUpdateDispatchData,
-	GatewayEntitlementDeleteDispatchData,
-	GatewayEntitlementUpdateDispatchData,
-	GatewayGuildAuditLogEntryCreateDispatchData,
-	GatewayGuildBanAddDispatchData,
-	GatewayGuildBanRemoveDispatchData,
-	GatewayGuildCreateDispatchData,
-	GatewayGuildDeleteDispatchData,
-	GatewayGuildEmojisUpdateDispatchData,
-	GatewayGuildIntegrationsUpdateDispatchData,
-	GatewayGuildMemberAddDispatchData,
-	GatewayGuildMemberRemoveDispatchData,
-	GatewayGuildMemberUpdateDispatchData,
-	GatewayGuildMembersChunkDispatchData,
-	GatewayGuildRoleCreateDispatchData,
-	GatewayGuildRoleDeleteDispatchData,
-	GatewayGuildRoleUpdateDispatchData,
-	GatewayGuildScheduledEventCreateDispatchData,
-	GatewayGuildScheduledEventDeleteDispatchData,
-	GatewayGuildScheduledEventUpdateDispatchData,
-	GatewayGuildScheduledEventUserAddDispatchData,
-	GatewayGuildScheduledEventUserRemoveDispatchData,
-	GatewayGuildSoundboardSoundCreateDispatchData,
-	GatewayGuildSoundboardSoundDeleteDispatchData,
-	GatewayGuildSoundboardSoundUpdateDispatchData,
-	GatewayGuildSoundboardSoundsUpdateDispatchData,
-	GatewayGuildStickersUpdateDispatchData,
-	GatewayGuildUpdateDispatchData,
-	GatewayIntegrationCreateDispatchData,
-	GatewayIntegrationDeleteDispatchData,
-	GatewayIntegrationUpdateDispatchData,
-	GatewayInteractionCreateDispatchData,
-	GatewayInviteCreateDispatchData,
-	GatewayInviteDeleteDispatchData,
-	GatewayMessageCreateDispatchData,
-	GatewayMessageDeleteBulkDispatchData,
-	GatewayMessageDeleteDispatchData,
-	GatewayMessagePollVoteDispatchData,
-	GatewayMessageReactionAddDispatchData,
-	GatewayMessageReactionRemoveAllDispatchData,
-	GatewayMessageReactionRemoveDispatchData,
-	GatewayMessageReactionRemoveEmojiDispatchData,
-	GatewayMessageUpdateDispatchData,
-	GatewayPresenceUpdateDispatchData,
-	GatewayReadyDispatchData,
-	GatewayResumedDispatch,
-	GatewayStageInstanceCreateDispatchData,
-	GatewayStageInstanceDeleteDispatchData,
-	GatewayStageInstanceUpdateDispatchData,
-	GatewaySubscriptionCreateDispatchData,
-	GatewaySubscriptionDeleteDispatchData,
-	GatewaySubscriptionUpdateDispatchData,
-	GatewayThreadCreateDispatchData,
-	GatewayThreadDeleteDispatchData,
-	GatewayThreadListSyncDispatchData,
-	GatewayThreadMemberUpdateDispatchData,
-	GatewayThreadMembersUpdateDispatchData,
-	GatewayThreadUpdateDispatchData,
-	GatewayTypingStartDispatchData,
-	GatewayUserUpdateDispatchData,
-	GatewayVoiceChannelEffectSendDispatchData,
-	GatewayVoiceServerUpdateDispatchData,
-	GatewayVoiceStateUpdateDispatchData,
-	GatewayWebhooksUpdateDispatchData,
-	ThreadChannelType
+	type GatewayApplicationCommandPermissionsUpdateDispatchData,
+	type GatewayAutoModerationActionExecutionDispatchData,
+	type GatewayAutoModerationRuleCreateDispatchData,
+	type GatewayAutoModerationRuleDeleteDispatchData,
+	type GatewayAutoModerationRuleUpdateDispatchData,
+	type GatewayChannelCreateDispatchData,
+	type GatewayChannelDeleteDispatchData,
+	type GatewayChannelPinsUpdateDispatchData,
+	type GatewayChannelUpdateDispatchData,
+	GatewayDispatchEvents,
+	type GatewayEntitlementDeleteDispatchData,
+	type GatewayEntitlementUpdateDispatchData,
+	type GatewayGuildAuditLogEntryCreateDispatchData,
+	type GatewayGuildBanAddDispatchData,
+	type GatewayGuildBanRemoveDispatchData,
+	type GatewayGuildCreateDispatchData,
+	type GatewayGuildDeleteDispatchData,
+	type GatewayGuildEmojisUpdateDispatchData,
+	type GatewayGuildIntegrationsUpdateDispatchData,
+	type GatewayGuildMemberAddDispatchData,
+	type GatewayGuildMemberRemoveDispatchData,
+	type GatewayGuildMemberUpdateDispatchData,
+	type GatewayGuildMembersChunkDispatchData,
+	type GatewayGuildRoleCreateDispatchData,
+	type GatewayGuildRoleDeleteDispatchData,
+	type GatewayGuildRoleUpdateDispatchData,
+	type GatewayGuildScheduledEventCreateDispatchData,
+	type GatewayGuildScheduledEventDeleteDispatchData,
+	type GatewayGuildScheduledEventUpdateDispatchData,
+	type GatewayGuildScheduledEventUserAddDispatchData,
+	type GatewayGuildScheduledEventUserRemoveDispatchData,
+	type GatewayGuildSoundboardSoundCreateDispatchData,
+	type GatewayGuildSoundboardSoundDeleteDispatchData,
+	type GatewayGuildSoundboardSoundUpdateDispatchData,
+	type GatewayGuildSoundboardSoundsUpdateDispatchData,
+	type GatewayGuildStickersUpdateDispatchData,
+	type GatewayGuildUpdateDispatchData,
+	type GatewayIntegrationCreateDispatchData,
+	type GatewayIntegrationDeleteDispatchData,
+	type GatewayIntegrationUpdateDispatchData,
+	type GatewayInteractionCreateDispatchData,
+	type GatewayInviteCreateDispatchData,
+	type GatewayInviteDeleteDispatchData,
+	type GatewayMessageCreateDispatchData,
+	type GatewayMessageDeleteBulkDispatchData,
+	type GatewayMessageDeleteDispatchData,
+	type GatewayMessagePollVoteDispatchData,
+	type GatewayMessageReactionAddDispatchData,
+	type GatewayMessageReactionRemoveAllDispatchData,
+	type GatewayMessageReactionRemoveDispatchData,
+	type GatewayMessageReactionRemoveEmojiDispatchData,
+	type GatewayMessageUpdateDispatchData,
+	type GatewayPresenceUpdateDispatchData,
+	type GatewayReadyDispatchData,
+	type GatewayResumedDispatch,
+	type GatewayStageInstanceCreateDispatchData,
+	type GatewayStageInstanceDeleteDispatchData,
+	type GatewayStageInstanceUpdateDispatchData,
+	type GatewaySubscriptionCreateDispatchData,
+	type GatewaySubscriptionDeleteDispatchData,
+	type GatewaySubscriptionUpdateDispatchData,
+	type GatewayThreadCreateDispatchData,
+	type GatewayThreadDeleteDispatchData,
+	type GatewayThreadListSyncDispatchData,
+	type GatewayThreadMemberUpdateDispatchData,
+	type GatewayThreadMembersUpdateDispatchData,
+	type GatewayThreadUpdateDispatchData,
+	type GatewayTypingStartDispatchData,
+	type GatewayUserUpdateDispatchData,
+	type GatewayVoiceChannelEffectSendDispatchData,
+	type GatewayVoiceServerUpdateDispatchData,
+	type GatewayVoiceStateUpdateDispatchData,
+	type GatewayWebhooksUpdateDispatchData,
+	type ThreadChannelType
 } from "discord-api-types/v10"
 import type { AnyChannel } from "../functions/channelFactory.js"
 import type { Guild } from "../structures/Guild.js"
@@ -107,6 +106,7 @@ export type ListenerEventType =
 
 export type ListenerEventRawData = {
 	[ListenerEvent.ApplicationAuthorized]: APIWebhookEventApplicationAuthorizedData
+	[ListenerEvent.ApplicationDeauthorized]: APIWebhookEventApplicationDeauthorizedData
 	[ListenerEvent.EntitlementCreate]: APIWebhookEventEntitlementCreateData
 	[ListenerEvent.QuestUserEnrollment]: APIWebhookEventQuestUserEnrollmentData
 	[ListenerEvent.ApplicationCommandPermissionsUpdate]: GatewayApplicationCommandPermissionsUpdateDispatchData
@@ -155,6 +155,8 @@ export type ListenerEventRawData = {
 	[ListenerEvent.MessageCreate]: GatewayMessageCreateDispatchData
 	[ListenerEvent.MessageDelete]: GatewayMessageDeleteDispatchData
 	[ListenerEvent.MessageDeleteBulk]: GatewayMessageDeleteBulkDispatchData
+	[ListenerEvent.MessagePollVoteAdd]: GatewayMessagePollVoteDispatchData
+	[ListenerEvent.MessagePollVoteRemove]: GatewayMessagePollVoteDispatchData
 	[ListenerEvent.MessageReactionAdd]: GatewayMessageReactionAddDispatchData
 	[ListenerEvent.MessageReactionRemove]: GatewayMessageReactionRemoveDispatchData
 	[ListenerEvent.MessageReactionRemoveAll]: GatewayMessageReactionRemoveAllDispatchData
@@ -177,12 +179,10 @@ export type ListenerEventRawData = {
 	[ListenerEvent.ThreadUpdate]: GatewayThreadUpdateDispatchData
 	[ListenerEvent.TypingStart]: GatewayTypingStartDispatchData
 	[ListenerEvent.UserUpdate]: GatewayUserUpdateDispatchData
+	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData
 	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData
 	[ListenerEvent.VoiceStateUpdate]: GatewayVoiceStateUpdateDispatchData
 	[ListenerEvent.WebhooksUpdate]: GatewayWebhooksUpdateDispatchData
-	[ListenerEvent.MessagePollVoteAdd]: GatewayMessagePollVoteDispatchData
-	[ListenerEvent.MessagePollVoteRemove]: GatewayMessagePollVoteDispatchData
-	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData
 }
 
 export type ListenerEventData = {
@@ -194,6 +194,13 @@ export type ListenerEventData = {
 		user: User
 		rawGuild: APIWebhookEventApplicationAuthorizedData["guild"]
 		rawUser: APIWebhookEventApplicationAuthorizedData["user"]
+	}
+	[ListenerEvent.ApplicationDeauthorized]: Omit<
+		APIWebhookEventApplicationDeauthorizedData,
+		"user"
+	> & {
+		user: User
+		rawUser: APIWebhookEventApplicationDeauthorizedData["user"]
 	}
 	[ListenerEvent.EntitlementCreate]: Omit<
 		APIWebhookEventEntitlementCreateData,
@@ -450,6 +457,16 @@ export type ListenerEventData = {
 		guild?: Guild<true>
 		messages: Message<true>[]
 	}
+	[ListenerEvent.MessagePollVoteAdd]: GatewayMessagePollVoteDispatchData & {
+		guild?: Guild<true>
+		user: User<true>
+		message: Message<true>
+	}
+	[ListenerEvent.MessagePollVoteRemove]: GatewayMessagePollVoteDispatchData & {
+		guild?: Guild<true>
+		user: User<true>
+		message: Message<true>
+	}
 	[ListenerEvent.MessageReactionAdd]: Omit<
 		GatewayMessageReactionAddDispatchData,
 		"member"
@@ -560,6 +577,10 @@ export type ListenerEventData = {
 	[ListenerEvent.UserUpdate]: GatewayUserUpdateDispatchData & {
 		user: User
 	}
+	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData & {
+		guild: Guild<true>
+		user: User<true>
+	}
 	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData & {
 		guild: Guild<true>
 	}
@@ -573,19 +594,5 @@ export type ListenerEventData = {
 	}
 	[ListenerEvent.WebhooksUpdate]: GatewayWebhooksUpdateDispatchData & {
 		guild: Guild<true>
-	}
-	[ListenerEvent.MessagePollVoteAdd]: GatewayMessagePollVoteDispatchData & {
-		guild?: Guild<true>
-		user: User<true>
-		message: Message<true>
-	}
-	[ListenerEvent.MessagePollVoteRemove]: GatewayMessagePollVoteDispatchData & {
-		guild?: Guild<true>
-		user: User<true>
-		message: Message<true>
-	}
-	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData & {
-		guild: Guild<true>
-		user: User<true>
 	}
 }

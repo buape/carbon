@@ -1,17 +1,13 @@
 import {
 	type APIActionRowComponent,
 	type APIComponentInMessageActionRow,
-	type APIComponentInModalActionRow,
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "../../abstracts/BaseComponent.js"
 import type { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
-import type { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 
 export class Row<
-	T extends
-		| BaseMessageInteractiveComponent
-		| BaseModalComponent = BaseMessageInteractiveComponent
+	T extends BaseMessageInteractiveComponent
 > extends BaseComponent {
 	readonly type = ComponentType.ActionRow as const
 	readonly isV2 = false
@@ -51,13 +47,10 @@ export class Row<
 		this.components = []
 	}
 
-	serialize = (): ReturnType<BaseComponent["serialize"]> => {
+	serialize = (): APIActionRowComponent<APIComponentInMessageActionRow> => {
 		return {
 			type: ComponentType.ActionRow,
 			components: this.components.map((component) => component.serialize())
-		} satisfies APIActionRowComponent<
-			APIComponentInMessageActionRow | APIComponentInModalActionRow
-		> as unknown as ReturnType<BaseComponent["serialize"]>
-		// god i hate these types
+		}
 	}
 }

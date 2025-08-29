@@ -7,7 +7,7 @@ This guide outlines the breaking changes to Carbon's modal implementation follow
 1. **Row-based Modals Removed**: `Modal.components` now only accepts `Label[]`
 2. **TextInput Label Removed**: `label` field removed from TextInput - handled by parent Label
 3. **New Label Component**: All modal inputs must be wrapped in Label components
-4. **New ModalStringSelectMenu**: String selects in modals use dedicated class with `required` field
+4. **New StringSelectMenu**: String selects in modals use dedicated class with `required` field
 
 ## Migration Required
 
@@ -35,7 +35,7 @@ class NameTextInput extends TextInput {
 
 ### ✅ New Structure (Required)
 ```typescript
-import { Modal, Label, TextInput, ModalStringSelectMenu, TextInputStyle } from "@buape/carbon"
+import { Modal, Label, TextInput, StringSelectMenu, TextInputStyle } from "@buape/carbon"
 
 class NewModal extends Modal {
 	title = "New Modal" 
@@ -73,7 +73,7 @@ class NameTextInput extends TextInput {
 	placeholder = "Enter your name"
 }
 
-class FavoriteColorSelect extends ModalStringSelectMenu {
+class FavoriteColorSelect extends StringSelectMenu {
 	customId = "color"
 	placeholder = "Choose your favorite color"
 	required = true
@@ -97,7 +97,7 @@ class FavoriteColorSelect extends ModalStringSelectMenu {
 2. **Wrap inputs in Labels**: Create Label classes to contain your TextInputs
 3. **Remove TextInput labels**: Delete `label` field from TextInput classes
 4. **Add placeholders**: Use `placeholder` field on TextInputs for user guidance  
-5. **Use ModalStringSelectMenu**: Replace StringSelectMenu with ModalStringSelectMenu for modals
+5. **Use StringSelectMenu**: Replace StringSelectMenu with StringSelectMenu for modals
 6. **Update Modal components**: Change `components` array to contain Labels instead of Rows
 
 ## Quick Migration Checklist
@@ -106,6 +106,6 @@ class FavoriteColorSelect extends ModalStringSelectMenu {
 - [ ] Move labels from TextInput to Label component
 - [ ] Remove `label` field from all TextInput classes  
 - [ ] Add `placeholder` fields to TextInputs
-- [ ] Use `ModalStringSelectMenu` for select menus
+- [ ] Use `StringSelectMenu` for select menus
 - [ ] Update Modal `components` array type
 - [ ] Test modal functionality

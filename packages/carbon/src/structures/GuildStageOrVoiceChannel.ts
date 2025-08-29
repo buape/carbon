@@ -2,6 +2,7 @@ import {
 	type APIGuildStageVoiceChannel,
 	type APIGuildVoiceChannel,
 	type ChannelType,
+	Routes,
 	VideoQualityMode
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
@@ -13,6 +14,27 @@ export abstract class GuildStageOrVoiceChannel<
 > extends BaseGuildChannel<Type, IsPartial> {
 	// @ts-expect-error
 	declare rawData: APIGuildStageVoiceChannel | APIGuildVoiceChannel | null
+
+	/**
+	 * The position of the channel in the channel list.
+	 */
+	get position(): IfPartial<IsPartial, number> {
+		if (!this.rawData) return undefined as never
+		return this.rawData.position
+	}
+
+	/**
+	 * Set the position of the channel
+	 * @param position The new position of the channel
+	 */
+	async setPosition(position: number) {
+		await this.client.rest.patch(Routes.channel(this.id), {
+			body: {
+				position
+			}
+		})
+		this.setField("position", position)
+	}
 
 	/**
 	 * The bitrate of the channel.

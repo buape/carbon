@@ -37,17 +37,16 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 	serialize = (): APISelectMenuComponent => {
 		const options = this.serializeOptions()
 		const extra = this.serializeExtra()
-		const data = {
+		const data: APISelectMenuComponent = {
 			...options,
 			custom_id: this.customId,
-			disabled: this.disabled,
 			placeholder: this.placeholder,
 			min_values: this.minValues,
 			max_values: this.maxValues,
 			...extra
 		}
-		for (const key of this.serializeDeleteKeys) {
-			delete (data as Record<string, unknown>)[key]
+		if (this.disabled) {
+			data.disabled = true
 		}
 		return data
 	}
@@ -77,9 +76,5 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 
 	serializeExtra(): Record<string, unknown> {
 		return {}
-	}
-
-	protected get serializeDeleteKeys(): string[] {
-		return []
 	}
 }
