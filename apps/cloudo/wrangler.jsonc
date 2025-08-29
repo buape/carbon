@@ -1,0 +1,6 @@
+{
+	"name": "cloudo",
+	"main": "src/entry.ts",
+	"compatibility_date": "2025-08-29",
+	"compatibility_flags": ["nodejs_compat"]
+}

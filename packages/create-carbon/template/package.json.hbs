@@ -3,108 +3,104 @@ path: package.json
 ---
 
 {
-    "name": "{{name}}",
-    "version": "1.0.0",
-    "description": "{{#if (eq runtime "forwarder")}}A Discord Gateway Forwarder built with Carbon{{else}}A Discord bot built with Carbon{{/if}}",
-    "main": "dist/index.js",
-    "type": "module",
-    {{#if (eq runtime "node")}}
-    "scripts": {
-        "build": "tsc",
-        "dev": "tsc-watch --onSuccess \"node .\"",
-        "start": "node ."
-    },
-    "dependencies": {
-        "@buape/carbon": "{{get versions "@buape/carbon"}}",
-        "dotenv": "{{get versions "dotenv"}}"
-    },
-    "devDependencies": {
-        "@types/node": "{{get versions "@types/node"}}",
-        "tsc-watch": "{{get versions "tsc-watch"}}",
-        "typescript": "{{get versions "typescript"}}"
-    }
-    {{else if (eq runtime "bun")}}
-    "scripts": {
-        "dev": "bun run . --watch",
-        "start": "bun run ."
-    },
-    "dependencies": {
-        "@buape/carbon": "{{get versions "@buape/carbon"}}"
-    },
-    "devDependencies": {
-        "@types/bun": "{{get versions "@types/bun"}}",
-        "typescript": "{{get versions "typescript"}}"
-    }
-    {{else if (eq runtime "cloudflare")}}
-    "scripts": {
-        "dev": "wrangler dev --port 3000",
-        "deploy": "wrangler deploy",
+	"name": "{{name}}",
+	"version": "1.0.0",
+	"description": "{{#if (eq runtime "forwarder")}}A Discord Gateway Forwarder built with Carbon{{else}}A Discord bot built with Carbon{{/if}}",
+	"type": "module",
+	{{#if (eq runtime "node")}}
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc-watch --onSuccess \"node .\"",
+		"start": "node ."
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}",
+		"dotenv": "{{get versions "dotenv"}}"
+	},
+	"devDependencies": {
+		"@types/node": "{{get versions "@types/node"}}",
+		"tsc-watch": "{{get versions "tsc-watch"}}",
+		"typescript": "{{get versions "typescript"}}"
+	}
+	{{else if (eq runtime "bun")}}
+	"main": "./src/index.ts",
+	"scripts": {
+		"dev": "bun run . --watch",
+		"start": "bun run ."
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}"
+	},
+	"devDependencies": {
+		"@types/bun": "{{get versions "@types/bun"}}",
+		"typescript": "{{get versions "typescript"}}"
+	}
+	{{else if (eq runtime "cloudflare")}}
+	"main": "./src/index.ts",
+	"scripts": {
+		"dev": "wrangler dev --port 3000",
+		"deploy": "wrangler deploy",
 		"wrangler": "wrangler"
-    },
-    "dependencies": {
-        "@buape/carbon": "{{get versions "@buape/carbon"}}"
-    },
-    "devDependencies": {
-        "@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}",
-        "typescript": "{{get versions "typescript"}}",
-        "wrangler": "{{get versions "wrangler"}}"
-    }
-    {{else if (eq runtime "next")}}
-    "scripts": {
-        "build": "next build",
-        "dev": "next dev --turbo",
-        "start": "next start"
-    },
-    "dependencies": {
-        "@buape/carbon": "{{get versions "@buape/carbon"}}",
-        "next": "{{get versions "next"}}",
-        "react": "{{get versions "react"}}",
-        "react-dom": "{{get versions "react-dom"}}"
-    },
-    "devDependencies": {
-        "@types/node": "{{get versions "@types/node"}}",
-        "@types/react": "{{get versions "@types/react"}}",
-        "@types/react-dom": "{{get versions "@types/react-dom"}}",
-        "typescript": "{{get versions "typescript"}}"
-    }
-    {{else}}
-    "scripts": {
-        "build": "tsc",
-        "start": "node dist/index.js",
-        "dev": "tsx watch src/index.ts"
-    },
-    "keywords": [
-        "discord",
-        "bot",
-        "carbon",
-        {{#if (eq runtime "forwarder")}}
-        "gateway",
-        "forwarder"
-        {{else}}
-        "typescript"
-        {{/if}}
-    ],
-    "author": "",
-    "license": "MIT",
-    "dependencies": {
-        "@buape/carbon": "{{get versions "@buape/carbon"}}",
-        {{#if (eq runtime "forwarder")}}
-        "dotenv": "{{get versions "dotenv"}}"
-        {{else}}
-        {{#if (eq runtime "cloudflare")}}
-        "@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}"
-        {{else if (eq runtime "next")}}
-        "next": "{{get versions "next"}}",
-        "react": "{{get versions "react"}}",
-        "react-dom": "{{get versions "react-dom"}}"
-        {{else}}
-        "dotenv": "{{get versions "dotenv"}}"
-        {{/if}}
-        {{/if}}
-    },
-    "devDependencies": {
-        "tsx": "{{get versions "tsx"}}",
-        "typescript": "{{get versions "typescript"}}"
-    }
-    {{/if}}
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}",
+		"typescript": "{{get versions "typescript"}}",
+		"wrangler": "{{get versions "wrangler"}}"
+	}
+	{{else if (eq runtime "next")}}
+	"main": "./src/app/api/discord/[...slug]/route.ts",
+	"scripts": {
+		"build": "next build",
+		"dev": "next dev --turbo",
+		"start": "next start"
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}",
+		"next": "{{get versions "next"}}",
+		"react": "{{get versions "react"}}",
+		"react-dom": "{{get versions "react-dom"}}"
+	},
+	"devDependencies": {
+		"@types/node": "{{get versions "@types/node"}}",
+		"@types/react": "{{get versions "@types/react"}}",
+		"@types/react-dom": "{{get versions "@types/react-dom"}}",
+		"typescript": "{{get versions "typescript"}}"
+	}
+	{{else}}
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"dev": "tsx watch src/index.ts"
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}",
+		{{#if (eq runtime "forwarder")}}
+		"dotenv": "{{get versions "dotenv"}}"
+		{{else}}
+		"dotenv": "{{get versions "dotenv"}}"
+		{{/if}}
+	},
+	"devDependencies": {
+		"tsx": "{{get versions "tsx"}}",
+		"typescript": "{{get versions "typescript"}}"
+	},
+	"keywords": [
+		"discord",
+		"bot",
+		"carbon",
+		{{#if (eq runtime "forwarder")}}
+		"gateway",
+		"forwarder"
+		{{else}}
+		"typescript"
+		{{/if}}
+	],
+	"author": "",
+	"license": "MIT"
+	{{/if}}
 }

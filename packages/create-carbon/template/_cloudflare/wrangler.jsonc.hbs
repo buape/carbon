@@ -1,0 +1,12 @@
+---
+{{#if (eq runtime "cloudflare")}}
+path: wrangler.jsonc
+{{/if}}
+---
+
+{
+	"name": "{{name}}",
+	"main": "src/entry.ts",
+	"compatibility_date": "2025-08-29",
+	"compatibility_flags": ["nodejs_compat"]
+}
