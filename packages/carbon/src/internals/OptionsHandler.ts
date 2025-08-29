@@ -296,11 +296,19 @@ export class OptionsHandler extends Base {
 			definition.type === ApplicationCommandOptionType.String &&
 			typeof value === "string"
 		) {
-			if (definition.max_length && value.length > definition.max_length)
+			if (
+				"max_length" in definition &&
+				definition.max_length &&
+				value.length > definition.max_length
+			)
 				throw new Error(
 					`Invalid length for option ${key}: Should be less than ${definition.max_length} characters but is ${value.length} characters`
 				)
-			if (definition.min_length && value.length < definition.min_length)
+			if (
+				"min_length" in definition &&
+				definition.min_length &&
+				value.length < definition.min_length
+			)
 				throw new Error(
 					`Invalid length for option ${key}: Should be more than ${definition.min_length} characters but is ${value.length} characters`
 				)
@@ -310,11 +318,19 @@ export class OptionsHandler extends Base {
 				definition.type === ApplicationCommandOptionType.Number) &&
 			typeof value === "number"
 		) {
-			if (definition.min_value && value < definition.min_value)
+			if (
+				"min_value" in definition &&
+				definition.min_value &&
+				value < definition.min_value
+			)
 				throw new Error(
 					`Invalid value for option ${key}: Should be more than ${definition.min_value} but is ${value}`
 				)
-			if (definition.max_value && value > definition.max_value)
+			if (
+				"max_value" in definition &&
+				definition.max_value &&
+				value > definition.max_value
+			)
 				throw new Error(
 					`Invalid value for option ${key}: Should be less than ${definition.max_value} but is ${value}`
 				)

@@ -71,22 +71,20 @@ export default class OptionsCommand extends Command {
 			type: ApplicationCommandOptionType.String,
 			description: "DESCRIPTION",
 			required: false,
-			autocomplete: true
+			autocomplete: async (interaction: AutocompleteInteraction) => {
+				await interaction.respond([
+					{
+						name: "That thing you said",
+						value: `${interaction.options.getFocused() || "No focused option"}`
+					},
+					{
+						name: "That thing you said but with a prefix",
+						value: `Prefix: ${interaction.options.getFocused()}`
+					}
+				])
+			}
 		}
 	]
-
-	async autocomplete(interaction: AutocompleteInteraction) {
-		await interaction.respond([
-			{
-				name: "That thing you said",
-				value: String(interaction.options.getFocused()) || "No focused option"
-			},
-			{
-				name: "That thing you said but with a prefix",
-				value: `Prefix: ${String(interaction.options.getFocused())}`
-			}
-		])
-	}
 
 	async run(interaction: CommandInteraction) {
 		const str = interaction.options.getString("str")

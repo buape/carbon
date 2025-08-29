@@ -9,7 +9,13 @@ import {
 	type CommandInteraction
 } from "../index.js"
 
-export type CommandOptions = APIApplicationCommandBasicOption[]
+export type CommandOption =
+	| APIApplicationCommandBasicOption
+	| (Omit<APIApplicationCommandBasicOption, "autocomplete"> & {
+			autocomplete: (interaction: AutocompleteInteraction) => Promise<void>
+	  })
+
+export type CommandOptions = CommandOption[]
 
 /**
  * Represents a standard command that the user creates
@@ -62,6 +68,21 @@ export abstract class Command extends BaseCommand {
 	 * @internal
 	 */
 	serializeOptions() {
-		return enforceChoicesLimit(this.options)
+		const processedOptions = this.options?.map((option) => {
+			if (
+				"autocomplete" in option &&
+				typeof option.autocomplete === "function"
+			) {
+				const { autocomplete, ...rest } = option
+				return {
+					...rest,
+					autocomplete: true
+				} as APIApplicationCommandBasicOption
+			}
+
+			return option as APIApplicationCommandBasicOption
+		})
+
+		return enforceChoicesLimit(processedOptions)
 	}
 }

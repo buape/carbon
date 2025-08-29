@@ -168,6 +168,23 @@ export class CommandHandler extends Base {
 
 		try {
 			const command = this.getCommand(rawInteraction)
+
+			// Check if the focused option has its own autocomplete function
+			const focusedOption = interaction.options.getFocused()
+			if (focusedOption && command.options) {
+				const optionDefinition = command.options.find(
+					(opt) => opt.name === focusedOption.name
+				)
+				if (
+					optionDefinition &&
+					"autocomplete" in optionDefinition &&
+					typeof optionDefinition.autocomplete === "function"
+				) {
+					return await optionDefinition.autocomplete(interaction)
+				}
+			}
+
+			// Fall back to command-level autocomplete
 			return await command.autocomplete(interaction)
 		} catch (e: unknown) {
 			if (e instanceof Error) console.error(e.message)

@@ -51,6 +51,94 @@ The `options` property is used to set the options of the command. These are only
 -   `Mentionable`: Mentionable object (with autocomplete to show both users and roles in the server)
 -   `Attachment`: File attachment
 
+### Autocomplete
+
+You can provide autocomplete functionality for your command options in two ways:
+
+#### Command-level Autocomplete
+
+For basic cases, you can use the `autocomplete` method on your command class:
+
+```ts title="src/commands/search.ts"
+import { Command, type CommandInteraction, type AutocompleteInteraction } from "@buape/carbon";
+
+export default class SearchCommand extends Command {
+    name = "search"
+    description = "Search for something"
+    
+    options = [
+        {
+            name: "query",
+            type: ApplicationCommandOptionType.String,
+            description: "What to search for",
+            required: true,
+            autocomplete: true
+        }
+    ]
+
+    async autocomplete(interaction: AutocompleteInteraction) {
+        const focusedOption = interaction.options.getFocused()
+        // Provide autocomplete choices based on the focused option
+        await interaction.respond([
+            { name: "Option 1", value: "value1" },
+            { name: "Option 2", value: "value2" }
+        ])
+    }
+
+    async run(interaction: CommandInteraction) {
+        // Handle the command
+    }
+}
+```
+
+#### Option-level Autocomplete
+
+For better organization and reusability, you can define autocomplete handlers directly on individual options:
+
+```ts title="src/commands/search.ts"
+import { Command, type CommandInteraction, type AutocompleteInteraction } from "@buape/carbon";
+
+export default class SearchCommand extends Command {
+    name = "search"
+    description = "Search for something"
+    
+    options = [
+        {
+            name: "query",
+            type: ApplicationCommandOptionType.String,
+            description: "What to search for",
+            required: true,
+            autocomplete: async (interaction: AutocompleteInteraction) => {
+                const userInput = String(interaction.options.getFocused())
+                await interaction.respond([
+                    { name: `Search for: ${userInput}`, value: userInput },
+                    { name: `Advanced search: ${userInput}`, value: `advanced:${userInput}` }
+                ])
+            }
+        },
+        {
+            name: "category",
+            type: ApplicationCommandOptionType.String,
+            description: "Category to search in",
+            required: false,
+            autocomplete: async (interaction: AutocompleteInteraction) => {
+                await interaction.respond([
+                    { name: "General", value: "general" },
+                    { name: "Technical", value: "tech" },
+                    { name: "Entertainment", value: "entertainment" }
+                ])
+            }
+        }
+    ]
+
+    async run(interaction: CommandInteraction) {
+        // Handle the command
+    }
+}
+```
+
+When an option has its own autocomplete function, it will be used instead of the command-level autocomplete method. This allows for better organization and reusability of autocomplete logic across multiple commands.
+
 ### Adding your Components
 
 The `components` property is used to set the components of the command. You need to pass every component that you might use in the command, and they will be automatically registered.
