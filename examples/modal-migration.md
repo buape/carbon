@@ -42,18 +42,28 @@ class NewModal extends Modal {
 	customId = "new-modal"
 	
 	components = [
-		new PersonalInfoLabel(),
+		new NameLabel(),
+		new AgeLabel(),
 		new PreferencesLabel()
 	]
 }
 
-class PersonalInfoLabel extends Label {
-	customId = "personal-info"
-	label = "Personal Information"
-	description = "Tell us about yourself"
+class NameLabel extends Label {
+	customId = "name-label"
+	label = "Name"
+	description = "Tell us your name"
 	
 	components = [
-		new NameTextInput(),
+		new NameTextInput()
+	]
+}
+
+class AgeLabel extends Label {
+	customId = "age-label"
+	label = "Age"
+	description = "Tell us your age"
+	
+	components = [
 		new AgeTextInput()
 	]
 }
@@ -71,6 +81,12 @@ class NameTextInput extends TextInput {
 	customId = "name"
 	style = TextInputStyle.Short
 	placeholder = "Enter your name"
+}
+
+class AgeTextInput extends TextInput {
+	customId = "age"
+	style = TextInputStyle.Short
+	placeholder = "Enter your age"
 }
 
 class FavoriteColorSelect extends StringSelectMenu {
