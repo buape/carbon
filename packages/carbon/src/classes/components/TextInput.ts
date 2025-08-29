@@ -5,6 +5,7 @@ import {
 } from "discord-api-types/v10"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 import type { ComponentParserResult } from "../../types/index.js"
+import { parseCustomId } from "../../utils/customIdParser.js"
 
 export abstract class TextInput extends BaseModalComponent {
 	readonly type = ComponentType.TextInput as const
@@ -30,21 +31,7 @@ export abstract class TextInput extends BaseModalComponent {
 	 * @param id - The custom ID of the component as received from an interaction event
 	 * @returns The base key and the data object
 	 */
-	customIdParser: (id: string) => ComponentParserResult = (id) => {
-		const [key, ...data] = id.split(":")
-		if (!key) throw new Error(`Invalid component ID: ${id}`)
-		return {
-			key,
-			data: Object.fromEntries(
-				data.map((d) => {
-					const [k, v] = d.split("=")
-					if (v === "true") return [k, true]
-					if (v === "false") return [k, false]
-					return [k, Number.isNaN(Number(v)) ? v : Number(v)]
-				})
-			)
-		}
-	}
+	customIdParser: (id: string) => ComponentParserResult = parseCustomId
 
 	/**
 	 * The style of the text input
