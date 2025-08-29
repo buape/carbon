@@ -341,7 +341,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	async pin() {
 		if (!this.channelId)
 			throw new Error("Cannot pin message without channel ID")
-		await this.client.rest.put(Routes.channelPin(this.channelId, this.id))
+		await this.client.rest.put(
+			Routes.channelMessagesPin(this.channelId, this.id)
+		)
 	}
 
 	/**
@@ -350,7 +352,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	async unpin() {
 		if (!this.channelId)
 			throw new Error("Cannot unpin message without channel ID")
-		await this.client.rest.delete(Routes.channelPin(this.channelId, this.id))
+		await this.client.rest.delete(
+			Routes.channelMessagesPin(this.channelId, this.id)
+		)
 	}
 
 	/**

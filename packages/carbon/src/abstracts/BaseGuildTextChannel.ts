@@ -2,7 +2,8 @@ import {
 	type APIGuildTextChannel,
 	type APIThreadChannel,
 	type GuildTextChannelType,
-	type RESTGetAPIChannelPinsResult,
+	type RESTGetAPIChannelMessagesPinsQuery,
+	type RESTGetAPIChannelMessagesPinsResult,
 	type RESTPostAPIChannelThreadsJSONBody,
 	Routes
 } from "discord-api-types/v10"
@@ -68,13 +69,26 @@ export abstract class BaseGuildTextChannel<
 	}
 
 	/**
-	 * Get the pinned messages in the channel
+	 * Get the pinned messages in the channel using paginated API
+	 * @param options Optional pagination parameters
 	 */
-	async getPinnedMessages() {
-		const msgs = (await this.client.rest.get(
-			Routes.channelPins(this.id)
-		)) as RESTGetAPIChannelPinsResult
-		return msgs.map((x) => new Message(this.client, x))
+	async getChannelPins(options?: RESTGetAPIChannelMessagesPinsQuery) {
+		const queryParams: Record<string, string> = {}
+		if (options?.before) queryParams.before = options.before
+		if (options?.limit) queryParams.limit = options.limit.toString()
+
+		const result = (await this.client.rest.get(
+			Routes.channelMessagesPins(this.id),
+			Object.keys(queryParams).length > 0 ? queryParams : undefined
+		)) as RESTGetAPIChannelMessagesPinsResult
+
+		return {
+			pins: result.items.map((pin) => ({
+				pinnedAt: pin.pinned_at,
+				message: new Message(this.client, pin.message)
+			})),
+			hasMore: result.has_more
+		}
 	}
 
 	/**
