@@ -2,7 +2,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
 	"account_id": "cb8680c9bbcf0c359fccbb5e634df935",
-	"name": "carbon-website",
+	"name": "carbon-buape-com",
 	"compatibility_date": "2025-07-02",
 	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"assets": {
@@ -13,12 +13,6 @@
 		{
 			"pattern": "carbon.buape.com",
 			"custom_domain": true
-		}
-	],
-	"r2_buckets": [
-		{
-			"binding": "NEXT_INC_CACHE_R2_BUCKET",
-			"bucket_name": "carbon-cache"
 		}
 	],
 	"observability": {

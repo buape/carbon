@@ -7,6 +7,7 @@
 		"postinstall": "fumadocs-mdx",
 		"build": "sh ./copy-api.sh && node generate-llm-txt.mjs && next build",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+		"deploy:only": "opennextjs-cloudflare deploy",
 		"dev": "sh ./copy-api.sh && node generate-llm-txt.mjs && next dev"
 	},
 	"dependencies": {

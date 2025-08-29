@@ -9,7 +9,7 @@
 
   #### 🚨 Breaking Changes to Modals
 
-  Carbon now uses Discord's new Label-based modal structure. The old Row-based approach is no longer supported. You can find out more info in [our migration guide](https://carbon.buape.com/even-more/migration-guide)
+  Carbon now uses Discord's new Label-based modal structure. The old Row-based approach is no longer supported. You can find out more info in [our migration guide](https://carbon.buape.com/even-more/migration-guide#v0110---modal-structure-changes)
 
 - fc680c4: feat: allow functions to be passed to set ephemeral and defer capabilities
 - b35008a: feat: allow option-specific autocomplete functions
