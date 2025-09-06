@@ -296,7 +296,10 @@ export class Client {
 		if (payload.type === ApplicationWebhookType.Ping)
 			return new Response(null, { status: 204 })
 
-		this.eventHandler.handleEvent(payload.event.data, payload.event.type)
+		this.eventHandler.handleEvent(
+			{ ...payload.event.data, clientId: this.options.clientId },
+			payload.event.type
+		)
 
 		return new Response(null, { status: 204 })
 	}

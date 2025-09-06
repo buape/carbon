@@ -104,6 +104,10 @@ export const ListenerEvent = {
 export type ListenerEventType =
 	(typeof ListenerEvent)[keyof typeof ListenerEvent]
 
+export type ListenerEventAdditionalData = {
+	clientId: string
+}
+
 export type ListenerEventRawData = {
 	[ListenerEvent.ApplicationAuthorized]: APIWebhookEventApplicationAuthorizedData
 	[ListenerEvent.ApplicationDeauthorized]: APIWebhookEventApplicationDeauthorizedData

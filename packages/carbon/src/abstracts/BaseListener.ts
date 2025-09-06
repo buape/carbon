@@ -1,5 +1,6 @@
 import type { Client } from "../classes/Client.js"
 import type {
+	ListenerEventAdditionalData,
 	ListenerEventData,
 	ListenerEventRawData,
 	ListenerEventType
@@ -13,12 +14,12 @@ import type {
 export abstract class BaseListener {
 	abstract readonly type: ListenerEventType
 	abstract handle(
-		data: ListenerEventData[this["type"]],
+		data: ListenerEventData[this["type"]] & ListenerEventAdditionalData,
 		client: Client
 	): Promise<void>
 
 	abstract parseRawData(
-		data: ListenerEventRawData[this["type"]],
+		data: ListenerEventRawData[this["type"]] & ListenerEventAdditionalData,
 		client: Client
 	): ListenerEventData[this["type"]]
 }

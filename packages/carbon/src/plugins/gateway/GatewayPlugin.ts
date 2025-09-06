@@ -227,7 +227,10 @@ export class GatewayPlugin extends Plugin {
 						}
 						if (t && this.client) {
 							if (!this.config.eventFilter || this.config.eventFilter?.(t1)) {
-								this.client.eventHandler.handleEvent(payload1.d, t1)
+								this.client.eventHandler.handleEvent(
+									{ ...payload1.d, clientId: this.client.options.clientId },
+									t1
+								)
 							}
 						}
 					} catch (err) {
