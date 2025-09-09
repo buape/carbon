@@ -1,27 +1,8 @@
 {
 	"$schema": "https://typedoc.org/schema.json",
 	"name": "@buape/carbon",
-	"includeVersion": true,
 	"out": "docs",
-	"plugin": [
-		"typedoc-plugin-mdn-links",
-		"typedoc-plugin-markdown",
-		"typedoc-plugin-frontmatter",
-		"./formatter.mjs"
-	],
+	"plugin": ["typedoc-plugin-mdn-links"],
 	"disableSources": true,
-	"readme": "none",
-	"hidePageHeader": true,
-	"hideBreadcrumbs": true,
-	"hideGroupHeadings": true,
-	"hidePageTitle": true,
-	"indexFormat": "table",
-	"parametersFormat": "table",
-	"classPropertiesFormat": "table",
-	"enumMembersFormat": "table",
-	"typeDeclarationFormat": "table",
-	"propertyMembersFormat": "table",
-	"interfacePropertiesFormat": "table",
-	"fileExtension": ".mdx",
-	"entryFileName": "index"
+	"readme": "none"
 }

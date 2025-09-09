@@ -20,8 +20,7 @@
 				"typedoc.json",
 				"../../typedoc.json",
 				"../../type-aliases-meta.sh",
-				"../../type-aliases.meta.json",
-				"../../formatter.mjs"
+				"../../type-aliases.meta.json"
 			],
 			"outputs": ["docs/**"]
 		}
