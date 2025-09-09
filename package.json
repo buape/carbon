@@ -3,6 +3,7 @@
 	"description": "Carbon monorepo",
 	"private": true,
 	"repository": "github:buape/carbon",
+	"type": "module",
 	"scripts": {
 		"build": "turbo run build --filter !website",
 		"changeset": "changeset add",

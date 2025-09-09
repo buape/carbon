@@ -11,7 +11,6 @@ build/
 .next/
 .DS_Store
 packages/*/docs/
-website/content/api
 website/.source
 .open-next/
 website/public/*.txt

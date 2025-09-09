@@ -1,8 +1,39 @@
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/docs"
 import type { HomeLayoutProps } from "fumadocs-ui/layouts/home"
-import { Heart, LayoutTemplateIcon } from "lucide-react"
+import { ArrowLeft, Book, Heart, LayoutTemplateIcon } from "lucide-react"
 import Image from "next/image"
 import { utils } from "~/app/source"
+
+export const baseLinks = [
+	{
+		text: "Showcase",
+		url: "/even-more/powered-by-carbon",
+		icon: <LayoutTemplateIcon />
+	},
+	{
+		text: "Sponsors",
+		url: "https://github.com/sponsors/buape",
+		icon: <Heart />
+	}
+]
+
+export const mainLinks = [
+	{
+		text: "API Reference",
+		url: "/api",
+		icon: <Book />
+	},
+	...baseLinks
+]
+
+export const apiLinks = [
+	{
+		text: "Back to Docs",
+		url: "/",
+		icon: <ArrowLeft />
+	},
+	...baseLinks
+]
 
 export const baseOptions: HomeLayoutProps = {
 	githubUrl: "https://github.com/buape/carbon",
@@ -24,18 +55,7 @@ export const baseOptions: HomeLayoutProps = {
 		),
 		transparentMode: "top"
 	},
-	links: [
-		{
-			text: "Showcase",
-			url: "/even-more/powered-by-carbon",
-			icon: <LayoutTemplateIcon />
-		},
-		{
-			text: "Sponsors",
-			url: "https://github.com/sponsors/buape",
-			icon: <Heart />
-		}
-	]
+	links: mainLinks
 }
 
 export const docsOptions: DocsLayoutProps = {

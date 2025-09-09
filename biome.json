@@ -5,8 +5,8 @@
 			"dist",
 			"./packages/**/package.json",
 			"./packages/**/tsconfig.json",
-			"./apps/web/build",
-			"./apps/web/.docusaurus"
+			"./website/out",
+			"api.json"
 		],
 		"ignoreUnknown": true
 	},

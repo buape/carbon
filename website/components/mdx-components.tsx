@@ -2,7 +2,7 @@ import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 import { ImageZoom } from "fumadocs-ui/components/image-zoom"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import defaultComponents from "fumadocs-ui/mdx"
-import type { MDXComponents } from "mdx/types"
+import { ApiDocs } from "./api-docs"
 import { PackageManager } from "./package-manager"
 import { RouteCard } from "./route-card"
 
@@ -20,6 +20,7 @@ export function useMDXComponents() {
 		Tab,
 		ImageZoom,
 
+		ApiDocs,
 		PackageManager,
 		RouteCard
 	}

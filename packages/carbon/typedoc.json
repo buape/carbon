@@ -9,5 +9,8 @@
 	"name": "@buape/carbon",
 	"out": "docs",
 	"excludeExternals": true,
-	"externalPattern": ["**/node_modules/**"]
+	"externalPattern": ["**/node_modules/**"],
+	"json": "docs/api.json",
+	"cleanOutputDir": true,
+	"emit": "both"
 }

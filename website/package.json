@@ -5,10 +5,12 @@
 	"type": "module",
 	"scripts": {
 		"postinstall": "fumadocs-mdx",
-		"build": "sh ./copy-api.sh && node generate-llm-txt.mjs && next build",
+		"prerun": "node scripts/generate-api-docs.js && node scripts/generate-llm-txt.mjs",
+		"build": "pnpm run prerun && next build",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"deploy:only": "opennextjs-cloudflare deploy",
-		"dev": "sh ./copy-api.sh && node generate-llm-txt.mjs && next dev"
+		"dev": "pnpm run prerun && next dev",
+		"start": "next start"
 	},
 	"dependencies": {
 		"@t3-oss/env-nextjs": "0.13.4",
