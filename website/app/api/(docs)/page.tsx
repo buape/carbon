@@ -8,7 +8,7 @@ import {
 import { Box, Code, FileText, Package } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { apiLinks, docsOptions } from "~/app/layout.config"
+import { apiLinks, baseOptions } from "~/app/layout.config"
 import { apiPageTree } from "~/components/api-tree"
 
 export const metadata: Metadata = {
@@ -57,7 +57,15 @@ const apiSections = [
 
 export default function ApiPage() {
 	return (
-		<DocsLayout {...docsOptions} tree={apiPageTree} links={apiLinks}>
+		<DocsLayout
+			{...baseOptions}
+			tree={apiPageTree}
+			links={apiLinks}
+			nav={{
+				...baseOptions.nav,
+				transparentMode: "none"
+			}}
+		>
 			<DocsPage toc={[]}>
 				<DocsTitle>API Documentation</DocsTitle>
 				<DocsDescription>

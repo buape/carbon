@@ -9,14 +9,22 @@ import {
 	getKindString
 } from "./api-constants"
 
+// Cache for the generated tree
+let cachedTree: DocsLayoutProps["tree"] | null = null
+
 function generateApiTree(): DocsLayoutProps["tree"] {
+	// Return cached tree if available
+	if (cachedTree) {
+		return cachedTree
+	}
+
 	try {
 		// Read the API data from the public directory
 		const apiDataPath = path.join(process.cwd(), "public", "api.json")
 
 		if (!fs.existsSync(apiDataPath)) {
 			console.warn("API data not found, using fallback tree")
-			return {
+			cachedTree = {
 				name: "API Documentation",
 				children: [
 					{
@@ -27,6 +35,7 @@ function generateApiTree(): DocsLayoutProps["tree"] {
 					}
 				]
 			}
+			return cachedTree
 		}
 
 		const apiDataRaw = fs.readFileSync(apiDataPath, "utf-8")
@@ -84,13 +93,14 @@ function generateApiTree(): DocsLayoutProps["tree"] {
 			}
 		}
 
-		return {
+		cachedTree = {
 			name: "API Documentation",
 			children
 		}
+		return cachedTree
 	} catch (error) {
 		console.error("Error generating API tree:", error)
-		return {
+		cachedTree = {
 			name: "API Documentation",
 			children: [
 				{
@@ -101,6 +111,7 @@ function generateApiTree(): DocsLayoutProps["tree"] {
 				}
 			]
 		}
+		return cachedTree
 	}
 }
 

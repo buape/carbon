@@ -9,7 +9,7 @@ import { ArrowLeft } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { apiLinks, docsOptions } from "~/app/layout.config"
+import { apiLinks, baseOptions } from "~/app/layout.config"
 import { API_TYPES } from "~/components/api-constants"
 import { ApiDocs } from "~/components/api-docs"
 import { ApiItemDetail } from "~/components/api-item-detail"
@@ -22,7 +22,8 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-	const { slug } = await params
+	const resolvedParams = await params
+	const { slug } = resolvedParams
 
 	if (slug.length === 1) {
 		// Listing page
@@ -53,7 +54,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CarbonApiPage({ params }: Props) {
-	const { slug } = await params
+	const resolvedParams = await params
+	const { slug } = resolvedParams
 
 	if (slug.length === 0 || slug.length > 2) {
 		notFound()
@@ -71,10 +73,18 @@ export default async function CarbonApiPage({ params }: Props) {
 		const itemName = slug[1]
 
 		return (
-			<DocsLayout {...docsOptions} tree={apiPageTree} links={apiLinks}>
+			<DocsLayout
+				{...baseOptions}
+				tree={apiPageTree}
+				links={apiLinks}
+				nav={{
+					...baseOptions.nav,
+					transparentMode: "none"
+				}}
+			>
 				<DocsPage toc={[]}>
 					<DocsBody>
-						<ApiItemDetail itemName={itemName} itemType={config.singular} />
+						<ApiItemDetail itemName={itemName} itemType={type} />
 					</DocsBody>
 				</DocsPage>
 			</DocsLayout>
@@ -83,7 +93,15 @@ export default async function CarbonApiPage({ params }: Props) {
 
 	// Listing page
 	return (
-		<DocsLayout {...docsOptions} tree={apiPageTree} links={apiLinks}>
+		<DocsLayout
+			{...baseOptions}
+			tree={apiPageTree}
+			links={apiLinks}
+			nav={{
+				...baseOptions.nav,
+				transparentMode: "none"
+			}}
+		>
 			<DocsPage toc={[]}>
 				<div className="mb-6">
 					<Link

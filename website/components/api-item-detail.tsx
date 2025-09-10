@@ -248,7 +248,7 @@ export function ApiItemDetail({ itemName, itemType }: ApiItemDetailProps) {
 									>
 										<div className="flex items-center gap-3 mb-2">
 											{getIcon(childKindString)}
-											<h4 className="font-semibold text-neutral-900 dark:text-neutral-100">
+											<h4 className="font-semibold text-neutral-900 dark:text-neutral-100 mt-0 mb-0">
 												{childName}
 											</h4>
 											<span className="px-2 py-1 bg-neutral-100 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 text-xs font-medium rounded">
