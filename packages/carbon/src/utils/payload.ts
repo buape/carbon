@@ -13,10 +13,23 @@ export const serializePayload = (
 	if (typeof payload === "string") {
 		return { content: payload, flags: defaultEphemeral ? 64 : undefined }
 	}
+
 	if (payload.components?.some((component) => component.isV2)) {
 		payload.flags = payload.flags
 			? payload.flags | MessageFlags.IsComponentsV2
 			: MessageFlags.IsComponentsV2
+	}
+
+	if (payload.ephemeral !== undefined) {
+		if (payload.ephemeral) {
+			payload.flags = payload.flags
+				? payload.flags | MessageFlags.Ephemeral
+				: MessageFlags.Ephemeral
+		} else {
+			payload.flags = payload.flags
+				? payload.flags & ~MessageFlags.Ephemeral
+				: undefined
+		}
 	}
 
 	if (
@@ -26,18 +39,19 @@ export const serializePayload = (
 	) {
 		if (payload.content) {
 			throw new Error(
-				"You cannot send a message with both content and v2 components. Use the TextDisplay component as a replacement for the content property in the message."
+				"You cannot send a message with both content and v2 components. Use the TextDisplay component as a replacement for the content property in the message. https://carbon.buape.com/classes/components/text-display"
 			)
 		}
 		if (payload.embeds) {
 			throw new Error(
-				"You cannot send a message with both embeds and v2 components. Use the Container component as a replacement for the embeds in the message."
+				"You cannot send a message with both embeds and v2 components. Use the Container component as a replacement for the embeds in the message. https://carbon.buape.com/classes/components/container"
 			)
 		}
 	}
 
+	const { ephemeral, ...payloadWithoutEphemeral } = payload
 	const data = {
-		...payload,
+		...payloadWithoutEphemeral,
 		allowed_mentions: payload.allowedMentions,
 		embeds: payload.embeds?.map((embed) => embed.serialize()),
 		components: payload.components?.map((row) =>
@@ -57,8 +71,10 @@ export const serializePayload = (
 				} satisfies RESTAPIPoll)
 			: undefined
 	}
-	if (defaultEphemeral) {
-		data.flags = payload.flags ? payload.flags | 64 : 64
+	if (payload.ephemeral === undefined && defaultEphemeral) {
+		data.flags = payload.flags
+			? payload.flags | MessageFlags.Ephemeral
+			: MessageFlags.Ephemeral
 	}
 	return data
 }
