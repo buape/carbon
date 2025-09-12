@@ -13,6 +13,7 @@ import AttachmentCommand from "./commands/testing/attachment.js"
 import ButtonCommand from "./commands/testing/button.js"
 import ComponentsV2 from "./commands/testing/components_v2.js"
 import ConfirmCommand from "./commands/testing/confirm.js"
+import EmojiCommand from "./commands/testing/emoji.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
@@ -80,7 +81,8 @@ const client = new Client(
 			new PaginatorCommand(),
 			new ConfirmCommand(),
 			new PollCommand(),
-			new AskCommand()
+			new AskCommand(),
+			new EmojiCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},

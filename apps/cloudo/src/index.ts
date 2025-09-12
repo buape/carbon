@@ -6,6 +6,7 @@ import {
 } from "@buape/carbon/linked-roles"
 import PingCommand from "./commands/ping.js"
 import ButtonCommand from "./commands/testing/button.js"
+import EmojiCommand from "./commands/testing/emoji.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
@@ -58,7 +59,8 @@ const client = new Client(
 			new PermissionCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),
-			new UserCommand()
+			new UserCommand(),
+			new EmojiCommand()
 		],
 		listeners: [new ApplicationAuthorized()]
 	},
