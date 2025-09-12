@@ -33,7 +33,7 @@ export class OptionsHandler extends Base {
 	/**
 	 * The resolved data from the interaction.
 	 */
-	readonly resolved: APIInteractionDataResolved
+	readonly resolved: Partial<APIInteractionDataResolved>
 
 	private interactionData?:
 		| APIChatInputApplicationCommandInteractionData

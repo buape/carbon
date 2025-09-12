@@ -31,17 +31,7 @@ export class FieldsHandler extends Base {
 				const subComponent = component.component
 				if (subComponent.type === ComponentType.TextInput) {
 					this.rawData[subComponent.custom_id] = [subComponent.value]
-				}
-				if (subComponent.type === ComponentType.UserSelect) {
-					this.rawData[subComponent.custom_id] = subComponent.values
-				}
-				if (subComponent.type === ComponentType.RoleSelect) {
-					this.rawData[subComponent.custom_id] = subComponent.values
-				}
-				if (subComponent.type === ComponentType.MentionableSelect) {
-					this.rawData[subComponent.custom_id] = subComponent.values
-				}
-				if (subComponent.type === ComponentType.ChannelSelect) {
+				} else {
 					this.rawData[subComponent.custom_id] = subComponent.values
 				}
 			}

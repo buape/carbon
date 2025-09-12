@@ -34,7 +34,7 @@ class TestModal extends Modal {
 	]
 
 	async run(interaction: ModalInteraction) {
-		const channel = interaction.fields.getChannelSelect("channel", true)
+		const channel = await interaction.fields.getChannelSelect("channel", true)
 		const user = interaction.fields.getUserSelect("user", true)
 		const role = interaction.fields.getRoleSelect("role", true)
 		const mentionable = interaction.fields.getMentionableSelect(
