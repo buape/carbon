@@ -219,7 +219,7 @@ export class GuildMember<
 			 * Data URI base64 encoded banner image
 			 */
 			banner?: string | null
-			bio?: string
+			bio?: string | null
 			/**
 			 * Data URI base64 encoded avatar image
 			 */
