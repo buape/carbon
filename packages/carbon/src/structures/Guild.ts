@@ -24,6 +24,7 @@ import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
+import { GuildEmoji } from "./Emoji.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"
 
@@ -255,9 +256,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Custom guild emojis
 	 */
-	get emojis(): IfPartial<IsPartial, APIEmoji[]> {
+	get emojis(): IfPartial<IsPartial, GuildEmoji[]> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.emojis
+		return this._rawData.emojis.map(
+			(emoji) => new GuildEmoji(this.client, emoji, this.id)
+		)
 	}
 
 	/**
@@ -629,5 +632,37 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const roleObjects = roles.map((role) => new Role(this.client, role))
 
 		return roleObjects
+	}
+
+	public async getEmoji(id: string): Promise<GuildEmoji> {
+		const emoji = (await this.client.rest.get(
+			Routes.applicationEmoji(this.client.options.clientId, id)
+		)) as APIEmoji
+		return new GuildEmoji(this.client, emoji, this.client.options.clientId)
+	}
+
+	public getEmojiByName(name: string): GuildEmoji | undefined {
+		const emojis = this.emojis
+		return emojis?.find((emoji) => emoji.name === name)
+	}
+
+	/**
+	 * Upload a new emoji to the application
+	 * @param name The name of the emoji
+	 * @param image The image of the emoji in base64 format
+	 * @returns The created ApplicationEmoji
+	 */
+	public async createEmoji(name: string, image: string) {
+		const emoji = (await this.client.rest.post(
+			Routes.guildEmojis(this.client.options.clientId),
+			{ body: { name, image } }
+		)) as APIEmoji
+		return new GuildEmoji(this.client, emoji, this.client.options.clientId)
+	}
+
+	public async deleteEmoji(id: string) {
+		await this.client.rest.delete(
+			Routes.applicationEmoji(this.client.options.clientId, id)
+		)
 	}
 }

@@ -19,6 +19,7 @@ import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
+import { EmojiHandler } from "../internals/EmojiHandler.js"
 import { EventHandler } from "../internals/EventHandler.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
 import { Guild } from "../structures/Guild.js"
@@ -145,6 +146,11 @@ export class Client {
 	 */
 	eventHandler: EventHandler
 	/**
+	 * The handler for application emojis for this application
+	 */
+	emoji: EmojiHandler
+
+	/**
 	 * The ID of the shard this client is running on, if sharding is enabled
 	 */
 	shardId?: number
@@ -186,6 +192,7 @@ export class Client {
 		this.componentHandler = new ComponentHandler(this)
 		this.modalHandler = new ModalHandler(this)
 		this.eventHandler = new EventHandler(this)
+		this.emoji = new EmojiHandler(this)
 
 		for (const component of this.components) {
 			this.componentHandler.registerComponent(component)
