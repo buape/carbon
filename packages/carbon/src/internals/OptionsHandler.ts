@@ -2,19 +2,18 @@ import {
 	type APIApplicationCommandInteractionDataBasicOption,
 	type APIApplicationCommandInteractionDataOption,
 	type APIAutocompleteApplicationCommandInteractionData,
-	type APIChannel,
 	type APIChatInputApplicationCommandInteractionData,
-	ApplicationCommandOptionType,
-	Routes
+	type APIInteractionDataResolved,
+	ApplicationCommandOptionType
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import {
+	type AnyChannel,
 	type Client,
 	type CommandOptions,
 	type ResolvedFile,
 	Role,
-	User,
-	channelFactory
+	User
 } from "../index.js"
 export type RawOptions = {
 	[key: string]:
@@ -31,6 +30,10 @@ export class OptionsHandler extends Base {
 	 * The raw options that were in the interaction data, before they were parsed.
 	 */
 	readonly raw: APIApplicationCommandInteractionDataBasicOption[]
+	/**
+	 * The resolved data from the interaction.
+	 */
+	readonly resolved: APIInteractionDataResolved
 
 	private interactionData?:
 		| APIChatInputApplicationCommandInteractionData
@@ -54,6 +57,7 @@ export class OptionsHandler extends Base {
 		this.raw = []
 		this.interactionData = interactionData
 		this.definitions = definitions
+		this.resolved = interactionData.resolved ?? {}
 		for (const option of options) {
 			if (option.type === ApplicationCommandOptionType.Subcommand) {
 				for (const subOption of option.options ?? []) {
@@ -163,9 +167,9 @@ export class OptionsHandler extends Base {
 	 * @param required Whether the option is required.
 	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getUser(key: string, required?: false): User<true> | undefined
-	public getUser(key: string, required: true): User<true>
-	public getUser(key: string, required = false): User<true> | undefined {
+	public getUser(key: string, required?: false): User | undefined
+	public getUser(key: string, required: true): User
+	public getUser(key: string, required = false): User | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
 		)?.value
@@ -173,27 +177,22 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		return new User<true>(this.client, id)
+
+		const user = this.resolved.users?.[id]
+		if (!user) {
+			throw new Error(
+				`Discord failed to resolve user for ${key}, this is a bug.`
+			)
+		}
+		return new User(this.client, user)
 	}
 
-	/**
-	 * Get the value of a channel option.
-	 * @param key The name of the option to get the value of.
-	 * @param required Whether the option is required.
-	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
-	 */
-	public async getChannel(
+	public async getChannelId(
 		key: string,
 		required?: false
-	): Promise<ReturnType<typeof channelFactory> | undefined>
-	public async getChannel(
-		key: string,
-		required: true
-	): Promise<ReturnType<typeof channelFactory>>
-	public async getChannel(
-		key: string,
-		required = false
-	): Promise<ReturnType<typeof channelFactory> | undefined> {
+	): Promise<string | undefined>
+	public async getChannelId(key: string, required: true): Promise<string>
+	public async getChannelId(key: string, required = false) {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
 		)?.value
@@ -201,8 +200,32 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		const data = (await this.client.rest.get(Routes.channel(id))) as APIChannel
-		return channelFactory(this.client, data)
+		return id
+	}
+
+	/**
+	 * Get the value of a channel option.
+	 * @param key The name of the option to get the value of.
+	 * @param required Whether the option is required.
+	 * @returns The ID of the selected channel, or undefined if the option was not provided and it is not required.
+	 */
+	public async getChannel(
+		key: string,
+		required?: false
+	): Promise<AnyChannel | undefined>
+	public async getChannel(key: string, required: true): Promise<AnyChannel>
+	public async getChannel(
+		key: string,
+		required = false
+	): Promise<AnyChannel | undefined> {
+		const id = this.raw.find(
+			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
+		)?.value
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
+		return (await this.client.fetchChannel(id)) ?? undefined
 	}
 
 	/**
@@ -211,9 +234,9 @@ export class OptionsHandler extends Base {
 	 * @param required Whether the option is required.
 	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public getRole(key: string, required?: false): Role<true> | undefined
-	public getRole(key: string, required: true): Role<true>
-	public getRole(key: string, required = false): Role<true> | undefined {
+	public getRole(key: string, required?: false): Role | undefined
+	public getRole(key: string, required: true): Role
+	public getRole(key: string, required = false): Role | undefined {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Role
 		)?.value
@@ -221,7 +244,14 @@ export class OptionsHandler extends Base {
 			if (!id || typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
-		return new Role<true>(this.client, id)
+
+		const role = this.resolved.roles?.[id]
+		if (!role) {
+			throw new Error(
+				`Discord failed to resolve role for ${key}, this is a bug.`
+			)
+		}
+		return new Role(this.client, role)
 	}
 
 	/**
@@ -230,18 +260,12 @@ export class OptionsHandler extends Base {
 	 * @param required Whether the option is required.
 	 * @returns The value of the option, or undefined if the option was not provided and it is not required.
 	 */
-	public async getMentionable(
-		key: string,
-		required?: false
-	): Promise<User | Role<true> | undefined>
-	public async getMentionable(
-		key: string,
-		required: true
-	): Promise<User | Role<true>>
-	public async getMentionable(
+	public getMentionable(key: string, required?: false): User | Role | undefined
+	public getMentionable(key: string, required: true): User | Role
+	public getMentionable(
 		key: string,
 		required = false
-	): Promise<User | Role<true> | undefined> {
+	): User | Role | undefined {
 		const id = this.raw.find(
 			(x) =>
 				x.name === key && x.type === ApplicationCommandOptionType.Mentionable
@@ -251,13 +275,21 @@ export class OptionsHandler extends Base {
 				throw new Error(`Missing required option: ${key}`)
 		} else if (!id || typeof id !== "string") return undefined
 
-		try {
-			const user = new User<true>(this.client, id)
-			await user.fetch()
-			return user as unknown as User<false>
-		} catch {
-			return new Role<true>(this.client, id)
+		// Check if it's a user first
+		const user = this.resolved.users?.[id]
+		if (user) {
+			return new User(this.client, user)
 		}
+
+		// Check if it's a role
+		const role = this.resolved.roles?.[id]
+		if (role) {
+			return new Role(this.client, role)
+		}
+
+		throw new Error(
+			`Discord failed to resolve mentionable for ${key}, this is a bug.`
+		)
 	}
 
 	public getAttachment(key: string, required?: false): ResolvedFile | undefined
