@@ -20,10 +20,16 @@ export const serializePayload = (
 			: MessageFlags.IsComponentsV2
 	}
 
-	if (payload.ephemeral) {
-		payload.flags = payload.flags
-			? payload.flags | MessageFlags.Ephemeral
-			: MessageFlags.Ephemeral
+	if (payload.ephemeral !== undefined) {
+		if (payload.ephemeral) {
+			payload.flags = payload.flags
+				? payload.flags | MessageFlags.Ephemeral
+				: MessageFlags.Ephemeral
+		} else {
+			payload.flags = payload.flags
+				? payload.flags & ~MessageFlags.Ephemeral
+				: undefined
+		}
 	}
 
 	if (
@@ -65,7 +71,7 @@ export const serializePayload = (
 				} satisfies RESTAPIPoll)
 			: undefined
 	}
-	if (defaultEphemeral) {
+	if (payload.ephemeral === undefined && defaultEphemeral) {
 		data.flags = payload.flags
 			? payload.flags | MessageFlags.Ephemeral
 			: MessageFlags.Ephemeral
