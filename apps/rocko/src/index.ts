@@ -15,6 +15,7 @@ import ComponentsV2 from "./commands/testing/components_v2.js"
 import ConfirmCommand from "./commands/testing/confirm.js"
 import EmojiCommand from "./commands/testing/emoji.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
+import EphemeralShorthandCommand from "./commands/testing/ephemeral_shorthand.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
@@ -82,7 +83,8 @@ const client = new Client(
 			new ConfirmCommand(),
 			new PollCommand(),
 			new AskCommand(),
-			new EmojiCommand()
+			new EmojiCommand(),
+			new EphemeralShorthandCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},

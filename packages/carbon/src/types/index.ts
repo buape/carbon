@@ -115,6 +115,10 @@ export type MessagePayloadObject = {
 	 * The poll to send in the message
 	 */
 	poll?: PollSendPayload
+	/**
+	 * Whether the message should be ephemeral (shorthand for MessageFlags.Ephemeral)
+	 */
+	ephemeral?: boolean
 }
 
 /**
