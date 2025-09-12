@@ -636,9 +636,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	public async getEmoji(id: string): Promise<GuildEmoji> {
 		const emoji = (await this.client.rest.get(
-			Routes.applicationEmoji(this.client.options.clientId, id)
+			Routes.guildEmoji(this.id, id)
 		)) as APIEmoji
-		return new GuildEmoji(this.client, emoji, this.client.options.clientId)
+		return new GuildEmoji(this.client, emoji, this.id)
 	}
 
 	public getEmojiByName(name: string): GuildEmoji | undefined {
@@ -653,16 +653,13 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @returns The created ApplicationEmoji
 	 */
 	public async createEmoji(name: string, image: string) {
-		const emoji = (await this.client.rest.post(
-			Routes.guildEmojis(this.client.options.clientId),
-			{ body: { name, image } }
-		)) as APIEmoji
-		return new GuildEmoji(this.client, emoji, this.client.options.clientId)
+		const emoji = (await this.client.rest.post(Routes.guildEmojis(this.id), {
+			body: { name, image }
+		})) as APIEmoji
+		return new GuildEmoji(this.client, emoji, this.id)
 	}
 
 	public async deleteEmoji(id: string) {
-		await this.client.rest.delete(
-			Routes.applicationEmoji(this.client.options.clientId, id)
-		)
+		await this.client.rest.delete(Routes.guildEmoji(this.id, id))
 	}
 }

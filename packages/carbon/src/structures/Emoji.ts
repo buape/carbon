@@ -1,14 +1,14 @@
-import { Routes } from "discord-api-types/v9"
+import { Routes } from "discord-api-types/v10"
 import type { APIApplicationEmoji, APIEmoji } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { Role } from "./Role.js"
 import { User } from "./User.js"
 
-export abstract class BaseEmoji extends Base {
-	protected _rawData: APIEmoji
+export abstract class BaseEmoji<T extends APIEmoji = APIEmoji> extends Base {
+	protected _rawData: T
 
-	constructor(client: Client, rawData: APIEmoji) {
+	constructor(client: Client, rawData: T) {
 		super(client)
 		this._rawData = rawData
 	}
@@ -75,8 +75,7 @@ export abstract class BaseEmoji extends Base {
 	}
 }
 
-export class ApplicationEmoji extends BaseEmoji {
-	protected override _rawData: APIApplicationEmoji
+export class ApplicationEmoji extends BaseEmoji<APIApplicationEmoji> {
 	readonly applicationId: string
 	constructor(
 		client: Client,
@@ -84,7 +83,6 @@ export class ApplicationEmoji extends BaseEmoji {
 		applicationId: string
 	) {
 		super(client, rawData)
-		this._rawData = rawData
 		this.applicationId = applicationId
 	}
 
