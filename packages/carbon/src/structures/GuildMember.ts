@@ -234,8 +234,8 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
-		if (data.banner) this.setField("banner", data.banner)
-		if (data.avatar) this.setField("avatar", data.avatar)
+		if ("banner" in data) this.setField("banner", data.banner ?? null)
+		if ("avatar" in data) this.setField("avatar", data.avatar ?? null)
 	}
 
 	/**
