@@ -210,6 +210,35 @@ export class GuildMember<
 	}
 
 	/**
+	 * Set the member's guild-specific data
+	 * This will only work if the current member is the bot itself, and will throw an error if it is not
+	 */
+	async setMemberData(
+		data: {
+			/**
+			 * Data URI base64 encoded banner image
+			 */
+			banner?: string | null
+			bio?: string | null
+			/**
+			 * Data URI base64 encoded avatar image
+			 */
+			avatar?: string | null
+		},
+		reason?: string
+	): Promise<void> {
+		await this.client.rest.patch(
+			`/guilds/${this.guild?.id}/members/${this.user?.id}`,
+			{
+				body: data,
+				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+			}
+		)
+		if ("banner" in data) this.setField("banner", data.banner ?? null)
+		if ("avatar" in data) this.setField("avatar", data.avatar ?? null)
+	}
+
+	/**
 	 * Add a role to the member
 	 */
 	async addRole(roleId: string, reason?: string): Promise<void> {
