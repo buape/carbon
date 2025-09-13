@@ -31,8 +31,15 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 
 	minValues?: number
 	maxValues?: number
+	/**
+	 * Not available in modals, will throw an error if used
+	 */
 	disabled?: boolean
 	placeholder?: string
+	/**
+	 * Defaults to true in modals, ignored in messages
+	 */
+	required?: boolean
 
 	serialize = (): APISelectMenuComponent => {
 		const options = this.serializeOptions()
@@ -43,6 +50,7 @@ export abstract class AnySelectMenu extends BaseMessageInteractiveComponent {
 			placeholder: this.placeholder,
 			min_values: this.minValues,
 			max_values: this.maxValues,
+			required: this.required,
 			...extra
 		}
 		if (this.disabled) {

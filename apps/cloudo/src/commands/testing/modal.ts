@@ -97,7 +97,7 @@ class PreferencesLabel extends Label {
 		super(
 			new (class extends StringSelectMenu {
 				customId = "color"
-				required = true
+				required = false
 				maxValues = 3
 				minValues = 1
 				options = [

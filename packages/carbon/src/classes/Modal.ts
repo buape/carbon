@@ -3,6 +3,7 @@ import type { ModalInteraction } from "../internals/ModalInteraction.js"
 import type { ComponentData, ComponentParserResult } from "../types/index.js"
 import { parseCustomId } from "../utils/customIdParser.js"
 import type { Label } from "./components/Label.js"
+import type { TextDisplay } from "./components/TextDisplay.js"
 
 export abstract class Modal {
 	/**
@@ -13,7 +14,7 @@ export abstract class Modal {
 	/**
 	 * The components of the modal
 	 */
-	components: Label[] = []
+	components: (Label | TextDisplay)[] = []
 
 	/**
 	 * The custom ID of the component.
