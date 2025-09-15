@@ -10,8 +10,8 @@
 	},
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
-		"dotenv": "16.5.0",
-		"ws": "8.18.2"
+		"dotenv": "16.6.1",
+		"ws": "8.18.3"
 	},
 	"devDependencies": {
 		"@types/node": "22.17.2",
