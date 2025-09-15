@@ -15,6 +15,10 @@ export interface GatewayForwarderPluginOptions extends GatewayPluginOptions {
 	 */
 	webhookUrl: string
 	/**
+	 * Optional headers to add to the webhook request.
+	 */
+	webhookHeaders?: Record<string, string>
+	/**
 	 * The ed25519 private key in PEM format, used to sign forwarded events.
 	 * This should include the BEGIN/END markers. When loading from an environment
 	 * variable, the newlines can be escaped (\\n).
@@ -91,9 +95,12 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 					const signatureHex = signature.toString("hex")
 
+					const headers = new Headers(this.config.webhookHeaders)
+
 					await fetch(this.config.webhookUrl, {
 						method: "POST",
 						headers: {
+							...headers,
 							"Content-Type": "application/json",
 							"X-Signature-Ed25519": signatureHex,
 							"X-Signature-Timestamp": timestamp.toString()
