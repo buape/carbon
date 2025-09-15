@@ -30,7 +30,19 @@ const config = {
 			destination: "/getting-started/introduction",
 			permanent: false
 		}
-	]
+	],
+	async rewrites() {
+		return [
+			{
+				source: "/current",
+				destination: "https://carbon-current.b1.buape.com"
+			},
+			{
+				source: "/current/:path*",
+				destination: "https://carbon-current.b1.buape.com/:path*"
+			}
+		]
+	}
 }
 
 export default withMDX(config)
