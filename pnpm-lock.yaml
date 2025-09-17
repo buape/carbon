@@ -149,8 +149,8 @@ importers:
         specifier: 1.18.2
         version: 1.18.2(hono@4.6.5)
       '@types/bun':
-        specifier: 1.2.21
-        version: 1.2.21(@types/react@19.1.13)
+        specifier: 1.2.22
+        version: 1.2.22(@types/react@19.1.13)
       '@types/ws':
         specifier: 8.18.1
         version: 8.18.1
@@ -2392,8 +2392,8 @@ packages:
     resolution: {integrity: sha512-TmY25GmxzgX+395Fwl/F0te6S4RHdJtYl1QjZr+wlxVvKJ0IBOACpnpAvnLM3dpTgXuQukGtSWcRz7Zi9mZqcQ==}
     hasBin: true
 
-  '@types/bun@1.2.21':
-    resolution: {integrity: sha512-NiDnvEqmbfQ6dmZ3EeUO577s4P5bf4HCTXtI6trMc6f6RzirY5IrF3aIookuSpyslFzrnvv2lmEWv5HyC1X79A==}
+  '@types/bun@1.2.22':
+    resolution: {integrity: sha512-5A/KrKos2ZcN0c6ljRSOa1fYIyCKhZfIVYeuyb4snnvomnpFqC0tTsEkdqNxbAgExV384OETQ//WAjl3XbYqQA==}
 
   '@types/chai@5.2.2':
     resolution: {integrity: sha512-8kB30R7Hwqf40JPiKhVzodJs2Qc1ZJ5zuT3uzw5Hq/dhNCl3G3l83jfpdI1e20BP348+fV7VIL/+FxaXkqBmWg==}
@@ -2667,8 +2667,8 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
-  bun-types@1.2.21:
-    resolution: {integrity: sha512-sa2Tj77Ijc/NTLS0/Odjq/qngmEPZfbfnOERi0KRUYhT9R8M4VBioWVmMWE5GrYbKMc+5lVybXygLdibHaqVqw==}
+  bun-types@1.2.22:
+    resolution: {integrity: sha512-hwaAu8tct/Zn6Zft4U9BsZcXkYomzpHJX28ofvx7k0Zz2HNz54n1n+tDgxoWFGB4PcFvJXJQloPhaV2eP3Q6EA==}
     peerDependencies:
       '@types/react': ^19
 
@@ -8336,9 +8336,9 @@ snapshots:
       semver: 7.6.2
       update-check: 1.5.4
 
-  '@types/bun@1.2.21(@types/react@19.1.13)':
+  '@types/bun@1.2.22(@types/react@19.1.13)':
     dependencies:
-      bun-types: 1.2.21(@types/react@19.1.13)
+      bun-types: 1.2.22(@types/react@19.1.13)
     transitivePeerDependencies:
       - '@types/react'
     optional: true
@@ -8362,7 +8362,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 24.5.0
+      '@types/node': 22.18.4
 
   '@types/hast@3.0.4':
     dependencies:
@@ -8412,7 +8412,7 @@ snapshots:
 
   '@types/through@0.0.33':
     dependencies:
-      '@types/node': 24.5.0
+      '@types/node': 22.18.4
 
   '@types/tinycolor2@1.4.6': {}
 
@@ -8622,7 +8622,7 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  bun-types@1.2.21(@types/react@19.1.13):
+  bun-types@1.2.22(@types/react@19.1.13):
     dependencies:
       '@types/node': 22.18.4
       '@types/react': 19.1.13
