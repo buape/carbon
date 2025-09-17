@@ -35,11 +35,11 @@ const config = {
 		return [
 			{
 				source: "/current",
-				destination: "https://carbon-current.b1.buape.com"
+				destination: "https://carbon-current.b1.buape.com/current"
 			},
 			{
 				source: "/current/:path*",
-				destination: "https://carbon-current.b1.buape.com/:path*"
+				destination: "https://carbon-current.b1.buape.com/current/:path*"
 			}
 		]
 	}
