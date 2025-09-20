@@ -42,7 +42,7 @@ export const baseOptions: HomeLayoutProps = {
 			<>
 				<Image
 					alt="Carbon"
-					src={"https://cdn.buape.com/CarbonWordmark.png"}
+					src={"https://cdn.buape.com/carbon/wordmark.png"}
 					width={100}
 					height={100}
 					sizes="100px"

@@ -93,7 +93,7 @@ class SectionOne extends Section {
 }
 
 class CarbonThumbnail extends Thumbnail {
-	url = "https://cdn.buape.com/CarbonLogo.png"
+	url = "https://cdn.buape.com/carbon/logo.png"
 }
 
 class SectionTwo extends Section {
@@ -111,7 +111,7 @@ class KiaiGallery extends MediaGallery {
 			url: "attachment://kiai.png"
 		},
 		{
-			url: "https://cdn.buape.com/CarbonLogo.png"
+			url: "https://cdn.buape.com/carbon/logo.png"
 		},
 		{
 			url: "https://cdn.buape.com/buape_circle.png"
