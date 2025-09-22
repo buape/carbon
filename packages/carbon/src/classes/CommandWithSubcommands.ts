@@ -1,5 +1,4 @@
 import {
-	type APIApplicationCommandBasicOption,
 	type APIApplicationCommandSubcommandOption,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
@@ -25,11 +24,8 @@ export abstract class CommandWithSubcommands extends BaseCommand {
 	 */
 	serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"] {
 		return this.subcommands.map((subcommand) => ({
-			name: subcommand.name,
-			description: subcommand.description,
-			type: ApplicationCommandOptionType.Subcommand,
-			options:
-				subcommand.serializeOptions() as APIApplicationCommandBasicOption[]
+			...subcommand.serialize(),
+			type: ApplicationCommandOptionType.Subcommand
 		})) as APIApplicationCommandSubcommandOption[]
 	}
 }

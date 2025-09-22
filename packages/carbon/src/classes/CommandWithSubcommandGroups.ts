@@ -1,5 +1,4 @@
 import {
-	type APIApplicationCommandBasicOption,
 	type APIApplicationCommandSubcommandGroupOption,
 	type APIApplicationCommandSubcommandOption,
 	ApplicationCommandOptionType
@@ -27,19 +26,13 @@ export abstract class CommandWithSubcommandGroups extends CommandWithSubcommands
 	 */
 	serializeOptions() {
 		const subcommands = this.subcommands.map((subcommand) => ({
-			name: subcommand.name,
-			description: subcommand.description,
-			type: ApplicationCommandOptionType.Subcommand,
-			options:
-				subcommand.serializeOptions() as APIApplicationCommandBasicOption[]
+			...subcommand.serialize(),
+			type: ApplicationCommandOptionType.Subcommand
 		})) as APIApplicationCommandSubcommandOption[]
 
 		const subcommandGroups = this.subcommandGroups.map((subcommandGroup) => ({
-			name: subcommandGroup.name,
-			description: subcommandGroup.description,
-			type: ApplicationCommandOptionType.SubcommandGroup,
-			options:
-				subcommandGroup.serializeOptions() as APIApplicationCommandSubcommandOption[]
+			...subcommandGroup.serialize(),
+			type: ApplicationCommandOptionType.SubcommandGroup
 		})) as APIApplicationCommandSubcommandGroupOption[]
 
 		return [...subcommands, ...subcommandGroups]
