@@ -1,0 +1,169 @@
+---
+title: Wildcard Handlers
+description: Learn how to use wildcard handlers to catch unregistered commands, components, and modals.
+icon: Asterisk
+---
+
+Wildcard handlers are a powerful feature in Carbon that allow you to create catch-all handlers for unregistered interactions. When an interaction doesn't match any specific registered handler, Carbon will look for a wildcard handler as a fallback. This is useful for debugging, logging unhandled interactions, or providing default responses.
+
+## How Wildcards Work
+
+Wildcard handlers use `"*"` as their identifier and are processed with the following priority order:
+
+1. **Exact match** - Look for a handler with the specific name/customId
+2. **One-off components** (components only) - Check for temporary components
+3. **Wildcard match** - Fall back to handlers with `"*"` as the identifier
+
+## Wildcard Commands
+
+Create a wildcard command by setting the command name to `"*"`:
+
+```typescript
+import { Command } from "@buape/carbon"
+import type { CommandInteraction } from "@buape/carbon"
+
+export default class WildcardCommand extends Command {
+	name = "*"
+	description = "Handles unknown commands"
+
+	async run(interaction: CommandInteraction) {
+		await interaction.reply({
+			content: `Unknown command: \`${interaction.commandName}\``,
+			ephemeral: true
+		})
+	}
+}
+```
+
+This wildcard command will catch any interaction for commands that aren't specifically registered with your bot.
+
+## Wildcard Components
+
+Create wildcard components by setting the customId to `"*"`. This works for all component types:
+
+### Wildcard Button
+
+```typescript
+import { Button } from "@buape/carbon"
+import type { ButtonInteraction } from "@buape/carbon"
+
+export default class WildcardButton extends Button {
+	customId = "*"
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply({
+			content: `Unknown button clicked: \`${interaction.customId}\``,
+			ephemeral: true
+		})
+	}
+}
+```
+
+### Wildcard Select Menu
+
+```typescript
+import { StringSelectMenu } from "@buape/carbon"
+import type { StringSelectMenuInteraction } from "@buape/carbon"
+
+export default class WildcardSelectMenu extends StringSelectMenu {
+	customId = "*"
+
+	async run(interaction: StringSelectMenuInteraction) {
+		await interaction.reply({
+			content: `Unknown select menu: \`${interaction.customId}\`\nSelected: ${interaction.values.join(", ")}`,
+			ephemeral: true
+		})
+	}
+}
+```
+
+## Wildcard Modals
+
+Create wildcard modals by setting the customId to `"*"`:
+
+```typescript
+import { Modal } from "@buape/carbon"
+import type { ModalInteraction } from "@buape/carbon"
+
+export default class WildcardModal extends Modal {
+	customId = "*"
+
+	async run(interaction: ModalInteraction) {
+		await interaction.reply({
+			content: `Unknown modal submitted: \`${interaction.customId}\``,
+			ephemeral: true
+		})
+	}
+}
+```
+
+## Common Use Cases
+
+### Debugging and Logging
+
+Wildcard handlers are excellent for debugging during development:
+
+```typescript
+export default class DebugCommand extends Command {
+	name = "*"
+	description = "Debug unknown commands"
+
+	async run(interaction: CommandInteraction) {
+		console.log(`Unknown command received:`, {
+			commandName: interaction.commandName,
+			userId: interaction.user.id,
+			guildId: interaction.guildId,
+			options: interaction.options.data
+		})
+
+		await interaction.reply({
+			content: "This command isn't implemented yet!",
+			ephemeral: true
+		})
+	}
+}
+```
+
+### Graceful Degradation
+
+Provide helpful fallback responses instead of errors:
+
+```typescript
+export default class HelpfulWildcard extends Button {
+	customId = "*"
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply({
+			content: "This button isn't available right now. Please try refreshing the message or contact support if the issue persists.",
+			ephemeral: true
+		})
+	}
+}
+```
+
+### Migration Support
+
+During bot updates, use wildcards to handle interactions from old message versions:
+
+```typescript
+export default class MigrationButton extends Button {
+	customId = "*"
+
+	async run(interaction: ButtonInteraction, data: string) {
+		// Check if this is from an old version
+		if (interaction.customId.startsWith("old_")) {
+			await interaction.reply({
+				content: "This button is from an older version. Please use the `/refresh` command to get the updated interface.",
+				ephemeral: true
+			})
+			return
+		}
+
+		// Handle other unknown buttons
+		await interaction.reply({
+			content: "Unknown button interaction.",
+			ephemeral: true
+		})
+	}
+}
+```

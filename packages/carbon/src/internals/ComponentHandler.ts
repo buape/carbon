@@ -45,13 +45,14 @@ export class ComponentHandler extends Base {
 	 * @internal
 	 */
 	async handleInteraction(data: APIMessageComponentInteraction) {
-		const component = this.components.find((x) => {
+		let component = this.components.find((x) => {
 			const componentKey = x.customIdParser(x.customId).key
 			const interactionKey = x.customIdParser(data.data.custom_id).key
 			return (
 				componentKey === interactionKey && x.type === data.data.component_type
 			)
 		})
+
 		if (!component) {
 			const oneOffComponent = this.oneOffComponents.get(
 				`${data.message.id}-${data.message.channel_id}`
@@ -73,12 +74,19 @@ export class ComponentHandler extends Base {
 							`Failed to acknowledge one-off component interaction for message ${data.message.id}`
 						)
 					})
-			} else {
+				return
+			}
+
+			component = this.components.find((x) => {
+				const componentKey = x.customIdParser(x.customId).key
+				return componentKey === "*" && x.type === data.data.component_type
+			})
+
+			if (!component) {
 				throw new Error(
 					`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id} was received, did you forget to register the component? See https://carbon.buape.com/concepts/component-registration for more information.`
 				)
 			}
-			return
 		}
 
 		const parsed = component.customIdParser(data.data.custom_id)
