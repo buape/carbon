@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.13.0
+
+### Minor Changes
+
+- 67fe8f5: feat: make gateway plugin options accessible to the user
+
 ## 0.12.0
 
 ### Minor Changes
