@@ -36,7 +36,7 @@ interface HelloData {
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
 	protected client?: Client
-	protected config: GatewayPluginOptions
+	readonly options: GatewayPluginOptions
 	protected state: GatewayState
 	protected ws: WebSocket | null = null
 	protected monitor: ConnectionMonitor
@@ -54,7 +54,7 @@ export class GatewayPlugin extends Plugin {
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
-		this.config = {
+		this.options = {
 			reconnect: {
 				maxAttempts: 5,
 				baseDelay: 1000,
@@ -108,9 +108,9 @@ export class GatewayPlugin extends Plugin {
 		}
 
 		// Set shard information on the client
-		if (this.config.shard) {
-			client.shardId = this.config.shard[0]
-			client.totalShards = this.config.shard[1]
+		if (this.options.shard) {
+			client.shardId = this.options.shard[0]
+			client.totalShards = this.options.shard[1]
 		}
 
 		this.connect()
@@ -123,7 +123,7 @@ export class GatewayPlugin extends Plugin {
 			resume && this.state.resumeGatewayUrl
 				? this.state.resumeGatewayUrl
 				: (this.gatewayInfo?.url ??
-					this.config.url ??
+					this.options.url ??
 					"wss://gateway.discord.gg/?v=10&encoding=json")
 		this.ws = this.createWebSocket(url)
 		this.setupWebSocket()
@@ -226,7 +226,7 @@ export class GatewayPlugin extends Plugin {
 							this.state.resumeGatewayUrl = readyData.resume_gateway_url
 						}
 						if (t && this.client) {
-							if (!this.config.eventFilter || this.config.eventFilter?.(t1)) {
+							if (!this.options.eventFilter || this.options.eventFilter?.(t1)) {
 								this.client.eventHandler.handleEvent(
 									{ ...payload1.d, clientId: this.client.options.clientId },
 									t1
@@ -299,7 +299,7 @@ export class GatewayPlugin extends Plugin {
 			maxAttempts = 5,
 			baseDelay = 1000,
 			maxDelay = 30000
-		} = this.config.reconnect ?? {}
+		} = this.options.reconnect ?? {}
 
 		this.disconnect()
 
@@ -420,13 +420,13 @@ export class GatewayPlugin extends Plugin {
 		if (!this.client) return
 		const payload = createIdentifyPayload({
 			token: this.client.options.token,
-			intents: this.config.intents,
+			intents: this.options.intents,
 			properties: {
 				os: process.platform,
 				browser: "@buape/carbon - https://carbon.buape.com",
 				device: "@buape/carbon - https://carbon.buape.com"
 			},
-			...(this.config.shard ? { shard: this.config.shard } : {})
+			...(this.options.shard ? { shard: this.options.shard } : {})
 		})
 		this.send(payload, true)
 	}
@@ -466,7 +466,7 @@ export class GatewayPlugin extends Plugin {
 		}
 
 		const hasGuildMembersIntent =
-			(this.config.intents & GatewayIntents.GuildMembers) !== 0
+			(this.options.intents & GatewayIntents.GuildMembers) !== 0
 		if (!hasGuildMembersIntent) {
 			throw new Error(
 				"GUILD_MEMBERS intent is required for requestGuildMembers operation"
@@ -475,7 +475,7 @@ export class GatewayPlugin extends Plugin {
 
 		if (data.presences) {
 			const hasPresencesIntent =
-				(this.config.intents & GatewayIntents.GuildPresences) !== 0
+				(this.options.intents & GatewayIntents.GuildPresences) !== 0
 			if (!hasPresencesIntent) {
 				throw new Error(
 					"GUILD_PRESENCES intent is required when requesting presences"
@@ -505,20 +505,20 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	/**
-	 * Get information about configured intents
+	 * Get information about optionsured intents
 	 */
 	public getIntentsInfo() {
 		return {
-			intents: this.config.intents,
-			hasGuilds: (this.config.intents & GatewayIntents.Guilds) !== 0,
+			intents: this.options.intents,
+			hasGuilds: (this.options.intents & GatewayIntents.Guilds) !== 0,
 			hasGuildMembers:
-				(this.config.intents & GatewayIntents.GuildMembers) !== 0,
+				(this.options.intents & GatewayIntents.GuildMembers) !== 0,
 			hasGuildPresences:
-				(this.config.intents & GatewayIntents.GuildPresences) !== 0,
+				(this.options.intents & GatewayIntents.GuildPresences) !== 0,
 			hasGuildMessages:
-				(this.config.intents & GatewayIntents.GuildMessages) !== 0,
+				(this.options.intents & GatewayIntents.GuildMessages) !== 0,
 			hasMessageContent:
-				(this.config.intents & GatewayIntents.MessageContent) !== 0
+				(this.options.intents & GatewayIntents.MessageContent) !== 0
 		}
 	}
 
@@ -527,6 +527,6 @@ export class GatewayPlugin extends Plugin {
 	 * @param intent The intent to check
 	 */
 	public hasIntent(intent: number): boolean {
-		return (this.config.intents & intent) !== 0
+		return (this.options.intents & intent) !== 0
 	}
 }

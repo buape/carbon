@@ -32,7 +32,7 @@ export interface GatewayForwarderPluginOptions extends GatewayPluginOptions {
 export class GatewayForwarderPlugin extends GatewayPlugin {
 	override readonly id = "gateway-forwarder" as "gateway"
 
-	protected config: GatewayForwarderPluginOptions
+	readonly options: GatewayForwarderPluginOptions
 	private privateKey: ReturnType<typeof createPrivateKey>
 
 	constructor(options: GatewayForwarderPluginOptions) {
@@ -52,7 +52,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 			const message = error instanceof Error ? error.message : String(error)
 			throw new Error(`Failed to parse private key: ${message}`)
 		}
-		this.config = options
+		this.options = options
 	}
 
 	protected override setupWebSocket(): void {
@@ -66,8 +66,8 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 				if (payload.t && payload.d) {
 					if (
-						this.config.eventFilter &&
-						!this.config.eventFilter(payload.t as ListenerEventType)
+						this.options.eventFilter &&
+						!this.options.eventFilter(payload.t as ListenerEventType)
 					)
 						return
 
@@ -95,9 +95,9 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 					const signatureHex = signature.toString("hex")
 
-					const headers = new Headers(this.config.webhookHeaders)
+					const headers = new Headers(this.options.webhookHeaders)
 
-					await fetch(this.config.webhookUrl, {
+					await fetch(this.options.webhookUrl, {
 						method: "POST",
 						headers: {
 							...headers,
