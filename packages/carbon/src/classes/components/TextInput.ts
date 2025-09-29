@@ -9,7 +9,6 @@ import { parseCustomId } from "../../utils/customIdParser.js"
 
 export abstract class TextInput extends BaseModalComponent {
 	readonly type = ComponentType.TextInput as const
-	readonly isV2 = false
 
 	/**
 	 * The custom ID of the component.
