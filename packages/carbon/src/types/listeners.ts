@@ -419,14 +419,7 @@ export type ListenerEventData = {
 	[ListenerEvent.IntegrationUpdate]: GatewayIntegrationUpdateDispatchData & {
 		guild: Guild<true>
 	}
-	[ListenerEvent.InteractionCreate]: Omit<
-		GatewayInteractionCreateDispatchData,
-		"user"
-	> & {
-		guild?: Guild<true>
-		user: User
-		rawUser: GatewayInteractionCreateDispatchData["user"]
-	}
+	[ListenerEvent.InteractionCreate]: GatewayInteractionCreateDispatchData
 	[ListenerEvent.InviteCreate]: Omit<
 		GatewayInviteCreateDispatchData,
 		"inviter" | "target_user"

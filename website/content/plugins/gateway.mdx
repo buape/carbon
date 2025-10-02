@@ -62,6 +62,8 @@ When choosing your intents, think about what your bot actually needs. For exampl
 
 Once you've got the Gateway plugin set up, you'll need to create listeners to handle the events you receive. Head over to our [Listeners guide](/classes/listeners) to learn how to handle messages, member updates, and other Gateway events.
 
+Carbon also supports automatically handling interactions via the Gateway through Carbon. This is useful if you want to handle interactions in the same process as the Gateway plugin, without the HTTP interactions route. Just set the `autoInteractions` option to `true` in the Gateway plugin options:
+
 ## Scaling with Sharding
 
 When your bot joins more than 2,500 servers, Discord requires you to use sharding. But don't worry - our `ShardingPlugin` makes this super easy. Instead of managing multiple Gateway connections yourself, just swap out the `GatewayPlugin` for the `ShardingPlugin`:

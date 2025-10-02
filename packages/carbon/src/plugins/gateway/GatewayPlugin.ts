@@ -1,9 +1,11 @@
 import { EventEmitter } from "node:events"
 import type { GatewayDispatchPayload } from "discord-api-types/v10"
 import WebSocket from "ws"
+import type { BaseListener } from "../../abstracts/BaseListener.js"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
+import { InteractionEventListener } from "./InteractionEventListener.js"
 import {
 	type APIGatewayBotInfo,
 	GatewayCloseCodes,
@@ -111,6 +113,12 @@ export class GatewayPlugin extends Plugin {
 		if (this.options.shard) {
 			client.shardId = this.options.shard[0]
 			client.totalShards = this.options.shard[1]
+		}
+
+		if (this.options.autoInteractions) {
+			this.client?.listeners.push(
+				new InteractionEventListener() as BaseListener
+			)
 		}
 
 		this.connect()

@@ -43,6 +43,11 @@ export interface GatewayPluginOptions {
 	 * If this function is present, the plugin will only process events that return `true`.
 	 */
 	eventFilter?: (event: ListenerEventType) => boolean
+	/**
+	 * Whether the plugin should automatically handle interactions via the Gateway through Carbon.
+	 * @default false
+	 */
+	autoInteractions?: boolean
 }
 
 /**

@@ -911,6 +911,30 @@ export abstract class IntegrationUpdateListener extends BaseListener {
 	}
 }
 
+export abstract class InteractionCreateListener extends BaseListener {
+	readonly type = ListenerEvent.InteractionCreate
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = data.guild_id
+			? new Guild<true>(client, data.guild_id)
+			: undefined
+		const user = data.user ? new User(client, data.user) : undefined
+		return {
+			guild,
+			user,
+			rawUser: data.user,
+			...data
+		}
+	}
+}
+
 export abstract class InviteCreateListener extends BaseListener {
 	readonly type = ListenerEvent.InviteCreate
 	abstract handle(

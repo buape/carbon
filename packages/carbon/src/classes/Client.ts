@@ -327,6 +327,17 @@ export class Client {
 			return Response.json({ type: InteractionResponseType.Pong })
 		}
 
+		await this.handleInteraction(interaction, ctx)
+		return new Response("OK", { status: 202 })
+	}
+
+	/**
+	 * Handle an interaction request from Discord
+	 * @param interaction The interaction to handle
+	 * @param ctx The context for the request
+	 * @returns A response
+	 */
+	public async handleInteraction(interaction: APIInteraction, ctx: Context) {
 		if (interaction.type === InteractionType.ApplicationCommand) {
 			const promise = this.commandHandler.handleCommandInteraction(interaction)
 			if (ctx?.waitUntil) ctx.waitUntil(promise)
@@ -351,8 +362,6 @@ export class Client {
 			if (ctx?.waitUntil) ctx.waitUntil(promise)
 			else await promise
 		}
-
-		return new Response("OK", { status: 202 })
 	}
 
 	/**
