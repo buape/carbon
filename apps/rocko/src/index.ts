@@ -19,6 +19,8 @@ import EphemeralShorthandCommand from "./commands/testing/ephemeral_shorthand.js
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
+import Modal2Command from "./commands/testing/modal2.js"
+import Modal3Command from "./commands/testing/modal3.js"
 import OptionsCommand from "./commands/testing/options.js"
 import PaginatorCommand from "./commands/testing/paginator.js"
 import PermissionCommand from "./commands/testing/permissions.js"
@@ -71,6 +73,8 @@ const client = new Client(
 			new EverySelectCommand(),
 			new MessageCommand(),
 			new ModalCommand(),
+			new Modal2Command(),
+			new Modal3Command(),
 			new OptionsCommand(),
 			new PermissionCommand(),
 			new SubcommandsCommand(),

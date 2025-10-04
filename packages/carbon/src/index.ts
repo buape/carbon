@@ -41,6 +41,7 @@ export * from "./classes/components/Section.js"
 export * from "./classes/components/Separator.js"
 export * from "./classes/components/File.js"
 export * from "./classes/components/Thumbnail.js"
+export * from "./classes/components/FileUpload.js"
 
 // ----- Errors -----
 export * from "./errors/BaseError.js"
