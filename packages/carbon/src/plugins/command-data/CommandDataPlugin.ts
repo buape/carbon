@@ -33,16 +33,12 @@ export class CommandDataPlugin extends Plugin {
 	public async handleFullCommandDataRequest() {
 		if (!this.client)
 			return new Response("Client not registered", { status: 500 })
-		if (this.discordCommandData)
-			return new Response(JSON.stringify(this.discordCommandData), {
-				status: 200,
-				headers: { "Content-Type": "application/json" }
-			})
+		if (this.discordCommandData) return Response.json(this.discordCommandData)
 		const commands = (await this.client.rest.get(
 			Routes.applicationCommands(this.client.options.clientId)
 		)) as APIApplicationCommand[]
 		this.discordCommandData = commands
-		return new Response(JSON.stringify(commands), { status: 200 })
+		return Response.json(commands)
 	}
 
 	public async handleCommandDataRequest() {
@@ -51,6 +47,6 @@ export class CommandDataPlugin extends Plugin {
 		const commands = this.client?.commands
 			.filter((c) => c.name !== "*")
 			.map((c) => c.serialize())
-		return new Response(JSON.stringify(commands), { status: 200 })
+		return Response.json(commands)
 	}
 }
