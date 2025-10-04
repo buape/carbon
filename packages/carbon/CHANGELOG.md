@@ -1,5 +1,16 @@
 # @buape/carbon
 
+## 0.13.0
+
+### Minor Changes
+
+- 515dd10: feat: add option to gateway plugin to automatically listen to gateway interactionCreate events
+- 67fe8f5: feat: make gateway plugin options accessible to the user
+
+### Patch Changes
+
+- b258984: fix: incorrect content type for commands route from command data plugin
+
 ## 0.12.0
 
 ### Minor Changes
