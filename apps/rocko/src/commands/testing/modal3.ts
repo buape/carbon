@@ -24,8 +24,8 @@ class TestModal extends Modal {
 	components = [new FileUploadLabel(), new FileUploadMultipleLabel()]
 
 	async run(interaction: ModalInteraction) {
-		const singleFile = interaction.fields.getFileUpload("file", true)
-		const multipleFiles = interaction.fields.getFileUpload("files", true)
+		const singleFile = interaction.fields.getFile("file", true)
+		const multipleFiles = interaction.fields.getFile("files", true)
 
 		await interaction.reply(
 			`You selected:\n- Single File: ${singleFile[0].url}\n- Multiple Files: ${multipleFiles.map((file) => file.url).join(", ")}	`

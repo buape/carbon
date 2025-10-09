@@ -4,7 +4,8 @@ import {
 } from "../../abstracts/BaseModalComponent.js"
 
 export abstract class FileUpload extends BaseModalComponent {
-	readonly type = 18 // ComponentType.FileUpload
+	// @ts-expect-error - Unreleased component type
+	readonly type = 19 // ComponentType.FileUpload
 
 	abstract customId: string
 	/**
@@ -28,10 +29,10 @@ export abstract class FileUpload extends BaseModalComponent {
 			type: this.type,
 			custom_id: this.customId
 		}
-		if (this.id) data.id = this.id
-		if (this.minValues) data.min_values = this.minValues
-		if (this.maxValues) data.max_values = this.maxValues
-		if (this.required) data.required = this.required
+		if (this.id !== undefined) data.id = this.id
+		if (this.minValues !== undefined) data.min_values = this.minValues
+		if (this.maxValues !== undefined) data.max_values = this.maxValues
+		if (this.required !== undefined) data.required = this.required
 		return data
 	}
 }

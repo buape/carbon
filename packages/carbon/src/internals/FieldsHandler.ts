@@ -187,12 +187,9 @@ export class FieldsHandler extends Base {
 		return result
 	}
 
-	public getFileUpload(
-		key: string,
-		required?: false
-	): ResolvedFile[] | undefined
-	public getFileUpload(key: string, required: true): ResolvedFile[]
-	public getFileUpload(key: string, required = false) {
+	public getFile(key: string, required?: false): ResolvedFile[] | undefined
+	public getFile(key: string, required: true): ResolvedFile[]
+	public getFile(key: string, required = false) {
 		const value = this.rawData[key]
 		if (!value || !Array.isArray(value)) {
 			if (required) throw new Error(`Missing required field: ${key}`)

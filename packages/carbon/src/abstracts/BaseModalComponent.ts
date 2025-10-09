@@ -6,7 +6,7 @@ import type {
 import { BaseComponent } from "./BaseComponent.js"
 
 export type APIFileUploadComponent = {
-	type: 18
+	type: 19
 	id?: number
 	custom_id: string
 	min_values?: number
