@@ -99,7 +99,7 @@ export class GuildThreadChannel<
 	/**
 	 * The tags applied to the thread.
 	 */
-	get appliedTags(): IfPartial<IsPartial, string[]> {
+	get appliedTags(): IfPartial<IsPartial, string[] | undefined> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.applied_tags
 	}

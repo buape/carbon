@@ -57,6 +57,7 @@ import {
 	type GatewayMessageReactionRemoveEmojiDispatchData,
 	type GatewayMessageUpdateDispatchData,
 	type GatewayPresenceUpdateDispatchData,
+	type GatewayRateLimitedDispatchData,
 	type GatewayReadyDispatchData,
 	type GatewayResumedDispatch,
 	type GatewayStageInstanceCreateDispatchData,
@@ -167,6 +168,7 @@ export type ListenerEventRawData = {
 	[ListenerEvent.MessageReactionRemoveEmoji]: GatewayMessageReactionRemoveEmojiDispatchData
 	[ListenerEvent.MessageUpdate]: GatewayMessageUpdateDispatchData
 	[ListenerEvent.PresenceUpdate]: GatewayPresenceUpdateDispatchData
+	[ListenerEvent.RateLimited]: GatewayRateLimitedDispatchData
 	[ListenerEvent.Ready]: GatewayReadyDispatchData
 	[ListenerEvent.Resumed]: GatewayResumedDispatch["d"]
 	[ListenerEvent.StageInstanceCreate]: GatewayStageInstanceCreateDispatchData
@@ -178,8 +180,8 @@ export type ListenerEventRawData = {
 	[ListenerEvent.ThreadCreate]: GatewayThreadCreateDispatchData
 	[ListenerEvent.ThreadDelete]: GatewayThreadDeleteDispatchData
 	[ListenerEvent.ThreadListSync]: GatewayThreadListSyncDispatchData
-	[ListenerEvent.ThreadMemberUpdate]: GatewayThreadMemberUpdateDispatchData
 	[ListenerEvent.ThreadMembersUpdate]: GatewayThreadMembersUpdateDispatchData
+	[ListenerEvent.ThreadMemberUpdate]: GatewayThreadMemberUpdateDispatchData
 	[ListenerEvent.ThreadUpdate]: GatewayThreadUpdateDispatchData
 	[ListenerEvent.TypingStart]: GatewayTypingStartDispatchData
 	[ListenerEvent.UserUpdate]: GatewayUserUpdateDispatchData
@@ -498,6 +500,7 @@ export type ListenerEventData = {
 		guild: Guild<true>
 		user: User<true>
 	}
+	[ListenerEvent.RateLimited]: GatewayRateLimitedDispatchData
 	[ListenerEvent.Ready]: Omit<GatewayReadyDispatchData, "user"> & {
 		user: User
 		rawUser: GatewayReadyDispatchData["user"]
