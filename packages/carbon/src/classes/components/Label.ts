@@ -1,11 +1,11 @@
 import { type APILabelComponent, ComponentType } from "discord-api-types/v10"
 import type { AnySelectMenu } from "../../abstracts/AnySelectMenu.js"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
+import type { FileUpload } from "./FileUpload.js"
 import type { TextInput } from "./TextInput.js"
 
 export abstract class Label extends BaseModalComponent {
 	readonly type = ComponentType.Label
-	readonly isV2 = false
 
 	/**
 	 * The label text
@@ -20,14 +20,14 @@ export abstract class Label extends BaseModalComponent {
 	/**
 	 * The component within this label (TextInput or StringSelectMenu)
 	 */
-	component?: TextInput | AnySelectMenu
+	component?: TextInput | AnySelectMenu | FileUpload
 
 	/**
 	 * The custom ID of the label - required by BaseModalComponent
 	 */
 	customId = "label"
 
-	constructor(component?: TextInput | AnySelectMenu) {
+	constructor(component?: TextInput | AnySelectMenu | FileUpload) {
 		super()
 		if (component) {
 			this.component = component
@@ -44,6 +44,7 @@ export abstract class Label extends BaseModalComponent {
 			type: this.type,
 			label: this.label,
 			description: this.description,
+			// @ts-expect-error - Unreleased component type
 			component: this.component.serialize()
 		}
 	}

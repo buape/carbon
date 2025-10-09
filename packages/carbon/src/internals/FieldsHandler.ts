@@ -5,6 +5,7 @@ import {
 	type APIModalSubmitInteraction,
 	type AnyChannel,
 	type Client,
+	type ResolvedFile,
 	Role,
 	User
 } from "../index.js"
@@ -184,5 +185,22 @@ export class FieldsHandler extends Base {
 			)
 		}
 		return result
+	}
+
+	public getFile(key: string, required?: false): ResolvedFile[] | undefined
+	public getFile(key: string, required: true): ResolvedFile[]
+	public getFile(key: string, required = false) {
+		const value = this.rawData[key]
+		if (!value || !Array.isArray(value)) {
+			if (required) throw new Error(`Missing required field: ${key}`)
+			return undefined
+		}
+		const resolved = value.map((id) => this.resolved.attachments?.[id])
+		if (!resolved.every((attachment) => attachment !== undefined)) {
+			throw new Error(
+				`Discord failed to resolve all attachments for ${key}, this is a bug.`
+			)
+		}
+		return resolved.filter((attachment) => attachment !== undefined)
 	}
 }
