@@ -1,0 +1,378 @@
+---
+title: Multi-App
+description: How to use the ApplicationManager to host multiple Discord bots from a single Carbon instance.
+icon: Grid3X3
+---
+
+Sometimes you need to run multiple Discord bots from a single codebase - maybe you're building a bot-as-a-service platform, managing multiple brands with different bots, or running development and production bots side-by-side. The ApplicationManager makes this easy by routing requests to the correct bot based on the client ID in the URL path.
+
+## The Problem It Solves
+
+Normally, each Carbon `Client` instance is tied to a single Discord application with one client ID, public key, and bot token. If you wanted to run multiple bots, you'd need to:
+
+- Deploy separate instances for each bot
+- Manage different ports or subdomains for each bot
+- Duplicate your configuration and infrastructure
+
+The ApplicationManager eliminates all of this by acting as a smart proxy that routes incoming requests to the appropriate bot based on the URL path.
+
+## How It Works
+
+The ApplicationManager creates multiple `Client` instances internally - one for each bot you want to host. When Discord sends a request to your server, the ApplicationManager looks at the URL path to determine which bot should handle it:
+
+```
+https://your-bot.com/123456789/interactions  → Bot with client ID 123456789
+https://your-bot.com/987654321/interactions  → Bot with client ID 987654321
+https://your-bot.com/123456789/events        → Bot with client ID 123456789
+```
+
+All routes are automatically proxied this way, including `/interactions`, `/events`, and any custom routes your plugins might add.
+
+## Basic Setup
+
+Here's how to set up the ApplicationManager with multiple bots:
+
+```typescript title="src/index.ts"
+import { ApplicationManager } from "@buape/carbon"
+
+const manager = new ApplicationManager({
+	sharedOptions: {
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		// Any other options that are shared across all bots
+		autoDeploy: false,
+		devGuilds: process.env.DEV_MODE ? ["1234567890"] : undefined
+	},
+	applications: [
+		{
+			clientId: "123456789012345678",
+			publicKey: "your_public_key_1",
+			token: process.env.BOT_TOKEN_1
+		},
+		{
+			clientId: "987654321098765432",
+			publicKey: "your_public_key_2",
+			token: process.env.BOT_TOKEN_2
+		}
+	]
+})
+```
+
+The configuration is split into two parts:
+
+- **sharedOptions**: Settings that apply to all bots (like `baseUrl`, `deploySecret`, etc.). These are the same options you'd pass to a regular `Client`, minus the bot-specific credentials.
+- **applications**: An array of bot credentials - each entry needs a `clientId`, `publicKey`, and `token`.
+
+## Setting Up Your Discord Application URLs
+
+When configuring your Discord applications in the [Discord Developer Portal](https://discord.com/developers/applications), you'll need to update the interaction and webhook URLs to include the client ID:
+
+For each application:
+1. Go to the application's settings
+2. Navigate to "General Information" or "Interactions"
+3. Set your URLs like this:
+   - Interactions Endpoint URL: `https://example.com/{CLIENT_ID}/interactions`
+   - Webhook URL (if using Gateway Forwarder): `https://example.com/{CLIENT_ID}/events`
+
+Replace `{CLIENT_ID}` with your actual application's client ID.
+
+## Dynamic Application Loading
+
+For advanced use cases like bot-as-a-service platforms, you may need to load bot credentials dynamically from a database instead of hardcoding them. The ApplicationManager is designed to support this through class extension and method overriding.
+
+### Extending ApplicationManager
+
+Extend the `ApplicationManager` class and override the `getClient`, `getAllClients`, and `getClientIds` methods. The ApplicationManager provides a `setupClient()` helper that you call with credentials to create a configured client:
+
+```typescript title="src/DatabaseApplicationManager.ts"
+import {
+	type ApplicationCredentials,
+	ApplicationManager,
+	type ApplicationManagerOptions
+} from "@buape/carbon"
+
+export class DatabaseApplicationManager extends ApplicationManager {
+	private db: YourDatabaseClient
+	private cache: Map<string, { credentials: ApplicationCredentials, lastFetch: number }> = new Map()
+	private cacheTimeout = 5 * 60 * 1000 // 5 minutes
+
+	constructor(
+		options: Omit<ApplicationManagerOptions, "applications">,
+		database: YourDatabaseClient
+	) {
+		// Call parent constructor without applications array
+		super({ ...options, applications: undefined })
+		this.db = database
+	}
+
+	async addApplication(credentials: ApplicationCredentials): Promise<void> {
+		// Add the credentials to the database
+		this.db.insert("bots", credentials)
+
+		// Add the credentials to the cache
+		this.cache.set(credentials.clientId, {
+			credentials,
+			lastFetch: Date.now()
+		})
+
+		// Create the client
+		this.setupClient(credentials)
+	}
+
+	async getApplication(clientId: string): Promise<ApplicationCredentials | undefined> {
+		// Check cache first
+		const cached = this.cache.get(clientId)
+		if (cached && Date.now() - cached.lastFetch < this.cacheTimeout) {
+			return cached.credentials
+		}
+
+		// Fetch from database (synchronously - should be cached/fast)
+		const credentials = await this.db.get<ApplicationCredentials>(
+			"SELECT client_id, public_key, token FROM bots WHERE client_id = ?",
+			[clientId]
+		)
+
+		if (!credentials) return undefined
+
+		// Update cache
+		this.cache.set(clientId, {
+			credentials,
+			lastFetch: Date.now()
+		})
+
+		return credentials
+	}
+
+	async getAllApplications(): Promise<ApplicationCredentials[]> {
+		// Fetch all active bots
+		const allCredentials = await this.db.query<ApplicationCredentials[]>(
+			"SELECT client_id, public_key, token FROM bots WHERE active = true"
+		)
+
+		return allCredentials
+	}
+
+	// Optional: Add cache invalidation
+	invalidateCache(clientId?: string) {
+		if (clientId) {
+			this.cache.delete(clientId)
+		} else {
+			this.cache.clear()
+		}
+	}
+}
+```
+
+### Using the Database-Backed Manager
+
+```typescript title="src/index.ts"
+import { serve } from "@buape/carbon/adapters/node"
+import { DatabaseApplicationManager } from "./DatabaseApplicationManager"
+import { db } from "./database"
+
+const manager = new DatabaseApplicationManager(
+	{
+		sharedOptions: {
+			baseUrl: process.env.BASE_URL,
+			deploySecret: process.env.DEPLOY_SECRET
+		}
+	},
+	db
+)
+
+serve(manager, 3000)
+```
+
+### Adding clients in realtime
+
+You can add clients in realtime by calling the `setupClient` method:
+
+```typescript
+manager.setupClient({
+	clientId: "123456789012345678",
+	publicKey: "key1...",
+	token: "Bot token1..."
+})
+```
+
+You can also recreate a client that already exists by passing `true` to the `recreate` parameter:
+
+```typescript
+manager.setupClient({
+	clientId: "123456789012345678",
+	publicKey: "key1...",
+	token: "Bot token1..."
+}, true)
+```
+
+## Using with Your Adapter
+
+The ApplicationManager works with any Carbon adapter. Here's an example with the Node.js adapter:
+
+```typescript title="src/index.ts"
+import { ApplicationManager } from "@buape/carbon"
+import { serve } from "@buape/carbon/adapters/node"
+
+const manager = new ApplicationManager({
+	sharedOptions: {
+		baseUrl: "https://example.com",
+		deploySecret: "your-deploy-secret"
+	},
+	applications: [
+		{
+			clientId: "123456789012345678",
+			publicKey: "key1...",
+			token: "Bot token1..."
+		},
+		{
+			clientId: "987654321098765432",
+			publicKey: "key2...",
+			token: "Bot token2..."
+		}
+	]
+})
+
+serve(manager, 3000)
+```
+
+## Shared vs. Per-App Configuration
+
+Most configuration options can be shared across all your bots:
+
+**Shared Options:**
+- `baseUrl` - Your bot's public URL
+- `deploySecret` - Secret for the deploy endpoint
+- `autoDeploy` - Whether to auto-deploy commands
+- `devGuilds` - Development guild IDs
+- `disableDeployRoute` / `disableInteractionsRoute` / `disableEventsRoute`
+- `requestOptions` - Custom request client settings
+
+**Per-Application Options:**
+- `clientId` - The Discord application's client ID (required, must be a valid snowflake)
+- `publicKey` - The application's public key for signature verification (required)
+- `token` - The bot's token (required)
+
+## Managing Commands Across Apps
+
+Each bot in your ApplicationManager is set up to be a mirror of the other bots. When registering commands and listeners, pass them through the `sharedOptions`:
+
+```typescript
+import { ApplicationManager } from "@buape/carbon"
+import { PingCommand } from "./commands/ping"
+import { MessageListener } from "./listeners/message"
+
+const manager = new ApplicationManager({
+	sharedOptions: {
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		// Commands and listeners are shared across all bots
+		commands: [new PingCommand()],
+		listeners: [new MessageListener()]
+	},
+	applications: [
+		// ... your bot credentials
+	]
+})
+```
+
+## Deploying Commands
+
+The ApplicationManager provides a global deploy endpoint at `/deploy` that deploys commands for all bots at once:
+
+```bash
+curl "https://example.com/deploy?secret=your-deploy-secret"
+```
+
+This will deploy commands for every bot and return a status report:
+
+```json
+[
+	{ "clientId": "123456789012345678", "status": "success" },
+	{ "clientId": "987654321098765432", "status": "success" }
+]
+```
+
+You can also deploy commands for individual bots using their specific deploy endpoints:
+
+```bash
+curl "https://example.com/123456789012345678/deploy?secret=your-deploy-secret"
+```
+
+## Accessing Individual Clients
+
+The ApplicationManager provides several methods to access the underlying clients:
+
+```typescript
+// Get a specific client by ID
+const client = manager.getClient("123456789012345678")
+if (client) {
+	console.log("Found bot:", client.options.clientId)
+}
+
+// Get all clients
+const allClients = manager.getAllClients()
+console.log(`Managing ${allClients.length} bots`)
+
+// Get all client IDs
+const clientIds = manager.getClientIds()
+console.log("Client IDs:", clientIds)
+```
+
+This is useful if you need to:
+- Register bot-specific commands or components
+- Access bot-specific state or handlers
+- Perform operations on individual bots
+
+## Validation and Error Handling
+
+The ApplicationManager includes built-in validation:
+
+**Client ID Validation:**
+All client IDs must be valid Discord snowflakes (17-19 digit numbers). Invalid IDs will throw an error during construction:
+
+```typescript
+// ❌ This will throw an error
+new ApplicationManager({
+	sharedOptions: { /* ... */ },
+	applications: [
+		{ clientId: "invalid", publicKey: "...", token: "..." }
+	]
+})
+// Error: Invalid client ID: invalid. Client ID must be a valid Discord snowflake (17-19 digits).
+```
+
+**Duplicate Prevention:**
+You cannot register multiple applications with the same client ID:
+
+```typescript
+// ❌ This will throw an error
+new ApplicationManager({
+	sharedOptions: { /* ... */ },
+	applications: [
+		{ clientId: "123456789012345678", publicKey: "key1", token: "token1" },
+		{ clientId: "123456789012345678", publicKey: "key2", token: "token2" }
+	]
+})
+// Error: Duplicate client ID: 123456789012345678. Each application must have a unique client ID.
+```
+
+**Request Routing:**
+If Discord sends a request to an unknown client ID, the ApplicationManager returns a 404:
+
+```
+GET https://example.com/999999999999999999/interactions
+→ 404 Not Found: No application with client ID 999999999999999999
+```
+
+## Use Cases
+
+The ApplicationManager is perfect for:
+
+**Bot-as-a-Service Platforms:**
+Run multiple customer bots from a single deployment with shared infrastructure.
+
+**Multi-Brand Bots:**
+Manage different bot brands or variants with different names and avatars but shared functionality.
+
+**Development/Production Separation:**
+Run development and production bots side-by-side from the same codebase for easier testing.

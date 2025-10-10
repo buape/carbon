@@ -91,6 +91,7 @@ export * from "./structures/User.js"
 export * from "./structures/Webhook.js"
 
 // ----- Plugins -----
+export * from "./plugins/multi-app/index.js"
 export * from "./plugins/paginator/index.js"
 
 // ----- Misc -----
