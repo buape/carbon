@@ -7,6 +7,7 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial } from "../types/index.js"
+import { type CDNUrlOptions, buildCDNUrl } from "../utils/index.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -84,12 +85,21 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
-	 * Get the URL of the role's icon
+	 * Get the URL of the role's icon with default settings (png format)
 	 */
 	get iconUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.icon) return null as never
-		return `https://cdn.discordapp.com/role-icons/${this.id}/${this.icon}.png`
+		return buildCDNUrl(`https://cdn.discordapp.com/role-icons/${this.id}`, this.icon) as never
+	}
+
+	/**
+	 * Get the URL of the role's icon with custom format and size options
+	 * @param options Optional format and size parameters
+	 * @returns The icon URL or null if no icon is set
+	 */
+	getIconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
+		if (!this._rawData) return undefined as never
+		return buildCDNUrl(`https://cdn.discordapp.com/role-icons/${this.id}`, this.icon, options) as never
 	}
 
 	/**

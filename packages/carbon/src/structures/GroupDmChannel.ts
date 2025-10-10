@@ -1,6 +1,7 @@
 import { type ChannelType, Routes } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
 import type { IfPartial } from "../types/index.js"
+import { type CDNUrlOptions, buildCDNUrl } from "../utils/index.js"
 import { Message } from "./Message.js"
 import { User } from "./User.js"
 
@@ -44,12 +45,21 @@ export class GroupDmChannel<
 	}
 
 	/**
-	 * Get the URL of the channel's icon.
+	 * Get the URL of the channel's icon with default settings (png format)
 	 */
 	get iconUrl(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		if (!this.icon) return null
-		return `https://cdn.discordapp.com/channel-icons/${this.id}/${this.icon}.png`
+		return buildCDNUrl(`https://cdn.discordapp.com/channel-icons/${this.id}`, this.icon)
+	}
+
+	/**
+	 * Get the URL of the channel's icon with custom format and size options
+	 * @param options Optional format and size parameters
+	 * @returns The icon URL or null if no icon is set
+	 */
+	getIconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
+		if (!this.rawData) return undefined as never
+		return buildCDNUrl(`https://cdn.discordapp.com/channel-icons/${this.id}`, this.icon, options)
 	}
 
 	/**
