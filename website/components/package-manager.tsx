@@ -32,7 +32,10 @@ export namespace PackageManager {
 	export function Install({
 		managers = Managers,
 		packages = []
-	}: { managers?: string[]; packages?: string[] }) {
+	}: {
+		managers?: string[]
+		packages?: string[]
+	}) {
 		const map = packages.length ? ManagerAddCommand : ManagerInstallCommand
 
 		return (
@@ -52,7 +55,11 @@ export namespace PackageManager {
 		managers = Managers,
 		scripts,
 		executor = false
-	}: { managers?: string[]; scripts: string[]; executor?: boolean }) {
+	}: {
+		managers?: string[]
+		scripts: string[]
+		executor?: boolean
+	}) {
 		const map = executor ? ManagerExecuteCommand : ManagerRunCommand
 
 		return (

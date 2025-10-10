@@ -545,7 +545,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	): Promise<GuildMember<false, IsPartial>[]> {
 		if (limit === "all") {
 			const members = []
-			let after = undefined
+			let after: string | undefined
 			let hasMore = true
 			while (hasMore) {
 				const newMembers = (await this.client.rest.get(

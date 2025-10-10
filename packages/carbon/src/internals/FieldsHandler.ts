@@ -1,9 +1,9 @@
 import { ComponentType } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import {
+	type AnyChannel,
 	type APIInteractionDataResolved,
 	type APIModalSubmitInteraction,
-	type AnyChannel,
 	type Client,
 	type ResolvedFile,
 	Role,
@@ -27,7 +27,7 @@ export class FieldsHandler extends Base {
 	constructor(client: Client, interaction: APIModalSubmitInteraction) {
 		super(client)
 		this.resolved = interaction.data.resolved ?? {}
-		interaction.data.components.map((component) => {
+		interaction.data.components.forEach((component) => {
 			if (component.type === ComponentType.Label) {
 				const subComponent = component.component
 				if (subComponent.type === ComponentType.TextInput) {

@@ -10,10 +10,6 @@ export type ShardedGatewayForwarderPluginOptions =
 
 export class ShardedGatewayForwarderPlugin extends ShardingPlugin {
 	override readonly id = "sharded-gateway-forwarder" as "sharding"
-	// biome-ignore lint/complexity/noUselessConstructor:
-	constructor(options: ShardedGatewayForwarderPluginOptions) {
-		super(options)
-	}
 
 	customGatewayPlugin = GatewayForwarderPlugin
 }

@@ -191,7 +191,7 @@ export abstract class ChannelCreateListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
 		const channel = channelFactory(client, rawChannel)!
 		return {
 			channel,
@@ -213,7 +213,7 @@ export abstract class ChannelDeleteListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
 		const channel = channelFactory(client, rawChannel)!
 		return {
 			channel,
@@ -261,7 +261,7 @@ export abstract class ChannelUpdateListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: <explanation>
+		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
 		const channel = channelFactory(client, rawChannel)!
 		return {
 			rawChannel,

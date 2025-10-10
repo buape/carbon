@@ -5,8 +5,7 @@ import { Row } from "../../classes/components/Row.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
 import type { CommandInteraction } from "../../internals/CommandInteraction.js"
 import type { ModalInteraction } from "../../internals/ModalInteraction.js"
-import type { MessagePayloadObject } from "../../types/index.js"
-import type { ComponentData } from "../../types/index.js"
+import type { ComponentData, MessagePayloadObject } from "../../types/index.js"
 import { GoToPageModal } from "./GoToPageModal.js"
 
 export class Paginator {
@@ -189,7 +188,7 @@ class DirectionButton extends Button {
 
 	async run(interaction: ButtonInteraction, data: ComponentData) {
 		const paginatorId = data.paginatorId
-		const goToPage = Number.parseInt(`${data.goToPage}`)
+		const goToPage = Number.parseInt(`${data.goToPage}`, 10)
 		const paginator = interaction.client.paginators.find(
 			(p) => p.id === paginatorId
 		)

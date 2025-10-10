@@ -1,15 +1,14 @@
 "use client"
 
-import { Box, Code, FileText, Folder, Package } from "lucide-react"
+import { Box, Code, FileText, Package } from "lucide-react"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
-	type TypeDocNode,
 	collectItemsByKind,
 	formatCommentSummary,
-	formatSummary,
 	generateApiUrl,
-	getKindString
+	getKindString,
+	type TypeDocNode
 } from "./api-constants"
 
 interface ApiDocsProps {
@@ -195,11 +194,7 @@ export function ApiDocs({
 	return <ApiItemsList items={items} />
 }
 
-function ApiItemsList({
-	items
-}: {
-	items: TypeDocNode[]
-}) {
+function ApiItemsList({ items }: { items: TypeDocNode[] }) {
 	const router = useRouter()
 
 	if (items.length === 0) {

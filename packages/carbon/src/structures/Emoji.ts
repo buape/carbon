@@ -1,5 +1,5 @@
-import { Routes } from "discord-api-types/v10"
 import type { APIApplicationEmoji, APIEmoji } from "discord-api-types/v10"
+import { Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { Role } from "./Role.js"

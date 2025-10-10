@@ -6,12 +6,10 @@ import {
 	Command,
 	type CommandInteraction,
 	CommandWithSubcommands,
-	Row
-} from "@buape/carbon"
-import {
 	Container,
 	File,
 	MediaGallery,
+	Row,
 	Section,
 	Separator,
 	TextDisplay,

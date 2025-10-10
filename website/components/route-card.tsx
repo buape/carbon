@@ -1,4 +1,3 @@
-import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 import type { ReactNode } from "react"
 
 interface RouteCardProps {

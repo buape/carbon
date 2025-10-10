@@ -8,6 +8,7 @@ import {
 import { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
 import type { ComponentData } from "../../types/index.js"
+
 abstract class BaseButton extends BaseMessageInteractiveComponent {
 	readonly type = ComponentType.Button as const
 	readonly isV2 = false

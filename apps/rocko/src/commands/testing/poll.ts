@@ -2,8 +2,7 @@ import {
 	ApplicationCommandOptionType,
 	Command,
 	type CommandInteraction,
-	type CommandOptions,
-	type MessagePayloadObject
+	type CommandOptions
 } from "@buape/carbon"
 
 export default class PollCommand extends Command {
@@ -72,7 +71,7 @@ export default class PollCommand extends Command {
 					text: questionText
 				},
 				answers: answerTexts.map((text) => ({ text })),
-				expiry: new Date().getTime() + durationHours * 60 * 60 * 1000,
+				expiry: Date.now() + durationHours * 60 * 60 * 1000,
 				allowMultiselect
 			}
 		})

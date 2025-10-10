@@ -3,10 +3,9 @@ import path from "node:path"
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/docs"
 import {
 	API_TYPES,
-	type TypeDocNode,
 	collectItemsByKind,
 	collectModulesByPath,
-	getKindString
+	type TypeDocNode
 } from "./api-constants"
 
 // Cache for the generated tree

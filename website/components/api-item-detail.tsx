@@ -2,14 +2,12 @@
 
 import { ArrowLeft, Box, Code, FileText, Package } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
-	type TypeDocNode,
 	findItemByName,
 	formatCommentSummary,
-	formatSummary,
-	getKindString
+	getKindString,
+	type TypeDocNode
 } from "./api-constants"
 
 interface ApiItemDetailProps {

@@ -72,7 +72,6 @@ export class ThreadMember extends Base {
 	 */
 	member(guildId?: string): GuildMember<false, true> | undefined {
 		if (!this._rawData?.member || !this.user) return undefined
-		// biome-ignore lint/style/noParameterAssign:
 		guildId = guildId ?? this.guildId
 		if (!guildId)
 			throw new Error("Cannot create GuildMember without a guild ID")

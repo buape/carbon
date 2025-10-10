@@ -1,7 +1,7 @@
 import { MessageFlags, TextInputStyle } from "discord-api-types/v10"
-import { Modal } from "../../classes/Modal.js"
 import { Label } from "../../classes/components/Label.js"
 import { TextInput } from "../../classes/components/TextInput.js"
+import { Modal } from "../../classes/Modal.js"
 import type { ModalInteraction } from "../../internals/ModalInteraction.js"
 import type { ComponentData } from "../../types/index.js"
 
@@ -18,7 +18,7 @@ export class GoToPageModal extends Modal {
 
 	async run(interaction: ModalInteraction, data: ComponentData) {
 		const pageInput = interaction.fields.getText("page", true)
-		const pageNumber = Number.parseInt(pageInput)
+		const pageNumber = Number.parseInt(pageInput, 10)
 		const paginatorId = data.id as string
 		const maxPages = data.max as number
 

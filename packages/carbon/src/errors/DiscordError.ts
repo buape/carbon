@@ -1,7 +1,7 @@
 import {
 	type DiscordRawError,
-	type TransformedError,
-	errorMapper
+	errorMapper,
+	type TransformedError
 } from "../functions/errorsMapper.js"
 import { BaseError } from "./BaseError.js"
 

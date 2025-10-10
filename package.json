@@ -29,7 +29,7 @@
 		"web:start": "cd website && pnpm run start"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
+		"@biomejs/biome": "2.2.5",
 		"@changesets/changelog-git": "0.2.1",
 		"@changesets/cli": "2.29.7",
 		"@net-tech-/env-cmd": "1.0.3",

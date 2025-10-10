@@ -1,5 +1,5 @@
-import { type ChannelType, Routes } from "discord-api-types/v10"
 import type { APIMessage } from "discord-api-types/v10"
+import { type ChannelType, Routes } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"

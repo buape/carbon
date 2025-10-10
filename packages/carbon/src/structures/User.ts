@@ -7,8 +7,7 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { MessagePayload } from "../types/index.js"
-import type { IfPartial } from "../types/index.js"
+import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { Message } from "./Message.js"
 

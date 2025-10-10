@@ -1,7 +1,7 @@
 import {
 	mkdirSync,
-	readFileSync,
 	readdirSync,
+	readFileSync,
 	statSync,
 	writeFileSync
 } from "node:fs"
@@ -88,7 +88,7 @@ const processFolder = (path: string, context: TemplateContext) => {
  */
 const processFile = (path: string, context: TemplateContext) => {
 	const ext = path.split(".").pop()
-	let result = undefined
+	let result: { body: string; meta: FrontMatter }
 
 	// Skip non-forwarder templates for forwarder runtime
 	if (

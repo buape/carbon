@@ -10,8 +10,7 @@ import {
 import { Guild } from "../structures/Guild.js"
 import type { GuildCategoryChannel } from "../structures/GuildCategoryChannel.js"
 import { Message } from "../structures/Message.js"
-import type { MessagePayload } from "../types/index.js"
-import type { IfPartial } from "../types/index.js"
+import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { BaseChannel } from "./BaseChannel.js"
 

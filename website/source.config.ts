@@ -1,5 +1,4 @@
 import {
-	defineCollections,
 	defineConfig,
 	defineDocs,
 	frontmatterSchema,

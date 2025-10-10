@@ -1,7 +1,6 @@
 import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
-import type { Embed } from "../classes/Embed.js"
 import type { Container } from "../classes/components/Container.js"
 import type { File } from "../classes/components/File.js"
 import type { MediaGallery } from "../classes/components/MediaGallery.js"
@@ -9,6 +8,7 @@ import type { Row } from "../classes/components/Row.js"
 import type { Section } from "../classes/components/Section.js"
 import type { Separator } from "../classes/components/Separator.js"
 import type { TextDisplay } from "../classes/components/TextDisplay.js"
+import type { Embed } from "../classes/Embed.js"
 import type { CommandInteraction } from "../internals/CommandInteraction.js"
 
 export type ComponentParserResult = {

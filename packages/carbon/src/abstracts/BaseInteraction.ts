@@ -15,14 +15,14 @@ import {
 	BaseMessageInteractiveComponent,
 	type Client,
 	Container,
+	channelFactory,
 	Embed,
 	Guild,
 	Message,
 	type Modal,
 	Row,
 	Section,
-	User,
-	channelFactory
+	User
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import type { MessagePayload, TopLevelComponents } from "../types/index.js"

@@ -1,12 +1,13 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"files": {
-		"ignore": [
-			"dist",
-			"./packages/**/package.json",
-			"./packages/**/tsconfig.json",
-			"./website/out",
-			"api.json"
+		"includes": [
+			"**",
+			"!**/dist",
+			"!packages/**/package.json",
+			"!packages/**/tsconfig.json",
+			"!website/out",
+			"!**/api.json"
 		],
 		"ignoreUnknown": true
 	},
@@ -21,9 +22,20 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"noUnusedVariables": "error",
+				"noUnusedVariables": {
+					"level": "error",
+					"options": {
+						"ignoreRestSiblings": true
+					}
+				},
 				"noConstAssign": "error",
 				"noUndeclaredVariables": "error"
+			},
+			"suspicious": {
+				"noUnknownAtRules": "off"
+			},
+			"performance": {
+				"noImgElement": "off"
 			}
 		}
 	},
