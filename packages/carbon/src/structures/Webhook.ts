@@ -1,42 +1,38 @@
 import type {
+	APIMessage,
+	APIUser,
 	APIWebhook,
 	RESTGetAPIWebhookResult,
+	RESTGetAPIWebhookWithTokenMessageResult,
 	RESTPatchAPIWebhookJSONBody,
 	RESTPatchAPIWebhookResult,
-	RESTPostAPIWebhookWithTokenResult,
 	WebhookType
 } from "discord-api-types/v10"
 import { Routes } from "discord-api-types/v10"
-import { Base } from "../abstracts/Base.js"
-import type { Client } from "../classes/Client.js"
+import { RequestClient } from "../classes/RequestClient.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
-import { Message } from "./Message.js"
-import { User } from "./User.js"
 
 export type WebhookInput =
 	| APIWebhook
 	| { id: string; token: string; threadId?: string }
 	| string
 
-export class Webhook<IsPartial extends boolean = false> extends Base {
-	constructor(client: Client, rawData: APIWebhook)
-	constructor(
-		client: Client,
-		idAndToken: {
-			id: string
-			token: string
-			threadId?: string
-		}
-	)
-	constructor(client: Client, url: string)
-	constructor(client: Client, input: WebhookInput)
-	constructor(client: Client, input: WebhookInput) {
-		super(client)
+export class Webhook<IsPartial extends boolean = false> {
+	rest: RequestClient
+	constructor(rawData: APIWebhook)
+	constructor(idAndToken: {
+		id: string
+		token: string
+		threadId?: string
+	})
+	constructor(url: string)
+	constructor(input: WebhookInput) {
+		if (!input) throw new Error(`Missing input, currently set to ${input}`)
 		if (typeof input === "string") {
 			const url = new URL(input)
 			if (url.protocol !== "https:") throw new Error("Invalid URL")
-			const [id, token] = url.pathname.split("/").slice(2)
+			const [id, token] = url.pathname.split("/").slice(3)
 			if (!id || !token) throw new Error("Invalid URL")
 			this.id = id
 			this.token = token
@@ -50,6 +46,7 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 			this.token = input.token
 			this.threadId = "threadId" in input ? input.threadId : undefined
 		}
+		this.rest = new RequestClient("webhook")
 	}
 
 	protected _rawData: APIWebhook | null = null
@@ -121,9 +118,9 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * The user this webhook was created by
 	 * Not returned when getting a webhook with its token
 	 */
-	get user(): IfPartial<IsPartial, User | undefined> {
+	get user(): IfPartial<IsPartial, APIUser | undefined> {
 		if (!this._rawData?.user) return undefined as never
-		return new User(this.client, this._rawData.user)
+		return this._rawData.user
 	}
 
 	/**
@@ -187,9 +184,40 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * The url used for executing the webhook
 	 * Only returned by the webhooks OAuth2 flow
 	 */
-	get url(): IfPartial<IsPartial, string | undefined> {
-		if (!this._rawData) return undefined as never
-		return this._rawData.url
+	get url(): string {
+		const base = `https://discord.com/api/webhooks/${this.id}/${this.token}`
+		const queryParams = new URLSearchParams()
+		if (this.threadId) queryParams.set("thread_id", this.threadId)
+		return base
+	}
+
+	urlWithOptions({
+		/**
+		 * Waits for server confirmation of message send before response, and returns the created message body
+		 */
+		wait,
+		/**
+		 * Specify the thread to use with this webhook
+		 */
+		threadId,
+		/**
+		 * Whether to respect the components field of the request. When enabled, allows application-owned webhooks to use all components and non-owned webhooks to use non-interactive components
+		 * @default false
+		 */
+		withComponents
+	}: {
+		wait?: boolean
+		threadId?: string
+		withComponents?: boolean
+	}): string {
+		let base = `/webhooks/${this.id}/${this.token}`
+		const queryParams = new URLSearchParams()
+		if (this.threadId) queryParams.set("thread_id", this.threadId)
+		if (threadId) queryParams.set("thread_id", threadId)
+		if (wait) queryParams.set("wait", "true")
+		if (withComponents) queryParams.set("with_components", "true")
+		if (queryParams.size > 0) base += `?${queryParams.toString()}`
+		return base
 	}
 
 	/**
@@ -197,7 +225,7 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to a non-partial Webhook
 	 */
 	async fetch(): Promise<Webhook<false>> {
-		const newData = (await this.client.rest.get(
+		const newData = (await this.rest.get(
 			Routes.webhook(this.id)
 		)) as RESTGetAPIWebhookResult
 		if (!newData) throw new Error(`Webhook ${this.id} not found`)
@@ -213,7 +241,7 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to the modified webhook
 	 */
 	async modify(data: RESTPatchAPIWebhookJSONBody): Promise<Webhook<false>> {
-		const newData = (await this.client.rest.patch(Routes.webhook(this.id), {
+		const newData = (await this.rest.patch(Routes.webhook(this.id), {
 			body: data
 		})) as RESTPatchAPIWebhookResult
 
@@ -227,30 +255,32 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves when the webhook is deleted
 	 */
 	async delete(): Promise<void> {
-		await this.client.rest.delete(Routes.webhook(this.id))
+		await this.rest.delete(Routes.webhook(this.id))
 	}
 
 	/**
 	 * Send a message through this webhook
 	 * @param data The data to send with the webhook
 	 * @param threadId Optional ID of the thread to send the message to. If not provided, uses the webhook's thread ID.
-	 * @returns A Promise that resolves to the created message
 	 */
-	async send(data: MessagePayload, threadId?: string): Promise<Message> {
+	async send<T extends true | false = false>(
+		data: MessagePayload,
+		threadId?: string,
+		wait?: T
+	): Promise<T extends true ? APIMessage : void> {
 		if (!this.token)
 			throw new Error("Cannot send webhook message without token")
 
 		const serialized = serializePayload(data)
 		const finalThreadId = threadId || this.threadId
-		const message = (await this.client.rest.post(
-			Routes.webhook(this.id, this.token),
+		const response = (await this.rest.post(
+			this.urlWithOptions({ wait, threadId }),
 			{
 				body: serialized
 			},
 			finalThreadId ? { thread_id: finalThreadId } : undefined
-		)) as RESTPostAPIWebhookWithTokenResult
-
-		return new Message(this.client, message)
+		)) as T extends true ? APIMessage : undefined
+		return response
 	}
 
 	/**
@@ -258,27 +288,27 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * @param messageId The ID of the message to edit
 	 * @param data The data to edit the message with
 	 * @param threadId Optional ID of the thread to edit the message in. If not provided, uses the webhook's thread ID.
-	 * @returns A Promise that resolves to the edited message
 	 */
 	async edit(
 		messageId: string,
 		data: MessagePayload,
 		threadId?: string
-	): Promise<Message> {
+	): Promise<APIMessage> {
 		if (!this.token)
 			throw new Error("Cannot edit webhook message without token")
 
 		const serialized = serializePayload(data)
 		const finalThreadId = threadId || this.threadId
-		const message = (await this.client.rest.patch(
-			Routes.webhookMessage(this.id, this.token, messageId),
+		const message = (await this.rest.patch(
+			Routes.webhookMessage(this.id, this.token, messageId) +
+				(threadId ? `?thread_id=${threadId}` : ""),
 			{
 				body: serialized
 			},
 			finalThreadId ? { thread_id: finalThreadId } : undefined
-		)) as RESTPostAPIWebhookWithTokenResult
+		)) as APIMessage
 
-		return new Message(this.client, message)
+		return message
 	}
 
 	/**
@@ -292,8 +322,9 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 			throw new Error("Cannot delete webhook message without token")
 
 		const finalThreadId = threadId || this.threadId
-		await this.client.rest.delete(
-			Routes.webhookMessage(this.id, this.token, messageId),
+		await this.rest.delete(
+			Routes.webhookMessage(this.id, this.token, messageId) +
+				(threadId ? `?thread_id=${threadId}` : ""),
 			undefined,
 			finalThreadId ? { thread_id: finalThreadId } : undefined
 		)
@@ -303,17 +334,18 @@ export class Webhook<IsPartial extends boolean = false> extends Base {
 	 * Get a message sent by this webhook
 	 * @param messageId The ID of the message to get
 	 * @param threadId Optional ID of the thread to get the message from. If not provided, uses the webhook's thread ID.
-	 * @returns A Promise that resolves to the message
+	 * @returns The raw data of the message, which you can then use to create a Message instance
 	 */
-	async getMessage(messageId: string, threadId?: string): Promise<Message> {
+	async getMessage(messageId: string, threadId?: string): Promise<APIMessage> {
 		if (!this.token) throw new Error("Cannot get webhook message without token")
 
 		const finalThreadId = threadId || this.threadId
-		const message = (await this.client.rest.get(
-			Routes.webhookMessage(this.id, this.token, messageId),
+		const message = (await this.rest.get(
+			Routes.webhookMessage(this.id, this.token, messageId) +
+				(threadId ? `?thread_id=${threadId}` : ""),
 			finalThreadId ? { thread_id: finalThreadId } : undefined
-		)) as RESTPostAPIWebhookWithTokenResult
+		)) as RESTGetAPIWebhookWithTokenMessageResult
 
-		return new Message(this.client, message)
+		return message
 	}
 }

@@ -157,9 +157,12 @@ export class RequestClient {
 					.join("&")}`
 			: ""
 		const url = `${this.options.baseUrl}${path}${queryString}`
-		const headers = new Headers({
-			Authorization: `${this.options.tokenHeader} ${this.token}`
-		})
+		const headers =
+			this.token === "webhook"
+				? new Headers()
+				: new Headers({
+						Authorization: `${this.options.tokenHeader} ${this.token}`
+					})
 
 		// Add custom headers if provided
 		if (data?.headers) {
@@ -254,6 +257,8 @@ export class RequestClient {
 			body,
 			signal: this.abortController.signal
 		})
+
+		console.log(response)
 
 		if (response.status === 429) {
 			const responseBody = await response.json()
