@@ -215,22 +215,22 @@ export class GuildScheduledEvent<
 	 * @returns A Promise that resolves to the updated scheduled event
 	 */
 	async edit(
-		data: Partial<{
-			name: string
-			description: string | null
-			scheduled_start_time: string
-			scheduled_end_time: string | null
-			privacy_level: GuildScheduledEventPrivacyLevel
-			entity_type: GuildScheduledEventEntityType
-			channel_id: string | null
-			entity_metadata: APIGuildScheduledEvent["entity_metadata"]
-			image: string | null
-		}>
+		data: Partial<GuildScheduledEventCreateData>
 	): Promise<GuildScheduledEvent<false>> {
 		const updatedData = (await this.client.rest.patch(
 			Routes.guildScheduledEvent(this.guildId, this.id),
 			{
-				body: data
+				body: {
+					name: data.name,
+					description: data.description ?? null,
+					scheduled_start_time: data.scheduledStartTime,
+					scheduled_end_time: data.scheduledEndTime ?? null,
+					privacy_level: data.privacyLevel,
+					entity_type: data.entityType,
+					channel_id: data.channelId ?? null,
+					entity_metadata: data.entityMetadata,
+					image: data.image ?? null
+				}
 			}
 		)) as APIGuildScheduledEvent
 

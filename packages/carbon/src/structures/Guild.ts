@@ -680,9 +680,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	): Promise<GuildScheduledEvent<false>[]> {
 		const scheduledEvents = (await this.client.rest.get(
 			Routes.guildScheduledEvents(this.id),
-			{
-				withUserCount: withUserCount.toString()
-			}
+			withUserCount ? { with_user_count: "true" } : undefined
 		)) as APIGuildScheduledEvent[]
 
 		return scheduledEvents.map(
@@ -703,9 +701,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		try {
 			const scheduledEvent = (await this.client.rest.get(
 				Routes.guildScheduledEvent(this.id, eventId),
-				{
-					withUserCount: withUserCount.toString()
-				}
+				withUserCount ? { with_user_count: "true" } : undefined
 			)) as APIGuildScheduledEvent
 
 			return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
