@@ -2,7 +2,7 @@ import type { DocsLayoutProps } from "fumadocs-ui/layouts/docs"
 import type { HomeLayoutProps } from "fumadocs-ui/layouts/home"
 import { ArrowLeft, Book, Heart, LayoutTemplateIcon } from "lucide-react"
 import Image from "next/image"
-import { utils } from "~/app/source"
+import { source } from "~/app/source"
 
 export const baseLinks = [
 	{
@@ -60,7 +60,7 @@ export const baseOptions: HomeLayoutProps = {
 
 export const docsOptions: DocsLayoutProps = {
 	...baseOptions,
-	tree: utils.pageTree,
+	tree: source.pageTree,
 	nav: {
 		...baseOptions.nav,
 		transparentMode: "none",

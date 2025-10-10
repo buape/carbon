@@ -9,10 +9,9 @@ import {
 } from "fumadocs-ui/page"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { utils } from "~/app/source"
+import { getPageImage, source } from "~/app/source"
 import { useMDXComponents } from "~/components/mdx-components"
 import { docsOptions } from "../layout.config"
-import { metadataImage } from "../og/[...slug]/metadata"
 
 type Props = {
 	params: Promise<{
@@ -21,7 +20,7 @@ type Props = {
 }
 
 export default async function Page({ params }: Props) {
-	const page = utils.getPage((await params).slug)
+	const page = source.getPage((await params).slug)
 
 	if (!page) notFound()
 
@@ -47,13 +46,14 @@ export default async function Page({ params }: Props) {
 					<page.data.body components={useMDXComponents()} />
 					{page.data.index ? (
 						<Cards>
-							{getPageTreePeers(utils.pageTree, `/${page.slugs.join("/")}`).map(
-								(peer) => (
-									<Card key={peer.url} title={peer.name} href={peer.url}>
-										{peer.description}
-									</Card>
-								)
-							)}
+							{getPageTreePeers(
+								source.pageTree,
+								`/${page.slugs.join("/")}`
+							).map((peer) => (
+								<Card key={peer.url} title={peer.name} href={peer.url}>
+									{peer.description}
+								</Card>
+							))}
 						</Cards>
 					) : null}
 				</DocsBody>
@@ -63,13 +63,13 @@ export default async function Page({ params }: Props) {
 }
 
 export function generateStaticParams() {
-	return utils.getPages().map((page) => ({
+	return source.getPages().map((page) => ({
 		slug: page.slugs
 	}))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-	const page = utils.getPage((await params).slug)
+	const page = source.getPage((await params).slug)
 
 	if (!page) notFound()
 
@@ -77,8 +77,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		page.data.description ??
 		"A modern and powerful framework for building HTTP Discord bots"
 
-	return metadataImage.withImage(page.slugs, {
+	return {
 		title: page.data.title,
-		description
-	})
+		description,
+		openGraph: {
+			images: getPageImage(page).url
+		}
+	}
 }

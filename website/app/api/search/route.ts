@@ -1,4 +1,4 @@
 import { createFromSource } from "fumadocs-core/search/server"
-import { utils } from "~/app/source"
+import { source } from "~/app/source"
 
-export const { GET } = createFromSource(utils)
+export const { GET } = createFromSource(source)

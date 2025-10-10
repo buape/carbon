@@ -16,7 +16,7 @@
 		"@t3-oss/env-nextjs": "0.13.8",
 		"fast-glob": "3.3.3",
 		"fumadocs-core": "15.8.5",
-		"fumadocs-mdx": "11.10.1",
+		"fumadocs-mdx": "12.0.3",
 		"fumadocs-typescript": "4.0.11",
 		"fumadocs-ui": "15.8.5",
 		"gray-matter": "4.0.3",

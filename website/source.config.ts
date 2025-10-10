@@ -1,20 +1,16 @@
 import {
 	defineConfig,
 	defineDocs,
-	frontmatterSchema,
-	metaSchema
+	frontmatterSchema
 } from "fumadocs-mdx/config"
 import { z } from "zod"
 
-export const { docs, meta } = defineDocs({
+export const docs = defineDocs({
 	dir: "content",
 	docs: {
 		schema: frontmatterSchema.extend({
 			index: z.boolean().default(false)
 		})
-	},
-	meta: {
-		schema: metaSchema
 	}
 })
 
