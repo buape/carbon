@@ -217,21 +217,23 @@ export class GuildScheduledEvent<
 	async edit(
 		data: Partial<GuildScheduledEventCreateData>
 	): Promise<GuildScheduledEvent<false>> {
+		const body: Record<string, unknown> = {}
+		if (data.name !== undefined) body.name = data.name
+		if (data.description !== undefined) body.description = data.description
+		if (data.scheduledStartTime !== undefined)
+			body.scheduled_start_time = data.scheduledStartTime
+		if (data.scheduledEndTime !== undefined)
+			body.scheduled_end_time = data.scheduledEndTime
+		if (data.privacyLevel !== undefined) body.privacy_level = data.privacyLevel
+		if (data.entityType !== undefined) body.entity_type = data.entityType
+		if (data.channelId !== undefined) body.channel_id = data.channelId
+		if (data.entityMetadata !== undefined)
+			body.entity_metadata = data.entityMetadata
+		if (data.image !== undefined) body.image = data.image
+
 		const updatedData = (await this.client.rest.patch(
 			Routes.guildScheduledEvent(this.guildId, this.id),
-			{
-				body: {
-					name: data.name,
-					description: data.description ?? null,
-					scheduled_start_time: data.scheduledStartTime,
-					scheduled_end_time: data.scheduledEndTime ?? null,
-					privacy_level: data.privacyLevel,
-					entity_type: data.entityType,
-					channel_id: data.channelId ?? null,
-					entity_metadata: data.entityMetadata,
-					image: data.image ?? null
-				}
-			}
+			{ body }
 		)) as APIGuildScheduledEvent
 
 		this.setData(updatedData)

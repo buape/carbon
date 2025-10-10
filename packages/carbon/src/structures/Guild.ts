@@ -749,25 +749,25 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async editScheduledEvent(
 		eventId: string,
-		data: Partial<{
-			name: string
-			description: string | null
-			scheduled_start_time: string
-			scheduled_end_time: string | null
-			privacy_level: GuildScheduledEventPrivacyLevel
-			entity_type: GuildScheduledEventEntityType
-			channel_id: string | null
-			entity_metadata: {
-				location?: string
-			}
-			image: string | null
-		}>
+		data: Partial<GuildScheduledEventCreateData>
 	): Promise<GuildScheduledEvent<false>> {
+		const body: Record<string, unknown> = {}
+		if (data.name !== undefined) body.name = data.name
+		if (data.description !== undefined) body.description = data.description
+		if (data.scheduledStartTime !== undefined)
+			body.scheduled_start_time = data.scheduledStartTime
+		if (data.scheduledEndTime !== undefined)
+			body.scheduled_end_time = data.scheduledEndTime
+		if (data.privacyLevel !== undefined) body.privacy_level = data.privacyLevel
+		if (data.entityType !== undefined) body.entity_type = data.entityType
+		if (data.channelId !== undefined) body.channel_id = data.channelId
+		if (data.entityMetadata !== undefined)
+			body.entity_metadata = data.entityMetadata
+		if (data.image !== undefined) body.image = data.image
+
 		const scheduledEvent = (await this.client.rest.patch(
 			Routes.guildScheduledEvent(this.id, eventId),
-			{
-				body: data
-			}
+			{ body }
 		)) as APIGuildScheduledEvent
 
 		return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
