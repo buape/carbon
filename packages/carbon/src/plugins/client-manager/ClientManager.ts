@@ -67,10 +67,10 @@ export class ClientManager {
 		"clientId" | "publicKey" | "token"
 	>
 
-	private clients: Map<string, Client> = new Map()
-	private staticApplications: ApplicationCredentials[]
-	private initialHandlers: ConstructorParameters<typeof Client>[1]
-	private initialPlugins: ConstructorParameters<typeof Client>[2]
+	protected clients: Map<string, Client> = new Map()
+	protected staticApplications: ApplicationCredentials[]
+	protected initialHandlers: ConstructorParameters<typeof Client>[1]
+	protected initialPlugins: ConstructorParameters<typeof Client>[2]
 
 	/**
 	 * Creates a new ClientManager
