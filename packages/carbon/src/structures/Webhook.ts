@@ -11,7 +11,7 @@ import type {
 import { Routes } from "discord-api-types/v10"
 import { RequestClient } from "../classes/RequestClient.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { type CDNUrlOptions, buildCDNUrl, serializePayload } from "../utils/index.js"
+import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
 
 export type WebhookInput =
 	| APIWebhook

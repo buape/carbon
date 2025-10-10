@@ -8,7 +8,7 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { type CDNUrlOptions, buildCDNUrl, serializePayload } from "../utils/index.js"
+import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
