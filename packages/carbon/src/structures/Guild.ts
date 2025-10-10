@@ -3,6 +3,7 @@ import {
 	type APIEmoji,
 	type APIGuild,
 	type APIGuildMember,
+	type APIGuildScheduledEvent,
 	type APIGuildWelcomeScreen,
 	type APIIncidentsData,
 	type APIRole,
@@ -14,6 +15,8 @@ import {
 	type GuildMFALevel,
 	type GuildNSFWLevel,
 	type GuildPremiumTier,
+	type GuildScheduledEventEntityType,
+	type GuildScheduledEventPrivacyLevel,
 	type GuildSystemChannelFlags,
 	type GuildVerificationLevel,
 	type RESTPostAPIGuildRoleJSONBody,
@@ -26,6 +29,10 @@ import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
 import { GuildEmoji } from "./Emoji.js"
 import { GuildMember } from "./GuildMember.js"
+import {
+	GuildScheduledEvent,
+	type GuildScheduledEventCreateData
+} from "./GuildScheduledEvent.js"
 import { Role } from "./Role.js"
 
 export class Guild<IsPartial extends boolean = false> extends Base {
@@ -661,5 +668,120 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	public async deleteEmoji(id: string) {
 		await this.client.rest.delete(Routes.guildEmoji(this.id, id))
+	}
+
+	/**
+	 * Fetch all scheduled events for the guild
+	 * @param withUserCount Whether to include the user count in the response
+	 * @returns A Promise that resolves to an array of GuildScheduledEvent objects
+	 */
+	async fetchScheduledEvents(
+		withUserCount = false
+	): Promise<GuildScheduledEvent<false>[]> {
+		const scheduledEvents = (await this.client.rest.get(
+			Routes.guildScheduledEvents(this.id),
+			{
+				withUserCount: withUserCount.toString()
+			}
+		)) as APIGuildScheduledEvent[]
+
+		return scheduledEvents.map(
+			(event) => new GuildScheduledEvent(this.client, event, this.id)
+		)
+	}
+
+	/**
+	 * Fetch a specific scheduled event by ID
+	 * @param eventId The ID of the scheduled event to fetch
+	 * @param withUserCount Whether to include the user count in the response
+	 * @returns A Promise that resolves to a GuildScheduledEvent or null if not found
+	 */
+	async fetchScheduledEvent(
+		eventId: string,
+		withUserCount = false
+	): Promise<GuildScheduledEvent<false> | null> {
+		try {
+			const scheduledEvent = (await this.client.rest.get(
+				Routes.guildScheduledEvent(this.id, eventId),
+				{
+					withUserCount: withUserCount.toString()
+				}
+			)) as APIGuildScheduledEvent
+
+			return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
+		} catch (e) {
+			if (e instanceof DiscordError) {
+				if (e.status === 404) return null
+			}
+			throw e
+		}
+	}
+
+	/**
+	 * Create a new scheduled event
+	 * @param data The data for the scheduled event
+	 * @returns A Promise that resolves to the created GuildScheduledEvent
+	 */
+	async createScheduledEvent(
+		data: GuildScheduledEventCreateData
+	): Promise<GuildScheduledEvent<false>> {
+		const scheduledEvent = (await this.client.rest.post(
+			Routes.guildScheduledEvents(this.id),
+			{
+				body: {
+					name: data.name,
+					description: data.description ?? null,
+					scheduled_start_time: data.scheduledStartTime,
+					scheduled_end_time: data.scheduledEndTime ?? null,
+					privacy_level: data.privacyLevel,
+					entity_type: data.entityType,
+					channel_id: data.channelId ?? null,
+					entity_metadata: data.entityMetadata,
+					image: data.image ?? null
+				}
+			}
+		)) as APIGuildScheduledEvent
+
+		return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
+	}
+
+	/**
+	 * Edit a scheduled event
+	 * @param eventId The ID of the scheduled event to edit
+	 * @param data The data to update the scheduled event with
+	 * @returns A Promise that resolves to the updated GuildScheduledEvent
+	 */
+	async editScheduledEvent(
+		eventId: string,
+		data: Partial<{
+			name: string
+			description: string | null
+			scheduled_start_time: string
+			scheduled_end_time: string | null
+			privacy_level: GuildScheduledEventPrivacyLevel
+			entity_type: GuildScheduledEventEntityType
+			channel_id: string | null
+			entity_metadata: {
+				location?: string
+			}
+			image: string | null
+		}>
+	): Promise<GuildScheduledEvent<false>> {
+		const scheduledEvent = (await this.client.rest.patch(
+			Routes.guildScheduledEvent(this.id, eventId),
+			{
+				body: data
+			}
+		)) as APIGuildScheduledEvent
+
+		return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
+	}
+
+	/**
+	 * Delete a scheduled event
+	 * @param eventId The ID of the scheduled event to delete
+	 */
+	async deleteScheduledEvent(eventId: string): Promise<void> {
+		await this.client.rest.delete(Routes.guildScheduledEvent(this.id, eventId))
 	}
 }

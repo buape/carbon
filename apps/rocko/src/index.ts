@@ -26,6 +26,7 @@ import PaginatorCommand from "./commands/testing/paginator.js"
 import PermissionCommand from "./commands/testing/permissions.js"
 import PollCommand from "./commands/testing/poll.js"
 import PrecheckCommand from "./commands/testing/precheck.js"
+import ScheduledEventCommand from "./commands/testing/scheduled_events.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
 import SubcommandGroupsCommand from "./commands/testing/subcommandgroup.js"
 import UserCommand from "./commands/testing/user_command.js"
@@ -88,7 +89,8 @@ const client = new Client(
 			new PollCommand(),
 			new AskCommand(),
 			new EmojiCommand(),
-			new EphemeralShorthandCommand()
+			new EphemeralShorthandCommand(),
+			new ScheduledEventCommand()
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
