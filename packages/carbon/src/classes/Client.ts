@@ -502,7 +502,7 @@ export class Client {
 	 * @returns The webhook data
 	 */
 	async fetchWebhook(input: WebhookInput) {
-		const webhook = new Webhook(this, input)
+		const webhook = new Webhook(input)
 		return webhook.fetch()
 	}
 

@@ -27,6 +27,7 @@ export class Webhook<IsPartial extends boolean = false> {
 		threadId?: string
 	})
 	constructor(url: string)
+	constructor(input: WebhookInput)
 	constructor(input: WebhookInput) {
 		if (!input) throw new Error(`Missing input, currently set to ${input}`)
 		if (typeof input === "string") {
