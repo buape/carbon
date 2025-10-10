@@ -11,7 +11,7 @@ import type {
 import { Routes } from "discord-api-types/v10"
 import { RequestClient } from "../classes/RequestClient.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils/index.js"
+import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
 
 export type WebhookInput =
 	| APIWebhook
@@ -142,11 +142,12 @@ export class Webhook<IsPartial extends boolean = false> {
 
 	/**
 	 * Get the URL of the webhook's avatar
+	 * @param options - Optional format and size parameters
+	 * @returns The avatar URL, or null if no avatar is set
 	 */
-	get avatarUrl(): IfPartial<IsPartial, string | null> {
+	avatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.avatar) return null
-		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
+		return buildCDNUrl("avatars", this.id, this.avatar, options)
 	}
 
 	/**

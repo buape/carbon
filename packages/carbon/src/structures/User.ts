@@ -8,7 +8,7 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils/index.js"
+import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
@@ -121,11 +121,17 @@ export class User<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the user's avatar
+	 * @param options - Optional format and size parameters
+	 * @returns The avatar URL, or null if no avatar is set
+	 * @example
+	 * ```ts
+	 * user.avatarUrl() // Default PNG format
+	 * user.avatarUrl({ format: "webp", size: 1024 }) // WebP format at 1024x1024
+	 * ```
 	 */
-	get avatarUrl(): IfPartial<IsPartial, string | null> {
+	avatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.avatar) return null
-		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
+		return buildCDNUrl("avatars", this.id, this.avatar, options)
 	}
 
 	/**
@@ -139,11 +145,17 @@ export class User<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the user's banner
+	 * @param options - Optional format and size parameters
+	 * @returns The banner URL, or null if no banner is set
+	 * @example
+	 * ```ts
+	 * user.bannerUrl() // Default PNG format
+	 * user.bannerUrl({ format: "webp", size: 2048 }) // WebP format at 2048x2048
+	 * ```
 	 */
-	get bannerUrl(): IfPartial<IsPartial, string | null> {
+	bannerUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.banner) return null
-		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
+		return buildCDNUrl("banners", this.id, this.banner, options)
 	}
 
 	/**

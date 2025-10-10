@@ -8,6 +8,7 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { maxPermissions } from "../permissions.js"
 import type { IfPartial, VoiceState } from "../types/index.js"
+import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
@@ -80,11 +81,13 @@ export class GuildMember<
 
 	/**
 	 * Get the URL of the member's guild-specific avatar
+	 * @param options - Optional format and size parameters
+	 * @returns The avatar URL, or null if no guild-specific avatar is set
 	 */
-	get avatarUrl(): IfPartial<IsPartial, string | null> {
+	avatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.user || !this.avatar) return null
-		return `https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}/${this.avatar}.png`
+		if (!this.user) return null
+		return buildCDNUrl(`guilds/${this.guild.id}/users`, this.user.id, this.avatar, options)
 	}
 
 	/**

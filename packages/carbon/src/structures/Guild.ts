@@ -24,6 +24,7 @@ import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { IfPartial } from "../types/index.js"
+import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import { GuildEmoji } from "./Emoji.js"
 import { GuildMember } from "./GuildMember.js"
 import { Role } from "./Role.js"
@@ -106,11 +107,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the guild's icon
+	 * @param options - Optional format and size parameters
+	 * @returns The icon URL, or null if no icon is set
 	 */
-	get iconUrl(): IfPartial<IsPartial, string | null> {
+	iconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.icon) return null
-		return `https://cdn.discordapp.com/icons/${this.id}/${this.icon}.png`
+		return buildCDNUrl("icons", this.id, this.icon, options)
 	}
 
 	/**
@@ -124,11 +126,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the guild's splash
+	 * @param options - Optional format and size parameters
+	 * @returns The splash URL, or null if no splash is set
 	 */
-	get splashUrl(): IfPartial<IsPartial, string | null> {
+	splashUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.splash) return null
-		return `https://cdn.discordapp.com/splashes/${this.id}/${this.splash}.png`
+		return buildCDNUrl("splashes", this.id, this.splash, options)
 	}
 
 	/**
@@ -168,11 +171,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the guild's discovery splash
+	 * @param options - Optional format and size parameters
+	 * @returns The discovery splash URL, or null if no discovery splash is set
 	 */
-	get discoverySplashUrl(): IfPartial<IsPartial, string | null> {
+	discoverySplashUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.discoverySplash) return null
-		return `https://cdn.discordapp.com/discovery-splashes/${this.id}/${this.discoverySplash}.png`
+		return buildCDNUrl("discovery-splashes", this.id, this.discoverySplash, options)
 	}
 
 	/**
@@ -346,11 +350,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Get the URL of the guild's banner
+	 * @param options - Optional format and size parameters
+	 * @returns The banner URL, or null if no banner is set
 	 */
-	get bannerUrl(): IfPartial<IsPartial, string | null> {
+	bannerUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.banner) return null
-		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
+		return buildCDNUrl("banners", this.id, this.banner, options)
 	}
 
 	/**

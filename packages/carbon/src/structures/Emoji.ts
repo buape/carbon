@@ -2,6 +2,7 @@ import type { APIApplicationEmoji, APIEmoji } from "discord-api-types/v10"
 import { Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import type { Role } from "./Role.js"
 import { User } from "./User.js"
 
@@ -68,6 +69,26 @@ export abstract class BaseEmoji<T extends APIEmoji = APIEmoji> extends Base {
 	 */
 	get available() {
 		return this._rawData.available
+	}
+
+	/**
+	 * Get the URL of the emoji image
+	 * @param options - Optional format and size parameters
+	 * @returns The emoji URL, or null if no ID is set
+	 * @remarks
+	 * Animated emojis should use the "gif" format to display animation.
+	 * For non-animated emojis, use "png", "jpg", "jpeg", or "webp".
+	 * @example
+	 * ```ts
+	 * emoji.url() // Default PNG format
+	 * emoji.url({ format: "gif", size: 128 }) // GIF format at 128x128 (for animated emojis)
+	 * ```
+	 */
+	url(options?: CDNUrlOptions): string | null {
+		if (!this.id) return null
+		// For animated emojis, default to gif if not specified
+		const format = options?.format ?? (this.animated ? "gif" : "png")
+		return buildCDNUrl("emojis", this.id, this.id, { ...options, format })
 	}
 
 	toString() {
