@@ -89,7 +89,10 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 */
 	get iconUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/role-icons/${this.id}`, this.icon)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/role-icons/${this.id}`,
+			this.icon
+		)
 	}
 
 	/**
@@ -99,7 +102,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 */
 	getIconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/role-icons/${this.id}`, this.icon, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/role-icons/${this.id}`,
+			this.icon,
+			options
+		)
 	}
 
 	/**

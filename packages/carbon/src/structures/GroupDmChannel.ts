@@ -49,7 +49,10 @@ export class GroupDmChannel<
 	 */
 	get iconUrl(): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/channel-icons/${this.id}`, this.icon)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/channel-icons/${this.id}`,
+			this.icon
+		)
 	}
 
 	/**
@@ -59,7 +62,11 @@ export class GroupDmChannel<
 	 */
 	getIconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this.rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/channel-icons/${this.id}`, this.icon, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/channel-icons/${this.id}`,
+			this.icon,
+			options
+		)
 	}
 
 	/**

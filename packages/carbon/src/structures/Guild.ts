@@ -120,7 +120,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	getIconUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/icons/${this.id}`, this.icon, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/icons/${this.id}`,
+			this.icon,
+			options
+		)
 	}
 
 	/**
@@ -137,7 +141,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get splashUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/splashes/${this.id}`, this.splash)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/splashes/${this.id}`,
+			this.splash
+		)
 	}
 
 	/**
@@ -147,7 +154,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	getSplashUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/splashes/${this.id}`, this.splash, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/splashes/${this.id}`,
+			this.splash,
+			options
+		)
 	}
 
 	/**
@@ -190,7 +201,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get discoverySplashUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/discovery-splashes/${this.id}`, this.discoverySplash)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/discovery-splashes/${this.id}`,
+			this.discoverySplash
+		)
 	}
 
 	/**
@@ -198,9 +212,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @param options Optional format and size parameters
 	 * @returns The discovery splash URL or null if no discovery splash is set
 	 */
-	getDiscoverySplashUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
+	getDiscoverySplashUrl(
+		options?: CDNUrlOptions
+	): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/discovery-splashes/${this.id}`, this.discoverySplash, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/discovery-splashes/${this.id}`,
+			this.discoverySplash,
+			options
+		)
 	}
 
 	/**
@@ -377,7 +397,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get bannerUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/banners/${this.id}`, this.banner)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner
+		)
 	}
 
 	/**
@@ -387,7 +410,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	getBannerUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/banners/${this.id}`, this.banner, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner,
+			options
+		)
 	}
 
 	/**

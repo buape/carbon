@@ -8,7 +8,11 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
+import {
+	buildCDNUrl,
+	type CDNUrlOptions,
+	serializePayload
+} from "../utils/index.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
@@ -124,7 +128,10 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/avatars/${this.id}`, this.avatar)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar
+		)
 	}
 
 	/**
@@ -134,7 +141,11 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	getAvatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/avatars/${this.id}`, this.avatar, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar,
+			options
+		)
 	}
 
 	/**
@@ -151,7 +162,10 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	get bannerUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/banners/${this.id}`, this.banner)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner
+		)
 	}
 
 	/**
@@ -161,7 +175,11 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 */
 	getBannerUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/banners/${this.id}`, this.banner, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner,
+			options
+		)
 	}
 
 	/**

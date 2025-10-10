@@ -85,7 +85,10 @@ export class GuildMember<
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
 		if (!this.user) return null
-		return buildCDNUrl(`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`, this.avatar)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`,
+			this.avatar
+		)
 	}
 
 	/**
@@ -96,7 +99,11 @@ export class GuildMember<
 	getAvatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
 		if (!this.user) return null
-		return buildCDNUrl(`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`, this.avatar, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`,
+			this.avatar,
+			options
+		)
 	}
 
 	/**

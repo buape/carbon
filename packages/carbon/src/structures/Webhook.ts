@@ -11,7 +11,11 @@ import type {
 import { Routes } from "discord-api-types/v10"
 import { RequestClient } from "../classes/RequestClient.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { buildCDNUrl, type CDNUrlOptions, serializePayload } from "../utils/index.js"
+import {
+	buildCDNUrl,
+	type CDNUrlOptions,
+	serializePayload
+} from "../utils/index.js"
 
 export type WebhookInput =
 	| APIWebhook
@@ -145,7 +149,10 @@ export class Webhook<IsPartial extends boolean = false> {
 	 */
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/avatars/${this.id}`, this.avatar)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar
+		)
 	}
 
 	/**
@@ -155,7 +162,11 @@ export class Webhook<IsPartial extends boolean = false> {
 	 */
 	getAvatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		return buildCDNUrl(`https://cdn.discordapp.com/avatars/${this.id}`, this.avatar, options)
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar,
+			options
+		)
 	}
 
 	/**
