@@ -61,6 +61,7 @@ export * from "./internals/ChannelSelectMenuInteraction.js"
 export * from "./internals/CommandHandler.js"
 export * from "./internals/CommandInteraction.js"
 export * from "./internals/ComponentHandler.js"
+export * from "./internals/EmojiHandler.js"
 export * from "./internals/EventHandler.js"
 export * from "./internals/FieldsHandler.js"
 export * from "./internals/MentionableSelectMenuInteraction.js"
@@ -73,6 +74,7 @@ export * from "./internals/UserSelectMenuInteraction.js"
 
 // ----- Structures -----
 export * from "./structures/DmChannel.js"
+export * from "./structures/Emoji.js"
 export * from "./structures/GroupDmChannel.js"
 export * from "./structures/Guild.js"
 export * from "./structures/GuildAnnouncementChannel.js"
@@ -91,7 +93,7 @@ export * from "./structures/User.js"
 export * from "./structures/Webhook.js"
 
 // ----- Plugins -----
-export * from "./plugins/multi-app/index.js"
+export * from "./plugins/client-manager/index.js"
 export * from "./plugins/paginator/index.js"
 
 // ----- Misc -----

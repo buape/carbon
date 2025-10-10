@@ -88,7 +88,7 @@ const processFolder = (path: string, context: TemplateContext) => {
  */
 const processFile = (path: string, context: TemplateContext) => {
 	const ext = path.split(".").pop()
-	let result: { body: string; meta: FrontMatter }
+	let result: { body: string | NonSharedBuffer; meta: FrontMatter }
 
 	// Skip non-forwarder templates for forwarder runtime
 	if (

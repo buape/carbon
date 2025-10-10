@@ -1,10 +1,10 @@
 ---
 title: Multi-App
-description: How to use the ApplicationManager to host multiple Discord bots from a single Carbon instance.
+description: How to use the ClientManager to host multiple Discord bots from a single Carbon instance.
 icon: Grid3X3
 ---
 
-Sometimes you need to run multiple Discord bots from a single codebase - maybe you're building a bot-as-a-service platform, managing multiple brands with different bots, or running development and production bots side-by-side. The ApplicationManager makes this easy by routing requests to the correct bot based on the client ID in the URL path.
+Sometimes you need to run multiple Discord bots from a single codebase - maybe you're building a bot-as-a-service platform, managing multiple brands with different bots, or running development and production bots side-by-side. The ClientManager makes this easy by routing requests to the correct bot based on the client ID in the URL path.
 
 ## The Problem It Solves
 
@@ -14,11 +14,11 @@ Normally, each Carbon `Client` instance is tied to a single Discord application 
 - Manage different ports or subdomains for each bot
 - Duplicate your configuration and infrastructure
 
-The ApplicationManager eliminates all of this by acting as a smart proxy that routes incoming requests to the appropriate bot based on the URL path.
+The ClientManager eliminates all of this by acting as a smart proxy that routes incoming requests to the appropriate bot based on the URL path.
 
 ## How It Works
 
-The ApplicationManager creates multiple `Client` instances internally - one for each bot you want to host. When Discord sends a request to your server, the ApplicationManager looks at the URL path to determine which bot should handle it:
+The ClientManager creates multiple `Client` instances internally - one for each bot you want to host. When Discord sends a request to your server, the ClientManager looks at the URL path to determine which bot should handle it:
 
 ```
 https://your-bot.com/123456789/interactions  → Bot with client ID 123456789
@@ -30,12 +30,12 @@ All routes are automatically proxied this way, including `/interactions`, `/even
 
 ## Basic Setup
 
-Here's how to set up the ApplicationManager with multiple bots:
+Here's how to set up the ClientManager with multiple bots:
 
 ```typescript title="src/index.ts"
-import { ApplicationManager } from "@buape/carbon"
+import { ClientManager } from "@buape/carbon"
 
-const manager = new ApplicationManager({
+const manager = new ClientManager({
 	sharedOptions: {
 		baseUrl: process.env.BASE_URL,
 		deploySecret: process.env.DEPLOY_SECRET,
@@ -78,26 +78,26 @@ Replace `{CLIENT_ID}` with your actual application's client ID.
 
 ## Dynamic Application Loading
 
-For advanced use cases like bot-as-a-service platforms, you may need to load bot credentials dynamically from a database instead of hardcoding them. The ApplicationManager is designed to support this through class extension and method overriding.
+For advanced use cases like bot-as-a-service platforms, you may need to load bot credentials dynamically from a database instead of hardcoding them. The ClientManager is designed to support this through class extension and method overriding.
 
-### Extending ApplicationManager
+### Extending ClientManager
 
-Extend the `ApplicationManager` class and override the `getClient`, `getAllClients`, and `getClientIds` methods. The ApplicationManager provides a `setupClient()` helper that you call with credentials to create a configured client:
+Extend the `ClientManager` class and override the `getClient`, `getAllClients`, and `getClientIds` methods. The ClientManager provides a `setupClient()` helper that you call with credentials to create a configured client:
 
-```typescript title="src/DatabaseApplicationManager.ts"
+```typescript title="src/DatabaseClientManager.ts"
 import {
 	type ApplicationCredentials,
-	ApplicationManager,
-	type ApplicationManagerOptions
+	ClientManager,
+	type ClientManagerOptions
 } from "@buape/carbon"
 
-export class DatabaseApplicationManager extends ApplicationManager {
+export class DatabaseClientManager extends ClientManager {
 	private db: YourDatabaseClient
 	private cache: Map<string, { credentials: ApplicationCredentials, lastFetch: number }> = new Map()
 	private cacheTimeout = 5 * 60 * 1000 // 5 minutes
 
 	constructor(
-		options: Omit<ApplicationManagerOptions, "applications">,
+		options: Omit<ClientManagerOptions, "applications">,
 		database: YourDatabaseClient
 	) {
 		// Call parent constructor without applications array
@@ -167,10 +167,10 @@ export class DatabaseApplicationManager extends ApplicationManager {
 
 ```typescript title="src/index.ts"
 import { serve } from "@buape/carbon/adapters/node"
-import { DatabaseApplicationManager } from "./DatabaseApplicationManager"
+import { DatabaseClientManager } from "./DatabaseClientManager"
 import { db } from "./database"
 
-const manager = new DatabaseApplicationManager(
+const manager = new DatabaseClientManager(
 	{
 		sharedOptions: {
 			baseUrl: process.env.BASE_URL,
@@ -207,13 +207,13 @@ manager.setupClient({
 
 ## Using with Your Adapter
 
-The ApplicationManager works with any Carbon adapter. Here's an example with the Node.js adapter:
+The ClientManager works with any Carbon adapter. Here's an example with the Node.js adapter:
 
 ```typescript title="src/index.ts"
-import { ApplicationManager } from "@buape/carbon"
+import { ClientManager } from "@buape/carbon"
 import { serve } from "@buape/carbon/adapters/node"
 
-const manager = new ApplicationManager({
+const manager = new ClientManager({
 	sharedOptions: {
 		baseUrl: "https://example.com",
 		deploySecret: "your-deploy-secret"
@@ -254,14 +254,14 @@ Most configuration options can be shared across all your bots:
 
 ## Managing Commands Across Apps
 
-Each bot in your ApplicationManager is set up to be a mirror of the other bots. When registering commands and listeners, pass them through the `sharedOptions`:
+Each bot in your ClientManager is set up to be a mirror of the other bots. When registering commands and listeners, pass them through the `sharedOptions`:
 
 ```typescript
-import { ApplicationManager } from "@buape/carbon"
+import { ClientManager } from "@buape/carbon"
 import { PingCommand } from "./commands/ping"
 import { MessageListener } from "./listeners/message"
 
-const manager = new ApplicationManager({
+const manager = new ClientManager({
 	sharedOptions: {
 		baseUrl: process.env.BASE_URL,
 		deploySecret: process.env.DEPLOY_SECRET,
@@ -277,7 +277,7 @@ const manager = new ApplicationManager({
 
 ## Deploying Commands
 
-The ApplicationManager provides a global deploy endpoint at `/deploy` that deploys commands for all bots at once:
+The ClientManager provides a global deploy endpoint at `/deploy` that deploys commands for all bots at once:
 
 ```bash
 curl "https://example.com/deploy?secret=your-deploy-secret"
@@ -300,7 +300,7 @@ curl "https://example.com/123456789012345678/deploy?secret=your-deploy-secret"
 
 ## Accessing Individual Clients
 
-The ApplicationManager provides several methods to access the underlying clients:
+The ClientManager provides several methods to access the underlying clients:
 
 ```typescript
 // Get a specific client by ID
@@ -325,14 +325,14 @@ This is useful if you need to:
 
 ## Validation and Error Handling
 
-The ApplicationManager includes built-in validation:
+The ClientManager includes built-in validation:
 
 **Client ID Validation:**
 All client IDs must be valid Discord snowflakes (17-19 digit numbers). Invalid IDs will throw an error during construction:
 
 ```typescript
 // ❌ This will throw an error
-new ApplicationManager({
+new ClientManager({
 	sharedOptions: { /* ... */ },
 	applications: [
 		{ clientId: "invalid", publicKey: "...", token: "..." }
@@ -346,7 +346,7 @@ You cannot register multiple applications with the same client ID:
 
 ```typescript
 // ❌ This will throw an error
-new ApplicationManager({
+new ClientManager({
 	sharedOptions: { /* ... */ },
 	applications: [
 		{ clientId: "123456789012345678", publicKey: "key1", token: "token1" },
@@ -357,7 +357,7 @@ new ApplicationManager({
 ```
 
 **Request Routing:**
-If Discord sends a request to an unknown client ID, the ApplicationManager returns a 404:
+If Discord sends a request to an unknown client ID, the ClientManager returns a 404:
 
 ```
 GET https://example.com/999999999999999999/interactions
@@ -366,7 +366,7 @@ GET https://example.com/999999999999999999/interactions
 
 ## Use Cases
 
-The ApplicationManager is perfect for:
+The ClientManager is perfect for:
 
 **Bot-as-a-Service Platforms:**
 Run multiple customer bots from a single deployment with shared infrastructure.

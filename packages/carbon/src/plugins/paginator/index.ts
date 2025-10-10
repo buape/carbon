@@ -14,3 +14,5 @@ Object.assign(Client.prototype, {
 })
 
 export { Paginator, GoToPageModal }
+export * from "./GoToPageModal.js"
+export * from "./Paginator.js"
