@@ -15,7 +15,6 @@ import {
 	type GuildMFALevel,
 	type GuildNSFWLevel,
 	type GuildPremiumTier,
-	type GuildScheduledEventPrivacyLevel,
 	type GuildSystemChannelFlags,
 	type GuildVerificationLevel,
 	type RESTPostAPIGuildRoleJSONBody,
