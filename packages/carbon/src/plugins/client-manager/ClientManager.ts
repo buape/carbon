@@ -192,7 +192,7 @@ export class ClientManager {
 			options.setInteractionsUrlOnDevPortal ||
 			options.setEventsUrlOnDevPortal
 		) {
-			await client.rest.put(Routes.currentApplication(), {
+			await client.rest.patch(Routes.currentApplication(), {
 				body: {
 					interactions_endpoint_url: options.setInteractionsUrlOnDevPortal
 						? `${this.baseUrl}/${credentials.clientId}/interactions`
@@ -272,7 +272,13 @@ export class ClientManager {
 	 */
 	async handleRequest(req: Request, ctx?: Context): Promise<Response> {
 		const url = new URL(req.url)
-		const truePathname = url.href.replace(this.baseUrl, "")
+		const baseUrl = new URL(this.baseUrl)
+		const basePathname = baseUrl.pathname.replace(/\/$/, "")
+		const reqPathname = url.pathname.replace(/\/$/, "")
+		if (!reqPathname.startsWith(basePathname)) {
+			return new Response("Not Found: Invalid base URL", { status: 404 })
+		}
+		const truePathname = reqPathname.slice(basePathname.length)
 		if (truePathname === "/deploy" && req.method === "GET") {
 			return this.handleGlobalDeploy(req)
 		}
@@ -332,7 +338,7 @@ export class ClientManager {
 	/**
 	 * Get all clients that the manager is managing
 	 */
-	getAllClients(): Client[] {
+	getClients(): Client[] {
 		return Array.from(this.clients.values())
 	}
 
