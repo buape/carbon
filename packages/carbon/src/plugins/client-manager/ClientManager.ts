@@ -1,3 +1,4 @@
+import { Routes } from "discord-api-types/v10"
 import type { Context, Route } from "../../abstracts/Plugin.js"
 import { Client, type ClientOptions } from "../../classes/Client.js"
 
@@ -18,6 +19,21 @@ export interface ApplicationCredentials {
 	 * The token of the bot
 	 */
 	token: string
+}
+
+export interface ClientSetupOptions {
+	/**
+	 * Whether to recreate the client if it already exists
+	 */
+	recreate?: boolean
+	/**
+	 * Whether to set the interactions URL on the Discord Developer Portal
+	 */
+	setInteractionsUrlOnDevPortal?: boolean
+	/**
+	 * Whether to set the events URL on the Discord Developer Portal
+	 */
+	setEventsUrlOnDevPortal?: boolean
 }
 
 /**
@@ -45,6 +61,10 @@ export interface ClientManagerOptions {
 	 * extend ClientManager and override getClient/getAllClients/getClientIds instead.
 	 */
 	applications?: ApplicationCredentials[]
+	/**
+	 * The initial setup options for the clients, this will be passed to clientManager#setupClient
+	 */
+	initialSetupOptions?: ClientSetupOptions
 }
 
 /**
@@ -108,11 +128,14 @@ export class ClientManager {
 
 		this.getApplications().then(async (applications) => {
 			applications.map(async (application) => {
-				this.setupClient({
-					clientId: application.clientId,
-					publicKey: application.publicKey,
-					token: application.token
-				})
+				this.setupClient(
+					{
+						clientId: application.clientId,
+						publicKey: application.publicKey,
+						token: application.token
+					},
+					options.initialSetupOptions
+				)
 			})
 		})
 	}
@@ -121,20 +144,25 @@ export class ClientManager {
 	 * Setup a client from credentials.
 	 *
 	 * @param credentials The application credentials
+	 * @param options The setup options for the client
 	 * @returns A configured Client instance
 	 */
-	public setupClient(
+	public async setupClient(
 		credentials: ApplicationCredentials,
-		recreate = false
-	): Client {
+		options: ClientSetupOptions = {
+			recreate: false,
+			setInteractionsUrlOnDevPortal: false,
+			setEventsUrlOnDevPortal: false
+		}
+	): Promise<Client> {
 		const existing = this.getClient(credentials.clientId)
-		if (existing && !recreate) {
+		if (existing && !options.recreate) {
 			throw new Error(
 				`Client ${credentials.clientId} already exists. If you want to recreate it, pass true to the recreate parameter.`
 			)
 		}
 
-		if (existing && recreate) {
+		if (existing && options.recreate) {
 			this.clients.delete(credentials.clientId)
 		}
 
@@ -159,6 +187,23 @@ export class ClientManager {
 			this.initialPlugins
 		)
 		this.clients.set(credentials.clientId, client)
+
+		if (
+			options.setInteractionsUrlOnDevPortal ||
+			options.setEventsUrlOnDevPortal
+		) {
+			await client.rest.put(Routes.currentApplication(), {
+				body: {
+					interactions_endpoint_url: options.setInteractionsUrlOnDevPortal
+						? `${this.baseUrl}/${credentials.clientId}/interactions`
+						: undefined,
+					event_webhooks_url: options.setEventsUrlOnDevPortal
+						? `${this.baseUrl}/${credentials.clientId}/events`
+						: undefined
+				}
+			})
+		}
+
 		return client
 	}
 
@@ -225,10 +270,7 @@ export class ClientManager {
 	 * @param req The incoming request
 	 * @param ctx Optional context (for Cloudflare Workers, etc.)
 	 */
-	protected async handleRequest(
-		req: Request,
-		ctx?: Context
-	): Promise<Response> {
+	async handleRequest(req: Request, ctx?: Context): Promise<Response> {
 		const url = new URL(req.url)
 		const truePathname = url.href.replace(this.baseUrl, "")
 		if (truePathname === "/deploy" && req.method === "GET") {
