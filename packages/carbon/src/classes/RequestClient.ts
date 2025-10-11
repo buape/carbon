@@ -258,8 +258,6 @@ export class RequestClient {
 			signal: this.abortController.signal
 		})
 
-		console.log(response)
-
 		if (response.status === 429) {
 			const responseBody = await response.json()
 			const rateLimitError = new RateLimitError(response, responseBody)
