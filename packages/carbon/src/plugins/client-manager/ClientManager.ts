@@ -1,3 +1,4 @@
+import { Routes } from "discord-api-types/v10"
 import type { Context, Route } from "../../abstracts/Plugin.js"
 import { Client, type ClientOptions } from "../../classes/Client.js"
 
@@ -20,20 +21,50 @@ export interface ApplicationCredentials {
 	token: string
 }
 
+export interface ClientSetupOptions {
+	/**
+	 * Whether to recreate the client if it already exists
+	 */
+	recreate?: boolean
+	/**
+	 * Whether to set the interactions URL on the Discord Developer Portal
+	 */
+	setInteractionsUrlOnDevPortal?: boolean
+	/**
+	 * Whether to set the events URL on the Discord Developer Portal
+	 */
+	setEventsUrlOnDevPortal?: boolean
+}
+
 /**
  * Options for the ClientManager
  */
 export interface ClientManagerOptions {
 	/**
+	 * The base URL of the applications to mount the proxy at
+	 */
+	baseUrl: string
+	/**
+	 * The deploy secret of the applications
+	 */
+	deploySecret: string
+	/**
 	 * Shared options that apply to all applications
 	 */
-	sharedOptions: Omit<ClientOptions, "clientId" | "publicKey" | "token">
+	sharedOptions: Omit<
+		ClientOptions,
+		"baseUrl" | "deploySecret" | "clientId" | "publicKey" | "token"
+	>
 	/**
 	 * Array of application credentials.
 	 * If you need dynamic application loading (e.g., from a database),
 	 * extend ClientManager and override getClient/getAllClients/getClientIds instead.
 	 */
 	applications?: ApplicationCredentials[]
+	/**
+	 * The initial setup options for the clients, this will be passed to clientManager#setupClient
+	 */
+	initialSetupOptions?: ClientSetupOptions
 }
 
 /**
@@ -59,12 +90,17 @@ export class ClientManager {
 	protected deploySecret?: string
 
 	/**
+	 * The base URL of the applications to mount the proxy at
+	 */
+	protected baseUrl: string
+
+	/**
 	 * Shared options that apply to all applications
 	 * Protected to allow subclasses to use it when creating clients
 	 */
 	protected sharedOptions: Omit<
 		ClientOptions,
-		"clientId" | "publicKey" | "token"
+		"baseUrl" | "deploySecret" | "clientId" | "publicKey" | "token"
 	>
 
 	protected clients: Map<string, Client> = new Map()
@@ -82,36 +118,51 @@ export class ClientManager {
 		plugins: ConstructorParameters<typeof Client>[2]
 	) {
 		this.sharedOptions = options.sharedOptions
-		this.deploySecret = options.sharedOptions.deploySecret
+		this.deploySecret = options.deploySecret
+		this.baseUrl = options.baseUrl
 		this.staticApplications = options.applications ?? []
 		this.initialHandlers = handlers
 		this.initialPlugins = plugins
 
 		this.setupRoutes()
 
-		for (const app of this.staticApplications) {
-			this.setupClient(app)
-		}
+		this.getApplications().then(async (applications) => {
+			applications.map(async (application) => {
+				this.setupClient(
+					{
+						clientId: application.clientId,
+						publicKey: application.publicKey,
+						token: application.token
+					},
+					options.initialSetupOptions
+				)
+			})
+		})
 	}
 
 	/**
 	 * Setup a client from credentials.
 	 *
 	 * @param credentials The application credentials
+	 * @param options The setup options for the client
 	 * @returns A configured Client instance
 	 */
-	public setupClient(
+	public async setupClient(
 		credentials: ApplicationCredentials,
-		recreate = false
-	): Client {
+		options: ClientSetupOptions = {
+			recreate: false,
+			setInteractionsUrlOnDevPortal: false,
+			setEventsUrlOnDevPortal: false
+		}
+	): Promise<Client> {
 		const existing = this.getClient(credentials.clientId)
-		if (existing && !recreate) {
+		if (existing && !options.recreate) {
 			throw new Error(
 				`Client ${credentials.clientId} already exists. If you want to recreate it, pass true to the recreate parameter.`
 			)
 		}
 
-		if (existing && recreate) {
+		if (existing && options.recreate) {
 			this.clients.delete(credentials.clientId)
 		}
 
@@ -123,6 +174,8 @@ export class ClientManager {
 
 		const clientOptions: ClientOptions = {
 			...this.sharedOptions,
+			baseUrl: `${this.baseUrl}/${credentials.clientId}`,
+			deploySecret: this.deploySecret,
 			clientId: credentials.clientId,
 			publicKey: credentials.publicKey,
 			token: credentials.token
@@ -134,13 +187,30 @@ export class ClientManager {
 			this.initialPlugins
 		)
 		this.clients.set(credentials.clientId, client)
+
+		if (
+			options.setInteractionsUrlOnDevPortal ||
+			options.setEventsUrlOnDevPortal
+		) {
+			await client.rest.patch(Routes.currentApplication(), {
+				body: {
+					interactions_endpoint_url: options.setInteractionsUrlOnDevPortal
+						? `${this.baseUrl}/${credentials.clientId}/interactions`
+						: undefined,
+					event_webhooks_url: options.setEventsUrlOnDevPortal
+						? `${this.baseUrl}/${credentials.clientId}/events`
+						: undefined
+				}
+			})
+		}
+
 		return client
 	}
 
 	/**
 	 * Set up the routing for the application manager
 	 */
-	private setupRoutes() {
+	protected setupRoutes() {
 		this.routes.push({
 			method: "GET",
 			path: "/deploy",
@@ -165,7 +235,7 @@ export class ClientManager {
 	/**
 	 * Deploy all applications
 	 */
-	private async handleGlobalDeploy(req: Request): Promise<Response> {
+	protected async handleGlobalDeploy(req: Request): Promise<Response> {
 		if (this.deploySecret) {
 			const url = new URL(req.url)
 			const secret = url.searchParams.get("secret")
@@ -202,23 +272,25 @@ export class ClientManager {
 	 */
 	async handleRequest(req: Request, ctx?: Context): Promise<Response> {
 		const url = new URL(req.url)
-
-		if (url.pathname === "/deploy" && req.method === "GET") {
+		const baseUrl = new URL(this.baseUrl)
+		const basePathname = baseUrl.pathname.replace(/\/$/, "")
+		const reqPathname = url.pathname.replace(/\/$/, "")
+		if (!reqPathname.startsWith(basePathname)) {
+			return new Response("Not Found: Invalid base URL", { status: 404 })
+		}
+		const truePathname = reqPathname.slice(basePathname.length)
+		if (truePathname === "/deploy" && req.method === "GET") {
 			return this.handleGlobalDeploy(req)
 		}
-
-		const pathParts = url.pathname.split("/").filter(Boolean)
+		const pathParts = truePathname.split("/").filter(Boolean)
 		if (pathParts.length < 2) {
 			return new Response("Bad Request: Invalid path format", { status: 400 })
 		}
-
 		const clientId = pathParts[0]
 		if (!clientId) {
 			return new Response("Bad Request: Missing client ID", { status: 400 })
 		}
-
 		const client = this.getClient(clientId)
-
 		if (!client) {
 			return new Response(
 				`Not Found: No application with client ID ${clientId}`,
@@ -227,13 +299,10 @@ export class ClientManager {
 				}
 			)
 		}
-
 		const remainingPath = `/${pathParts.slice(1).join("/")}`
-
 		const route = client.routes.find(
 			(r) => r.path === remainingPath && r.method === req.method && !r.disabled
 		)
-
 		if (!route) {
 			return new Response(
 				`Not Found: No route ${req.method} ${remainingPath}`,
@@ -242,18 +311,16 @@ export class ClientManager {
 				}
 			)
 		}
-
 		if (route.protected) {
 			const secret = url.searchParams.get("secret")
 			if (secret !== client.options.deploySecret) {
 				return new Response("Unauthorized", { status: 401 })
 			}
 		}
-
 		return route.handler(req, ctx)
 	}
 
-	private async handleProxyRequest(
+	protected async handleProxyRequest(
 		req: Request,
 		ctx?: Context
 	): Promise<Response> {
@@ -271,7 +338,7 @@ export class ClientManager {
 	/**
 	 * Get all clients that the manager is managing
 	 */
-	getAllClients(): Client[] {
+	getClients(): Client[] {
 		return Array.from(this.clients.values())
 	}
 

@@ -202,7 +202,17 @@ manager.setupClient({
 	clientId: "123456789012345678",
 	publicKey: "key1...",
 	token: "Bot token1..."
-}, true)
+}, { recreate: true })
+```
+
+Or, you can set the URLs on the Discord Developer Portal automatically by passing `true` to the `setInteractionsUrlOnDevPortal` and `setEventsUrlOnDevPortal` parameters:
+
+```typescript
+manager.setupClient({
+	clientId: "123456789012345678",
+	publicKey: "key1...",
+	token: "Bot token1..."
+}, { setInteractionsUrlOnDevPortal: true, setEventsUrlOnDevPortal: true })
 ```
 
 ## Using with Your Adapter

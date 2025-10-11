@@ -1,15 +1,22 @@
 import type { Context, Route } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
+import type { ClientManager } from "../../plugins/client-manager/ClientManager.js"
 
 export type Handler = (req: Request, ctx: Context) => Promise<Response>
 
 /**
- * Creates a fetch handler function for the clients routes
- * @param client The client to create the handler for
+ * Creates a fetch handler function for the client or client manager routes
+ * @param client The client or client manager to create the handler for
  * @returns The handler function
  */
-export function createHandler(client: Client): Handler {
+export function createHandler(client: Client | ClientManager): Handler {
 	return async (req: Request, ctx: Context) => {
+		// If it's a ClientManager, delegate to its handleRequest method
+		if ("handleRequest" in client) {
+			return await client.handleRequest(req, ctx)
+		}
+
+		// Otherwise, handle as a regular Client
 		const method = req.method
 		const url = new URL(req.url, "http://localhost")
 		const pathname = //
