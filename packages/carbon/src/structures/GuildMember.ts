@@ -86,7 +86,7 @@ export class GuildMember<
 		if (!this._rawData) return undefined as never
 		if (!this.user) return null
 		return buildCDNUrl(
-			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`,
+			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}/avatars`,
 			this.avatar
 		)
 	}
@@ -100,7 +100,7 @@ export class GuildMember<
 		if (!this._rawData) return undefined as never
 		if (!this.user) return null
 		return buildCDNUrl(
-			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}`,
+			`https://cdn.discordapp.com/guilds/${this.guild.id}/users/${this.user.id}/avatars`,
 			this.avatar,
 			options
 		)
