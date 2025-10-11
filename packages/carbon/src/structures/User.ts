@@ -8,7 +8,11 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial, MessagePayload } from "../types/index.js"
-import { serializePayload } from "../utils/index.js"
+import {
+	buildCDNUrl,
+	type CDNUrlOptions,
+	serializePayload
+} from "../utils/index.js"
 import { Message } from "./Message.js"
 
 export class User<IsPartial extends boolean = false> extends Base {
@@ -120,12 +124,28 @@ export class User<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
-	 * Get the URL of the user's avatar
+	 * Get the URL of the user's avatar with default settings (png format)
 	 */
 	get avatarUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.avatar) return null
-		return `https://cdn.discordapp.com/avatars/${this.id}/${this.avatar}.png`
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar
+		)
+	}
+
+	/**
+	 * Get the URL of the user's avatar with custom format and size options
+	 * @param options Optional format and size parameters
+	 * @returns The avatar URL or null if no avatar is set
+	 */
+	getAvatarUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
+		if (!this._rawData) return undefined as never
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/avatars/${this.id}`,
+			this.avatar,
+			options
+		)
 	}
 
 	/**
@@ -138,12 +158,28 @@ export class User<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
-	 * Get the URL of the user's banner
+	 * Get the URL of the user's banner with default settings (png format)
 	 */
 	get bannerUrl(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
-		if (!this.banner) return null
-		return `https://cdn.discordapp.com/banners/${this.id}/${this.banner}.png`
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner
+		)
+	}
+
+	/**
+	 * Get the URL of the user's banner with custom format and size options
+	 * @param options Optional format and size parameters
+	 * @returns The banner URL or null if no banner is set
+	 */
+	getBannerUrl(options?: CDNUrlOptions): IfPartial<IsPartial, string | null> {
+		if (!this._rawData) return undefined as never
+		return buildCDNUrl(
+			`https://cdn.discordapp.com/banners/${this.id}`,
+			this.banner,
+			options
+		)
 	}
 
 	/**
