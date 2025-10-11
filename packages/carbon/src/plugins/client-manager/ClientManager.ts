@@ -25,9 +25,20 @@ export interface ApplicationCredentials {
  */
 export interface ClientManagerOptions {
 	/**
+	 * The base URL of the applications to mount the proxy at
+	 */
+	baseUrl: string
+	/**
+	 * The deploy secret of the applications
+	 */
+	deploySecret: string
+	/**
 	 * Shared options that apply to all applications
 	 */
-	sharedOptions: Omit<ClientOptions, "clientId" | "publicKey" | "token">
+	sharedOptions: Omit<
+		ClientOptions,
+		"baseUrl" | "deploySecret" | "clientId" | "publicKey" | "token"
+	>
 	/**
 	 * Array of application credentials.
 	 * If you need dynamic application loading (e.g., from a database),
@@ -59,12 +70,17 @@ export class ClientManager {
 	protected deploySecret?: string
 
 	/**
+	 * The base URL of the applications to mount the proxy at
+	 */
+	protected baseUrl: string
+
+	/**
 	 * Shared options that apply to all applications
 	 * Protected to allow subclasses to use it when creating clients
 	 */
 	protected sharedOptions: Omit<
 		ClientOptions,
-		"clientId" | "publicKey" | "token"
+		"baseUrl" | "deploySecret" | "clientId" | "publicKey" | "token"
 	>
 
 	protected clients: Map<string, Client> = new Map()
@@ -82,16 +98,23 @@ export class ClientManager {
 		plugins: ConstructorParameters<typeof Client>[2]
 	) {
 		this.sharedOptions = options.sharedOptions
-		this.deploySecret = options.sharedOptions.deploySecret
+		this.deploySecret = options.deploySecret
+		this.baseUrl = options.baseUrl
 		this.staticApplications = options.applications ?? []
 		this.initialHandlers = handlers
 		this.initialPlugins = plugins
 
 		this.setupRoutes()
 
-		for (const app of this.staticApplications) {
-			this.setupClient(app)
-		}
+		this.getApplications().then(async (applications) => {
+			applications.map(async (application) => {
+				this.setupClient({
+					clientId: application.clientId,
+					publicKey: application.publicKey,
+					token: application.token
+				})
+			})
+		})
 	}
 
 	/**
@@ -123,6 +146,8 @@ export class ClientManager {
 
 		const clientOptions: ClientOptions = {
 			...this.sharedOptions,
+			baseUrl: `${this.baseUrl}/${credentials.clientId}`,
+			deploySecret: this.deploySecret,
 			clientId: credentials.clientId,
 			publicKey: credentials.publicKey,
 			token: credentials.token
@@ -140,7 +165,7 @@ export class ClientManager {
 	/**
 	 * Set up the routing for the application manager
 	 */
-	private setupRoutes() {
+	protected setupRoutes() {
 		this.routes.push({
 			method: "GET",
 			path: "/deploy",
@@ -165,7 +190,7 @@ export class ClientManager {
 	/**
 	 * Deploy all applications
 	 */
-	private async handleGlobalDeploy(req: Request): Promise<Response> {
+	protected async handleGlobalDeploy(req: Request): Promise<Response> {
 		if (this.deploySecret) {
 			const url = new URL(req.url)
 			const secret = url.searchParams.get("secret")
@@ -200,25 +225,24 @@ export class ClientManager {
 	 * @param req The incoming request
 	 * @param ctx Optional context (for Cloudflare Workers, etc.)
 	 */
-	async handleRequest(req: Request, ctx?: Context): Promise<Response> {
+	protected async handleRequest(
+		req: Request,
+		ctx?: Context
+	): Promise<Response> {
 		const url = new URL(req.url)
-
-		if (url.pathname === "/deploy" && req.method === "GET") {
+		const truePathname = url.href.replace(this.baseUrl, "")
+		if (truePathname === "/deploy" && req.method === "GET") {
 			return this.handleGlobalDeploy(req)
 		}
-
-		const pathParts = url.pathname.split("/").filter(Boolean)
+		const pathParts = truePathname.split("/").filter(Boolean)
 		if (pathParts.length < 2) {
 			return new Response("Bad Request: Invalid path format", { status: 400 })
 		}
-
 		const clientId = pathParts[0]
 		if (!clientId) {
 			return new Response("Bad Request: Missing client ID", { status: 400 })
 		}
-
 		const client = this.getClient(clientId)
-
 		if (!client) {
 			return new Response(
 				`Not Found: No application with client ID ${clientId}`,
@@ -227,13 +251,10 @@ export class ClientManager {
 				}
 			)
 		}
-
 		const remainingPath = `/${pathParts.slice(1).join("/")}`
-
 		const route = client.routes.find(
 			(r) => r.path === remainingPath && r.method === req.method && !r.disabled
 		)
-
 		if (!route) {
 			return new Response(
 				`Not Found: No route ${req.method} ${remainingPath}`,
@@ -242,18 +263,16 @@ export class ClientManager {
 				}
 			)
 		}
-
 		if (route.protected) {
 			const secret = url.searchParams.get("secret")
 			if (secret !== client.options.deploySecret) {
 				return new Response("Unauthorized", { status: 401 })
 			}
 		}
-
 		return route.handler(req, ctx)
 	}
 
-	private async handleProxyRequest(
+	protected async handleProxyRequest(
 		req: Request,
 		ctx?: Context
 	): Promise<Response> {
