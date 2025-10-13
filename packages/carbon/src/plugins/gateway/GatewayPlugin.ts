@@ -4,7 +4,12 @@ import WebSocket from "ws"
 import type { BaseListener } from "../../abstracts/BaseListener.js"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
-import { ListenerEvent, type ListenerEventType } from "../../types/index.js"
+import {
+	ListenerEvent,
+	type ListenerEventRawData,
+	type ListenerEventType
+} from "../../types/index.js"
+import { BabyCache } from "./BabyCache.js"
 import { InteractionEventListener } from "./InteractionEventListener.js"
 import {
 	type APIGatewayBotInfo,
@@ -53,6 +58,7 @@ export class GatewayPlugin extends Plugin {
 	protected gatewayInfo?: APIGatewayBotInfo
 	public isConnected = false
 	protected pings: number[] = []
+	protected babyCache: BabyCache
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
@@ -73,6 +79,7 @@ export class GatewayPlugin extends Plugin {
 		this.rateLimit = new GatewayRateLimit()
 		this.emitter = new EventEmitter()
 		this.gatewayInfo = gatewayInfo
+		this.babyCache = new BabyCache()
 
 		this.monitor.on("metrics", (metrics: ConnectionMetrics) =>
 			this.emitter.emit("metrics", metrics)
@@ -226,7 +233,7 @@ export class GatewayPlugin extends Plugin {
 					const t1 = payload1.t as ListenerEventType
 					try {
 						if (!Object.values(ListenerEvent).includes(t1)) {
-							throw new Error(`Unknown event type: ${t1}`)
+							break
 						}
 						if (t1 === "READY") {
 							const readyData = d as ReadyEventData
@@ -235,6 +242,55 @@ export class GatewayPlugin extends Plugin {
 						}
 						if (t && this.client) {
 							if (!this.options.eventFilter || this.options.eventFilter?.(t1)) {
+								if (t1 === "READY") {
+									const readyData = d as ListenerEventRawData[typeof t1]
+									readyData.guilds.forEach((guild) => {
+										this.babyCache.guildCache.set(guild.id, {
+											available: false,
+											lastEvent: Date.now()
+										})
+									})
+								}
+								if (t1 === "GUILD_CREATE") {
+									const guildCreateData = d as ListenerEventRawData[typeof t1]
+									const existingGuild = this.babyCache.guildCache.get(
+										guildCreateData.id
+									)
+									if (existingGuild && !existingGuild.available) {
+										this.babyCache.guildCache.set(guildCreateData.id, {
+											available: true,
+											lastEvent: Date.now()
+										})
+										this.client.eventHandler.handleEvent(
+											{
+												...guildCreateData,
+												clientId: this.client.options.clientId
+											},
+											"GUILD_AVAILABLE"
+										)
+										break
+									}
+								}
+								if (t1 === "GUILD_DELETE") {
+									const guildDeleteData = d as ListenerEventRawData[typeof t1]
+									const existingGuild = this.babyCache.guildCache.get(
+										guildDeleteData.id
+									)
+									if (existingGuild?.available && guildDeleteData.unavailable) {
+										this.babyCache.guildCache.set(guildDeleteData.id, {
+											available: false,
+											lastEvent: Date.now()
+										})
+										this.client.eventHandler.handleEvent(
+											{
+												...guildDeleteData,
+												clientId: this.client.options.clientId
+											},
+											"GUILD_UNAVAILABLE"
+										)
+										break
+									}
+								}
 								this.client.eventHandler.handleEvent(
 									{ ...payload1.d, clientId: this.client.options.clientId },
 									t1

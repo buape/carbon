@@ -20,6 +20,22 @@ import {
 } from "../types/index.js"
 import type { Client } from "./Client.js"
 
+export abstract class GuildAvailableListener extends BaseListener {
+	readonly type = ListenerEvent.GuildAvailable
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+}
+
+export abstract class GuildUnavailableListener extends BaseListener {
+	readonly type = ListenerEvent.GuildUnavailable
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+}
+
 export abstract class ApplicationAuthorizedListener extends BaseListener {
 	readonly type = ListenerEvent.ApplicationAuthorized
 	abstract handle(

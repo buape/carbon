@@ -99,7 +99,9 @@ export const GatewayEvent = {
 
 export const ListenerEvent = {
 	...GatewayEvent,
-	...WebhookEvent
+	...WebhookEvent,
+	GuildAvailable: "GUILD_AVAILABLE",
+	GuildUnavailable: "GUILD_UNAVAILABLE"
 }
 
 export type ListenerEventType =
@@ -110,6 +112,8 @@ export type ListenerEventAdditionalData = {
 }
 
 export type ListenerEventRawData = {
+	[ListenerEvent.GuildAvailable]: GatewayGuildCreateDispatchData
+	[ListenerEvent.GuildUnavailable]: GatewayGuildDeleteDispatchData
 	[ListenerEvent.ApplicationAuthorized]: APIWebhookEventApplicationAuthorizedData
 	[ListenerEvent.ApplicationDeauthorized]: APIWebhookEventApplicationDeauthorizedData
 	[ListenerEvent.EntitlementCreate]: APIWebhookEventEntitlementCreateData
@@ -192,6 +196,18 @@ export type ListenerEventRawData = {
 }
 
 export type ListenerEventData = {
+	[ListenerEvent.GuildAvailable]: Omit<
+		GatewayGuildCreateDispatchData,
+		"guild"
+	> & {
+		guild: Guild
+	}
+	[ListenerEvent.GuildUnavailable]: Omit<
+		GatewayGuildDeleteDispatchData,
+		"guild"
+	> & {
+		guild: Guild<true>
+	}
 	[ListenerEvent.ApplicationAuthorized]: Omit<
 		APIWebhookEventApplicationAuthorizedData,
 		"guild" | "user"
