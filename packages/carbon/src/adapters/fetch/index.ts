@@ -2,7 +2,7 @@ import type { Context, Route } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import type { ClientManager } from "../../plugins/client-manager/ClientManager.js"
 
-export type Handler = (req: Request, ctx: Context) => Promise<Response>
+export type Handler = (req: Request, ctx?: Context) => Promise<Response>
 
 /**
  * Creates a fetch handler function for the client or client manager routes
@@ -10,7 +10,7 @@ export type Handler = (req: Request, ctx: Context) => Promise<Response>
  * @returns The handler function
  */
 export function createHandler(client: Client | ClientManager): Handler {
-	return async (req: Request, ctx: Context) => {
+	return async (req: Request, ctx?: Context) => {
 		// If it's a ClientManager, delegate to its handleRequest method
 		if ("handleRequest" in client) {
 			return await client.handleRequest(req, ctx)
