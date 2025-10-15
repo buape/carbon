@@ -324,7 +324,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetchMemberCount(): Promise<number> {
 		const guild = new Guild<true>(this.client, this.guildId)
-		const roleMemberCounts = await guild.getRoleMemberCounts()
+		const roleMemberCounts = await guild.fetchRoleMemberCounts()
 		const roleCount = roleMemberCounts.find((r) => r.id === this.id)
 
 		return roleCount?.count ?? 0

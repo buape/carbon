@@ -267,7 +267,10 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
-		this.roles?.push(new Role<true>(this.client, roleId, this.guild.id))
+		const ids = this._rawData?.roles ?? []
+		if (!ids.includes(roleId)) {
+			this.setField("roles", [...ids, roleId])
+		}
 	}
 
 	/**
@@ -280,8 +283,8 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
-		const roles = this.roles?.filter((role) => role.id !== roleId)
-		if (roles) this.setField("roles", roles)
+		const ids = (this._rawData?.roles ?? []).filter((id) => id !== roleId)
+		this.setField("roles", ids)
 	}
 
 	/**
