@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.5.1
+
+### Patch Changes
+
+- db8230e: chore(deps): update dependencies
+
 ## 0.5.0
 
 ### Minor Changes
