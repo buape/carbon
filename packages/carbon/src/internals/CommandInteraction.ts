@@ -43,7 +43,8 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 					: [],
 			interactionData: this.rawData
 				.data as APIChatInputApplicationCommandInteractionData,
-			definitions: processingCommand?.options ?? []
+			definitions: processingCommand?.options ?? [],
+			guildId: data.guild_id
 		})
 	}
 }

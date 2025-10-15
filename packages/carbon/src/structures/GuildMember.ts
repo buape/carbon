@@ -145,7 +145,7 @@ export class GuildMember<
 	get roles(): IfPartial<IsPartial, Role<true>[]> {
 		if (!this._rawData) return undefined as never
 		const roles = this._rawData.roles ?? []
-		return roles.map((role) => new Role<true>(this.client, role))
+		return roles.map((role) => new Role<true>(this.client, role, this.guild.id))
 	}
 
 	/**
@@ -202,7 +202,7 @@ export class GuildMember<
 
 		const permissions = await Promise.all(
 			this.roles.map(async (x) => {
-				if (x.partial) await x.fetch(this.guild.id)
+				if (x.partial) await x.fetch()
 				if (!x.permissions) return undefined
 				return BigInt(x.permissions)
 			})
@@ -267,7 +267,7 @@ export class GuildMember<
 				headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 			}
 		)
-		this.roles?.push(new Role<true>(this.client, roleId))
+		this.roles?.push(new Role<true>(this.client, roleId, this.guild.id))
 	}
 
 	/**

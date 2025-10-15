@@ -34,6 +34,7 @@ export class OptionsHandler extends Base {
 	 * The resolved data from the interaction.
 	 */
 	readonly resolved: Partial<APIInteractionDataResolved>
+	readonly guildId?: string
 
 	private interactionData?:
 		| APIChatInputApplicationCommandInteractionData
@@ -44,7 +45,8 @@ export class OptionsHandler extends Base {
 		client,
 		options,
 		interactionData,
-		definitions
+		definitions,
+		guildId
 	}: {
 		client: Client
 		options: APIApplicationCommandInteractionDataOption[]
@@ -52,12 +54,14 @@ export class OptionsHandler extends Base {
 			| APIChatInputApplicationCommandInteractionData
 			| APIAutocompleteApplicationCommandInteractionData
 		definitions: CommandOptions
+		guildId?: string
 	}) {
 		super(client)
 		this.raw = []
 		this.interactionData = interactionData
 		this.definitions = definitions
 		this.resolved = interactionData.resolved ?? {}
+		this.guildId = guildId
 		for (const option of options) {
 			if (option.type === ApplicationCommandOptionType.Subcommand) {
 				for (const subOption of option.options ?? []) {
@@ -251,7 +255,10 @@ export class OptionsHandler extends Base {
 				`Discord failed to resolve role for ${key}, this is a bug.`
 			)
 		}
-		return new Role(this.client, role)
+		if (!this.guildId) {
+			throw new Error("Guild ID is not available for this interaction")
+		}
+		return new Role(this.client, role, this.guildId)
 	}
 
 	/**
@@ -284,7 +291,10 @@ export class OptionsHandler extends Base {
 		// Check if it's a role
 		const role = this.resolved.roles?.[id]
 		if (role) {
-			return new Role(this.client, role)
+			if (!this.guildId) {
+				throw new Error("Guild ID is not available for this interaction")
+			}
+			return new Role(this.client, role, this.guildId)
 		}
 
 		throw new Error(

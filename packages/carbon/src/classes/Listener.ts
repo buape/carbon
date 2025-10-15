@@ -590,7 +590,7 @@ export abstract class GuildRoleCreateListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const guild = new Guild<true>(client, data.guild_id)
-		const role = new Role(client, data.role)
+		const role = new Role(client, data.role, data.guild_id)
 		return {
 			...data,
 			guild,
@@ -612,7 +612,7 @@ export abstract class GuildRoleDeleteListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const guild = new Guild<true>(client, data.guild_id)
-		const role = new Role<true>(client, data.role_id)
+		const role = new Role<true>(client, data.role_id, data.guild_id)
 		return {
 			...data,
 			guild,
@@ -633,7 +633,7 @@ export abstract class GuildRoleUpdateListener extends BaseListener {
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const guild = new Guild<true>(client, data.guild_id)
-		const role = new Role(client, data.role)
+		const role = new Role(client, data.role, data.guild_id)
 		return {
 			...data,
 			guild,

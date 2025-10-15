@@ -23,10 +23,12 @@ export class FieldsHandler extends Base {
 	 * The resolved data from the interaction.
 	 */
 	readonly resolved: APIInteractionDataResolved
+	readonly guildId?: string
 
 	constructor(client: Client, interaction: APIModalSubmitInteraction) {
 		super(client)
 		this.resolved = interaction.data.resolved ?? {}
+		this.guildId = interaction.guild_id
 		interaction.data.components.forEach((component) => {
 			if (component.type === ComponentType.Label) {
 				const subComponent = component.component
@@ -150,9 +152,13 @@ export class FieldsHandler extends Base {
 				`Discord failed to resolve all roles for ${key}, this is a bug.`
 			)
 		}
+		if (!this.guildId) {
+			throw new Error("Guild ID is not available for this interaction")
+		}
+		const guildId = this.guildId
 		return resolved
 			.filter((role) => role !== undefined)
-			.map((role) => new Role(this.client, role))
+			.map((role) => new Role(this.client, role, guildId))
 	}
 
 	public getMentionableSelect(
@@ -169,12 +175,16 @@ export class FieldsHandler extends Base {
 			if (required) throw new Error(`Missing required field: ${key}`)
 			return undefined
 		}
+		if (!this.guildId) {
+			throw new Error("Guild ID is not available for this interaction")
+		}
+		const guildId = this.guildId
 		const resolvedRoles = value.map((id) => this.resolved.roles?.[id])
 		const resolvedUsers = value.map((id) => this.resolved.users?.[id])
 		const result = {
 			roles: resolvedRoles
 				.filter((role) => role !== undefined)
-				.map((role) => new Role(this.client, role)),
+				.map((role) => new Role(this.client, role, guildId)),
 			users: resolvedUsers
 				.filter((user) => user !== undefined)
 				.map((user) => new User(this.client, user))
