@@ -8,13 +8,16 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import type { IfPartial } from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
+import { Guild } from "./Guild.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
-		rawDataOrId: IsPartial extends true ? string : APIRole
+		rawDataOrId: IsPartial extends true ? string : APIRole,
+		guildId?: string
 	) {
 		super(client)
+		this._guildId = guildId
 		if (typeof rawDataOrId === "string") {
 			this.id = rawDataOrId
 		} else {
@@ -25,6 +28,8 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	}
 
 	protected _rawData: APIRole | null = null
+	private _guildId?: string
+
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
@@ -50,6 +55,17 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * The ID of the role.
 	 */
 	readonly id: string
+
+	/**
+	 * The ID of the guild this role belongs to
+	 */
+	get guildId(): string {
+		if (!this._guildId)
+			throw new Error(
+				"Guild ID is not available for this role. Use guild.fetchRole() to get a role with guild context."
+			)
+		return this._guildId
+	}
 
 	/**
 	 * Whether the role is a partial role (meaning it does not have all the data).
@@ -187,12 +203,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * Fetch updated data for this role.
 	 * If the role is partial, this will fetch all the data for the role and populate the fields.
 	 * If the role is not partial, all fields will be updated with new values from Discord.
-	 * @param guildId The ID of the guild the role is in
 	 * @returns A Promise that resolves to a non-partial Role
 	 */
-	async fetch(guildId: string): Promise<Role<false>> {
+	async fetch(): Promise<Role<false>> {
 		const newData = (await this.client.rest.get(
-			Routes.guildRole(guildId, this.id)
+			Routes.guildRole(this.guildId, this.id)
 		)) as APIRole
 		if (!newData) throw new Error(`Role ${this.id} not found`)
 
@@ -203,10 +218,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the name of the role
+	 * @param name The new name for the role
 	 * @param reason The reason for changing the name (will be shown in audit log)
 	 */
-	async setName(guildId: string, name: string, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setName(name: string, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { name },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -215,10 +231,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the color of the role
+	 * @param color The new color for the role
 	 * @param reason The reason for changing the color (will be shown in audit log)
 	 */
-	async setColor(guildId: string, color: number, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setColor(color: number, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { color },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -230,8 +247,8 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * @param icon The unicode emoji or icon URL to set
 	 * @param reason The reason for changing the icon (will be shown in audit log)
 	 */
-	async setIcon(guildId: string, icon: string, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setIcon(icon: string, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { icon },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -240,10 +257,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the mentionable status of the role
+	 * @param mentionable Whether the role should be mentionable
 	 * @param reason The reason for changing the mentionable status (will be shown in audit log)
 	 */
-	async setMentionable(guildId: string, mentionable: boolean, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setMentionable(mentionable: boolean, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { mentionable },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -252,10 +270,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the hoisted status of the role
+	 * @param hoisted Whether the role should be hoisted
 	 * @param reason The reason for changing the hoisted status (will be shown in audit log)
 	 */
-	async setHoisted(guildId: string, hoisted: boolean, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setHoisted(hoisted: boolean, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { hoist: hoisted },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -264,10 +283,11 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Set the position of the role
+	 * @param position The new position for the role
 	 * @param reason The reason for changing the position (will be shown in audit log)
 	 */
-	async setPosition(guildId: string, position: number, reason?: string) {
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+	async setPosition(position: number, reason?: string) {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { position },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -279,13 +299,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * @param permissions The permissions to set
 	 * @param reason The reason for changing the permissions (will be shown in audit log)
 	 */
-	async setPermissions(
-		guildId: string,
-		permissions: bigint[],
-		reason?: string
-	) {
+	async setPermissions(permissions: bigint[], reason?: string) {
 		const permValue = permissions.reduce((acc, perm) => acc | perm, BigInt(0))
-		await this.client.rest.patch(Routes.guildRole(guildId, this.id), {
+		await this.client.rest.patch(Routes.guildRole(this.guildId, this.id), {
 			body: { permissions: permValue.toString() },
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
@@ -296,9 +312,21 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * Delete the role
 	 * @param reason The reason for deleting the role (will be shown in audit log)
 	 */
-	async delete(guildId: string, reason?: string) {
-		await this.client.rest.delete(Routes.guildRole(guildId, this.id), {
+	async delete(reason?: string) {
+		await this.client.rest.delete(Routes.guildRole(this.guildId, this.id), {
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
+	}
+
+	/**
+	 * Get the member count for this role
+	 * @returns A Promise that resolves to the number of members with this role
+	 */
+	async fetchMemberCount(): Promise<number> {
+		const guild = new Guild<true>(this.client, this.guildId)
+		const roleMemberCounts = await guild.fetchRoleMemberCounts()
+		const roleCount = roleMemberCounts.find((r) => r.id === this.id)
+
+		return roleCount?.count ?? 0
 	}
 }

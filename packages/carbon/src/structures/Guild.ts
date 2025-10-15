@@ -181,7 +181,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		if (!this._rawData) return undefined as never
 		const roles = this._rawData?.roles
 		if (!roles) throw new Error("Cannot get roles without having data... smh")
-		return roles.map((role) => new Role(this.client, role))
+		return roles.map((role) => new Role(this.client, role, this.id))
 	}
 
 	/**
@@ -567,7 +567,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				...data
 			}
 		})) as APIRole
-		const roleClass = new Role(this.client, role)
+		const roleClass = new Role(this.client, role, this.id)
 		this.setField(
 			"roles",
 			Array.isArray(this.roles) ? [...this.roles, roleClass] : [roleClass]
@@ -687,7 +687,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const role = (await this.client.rest.get(
 			Routes.guildRole(this.id, roleId)
 		)) as APIRole
-		return new Role(this.client, role)
+		return new Role(this.client, role, this.id)
 	}
 
 	/**
@@ -698,7 +698,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const roles = (await this.client.rest.get(
 			Routes.guildRoles(this.id)
 		)) as APIRole[]
-		const roleObjects = roles.map((role) => new Role(this.client, role))
+		const roleObjects = roles.map(
+			(role) => new Role(this.client, role, this.id)
+		)
 
 		return roleObjects
 	}
@@ -841,5 +843,23 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async deleteScheduledEvent(eventId: string): Promise<void> {
 		await this.client.rest.delete(Routes.guildScheduledEvent(this.id, eventId))
+	}
+
+	/**
+	 * Get member counts for each role in the guild
+	 * @returns A Promise that resolves to an array of objects containing role ID, partial Role, and member count
+	 */
+	async fetchRoleMemberCounts(): Promise<
+		Array<{ id: string; role: Role<true>; count: number }>
+	> {
+		const memberCounts = (await this.client.rest.get(
+			`/guilds/${this.id}/roles/member-counts`
+		)) as Record<string, number>
+
+		return Object.entries(memberCounts).map(([roleId, count]) => ({
+			id: roleId,
+			role: new Role<true>(this.client, roleId, this.id),
+			count
+		}))
 	}
 }

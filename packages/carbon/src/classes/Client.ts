@@ -462,12 +462,13 @@ export class Client {
 
 	/**
 	 * Fetch a role from the Discord API
+	 * @param guildId The ID of the guild the role is in
 	 * @param id The ID of the role to fetch
 	 * @returns The role data
 	 */
 	async fetchRole(guildId: string, id: string) {
 		const role = (await this.rest.get(Routes.guildRole(guildId, id))) as APIRole
-		return new Role(this, role)
+		return new Role(this, role, guildId)
 	}
 
 	/**
