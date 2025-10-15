@@ -1,5 +1,27 @@
 # @buape/carbon
 
+## 0.13.0
+
+### Minor Changes
+
+- f53e175: feat: remove the Webhook's dependency on the Client
+- c143b31: feat: add GuildAvailable and GuildUnavailable events
+  This prevents Carbon's gateway plugin from spamming GuildCreate events when it first connects
+- f5604c4: feat: remove the guildId parameter from several functions in Role, instead adding it to the constructor that Carbon uses
+- f5604c4: feat: add Guild#fetchRoleMemberCounts and Role#fetchMemberCount
+- 515dd10: feat: add option to gateway plugin to automatically listen to gateway interactionCreate events
+- 67fe8f5: feat: make gateway plugin options accessible to the user
+- 2bf2522: feat: Add the file upload component for modals
+- bb25fab: feat: add CDN URL methods with format and size support
+- 0da2786: feat: add ClientManager plugin for managing multiple clients
+- b955a5c: feat: add support for scheduled events
+
+### Patch Changes
+
+- ee937cb: chore(deps): update dependency @types/bun to v1.2.23
+- db8230e: chore(deps): update dependencies
+- b258984: fix: incorrect content type for commands route from command data plugin
+
 ## 0.12.0
 
 ### Minor Changes
