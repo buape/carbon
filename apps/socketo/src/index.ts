@@ -2,8 +2,10 @@ import "dotenv/config"
 import { Client } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
 import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"
+import { VoicePlugin } from "@buape/carbon/voice"
 import GatewayTestCommand from "./commands/gateway-test.js"
 import PingCommand from "./commands/ping.js"
+import VoiceConnectCommand from "./commands/voice-connect.js"
 // import { MessageCreate } from "./events/messageCreate.js"
 import { Ready } from "./events/ready.js"
 
@@ -19,7 +21,8 @@ const client = new Client(
 		commands: [
 			// commands/*
 			new PingCommand(),
-			new GatewayTestCommand()
+			new GatewayTestCommand(),
+			new VoiceConnectCommand()
 		],
 		listeners: [
 			new Ready()
@@ -33,7 +36,8 @@ const client = new Client(
 				GatewayIntents.GuildMessages |
 				GatewayIntents.MessageContent |
 				GatewayIntents.GuildMembers // Required for RequestGuildMembers
-		})
+		}),
+		new VoicePlugin()
 	]
 )
 
