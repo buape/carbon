@@ -54,8 +54,12 @@ export class VoicePlugin extends Plugin {
 			this.adapters.set(guild_id, methods)
 			return {
 				sendPayload(payload: GatewayPayload): boolean {
-					gateway.send(payload, true)
-					return true
+					try {
+						gateway.send(payload, true)
+						return true
+					} catch {
+						return false
+					}
 				},
 				destroy: (): void => {
 					this.adapters.delete(guild_id)

@@ -35,7 +35,8 @@ const client = new Client(
 				GatewayIntents.Guilds |
 				GatewayIntents.GuildMessages |
 				GatewayIntents.MessageContent |
-				GatewayIntents.GuildMembers // Required for RequestGuildMembers
+				GatewayIntents.GuildMembers | // Required for RequestGuildMembers
+				GatewayIntents.GuildVoiceStates // Required for voice state tracking
 		}),
 		new VoicePlugin()
 	]
