@@ -10,7 +10,6 @@ export class EmojiHandler extends Base {
 		const emojis = (await this.client.rest.get(
 			Routes.applicationEmojis(this.client.options.clientId)
 		)) as { items: APIApplicationEmoji[] }
-		console.log(emojis)
 		return emojis.items.map(
 			(emoji) =>
 				new ApplicationEmoji(this.client, emoji, this.client.options.clientId)
