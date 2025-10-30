@@ -30,6 +30,7 @@
 	},
 	"optionalDependencies": {
 		"@cloudflare/workers-types": "4.20250513.0",
+		"@discordjs/voice": "0.19.0",
 		"@hono/node-server": "1.18.2",
 		"@types/bun": "1.2.23",
 		"@types/ws": "8.18.1",
