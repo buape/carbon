@@ -218,10 +218,10 @@ export class User<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Instantiate a new DM channel with this user.
 	 */
-	async createDm(userId: string) {
+	async createDm() {
 		const dmChannel = (await this.client.rest.post(Routes.userChannels(), {
 			body: {
-				recipient_id: userId
+				recipient_id: this.id
 			}
 		})) as APIDMChannel
 		return dmChannel
@@ -231,7 +231,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	 * Send a message to this user.
 	 */
 	async send(data: MessagePayload) {
-		const dmChannel = await this.createDm(this.id)
+		const dmChannel = await this.createDm()
 		const message = (await this.client.rest.post(
 			Routes.channelMessages(dmChannel.id),
 			{
