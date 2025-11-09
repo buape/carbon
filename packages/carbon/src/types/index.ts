@@ -1,8 +1,4 @@
-import type {
-	APIAllowedMentions,
-	APIAttachment,
-	Snowflake
-} from "discord-api-types/v10"
+import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Container } from "../classes/components/Container.js"
