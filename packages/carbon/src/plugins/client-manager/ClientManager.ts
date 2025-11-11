@@ -275,23 +275,32 @@ export class ClientManager {
 		const baseUrl = new URL(this.baseUrl)
 		const basePathname = baseUrl.pathname.replace(/\/$/, "")
 		const reqPathname = url.pathname.replace(/\/$/, "")
+
 		if (!reqPathname.startsWith(basePathname)) {
+			await req.text().catch(() => {})
 			return new Response("Not Found: Invalid base URL", { status: 404 })
 		}
+
 		const truePathname = reqPathname.slice(basePathname.length)
 		if (truePathname === "/deploy" && req.method === "GET") {
 			return this.handleGlobalDeploy(req)
 		}
+
 		const pathParts = truePathname.split("/").filter(Boolean)
 		if (pathParts.length < 2) {
+			await req.text().catch(() => {})
 			return new Response("Bad Request: Invalid path format", { status: 400 })
 		}
+
 		const clientId = pathParts[0]
 		if (!clientId) {
+			await req.text().catch(() => {})
 			return new Response("Bad Request: Missing client ID", { status: 400 })
 		}
+
 		const client = this.getClient(clientId)
 		if (!client) {
+			await req.text().catch(() => {})
 			return new Response(
 				`Not Found: No application with client ID ${clientId}`,
 				{
@@ -299,11 +308,14 @@ export class ClientManager {
 				}
 			)
 		}
+
 		const remainingPath = `/${pathParts.slice(1).join("/")}`
 		const route = client.routes.find(
 			(r) => r.path === remainingPath && r.method === req.method && !r.disabled
 		)
+
 		if (!route) {
+			await req.text().catch(() => {})
 			return new Response(
 				`Not Found: No route ${req.method} ${remainingPath}`,
 				{
@@ -311,12 +323,15 @@ export class ClientManager {
 				}
 			)
 		}
+
 		if (route.protected) {
 			const secret = url.searchParams.get("secret")
 			if (secret !== client.options.deploySecret) {
+				await req.text().catch(() => {})
 				return new Response("Unauthorized", { status: 401 })
 			}
 		}
+
 		return route.handler(req, ctx)
 	}
 
