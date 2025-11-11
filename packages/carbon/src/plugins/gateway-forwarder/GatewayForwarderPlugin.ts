@@ -107,10 +107,12 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 						},
 						body
 					})
-					await response.text().catch(() => {});
-					
+					await response.text().catch(() => {})
+
 					if (!response.ok) {
-						console.error(`Failed to forward event ${payload.t}: ${response.status}`);
+						console.error(
+							`Failed to forward event ${payload.t}: ${response.status}`
+						)
 					}
 				}
 			} catch (error) {
