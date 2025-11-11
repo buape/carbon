@@ -240,6 +240,7 @@ export class ClientManager {
 			const url = new URL(req.url)
 			const secret = url.searchParams.get("secret")
 			if (secret !== this.deploySecret) {
+				await req.text().catch(() => {})
 				return new Response("Unauthorized", { status: 401 })
 			}
 		}
