@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-Fixed memory leak in `GatewayForwarderPlugin` by properly consuming HTTP response bodies
+fix: Fixed memory leak in `GatewayForwarderPlugin` by properly consuming HTTP response bodies
