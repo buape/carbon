@@ -18,7 +18,6 @@ export abstract class BaseModalComponent extends BaseComponent {
 
 	readonly isV2 = true
 
-	// @ts-expect-error - Unreleased component type
 	abstract serialize: () =>
 		| APITextInputComponent
 		| APILabelComponent

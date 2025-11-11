@@ -97,7 +97,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 					const headers = new Headers(this.options.webhookHeaders)
 
-					await fetch(this.options.webhookUrl, {
+					const response = await fetch(this.options.webhookUrl, {
 						method: "POST",
 						headers: {
 							...headers,
@@ -107,6 +107,13 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 						},
 						body
 					})
+					await response.text().catch(() => {})
+
+					if (!response.ok) {
+						console.error(
+							`Failed to forward event ${payload.t}: ${response.status}`
+						)
+					}
 				}
 			} catch (error) {
 				console.error("Error forwarding webhook event:", error)
