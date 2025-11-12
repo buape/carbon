@@ -111,7 +111,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 					if (!response.ok) {
 						console.error(
-							`Failed to forward event ${payload.t}: ${response.status}`
+							`Failed to forward event ${payload.t}: ${response.status} ${response.statusText}`
 						)
 					}
 				}
