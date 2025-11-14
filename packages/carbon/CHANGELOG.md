@@ -1,5 +1,19 @@
 # @buape/carbon
 
+## 0.14.0
+
+### Minor Changes
+
+- f7a0f46: feat: misc performance improvements
+
+### Patch Changes
+
+- 0ba80ae: fix: User#createDm took a userId parameter instead of using User#id
+- 1406843: fix: Fixed memory leak in `GatewayForwarderPlugin` by properly consuming HTTP response bodies
+- 660e2b9: chore(deps): update dependencies
+- eff69b9: feat: add voice plugin with gateway adapter
+- 0319ad0: fix: Fixed memory leak in ClientManager by consuming request bodies before error responses
+
 ## 0.13.0
 
 ### Minor Changes
