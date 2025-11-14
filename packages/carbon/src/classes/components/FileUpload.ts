@@ -4,7 +4,6 @@ import {
 } from "../../abstracts/BaseModalComponent.js"
 
 export abstract class FileUpload extends BaseModalComponent {
-	// @ts-expect-error - Unreleased component type
 	readonly type = 19 // ComponentType.FileUpload
 
 	abstract customId: string

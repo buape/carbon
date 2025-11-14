@@ -44,7 +44,6 @@ export abstract class Label extends BaseModalComponent {
 			type: this.type,
 			label: this.label,
 			description: this.description,
-			// @ts-expect-error - Unreleased component type
 			component: this.component.serialize()
 		}
 	}

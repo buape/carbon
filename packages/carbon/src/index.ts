@@ -14,7 +14,10 @@ export * from "./abstracts/BaseInteraction.js"
 export * from "./abstracts/BaseListener.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
 export * from "./abstracts/Plugin.js"
-export * from "./abstracts/BaseModalComponent.js"
+export {
+	BaseModalComponent,
+	type APIFileUploadComponent
+} from "./abstracts/BaseModalComponent.js"
 export * from "./abstracts/BaseMessageInteractiveComponent.js"
 
 // ----- Classes -----
