@@ -129,11 +129,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 						const key = childComponent.customIdParser(
 							childComponent.customId
 						).key
-						const existingComponent =
-							this.client.componentHandler.components.find(
-								(comp) => comp.customIdParser(comp.customId).key === key
-							)
-						if (!existingComponent) {
+						if (!this.client.componentHandler.hasComponentWithKey(key)) {
 							this.client.componentHandler.registerComponent(childComponent)
 						}
 					}
@@ -143,11 +139,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					const key = component.accessory.customIdParser(
 						component.accessory.customId
 					).key
-					const existingComponent =
-						this.client.componentHandler.components.find(
-							(comp) => comp.customIdParser(comp.customId).key === key
-						)
-					if (!existingComponent) {
+					if (!this.client.componentHandler.hasComponentWithKey(key)) {
 						this.client.componentHandler.registerComponent(component.accessory)
 					}
 				}

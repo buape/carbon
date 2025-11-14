@@ -245,7 +245,7 @@ export class GatewayPlugin extends Plugin {
 								if (t1 === "READY") {
 									const readyData = d as ListenerEventRawData[typeof t1]
 									readyData.guilds.forEach((guild) => {
-										this.babyCache.guildCache.set(guild.id, {
+										this.babyCache.setGuild(guild.id, {
 											available: false,
 											lastEvent: Date.now()
 										})
@@ -253,11 +253,11 @@ export class GatewayPlugin extends Plugin {
 								}
 								if (t1 === "GUILD_CREATE") {
 									const guildCreateData = d as ListenerEventRawData[typeof t1]
-									const existingGuild = this.babyCache.guildCache.get(
+									const existingGuild = this.babyCache.getGuild(
 										guildCreateData.id
 									)
 									if (existingGuild && !existingGuild.available) {
-										this.babyCache.guildCache.set(guildCreateData.id, {
+										this.babyCache.setGuild(guildCreateData.id, {
 											available: true,
 											lastEvent: Date.now()
 										})
@@ -273,11 +273,11 @@ export class GatewayPlugin extends Plugin {
 								}
 								if (t1 === "GUILD_DELETE") {
 									const guildDeleteData = d as ListenerEventRawData[typeof t1]
-									const existingGuild = this.babyCache.guildCache.get(
+									const existingGuild = this.babyCache.getGuild(
 										guildDeleteData.id
 									)
 									if (existingGuild?.available && guildDeleteData.unavailable) {
-										this.babyCache.guildCache.set(guildDeleteData.id, {
+										this.babyCache.setGuild(guildDeleteData.id, {
 											available: false,
 											lastEvent: Date.now()
 										})

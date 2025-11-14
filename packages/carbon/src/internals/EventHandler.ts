@@ -3,27 +3,32 @@ import type {
 	ListenerEventAdditionalData,
 	ListenerEventRawData
 } from "../types/index.js"
+import { EventQueue } from "./EventQueue.js"
 
 /**
  * Handles Discord gateway events and dispatches them to registered listeners.
- * This class is responsible for managing and executing event listeners for various Discord events.
  * @internal
  */
 export class EventHandler extends Base {
-	async handleEvent<T extends keyof ListenerEventRawData>(
+	private eventQueue: EventQueue
+
+	constructor(client: typeof Base.prototype.client) {
+		super(client)
+		this.eventQueue = new EventQueue(client, client.options.eventQueue)
+	}
+
+	handleEvent<T extends keyof ListenerEventRawData>(
 		payload: ListenerEventRawData[T] & ListenerEventAdditionalData,
 		type: T
-	) {
-		const listeners = this.client.listeners.filter((x) => x.type === type)
-		await Promise.all(
-			listeners.map((listener) => {
-				const data = listener.parseRawData(payload, this.client)
-				return listener
-					.handle({ ...data, clientId: payload.clientId }, this.client)
-					.catch((err: unknown) => {
-						console.error(err)
-					})
-			})
-		)
+	): boolean {
+		return this.eventQueue.enqueue(payload, type)
+	}
+
+	getMetrics() {
+		return this.eventQueue.getMetrics()
+	}
+
+	hasCapacity(): boolean {
+		return this.eventQueue.hasCapacity()
 	}
 }

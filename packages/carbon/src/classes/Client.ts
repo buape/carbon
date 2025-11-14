@@ -21,7 +21,9 @@ import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
 import { EmojiHandler } from "../internals/EmojiHandler.js"
 import { EventHandler } from "../internals/EventHandler.js"
+import type { EventQueueOptions } from "../internals/EventQueue.js"
 import { ModalHandler } from "../internals/ModalHandler.js"
+import { TemporaryListenerManager } from "../internals/TemporaryListenerManager.js"
 import { Guild } from "../structures/Guild.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
@@ -91,6 +93,10 @@ export interface ClientOptions {
 	 * If set, all commands will be deployed to these guilds instead of globally.
 	 */
 	devGuilds?: string[]
+	/**
+	 * Configuration for the event queue worker pool
+	 */
+	eventQueue?: EventQueueOptions
 }
 
 /**
@@ -146,6 +152,10 @@ export class Client {
 	 */
 	eventHandler: EventHandler
 	/**
+	 * The manager for temporary event listeners with automatic cleanup
+	 */
+	temporaryListeners: TemporaryListenerManager
+	/**
 	 * The handler for application emojis for this application
 	 */
 	emoji: EmojiHandler
@@ -192,6 +202,7 @@ export class Client {
 		this.componentHandler = new ComponentHandler(this)
 		this.modalHandler = new ModalHandler(this)
 		this.eventHandler = new EventHandler(this)
+		this.temporaryListeners = new TemporaryListenerManager(this)
 		this.emoji = new EmojiHandler(this)
 
 		for (const component of this.components) {
@@ -299,14 +310,17 @@ export class Client {
 
 		const payload = (await req.json()) as APIWebhookEvent
 
-		// All ping webhooks should respond with 204 and an empty body
 		if (payload.type === ApplicationWebhookType.Ping)
 			return new Response(null, { status: 204 })
 
-		this.eventHandler.handleEvent(
+		const enqueued = this.eventHandler.handleEvent(
 			{ ...payload.event.data, clientId: this.options.clientId },
 			payload.event.type
 		)
+
+		if (!enqueued) {
+			return new Response("Event queue full, retry later", { status: 429 })
+		}
 
 		return new Response(null, { status: 204 })
 	}

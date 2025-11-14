@@ -15,6 +15,7 @@ import { MentionableSelectMenu } from "../classes/components/MentionableSelectMe
 import { RoleSelectMenu } from "../classes/components/RoleSelectMenu.js"
 import { StringSelectMenu } from "../classes/components/StringSelectMenu.js"
 import { UserSelectMenu } from "../classes/components/UserSelectMenu.js"
+import { LRUCache } from "../utils/LRUCache.js"
 import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
 import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
@@ -23,7 +24,10 @@ import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
 import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
 export class ComponentHandler extends Base {
-	components: BaseMessageInteractiveComponent[] = []
+	private componentCache = new LRUCache<
+		string,
+		BaseMessageInteractiveComponent
+	>(10000)
 
 	oneOffComponents: Map<
 		`${string}-${string}`,
@@ -31,27 +35,50 @@ export class ComponentHandler extends Base {
 			resolve: (data: APIMessageComponentInteractionData) => void
 		}
 	> = new Map()
-	/**
-	 * Register a component with the handler
-	 * @internal
-	 */
+
 	registerComponent(component: BaseMessageInteractiveComponent) {
-		if (!this.components.find((x) => x.customId === component.customId)) {
-			this.components.push(component)
+		if (!this.componentCache.has(component.customId)) {
+			this.componentCache.set(component.customId, component)
 		}
 	}
-	/**
-	 * Handle an interaction
-	 * @internal
-	 */
+
+	hasComponentWithKey(key: string): boolean {
+		for (const component of this.componentCache.values()) {
+			const componentKey = component.customIdParser(component.customId).key
+			if (componentKey === key) {
+				return true
+			}
+		}
+		return false
+	}
+
+	private findComponent(
+		customId: string,
+		componentType: number
+	): BaseMessageInteractiveComponent | undefined {
+		for (const component of this.componentCache.values()) {
+			const componentKey = component.customIdParser(component.customId).key
+			const interactionKey = component.customIdParser(customId).key
+
+			if (componentKey === interactionKey && component.type === componentType) {
+				return component
+			}
+		}
+
+		for (const component of this.componentCache.values()) {
+			const componentKey = component.customIdParser(component.customId).key
+			if (componentKey === "*" && component.type === componentType) {
+				return component
+			}
+		}
+
+		return undefined
+	}
 	async handleInteraction(data: APIMessageComponentInteraction) {
-		let component = this.components.find((x) => {
-			const componentKey = x.customIdParser(x.customId).key
-			const interactionKey = x.customIdParser(data.data.custom_id).key
-			return (
-				componentKey === interactionKey && x.type === data.data.component_type
-			)
-		})
+		const component = this.findComponent(
+			data.data.custom_id,
+			data.data.component_type
+		)
 
 		if (!component) {
 			const oneOffComponent = this.oneOffComponents.get(
@@ -77,16 +104,9 @@ export class ComponentHandler extends Base {
 				return
 			}
 
-			component = this.components.find((x) => {
-				const componentKey = x.customIdParser(x.customId).key
-				return componentKey === "*" && x.type === data.data.component_type
-			})
-
-			if (!component) {
-				throw new Error(
-					`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id} was received, did you forget to register the component? See https://carbon.buape.com/concepts/component-registration for more information.`
-				)
-			}
+			throw new Error(
+				`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id} was received, did you forget to register the component? See https://carbon.buape.com/concepts/component-registration for more information.`
+			)
 		}
 
 		const parsed = component.customIdParser(data.data.custom_id)
