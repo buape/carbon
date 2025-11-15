@@ -69,7 +69,8 @@ export const serializePayload = (
 					allow_multiselect: payload.poll.allowMultiselect,
 					layout_type: payload.poll.layoutType ?? 1
 				} satisfies RESTAPIPoll)
-			: undefined
+			: undefined,
+		sticker_ids: payload.stickers
 	}
 	if (payload.ephemeral === undefined && defaultEphemeral) {
 		data.flags = payload.flags

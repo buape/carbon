@@ -119,6 +119,10 @@ export type MessagePayloadObject = {
 	 * Whether the message should be ephemeral (shorthand for MessageFlags.Ephemeral)
 	 */
 	ephemeral?: boolean
+	/**
+	 * The stickers to send in the message
+	 */
+	stickers?: [string, string, string] | [string, string] | [string]
 }
 
 /**
