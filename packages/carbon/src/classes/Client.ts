@@ -10,6 +10,7 @@ import {
 	ApplicationWebhookType,
 	InteractionResponseType,
 	InteractionType,
+	type RESTGetAPIApplicationCommandsResult,
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
@@ -277,7 +278,7 @@ export class Client {
 				const deployed = (await this.rest.put(
 					Routes.applicationGuildCommands(this.options.clientId, guildId),
 					{ body: commands.map((c) => c.serialize()) }
-				)) as { id: string; name: string }[]
+				)) as RESTGetAPIApplicationCommandsResult
 
 				// Update command IDs
 				for (const deployedCommand of deployed) {
@@ -293,7 +294,7 @@ export class Client {
 			const deployed = (await this.rest.put(
 				Routes.applicationGuildCommands(this.options.clientId, guildId),
 				{ body: cmds }
-			)) as { id: string; name: string }[]
+			)) as RESTGetAPIApplicationCommandsResult
 
 			// Update command IDs
 			for (const deployedCommand of deployed) {
@@ -307,7 +308,7 @@ export class Client {
 			const deployed = (await this.rest.put(
 				Routes.applicationCommands(this.options.clientId),
 				{ body: globalCommands.map((c) => c.serialize()) }
-			)) as { id: string; name: string }[]
+			)) as RESTGetAPIApplicationCommandsResult
 
 			// Update command IDs
 			for (const deployedCommand of deployed) {
@@ -547,7 +548,7 @@ export class Client {
 	async getDiscordCommands() {
 		return (await this.rest.get(
 			Routes.applicationCommands(this.options.clientId)
-		)) as { id: string; name: string }[]
+		)) as RESTGetAPIApplicationCommandsResult
 	}
 
 	// ======================== End Fetchers ================================================

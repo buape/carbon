@@ -142,7 +142,7 @@ export abstract class BaseCommand {
 	 * @returns A string in the format `</name:id>` that Discord will render as a command mention
 	 * @remarks If the command ID is not set, this will fetch the commands from Discord to get the ID
 	 */
-	async getMention(client: { getDiscordCommands: () => Promise<{ id: string; name: string }[]> }): Promise<string> {
+	async getMention(client: { getDiscordCommands: () => Promise<Array<{ id: string; name: string }>> }): Promise<string> {
 		if (!this.id) {
 			const commands = await client.getDiscordCommands()
 			const command = commands.find((c) => c.name === this.name)
