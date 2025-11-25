@@ -274,27 +274,46 @@ export class Client {
 		// If devGuilds is set, deploy all commands to those guilds (for development)
 		if (this.options.devGuilds && this.options.devGuilds.length > 0) {
 			for (const guildId of this.options.devGuilds) {
-				await this.rest.put(
+				const deployed = (await this.rest.put(
 					Routes.applicationGuildCommands(this.options.clientId, guildId),
 					{ body: commands.map((c) => c.serialize()) }
-				)
+				)) as { id: string; name: string }[]
+
+				// Update command IDs
+				for (const deployedCommand of deployed) {
+					const command = this.commands.find((c) => c.name === deployedCommand.name)
+					if (command) command.id = deployedCommand.id
+				}
 			}
 			return new Response("OK (devGuilds)", { status: 202 })
 		}
 
 		// Deploy guild-specific commands
 		for (const [guildId, cmds] of Object.entries(guildCommandsMap)) {
-			await this.rest.put(
+			const deployed = (await this.rest.put(
 				Routes.applicationGuildCommands(this.options.clientId, guildId),
 				{ body: cmds }
-			)
+			)) as { id: string; name: string }[]
+
+			// Update command IDs
+			for (const deployedCommand of deployed) {
+				const command = this.commands.find((c) => c.name === deployedCommand.name)
+				if (command) command.id = deployedCommand.id
+			}
 		}
 
 		// Deploy global commands
 		if (globalCommands.length > 0) {
-			await this.rest.put(Routes.applicationCommands(this.options.clientId), {
-				body: globalCommands.map((c) => c.serialize())
-			})
+			const deployed = (await this.rest.put(
+				Routes.applicationCommands(this.options.clientId),
+				{ body: globalCommands.map((c) => c.serialize()) }
+			)) as { id: string; name: string }[]
+
+			// Update command IDs
+			for (const deployedCommand of deployed) {
+				const command = this.commands.find((c) => c.name === deployedCommand.name)
+				if (command) command.id = deployedCommand.id
+			}
 		}
 		return new Response("OK", { status: 202 })
 	}
@@ -519,6 +538,16 @@ export class Client {
 	async fetchWebhook(input: WebhookInput) {
 		const webhook = new Webhook(input)
 		return webhook.fetch()
+	}
+
+	/**
+	 * Fetch all global commands from the Discord API
+	 * @returns An array of command data with their IDs
+	 */
+	async getDiscordCommands() {
+		return (await this.rest.get(
+			Routes.applicationCommands(this.options.clientId)
+		)) as { id: string; name: string }[]
 	}
 
 	// ======================== End Fetchers ================================================

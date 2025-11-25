@@ -20,6 +20,10 @@ export abstract class BaseCommand {
 	 */
 	abstract name: string
 	/**
+	 * The ID of the command from Discord (set after deployment)
+	 */
+	id?: string
+	/**
 	 * A description of the command
 	 */
 	description?: string
@@ -131,4 +135,23 @@ export abstract class BaseCommand {
 	 * @internal
 	 */
 	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
+
+	/**
+	 * Get a mention string for this command that can be used in messages
+	 * @param client The client instance to fetch command data from if needed
+	 * @returns A string in the format `</name:id>` that Discord will render as a command mention
+	 * @remarks If the command ID is not set, this will fetch the commands from Discord to get the ID
+	 */
+	async getMention(client: { getDiscordCommands: () => Promise<{ id: string; name: string }[]> }): Promise<string> {
+		if (!this.id) {
+			const commands = await client.getDiscordCommands()
+			const command = commands.find((c) => c.name === this.name)
+			if (command) {
+				this.id = command.id
+			} else {
+				throw new Error(`Command ${this.name} not found in Discord`)
+			}
+		}
+		return `</${this.name}:${this.id}>`
+	}
 }
