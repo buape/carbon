@@ -296,7 +296,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				/**
 				 * The message object returned by the interaction reply
 				 */
-				message: Message
+				message: Message<false>
 				/**
 				 * If this is a select menu, this will be the values of the selected options
 				 */
@@ -310,7 +310,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				/**
 				 * The message object returned by the interaction reply
 				 */
-				message: Message
+				message: Message<false>
 				/**
 				 * The reason the interaction failed
 				 */
@@ -371,7 +371,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				/**
 				 * The message object returned by the interaction reply
 				 */
-				message: Message
+				message: Message<false>
 				/**
 				 * If this is a select menu, this will be the values of the selected options
 				 */
@@ -385,7 +385,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				/**
 				 * The message object returned by the interaction reply
 				 */
-				message: Message
+				message: Message<false>
 				/**
 				 * The reason the interaction failed
 				 */
