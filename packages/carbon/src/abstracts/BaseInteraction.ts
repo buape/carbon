@@ -294,6 +294,10 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				 */
 				customId: string
 				/**
+				 * The message object returned by the interaction reply
+				 */
+				message: Message<false>
+				/**
 				 * If this is a select menu, this will be the values of the selected options
 				 */
 				values?: string[]
@@ -303,6 +307,10 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				 * Whether the interaction was successful
 				 */
 				success: false
+				/**
+				 * The message object returned by the interaction reply
+				 */
+				message: Message<false>
 				/**
 				 * The reason the interaction failed
 				 */
@@ -316,7 +324,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		return new Promise((resolve) => {
 			const timer = setTimeout(() => {
 				this.client.componentHandler.oneOffComponents.delete(id)
-				resolve({ success: false, reason: "timed out" })
+				resolve({ success: false, message, reason: "timed out" })
 			}, timeout)
 			this.client.componentHandler.oneOffComponents.set(id, {
 				resolve: (data: APIMessageComponentInteractionData) => {
@@ -325,6 +333,87 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					resolve({
 						success: true,
 						customId: data.custom_id,
+						message,
+						values: "values" in data ? data.values : undefined
+					})
+				}
+			})
+		})
+	}
+
+	/**
+	 * This function will edit to the interaction and wait for a component to be pressed.
+	 * Any components passed in the message will not have run() functions called and
+	 * will only trigger the interaction.acknowledge() function.
+	 * This function will also return a promise that resolves
+	 * to the custom ID of the component that was pressed.
+	 *
+	 * @param data The message data to send
+	 * @param message The message to edit (defaults to the interaction's original message)
+	 * @param {number} [timeout=300000] After this many milliseconds, the promise will resolve to null
+	 *
+	 * @returns Will return null if the interaction has not yet been replied to or if the message provided no longer exists
+	 */
+	async editAndWaitForComponent(
+		data: MessagePayload,
+		message?: Message,
+		timeout = 300000
+	): Promise<
+		| {
+				/**
+				 * Whether the interaction was successful
+				 */
+				success: true
+				/**
+				 * The custom ID of the component that was pressed
+				 */
+				customId: string
+				/**
+				 * The message object returned by the interaction reply
+				 */
+				message: Message<false>
+				/**
+				 * If this is a select menu, this will be the values of the selected options
+				 */
+				values?: string[]
+		  }
+		| {
+				/**
+				 * Whether the interaction was successful
+				 */
+				success: false
+				/**
+				 * The message object returned by the interaction reply
+				 */
+				message: Message<false>
+				/**
+				 * The reason the interaction failed
+				 */
+				reason: "timed out"
+		  }
+		| null
+	> {
+		const editedMessage = message
+			? await message.edit(data)
+			: await this.message?.edit(data)
+
+		if (!editedMessage) return null
+
+		const id: `${string}-${string}` = `${editedMessage.id}-${editedMessage.channelId}`
+
+		return new Promise((resolve) => {
+			const timer = setTimeout(() => {
+				this.client.componentHandler.oneOffComponents.delete(id)
+				resolve({ success: false, message: editedMessage, reason: "timed out" })
+			}, timeout)
+			this.client.componentHandler.oneOffComponents.set(id, {
+				resolve: (data: APIMessageComponentInteractionData) => {
+					clearTimeout(timer)
+					this.client.componentHandler.oneOffComponents.delete(id)
+					resolve({
+						success: true,
+						customId: data.custom_id,
+						message: editedMessage,
 						values: "values" in data ? data.values : undefined
 					})
 				}
