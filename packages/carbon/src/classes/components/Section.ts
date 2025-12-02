@@ -19,30 +19,21 @@ export class Section extends BaseComponent {
 	 * You can only have 1 Thumbnail or Button in a Section.
 	 * If you don't want an accessory, you should be just using the TextDisplay directly.
 	 */
-	accessory?: Thumbnail | Button | LinkButton
+	accessory: Thumbnail | Button | LinkButton
 
 	constructor(
-		components?: TextDisplay[],
-		accessory?: Thumbnail | Button | LinkButton
+		components: TextDisplay[] = [],
+		accessory: Thumbnail | Button | LinkButton
 	) {
 		super()
-		if (components) {
-			this.components = components
-		}
-		if (accessory) {
-			this.accessory = accessory
-		}
+		this.components = components
+		this.accessory = accessory
 	}
 
 	serialize = (): APISectionComponent => {
 		if (!this.components || this.components.length === 0) {
 			throw new Error(
 				"Sections must contain at least one TextDisplay component"
-			)
-		}
-		if (!this.accessory) {
-			throw new Error(
-				"Sections must include an accessory (button or thumbnail)"
 			)
 		}
 		return {
