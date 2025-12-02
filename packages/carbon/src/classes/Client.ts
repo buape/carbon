@@ -1,4 +1,5 @@
 import {
+	type APIApplicationCommand,
 	type APIChannel,
 	type APIGuild,
 	type APIGuildMember,
@@ -159,6 +160,7 @@ export class Client {
 	 * The handler for application emojis for this application
 	 */
 	emoji: EmojiHandler
+	private cachedGlobalCommands: APIApplicationCommand[] | null = null
 
 	/**
 	 * The ID of the shard this client is running on, if sharding is enabled
@@ -274,27 +276,34 @@ export class Client {
 		// If devGuilds is set, deploy all commands to those guilds (for development)
 		if (this.options.devGuilds && this.options.devGuilds.length > 0) {
 			for (const guildId of this.options.devGuilds) {
-				await this.rest.put(
+				const deployed = (await this.rest.put(
 					Routes.applicationGuildCommands(this.options.clientId, guildId),
 					{ body: commands.map((c) => c.serialize()) }
-				)
+				)) as APIApplicationCommand[]
+				this.updateCommandIdsFromDeployment(deployed)
 			}
 			return new Response("OK (devGuilds)", { status: 202 })
 		}
 
 		// Deploy guild-specific commands
 		for (const [guildId, cmds] of Object.entries(guildCommandsMap)) {
-			await this.rest.put(
+			const deployed = (await this.rest.put(
 				Routes.applicationGuildCommands(this.options.clientId, guildId),
 				{ body: cmds }
-			)
+			)) as APIApplicationCommand[]
+			this.updateCommandIdsFromDeployment(deployed)
 		}
 
 		// Deploy global commands
 		if (globalCommands.length > 0) {
-			await this.rest.put(Routes.applicationCommands(this.options.clientId), {
-				body: globalCommands.map((c) => c.serialize())
-			})
+			const deployed = (await this.rest.put(
+				Routes.applicationCommands(this.options.clientId),
+				{
+					body: globalCommands.map((c) => c.serialize())
+				}
+			)) as APIApplicationCommand[]
+			this.updateCommandIdsFromDeployment(deployed)
+			this.cachedGlobalCommands = deployed
 		}
 		return new Response("OK", { status: 202 })
 	}
@@ -519,6 +528,36 @@ export class Client {
 	async fetchWebhook(input: WebhookInput) {
 		const webhook = new Webhook(input)
 		return webhook.fetch()
+	}
+
+	public async getDiscordCommands(force = false) {
+		if (!force && this.cachedGlobalCommands) {
+			return this.cachedGlobalCommands
+		}
+		const commands = (await this.rest.get(
+			Routes.applicationCommands(this.options.clientId)
+		)) as APIApplicationCommand[]
+		this.cachedGlobalCommands = commands
+		this.updateCommandIdsFromDeployment(commands)
+		return commands
+	}
+
+	private updateCommandIdsFromDeployment(commands: APIApplicationCommand[]) {
+		for (const deployed of commands) {
+			const match = this.commands.find((command) => {
+				if (command.name !== deployed.name) return false
+				if (command.type !== deployed.type) return false
+				if (deployed.guild_id) {
+					if (!command.guildIds || command.guildIds.length === 0) return true
+					return command.guildIds.includes(deployed.guild_id)
+				}
+				return !command.guildIds || command.guildIds.length === 0
+			})
+
+			if (match) {
+				match.id = deployed.id
+			}
+		}
 	}
 
 	// ======================== End Fetchers ================================================

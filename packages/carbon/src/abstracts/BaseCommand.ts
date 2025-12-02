@@ -1,7 +1,9 @@
 import {
+	type APIApplicationCommand,
 	ApplicationCommandType,
 	type RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
+import type { Client } from "../classes/Client.js"
 import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
@@ -15,6 +17,7 @@ import {
  * Represents the base data of a command that the user creates
  */
 export abstract class BaseCommand {
+	id?: string
 	/**
 	 * The name of the command (e.g. "ping" for /ping)
 	 */
@@ -131,4 +134,24 @@ export abstract class BaseCommand {
 	 * @internal
 	 */
 	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
+
+	async getMention(client: Client): Promise<string> {
+		if (this.id) return `</${this.name}:${this.id}>`
+		const commands = await client.getDiscordCommands()
+		const match = this.findMatchingCommand(commands)
+		if (!match) return `/${this.name}`
+		this.id = match.id
+		return `</${this.name}:${this.id}>`
+	}
+
+	private findMatchingCommand(commands: APIApplicationCommand[]) {
+		return commands.find((cmd) => {
+			if (cmd.name !== this.name) return false
+			if (cmd.type !== this.type) return false
+			if (!cmd.guild_id) {
+				return !this.guildIds || this.guildIds.length === 0
+			}
+			return this.guildIds?.includes(cmd.guild_id) ?? true
+		})
+	}
 }

@@ -66,6 +66,17 @@ async run(interaction: CommandInteraction) {
 
 These helpers fall back to `null` if the command isn’t of the matching type.
 
+### Mentioning Commands
+
+Every command tracks its Discord ID after a deploy, and exposes an `await command.getMention(client)` helper that returns the `</name:id>` string. Example:
+
+```ts
+const mention = await this.getMention(client)
+await interaction.reply(`Use ${mention} to learn more.`)
+```
+
+If the ID isn’t cached yet, Carbon fetches the current commands once via `client.getDiscordCommands()` and updates the in-memory commands so future calls don’t re-fetch.
+
 ### Options
 
 The `options` property is used to set the options of the command. These are only used for chat input commands.
