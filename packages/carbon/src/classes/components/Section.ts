@@ -4,7 +4,7 @@ import type { Button, LinkButton } from "./Button.js"
 import type { TextDisplay } from "./TextDisplay.js"
 import type { Thumbnail } from "./Thumbnail.js"
 
-export abstract class Section extends BaseComponent {
+export class Section extends BaseComponent {
 	readonly type = ComponentType.Section as const
 	readonly isV2 = true
 
@@ -12,16 +12,39 @@ export abstract class Section extends BaseComponent {
 	 * This is the main text that will be displayed in the section.
 	 * You can have 1-3 TextDisplays in a Section
 	 */
-	abstract components: TextDisplay[]
+	components: TextDisplay[] = []
 
 	/**
 	 * The Thumbnail or Button that will be displayed to the right of the main text.
 	 * You can only have 1 Thumbnail or Button in a Section.
 	 * If you don't want an accessory, you should be just using the TextDisplay directly.
 	 */
-	abstract accessory: Thumbnail | Button | LinkButton
+	accessory?: Thumbnail | Button | LinkButton
+
+	constructor(
+		components?: TextDisplay[],
+		accessory?: Thumbnail | Button | LinkButton
+	) {
+		super()
+		if (components) {
+			this.components = components
+		}
+		if (accessory) {
+			this.accessory = accessory
+		}
+	}
 
 	serialize = (): APISectionComponent => {
+		if (!this.components || this.components.length === 0) {
+			throw new Error(
+				"Sections must contain at least one TextDisplay component"
+			)
+		}
+		if (!this.accessory) {
+			throw new Error(
+				"Sections must include an accessory (button or thumbnail)"
+			)
+		}
 		return {
 			type: this.type,
 			id: this.id,

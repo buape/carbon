@@ -12,18 +12,18 @@ import type { Section } from "./Section.js"
 import type { Separator } from "./Separator.js"
 import type { TextDisplay } from "./TextDisplay.js"
 
-export abstract class Container extends BaseComponent {
+export class Container extends BaseComponent {
 	readonly type = ComponentType.Container as const
 	readonly isV2 = true
 
-	abstract components: (
+	components: (
 		| Row<BaseMessageInteractiveComponent>
 		| TextDisplay
 		| Section
 		| MediaGallery
 		| Separator
 		| File
-	)[]
+	)[] = []
 
 	/**
 	 * The accent color of the container
@@ -34,6 +34,33 @@ export abstract class Container extends BaseComponent {
 	 * Whether the container should be marked a spoiler
 	 */
 	spoiler = false
+
+	constructor(
+		components: (
+			| Row<BaseMessageInteractiveComponent>
+			| TextDisplay
+			| Section
+			| MediaGallery
+			| Separator
+			| File
+		)[] = [],
+		options:
+			| { accentColor?: `#${string}` | string | number; spoiler?: boolean }
+			| string
+			| number = {}
+	) {
+		super()
+		this.components = components
+
+		if (typeof options === "string" || typeof options === "number") {
+			this.accentColor = options
+		} else {
+			this.accentColor = options.accentColor
+			if (options.spoiler !== undefined) {
+				this.spoiler = options.spoiler
+			}
+		}
+	}
 
 	serialize = (): APIContainerComponent => {
 		return {

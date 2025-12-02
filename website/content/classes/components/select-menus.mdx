@@ -4,13 +4,29 @@ description: Select menus are used to select an option from a list of options in
 icon: SquareDashedMousePointer
 ---
 
-Select menus are used to select an option from a list of options in a dropdown. They are created by extending the `SelectMenu` class, and adding a `options` property.
+Select menus are used to select an option from a list of options in a dropdown. Subclassing each menu type is the recommended approach:
 
 ```ts title="src/components/select-menu.ts"
+import {
+	StringSelectMenu,
+	type StringSelectMenuInteraction,
+	RoleSelectMenu,
+	type RoleSelectMenuInteraction,
+	MentionableSelectMenu,
+	type MentionableSelectMenuInteraction,
+	ChannelSelectMenu,
+	type ChannelSelectMenuInteraction,
+	UserSelectMenu,
+	type UserSelectMenuInteraction
+} from "@buape/carbon";
+
 class StringSelect extends StringSelectMenu {
 	customId = "string-select"
 	placeholder = "String select menu"
-	options = [{ label: "Option 1", value: "option1" }, { label: "Option 2", value: "option2" }]
+	options = [
+		{ label: "Option 1", value: "option1" },
+		{ label: "Option 2", value: "option2" }
+	]
 	async run(interaction: StringSelectMenuInteraction) {
 		await interaction.reply(interaction.values.join(", "))
 	}
@@ -23,6 +39,7 @@ class RoleSelect extends RoleSelectMenu {
 		await interaction.reply(interaction.values.join(", "))
 	}
 }
+
 class MentionableSelect extends MentionableSelectMenu {
 	customId = "mentionable-select"
 	placeholder = "Mentionable select menu"
@@ -30,6 +47,7 @@ class MentionableSelect extends MentionableSelectMenu {
 		await interaction.reply(interaction.values.join(", "))
 	}
 }
+
 class ChannelSelect extends ChannelSelectMenu {
 	customId = "channel-select"
 	placeholder = "Channel select menu"
@@ -37,6 +55,7 @@ class ChannelSelect extends ChannelSelectMenu {
 		await interaction.reply(interaction.values.join(", "))
 	}
 }
+
 class UserSelect extends UserSelectMenu {
 	customId = "user-select"
 	placeholder = "User select menu"
@@ -46,4 +65,21 @@ class UserSelect extends UserSelectMenu {
 }
 ```
 
-Here we have five examples of select menus, each with a different type of option. Only the StringSelectMenu class requires you to provide options, the other 4 will automatically be populated by Discord (and allow searching as well).
+### Inline Select Menus
+
+When you need a select menu only once, you can instantiate it inline:
+
+```ts
+import { StringSelectMenu, type StringSelectMenuInteraction } from "@buape/carbon";
+
+const inlineStringSelect = new (class extends StringSelectMenu {
+	customId = "string-inline"
+	options = [{ label: "Quick Option", value: "quick" }]
+
+	async run(interaction: StringSelectMenuInteraction) {
+		await interaction.reply(interaction.values.join(", "))
+	}
+})()
+```
+
+Only the `StringSelectMenu` requires you to provide choices. The other menus are automatically populated by Discord (and allow searching as well).

@@ -10,19 +10,28 @@ The Section component helps organize related information in a horizontal layout.
 
 A Section is defined by its ability to display components horizontally and optionally include an accessory component. It's commonly used to pair text with related media or icons.
 
-## Creating a Section
+## Creating a Section (Recommended)
 
-To create a section, you need to create a class that extends the `Section` class:
+Subclassing keeps complex layouts tidy:
 
 ```ts title="src/components/section.ts"
 import { Section, TextDisplay, Thumbnail } from "@buape/carbon";
 
 class MySection extends Section {
-	components = [
-		new TextDisplay("This is the main content of the section.")
-	]
+	components = [new TextDisplay("This is the main content of the section.")]
 	accessory = new Thumbnail("https://example.com/icon.png")
 }
+```
+
+## Quick Instantiation
+
+For quick inline usage you can instantiate directly:
+
+```ts
+const mySection = new Section(
+	[new TextDisplay("This is the main content of the section.")],
+	new Thumbnail("https://example.com/icon.png")
+)
 ```
 
 ## Usage Example
