@@ -20,7 +20,7 @@
 		"fumadocs-typescript": "4.0.13",
 		"fumadocs-ui": "15.8.5",
 		"gray-matter": "4.0.3",
-		"lucide-react": "0.553.0",
+		"lucide-react": "0.555.0",
 		"next": "15.5.6",
 		"react": "19.2.0",
 		"react-dom": "19.2.0",
@@ -28,18 +28,18 @@
 		"remark-gfm": "4.0.1",
 		"remark-mdx": "3.1.1",
 		"remark-stringify": "11.0.0",
-		"tailwind-merge": "3.3.1",
-		"zod": "4.1.12"
+		"tailwind-merge": "3.4.0",
+		"zod": "4.1.13"
 	},
 	"devDependencies": {
 		"@opennextjs/cloudflare": "1.8.2",
-		"@tailwindcss/postcss": "4.1.13",
+		"@tailwindcss/postcss": "4.1.17",
 		"@types/mdx": "2.0.13",
-		"@types/node": "22.18.4",
-		"@types/react": "19.1.13",
-		"@types/react-dom": "19.1.9",
+		"@types/node": "24.10.1",
+		"@types/react": "19.2.7",
+		"@types/react-dom": "19.2.3",
 		"postcss": "8.5.6",
-		"tailwindcss": "4.1.13",
-		"wrangler": "^4.22.0"
+		"tailwindcss": "4.1.17",
+		"wrangler": "4.51.0"
 	}
 }
