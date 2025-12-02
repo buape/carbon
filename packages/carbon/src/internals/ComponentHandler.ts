@@ -75,35 +75,35 @@ export class ComponentHandler extends Base {
 		return undefined
 	}
 	async handleInteraction(data: APIMessageComponentInteraction) {
+		const oneOffComponent = this.oneOffComponents.get(
+			`${data.message.id}-${data.message.channel_id}`
+		)
+
+		if (oneOffComponent) {
+			oneOffComponent.resolve(data.data)
+			this.oneOffComponents.delete(
+				`${data.message.id}-${data.message.channel_id}`
+			)
+			await this.client.rest
+				.post(Routes.interactionCallback(data.id, data.token), {
+					body: {
+						type: InteractionResponseType.DeferredMessageUpdate
+					} as RESTPostAPIInteractionCallbackJSONBody
+				})
+				.catch(() => {
+					console.warn(
+						`Failed to acknowledge one-off component interaction for message ${data.message.id}`
+					)
+				})
+			return
+		}
+
 		const component = this.findComponent(
 			data.data.custom_id,
 			data.data.component_type
 		)
 
 		if (!component) {
-			const oneOffComponent = this.oneOffComponents.get(
-				`${data.message.id}-${data.message.channel_id}`
-			)
-
-			if (oneOffComponent) {
-				oneOffComponent.resolve(data.data)
-				this.oneOffComponents.delete(
-					`${data.message.id}-${data.message.channel_id}`
-				)
-				await this.client.rest
-					.post(Routes.interactionCallback(data.id, data.token), {
-						body: {
-							type: InteractionResponseType.DeferredMessageUpdate
-						} as RESTPostAPIInteractionCallbackJSONBody
-					})
-					.catch(() => {
-						console.warn(
-							`Failed to acknowledge one-off component interaction for message ${data.message.id}`
-						)
-					})
-				return
-			}
-
 			throw new Error(
 				`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id} was received, did you forget to register the component? See https://carbon.buape.com/concepts/component-registration for more information.`
 			)
