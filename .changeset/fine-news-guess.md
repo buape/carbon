@@ -1,5 +1,5 @@
 ---
-"@buape/carbon": patch
+"@buape/carbon": minor
 ---
 
 feat: Added BaseInteraction#editAndWaitForComponent
