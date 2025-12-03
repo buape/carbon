@@ -13,6 +13,11 @@ import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
 import { User } from "./User.js"
 
+type APIGuildMemberPartialVoice = Omit<APIGuildMember, "mute" | "deaf"> & {
+	mute: boolean | undefined
+	deaf: boolean | undefined
+}
+
 export class GuildMember<
 	// This currently can never be partial, so we don't need to worry about it
 	IsPartial extends false = false,
@@ -20,7 +25,7 @@ export class GuildMember<
 > extends Base {
 	constructor(
 		client: Client,
-		rawData: APIGuildMember,
+		rawData: APIGuildMemberPartialVoice,
 		guild: Guild<IsGuildPartial>
 	) {
 		super(client)
@@ -30,12 +35,12 @@ export class GuildMember<
 		this.setData(rawData)
 	}
 
-	protected _rawData: APIGuildMember | null = null
+	protected _rawData: APIGuildMemberPartialVoice | null = null
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
 	}
-	private setField(key: keyof APIGuildMember, value: unknown) {
+	private setField(key: keyof APIGuildMemberPartialVoice, value: unknown) {
 		if (!this._rawData)
 			throw new Error("Cannot set field without having data... smh")
 		Reflect.set(this._rawData, key, value)
@@ -44,7 +49,7 @@ export class GuildMember<
 	/**
 	 * The raw Discord API data for this guild member
 	 */
-	get rawData(): Readonly<APIGuildMember> {
+	get rawData(): Readonly<APIGuildMemberPartialVoice> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial GuildMember. Use fetch() to populate data."
@@ -109,16 +114,16 @@ export class GuildMember<
 	/**
 	 * Is this member muted in Voice Channels?
 	 */
-	get mute(): IfPartial<IsPartial, boolean> {
-		if (!this._rawData) return undefined as never
+	get mute(): boolean | undefined {
+		if (!this._rawData) return undefined
 		return this._rawData.mute
 	}
 
 	/**
 	 * Is this member deafened in Voice Channels?
 	 */
-	get deaf(): IfPartial<IsPartial, boolean> {
-		if (!this._rawData) return undefined as never
+	get deaf(): boolean | undefined {
+		if (!this._rawData) return undefined
 		return this._rawData.deaf
 	}
 
