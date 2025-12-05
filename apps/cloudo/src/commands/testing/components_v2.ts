@@ -14,13 +14,6 @@ import {
 	Thumbnail
 } from "@buape/carbon"
 
-export default class ComponentsV2 extends CommandWithSubcommands {
-	name = "components-v2"
-	description = "Test the new components"
-
-	subcommands = [new Main(), new ContainerCommand()]
-}
-
 class Main extends Command {
 	name = "main"
 	description = "Test the main component v2 setup"
@@ -46,7 +39,7 @@ class ContainerCommand extends Command {
 }
 
 class ButtonOne extends Button {
-	customId = "componentsv2-button1"
+	customId = "components-v2-button1"
 	label = "Click me!"
 	style = ButtonStyle.Primary
 
@@ -56,7 +49,7 @@ class ButtonOne extends Button {
 }
 
 class ButtonTwo extends Button {
-	customId = "componentsv2-button2"
+	customId = "components-v2-button2"
 	label = "Click me! (container row)"
 	style = ButtonStyle.Primary
 
@@ -97,4 +90,11 @@ const buildComponents = () => {
 		gallery,
 		new Row([new ButtonTwo()])
 	]
+}
+
+export default class ComponentsV2 extends CommandWithSubcommands {
+	name = "components-v2"
+	description = "Test the new components"
+
+	subcommands = [new Main(), new ContainerCommand()]
 }
