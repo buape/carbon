@@ -10,9 +10,9 @@ The Container component is the foundation for organizing other components in you
 
 A Container is defined by its ability to hold other components and optionally apply an accent color to them. It's the primary way to group related components together in a message.
 
-## Creating a Container
+## Creating a Container (Recommended)
 
-To create a container, you need to create a class that extends the `Container` class:
+Subclassing the `Container` class is still the preferred way to organize complex layouts:
 
 ```ts title="src/components/container.ts"
 import { Container, TextDisplay } from "@buape/carbon";
@@ -23,6 +23,22 @@ class MyContainer extends Container {
 	]
 	accentColor = "#5865F2" // Optional accent color
 }
+```
+
+## Quick Instantiation
+
+When you need to build a container inline, you can instantiate it directly:
+
+```ts
+const inlineContainer = new Container(
+	[
+		new TextDisplay("This text is inside a container.")
+	],
+	{
+		accentColor: "#5865F2",
+		spoiler: false
+	}
+)
 ```
 
 ## Usage Example

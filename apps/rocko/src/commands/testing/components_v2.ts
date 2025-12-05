@@ -22,8 +22,41 @@ class Main extends Command {
 
 	async run(interaction: CommandInteraction) {
 		const file = new Blob([readFileSync("./kiai.png")])
+		const gallery = new MediaGallery([
+			{ url: "attachment://kiai.png" },
+			{ url: "https://cdn.buape.com/carbon/logo.png" },
+			{ url: "https://cdn.buape.com/buape_circle.png" }
+		])
+		const components = [
+			new Section(
+				[
+					new TextDisplay(
+						"This is the first text component, there's a button attached!"
+					)
+				],
+				new ButtonOne()
+			),
+			new Section(
+				[
+					new TextDisplay(
+						"This is the second text component, thumbnail for this one :D"
+					)
+				],
+				new Thumbnail("https://cdn.buape.com/carbon/logo.png")
+			),
+			new TextDisplay(
+				"This is the third text component, no section for this one!"
+			),
+			new Separator({ spacing: "large" }),
+			new TextDisplay("File:"),
+			new File("attachment://kiai.png"),
+			new File("attachment://kiai.png", true),
+			new TextDisplay("Gallery:"),
+			gallery,
+			new Row([new ButtonTwo()])
+		]
 		await interaction.reply({
-			components: componentsToSend,
+			components,
 			files: [
 				{
 					name: "kiai.png",
@@ -41,8 +74,41 @@ class ContainerCommand extends Command {
 
 	async run(interaction: CommandInteraction) {
 		const file = new Blob([readFileSync("./kiai.png")])
+		const gallery = new MediaGallery([
+			{ url: "attachment://kiai.png" },
+			{ url: "https://cdn.buape.com/carbon/logo.png" },
+			{ url: "https://cdn.buape.com/buape_circle.png" }
+		])
+		const components = [
+			new Section(
+				[
+					new TextDisplay(
+						"This is the first text component, there's a button attached!"
+					)
+				],
+				new ButtonOne()
+			),
+			new Section(
+				[
+					new TextDisplay(
+						"This is the second text component, thumbnail for this one :D"
+					)
+				],
+				new Thumbnail("https://cdn.buape.com/carbon/logo.png")
+			),
+			new TextDisplay(
+				"This is the third text component, no section for this one!"
+			),
+			new Separator({ spacing: "large" }),
+			new TextDisplay("File:"),
+			new File("attachment://kiai.png"),
+			new File("attachment://kiai.png", true),
+			new TextDisplay("Gallery:"),
+			gallery,
+			new Row([new ButtonTwo()])
+		]
 		await interaction.reply({
-			components: [new ContainerOne()],
+			components: [new Container(components, "#FF0000")],
 			files: [
 				{
 					name: "kiai.png",
@@ -72,66 +138,4 @@ class ButtonTwo extends Button {
 	async run(interaction: ButtonInteraction) {
 		await interaction.reply("You clicked the button!")
 	}
-}
-
-class SectionOne extends Section {
-	components = [
-		new TextDisplay(
-			"This is the first text component, there's a button attached!"
-		)
-	]
-	accessory = new ButtonOne()
-}
-
-class CarbonThumbnail extends Thumbnail {
-	url = "https://cdn.buape.com/carbon/logo.png"
-}
-
-class SectionTwo extends Section {
-	components = [
-		new TextDisplay(
-			"This is the second text component, thumbnail for this one :D"
-		)
-	]
-	accessory = new CarbonThumbnail()
-}
-
-class KiaiGallery extends MediaGallery {
-	items = [
-		{
-			url: "attachment://kiai.png"
-		},
-		{
-			url: "https://cdn.buape.com/carbon/logo.png"
-		},
-		{
-			url: "https://cdn.buape.com/buape_circle.png"
-		}
-	]
-}
-
-const componentsToSend = [
-	new SectionOne(),
-	new SectionTwo(),
-	new TextDisplay("This is the third text component, no section for this one!"),
-	new Separator({ spacing: "large" }),
-	new TextDisplay("File:"),
-	new File("attachment://kiai.png"),
-	new File("attachment://kiai.png", true),
-	new TextDisplay("Gallery:"),
-	new KiaiGallery(),
-	new Row([new ButtonTwo()])
-]
-
-class ContainerOne extends Container {
-	components = componentsToSend
-
-	accentColor = "#FF0000"
-}
-
-export default class ComponentsV2 extends CommandWithSubcommands {
-	name = "components-v2"
-	description = "Test the new components"
-
-	subcommands = [new Main(), new ContainerCommand()]
 }

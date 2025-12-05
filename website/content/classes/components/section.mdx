@@ -1,28 +1,37 @@
 ---
 title: Section
-description: A component that groups related information horizontally with an optional accessory.
+description: A component that groups related information horizontally with a required accessory.
 icon: Columns2
 ---
 
-The Section component helps organize related information in a horizontal layout. It can contain multiple components (typically text) and optionally include an accessory element like a thumbnail that appears alongside the main content.
+The Section component helps organize related information in a horizontal layout. It can contain multiple components (typically text) and must include an accessory element like a thumbnail or button that appears alongside the main content. If you need text-only content, use `TextDisplay` directly instead of a Section.
 
 ## Component Structure
 
-A Section is defined by its ability to display components horizontally and optionally include an accessory component. It's commonly used to pair text with related media or icons.
+A Section is defined by its ability to display components horizontally alongside an accessory component. It's commonly used to pair text with related media or icons.
 
-## Creating a Section
+## Creating a Section (Recommended)
 
-To create a section, you need to create a class that extends the `Section` class:
+Subclassing keeps complex layouts tidy and ensures every section has its required accessory:
 
 ```ts title="src/components/section.ts"
 import { Section, TextDisplay, Thumbnail } from "@buape/carbon";
 
 class MySection extends Section {
-	components = [
-		new TextDisplay("This is the main content of the section.")
-	]
+	components = [new TextDisplay("This is the main content of the section.")]
 	accessory = new Thumbnail("https://example.com/icon.png")
 }
+```
+
+## Quick Instantiation
+
+For quick inline usage you can instantiate directly (remember to provide the accessory):
+
+```ts
+const mySection = new Section(
+	[new TextDisplay("This is the main content of the section.")],
+	new Thumbnail("https://example.com/icon.png")
+)
 ```
 
 ## Usage Example

@@ -8,9 +8,9 @@ Buttons appear below messages and can be used to trigger actions or link to exte
 
 ## Creating a Button
 
-To create a button, you need to create a class that extends the `Button` class. This class will handle the button and its functionality.
+Subclassing the `Button` class remains the recommended approach for reusable components:
 
-```ts title="src/buttons/ping.ts"
+```ts title="src/buttons/ping-class.ts"
 import { Button, type ButtonInteraction } from "@buape/carbon";
 
 export default class PingButton extends Button {
@@ -23,9 +23,22 @@ export default class PingButton extends Button {
 }
 ```
 
-In this example, we have created a simple button that responds with "Pong" when the user clicks on it.
+### Inline Button Overrides
 
-The custom ID is what is set on the button to differentiate it from other buttons. You cannot have the same custom ID for multiple buttons in a message sent to Discord.
+If you only need a button in a single spot, you can instantiate it inline by extending the class on the fly:
+
+```ts
+import { Button, type ButtonInteraction } from "@buape/carbon";
+
+const pingButton = new (class extends Button {
+	customId = "ping-inline"
+	label = "Ping"
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("Pong!")
+	}
+})()
+```
 
 ### Setting the Style
 
@@ -39,12 +52,12 @@ The `style` property is used to set the style of the button. This is used to det
 
 ## Link Buttons
 
-Link buttons are used to link to external sources. They are created by extending the `LinkButton` class, and adding a `url` property.
+Link buttons are used to link to external sources. They are typically created by extending the `LinkButton` class and providing a `url` property:
 
 ```ts title="src/buttons/link.ts"
-import { Button, type ButtonInteraction } from "@buape/carbon";
+import { LinkButton } from "@buape/carbon"
 
-export default class LinkButton extends Button {
+export default class DocsButton extends LinkButton {
 	label = "Carbon Documentation"
 	url = "https://carbon.buape.com"
 }
