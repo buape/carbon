@@ -28,11 +28,11 @@ export const parseCustomId = (id: string): ComponentParserResult => {
 					if (v === "true") return [k, true]
 					if (v === "false") return [k, false]
 
-					// Handle numeric values, but preserve empty strings
+					// Handle numeric values, but preserve empty strings and numbers longer than 12 characters
 					if (v === "") return [k, ""]
 
 					const numValue = Number(v)
-					return [k, Number.isNaN(numValue) ? v : numValue]
+					return [k, Number.isNaN(numValue) || v.length > 12 ? v : numValue]
 				})
 		)
 	}
