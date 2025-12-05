@@ -37,6 +37,46 @@ The `type` property is used to set the type of the command. This is used to dete
 -   `User`: This is a command that can be used in a user context.
 -   `Message`: This is a command that can be used in a message context.
 
+#### Accessing the Target for Context Menu Commands
+
+For context menu commands, Carbon exposes helpers so you don’t have to dig into the raw payload:
+
+```ts
+import { ApplicationCommandType } from "discord-api-types/v10"
+
+async run(interaction: CommandInteraction) {
+	if (interaction.type === ApplicationCommandType.Message) {
+		const target = interaction.targetMessage
+		if (target) {
+			await target.reply("Thanks for sharing this message!")
+		}
+	}
+
+	if (interaction.type === ApplicationCommandType.User) {
+		const targetUser = interaction.targetUser
+		if (targetUser) {
+			await interaction.reply(`Username: ${targetUser.globalName ?? targetUser.username}`)
+		}
+	}
+}
+```
+
+- `interaction.targetMessage` returns a fully constructed [`Message`](/api/index/classes/Message) for message-context commands (equivalent to the resolved message in the raw data).
+- `interaction.targetUser` returns the resolved [`User`](/api/index/classes/User) for user-context commands.
+
+These helpers fall back to `null` if the command isn’t of the matching type.
+
+### Mentioning Commands
+
+Every command tracks its Discord ID after a deploy, and exposes an `await command.getMention(client)` helper that returns the `</name:id>` string. Example:
+
+```ts
+const mention = await this.getMention(client)
+await interaction.reply(`Use ${mention} to learn more.`)
+```
+
+If the ID isn’t cached yet, Carbon fetches the current commands once via `client.getDiscordCommands()` and updates the in-memory commands so future calls don’t re-fetch.
+
 ### Options
 
 The `options` property is used to set the options of the command. These are only used for chat input commands.

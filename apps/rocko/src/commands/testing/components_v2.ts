@@ -16,13 +16,6 @@ import {
 	Thumbnail
 } from "@buape/carbon"
 
-export default class ComponentsV2 extends CommandWithSubcommands {
-	name = "components-v2"
-	description = "Test the new components"
-
-	subcommands = [new Main(), new ContainerCommand()]
-}
-
 class Main extends Command {
 	name = "main"
 	description = "Test the main component v2 setup"

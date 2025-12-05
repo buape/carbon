@@ -96,8 +96,9 @@ createServer(client, { port: 3000 })
 const handler = createHandler(client)
 export default { fetch: handler }
 {{else if (eq runtime "next")}}
-const handler = createHandler(client)
-export { handler as GET, handler as POST }
+const handler = createHandler(client);
+export const GET = (req: Request) => handler(req, {});
+export const POST = (req: Request) => handler(req, {});
 {{/if}}
 
 declare global {

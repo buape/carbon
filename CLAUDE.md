@@ -9,7 +9,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm test` - Run tests using Vitest
 - `pnpm lint` - Run Biome linter with auto-fix
 - `pnpm dev` - Start development servers (excludes Cloudflare/socket demo apps)
-- `pnpm generate` - Generate new package using Turbo generator
 
 **Package Management:**
 - Uses `pnpm` with workspace configuration

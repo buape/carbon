@@ -11,6 +11,8 @@ import {
 	type AnyChannel,
 	type Client,
 	type CommandOptions,
+	Guild,
+	GuildMember,
 	type ResolvedFile,
 	Role,
 	User
@@ -189,6 +191,47 @@ export class OptionsHandler extends Base {
 			)
 		}
 		return new User(this.client, user)
+	}
+
+	/**
+	 * Get the member data of the value of a user option, if the user is in the guild the interaction was ran in.
+	 * @param key The name of the option to get the value of.
+	 * @param required Whether the option is required.
+	 * @returns The value of the option, or undefined if the option was not provided and it is not required, or null if the user is not in the server.
+	 */
+	public getMember(
+		key: string,
+		required?: false
+	): GuildMember<false, true> | null | undefined
+	public getMember(key: string, required: true): GuildMember<false, true> | null
+	public getMember(
+		key: string,
+		required = false
+	): GuildMember<false, true> | null | undefined {
+		const id = this.raw.find(
+			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
+		)?.value
+		if (required) {
+			if (!id || typeof id !== "string")
+				throw new Error(`Missing required option: ${key}`)
+		} else if (!id || typeof id !== "string") return undefined
+
+		const user = this.resolved.users?.[id]
+		if (!user) {
+			throw new Error(
+				`Discord failed to resolve user for ${key}, this is a bug.`
+			)
+		}
+		const rawMember = this.resolved.members?.[id]
+		const guildId = this.guildId
+		let member: GuildMember<false, true> | null = null
+		if (rawMember && guildId)
+			member = new GuildMember<false, true>(
+				this.client,
+				{ ...rawMember, mute: undefined, deaf: undefined, user },
+				new Guild(this.client, guildId)
+			)
+		return member
 	}
 
 	public async getChannelId(
