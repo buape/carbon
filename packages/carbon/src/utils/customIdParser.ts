@@ -28,7 +28,7 @@ export const parseCustomId = (id: string): ComponentParserResult => {
 					if (v === "true") return [k, true]
 					if (v === "false") return [k, false]
 
-					// Handle numeric values, but preserve empty strings and numbers longer than 12 characters
+					// Handle numeric values, but preserve empty strings and numbers that are unsafe to cast to a Number
 					if (v === "") return [k, ""]
 
 					const numValue = Number(v)
