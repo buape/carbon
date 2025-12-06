@@ -32,12 +32,11 @@ export const parseCustomId = (id: string): ComponentParserResult => {
 					if (v === "") return [k, ""]
 
 					const numValue = Number(v)
-					return [
-						k,
-						Number.isNaN(numValue) || !Number.isSafeInteger(numValue)
-							? v
-							: numValue
-					]
+					if (Number.isNaN(numValue)) return [k, v]
+					if (Number.isInteger(numValue) && !Number.isSafeInteger(numValue))
+						return [k, v]
+
+					return [k, numValue]
 				})
 		)
 	}
