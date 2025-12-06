@@ -140,4 +140,18 @@ describe("parseCustomId", () => {
 			}
 		})
 	})
+
+	test("handles long numeric strings (like Discord snowflake IDs) as strings", () => {
+		const result = parseCustomId(
+			"test:userId=123456789012345678;channelId=987654321098765432;small=123"
+		)
+		expect(result).toEqual({
+			key: "test",
+			data: {
+				userId: "123456789012345678",
+				channelId: "987654321098765432",
+				small: 123
+			}
+		})
+	})
 })
