@@ -41,6 +41,11 @@ export type RequestClientOptions = {
 	 * @default true
 	 */
 	queueRequests?: boolean
+	/**
+	 * The maximum amount of queued requests before throwing.
+	 * @default 1000
+	 */
+	maxQueueSize?: number
 }
 
 const defaultOptions: Required<RequestClientOptions> = {
@@ -49,7 +54,8 @@ const defaultOptions: Required<RequestClientOptions> = {
 	apiVersion: 10,
 	userAgent: "DiscordBot (https://github.com/buape/carbon, v0.0.0)",
 	timeout: 15000,
-	queueRequests: true
+	queueRequests: true,
+	maxQueueSize: 1000
 }
 
 export type QueuedRequest = {
@@ -59,6 +65,7 @@ export type QueuedRequest = {
 	query?: Record<string, string | number | boolean>
 	resolve: (value?: unknown) => void
 	reject: (reason?: unknown) => void
+	routeKey: string
 }
 
 export type RequestData = {
@@ -78,22 +85,24 @@ export class RequestClient {
 	readonly options: RequestClientOptions
 	protected queue: QueuedRequest[] = []
 	private token: string
-	private rateLimitResetTime: number
 	private abortController: AbortController | null = null
+	private processingQueue = false
+	private routeBuckets: Map<string, string> = new Map()
+	private bucketStates: Map<
+		string,
+		{
+			delayUntil: number
+			extraBackoff: number
+			remaining: number
+		}
+	> = new Map()
+	private globalRateLimitUntil = 0
 
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
 		this.options = {
 			...defaultOptions,
 			...options
-		}
-		this.rateLimitResetTime = 0
-	}
-
-	private async waitForRateLimit() {
-		const delay = this.rateLimitResetTime - Date.now()
-		if (delay > 0) {
-			await new Promise((resolve) => setTimeout(resolve, delay))
 		}
 	}
 
@@ -124,19 +133,62 @@ export class RequestClient {
 	) {
 		return await this.request("DELETE", path, { data, query })
 	}
+
 	private async request(
 		method: string,
 		path: string,
 		{ data, query }: { data?: RequestData; query?: QueuedRequest["query"] }
 	): Promise<unknown> {
+		const routeKey = this.getRouteKey(method, path)
 		if (this.options.queueRequests) {
+			if (
+				typeof this.options.maxQueueSize === "number" &&
+				this.options.maxQueueSize > 0 &&
+				this.queue.length >= this.options.maxQueueSize
+			) {
+				const stats = this.queue.reduce(
+					(acc, item) => {
+						const count = (acc.counts.get(item.routeKey) ?? 0) + 1
+						acc.counts.set(item.routeKey, count)
+						if (count > acc.topCount) {
+							acc.topCount = count
+							acc.topRoute = item.routeKey
+						}
+						return acc
+					},
+					{
+						counts: new Map<string, number>([[routeKey, 1]]),
+						topRoute: routeKey,
+						topCount: 1
+					}
+				)
+				throw new Error(
+					`Request queue is full (${this.queue.length} / ${this.options.maxQueueSize}), you should implement a queuing system in your requests or raise the queue size in Carbon. Top offender: ${stats.topRoute}`
+				)
+			}
 			return new Promise((resolve, reject) => {
-				this.queue.push({ method, path, data, query, resolve, reject })
+				this.queue.push({
+					method,
+					path,
+					data,
+					query,
+					resolve,
+					reject,
+					routeKey
+				})
 				this.processQueue()
 			})
 		}
 		return new Promise((resolve, reject) => {
-			this.executeRequest({ method, path, data, query, resolve, reject })
+			this.executeRequest({
+				method,
+				path,
+				data,
+				query,
+				resolve,
+				reject,
+				routeKey
+			})
 				.then(resolve)
 				.catch((err) => {
 					reject(err)
@@ -145,9 +197,9 @@ export class RequestClient {
 	}
 
 	private async executeRequest(request: QueuedRequest): Promise<unknown> {
-		await this.waitForRateLimit()
+		const { method, path, data, query, routeKey } = request
+		await this.waitForBucket(routeKey)
 
-		const { method, path, data, query } = request
 		const queryString = query
 			? `?${Object.entries(query)
 					.map(
@@ -258,78 +310,209 @@ export class RequestClient {
 			signal: this.abortController.signal
 		})
 
-		if (response.status === 429) {
-			const responseBody = await response.json()
-			const rateLimitError = new RateLimitError(response, responseBody)
-			if (this.options.queueRequests) {
-				const rateLimitResetTime =
-					Number(response.headers.get("Retry-After")) * 1000
-				this.rateLimitResetTime = Date.now() + rateLimitResetTime
-				if (rateLimitError.scope === "global") {
-					await new Promise((res) => setTimeout(res, rateLimitResetTime))
-					this.queue.unshift(request)
-				}
+		let rawBody = ""
+		let parsedBody: unknown
+		try {
+			rawBody = await response.text()
+		} catch {
+			rawBody = ""
+		}
+		if (rawBody.length > 0) {
+			try {
+				parsedBody = JSON.parse(rawBody)
+			} catch {
+				parsedBody = undefined
 			}
+		}
+
+		if (response.status === 429) {
+			const rateLimitBody =
+				parsedBody &&
+				typeof parsedBody === "object" &&
+				"retry_after" in parsedBody &&
+				"message" in parsedBody
+					? (parsedBody as {
+							message: string
+							retry_after: number
+							global: boolean
+						})
+					: {
+							message:
+								typeof parsedBody === "string"
+									? parsedBody
+									: rawBody || "You are being rate limited.",
+							retry_after: (() => {
+								const retryAfterHeader = response.headers.get("Retry-After")
+								if (
+									retryAfterHeader &&
+									!Number.isNaN(Number(retryAfterHeader))
+								) {
+									return Number(retryAfterHeader)
+								}
+								return 1
+							})(),
+							global: response.headers.get("X-RateLimit-Scope") === "global"
+						}
+			const rateLimitError = new RateLimitError(response, rateLimitBody)
+			this.scheduleRateLimit(routeKey, rateLimitError)
 			throw rateLimitError
 		}
 
+		this.updateBucketFromHeaders(routeKey, response)
+
 		if (response.status >= 400 && response.status < 600) {
-			throw new DiscordError(response, await response.json())
+			const discordErrorBody =
+				parsedBody && typeof parsedBody === "object"
+					? (parsedBody as {
+							message: string
+							code?: number
+						})
+					: {
+							message: rawBody || "Discord API error",
+							code: 0
+						}
+			throw new DiscordError(response, discordErrorBody)
 		}
 
-		try {
-			return await response.json()
-		} catch (err) {
-			if (err instanceof SyntaxError) {
-				// If there is no JSON
-				return await response.text()
-			}
-			throw err
-		}
+		if (parsedBody !== undefined) return parsedBody
+		if (rawBody.length > 0) return rawBody
+		return null
 	}
 
 	private async processQueue() {
-		if (this.queue.length === 0) return
-
-		const queueItem = this.queue.shift()
-		if (!queueItem) return
-
-		const { method, path, data, query, resolve, reject } = queueItem
-
-		try {
-			const result = await this.executeRequest({
-				method,
-				path,
-				data,
-				query,
-				resolve,
-				reject
-			})
-			resolve(result)
-		} catch (error) {
-			if (
-				error instanceof RateLimitError &&
-				this.options.queueRequests &&
-				error.scope === "global"
-			) {
-				this.queue.unshift(queueItem)
-			} else {
-				if (error instanceof Error) {
+		if (this.processingQueue) return
+		this.processingQueue = true
+		while (this.queue.length > 0) {
+			const queueItem = this.queue.shift()
+			if (!queueItem) continue
+			const { resolve, reject } = queueItem
+			try {
+				const result = await this.executeRequest(queueItem)
+				resolve(result)
+			} catch (error) {
+				if (error instanceof RateLimitError && this.options.queueRequests) {
+					this.queue.unshift(queueItem)
+				} else if (error instanceof Error) {
 					reject(error)
 				} else {
 					reject(new Error("Unknown error during request", { cause: error }))
 				}
+			} finally {
+				this.abortController = null
 			}
-		} finally {
-			this.abortController = null
+		}
+		this.processingQueue = false
+		if (this.queue.length > 0) {
 			this.processQueue()
 		}
+	}
+
+	private async waitForBucket(routeKey: string) {
+		while (true) {
+			const now = Date.now()
+			if (this.globalRateLimitUntil > now) {
+				await sleep(this.globalRateLimitUntil - now)
+				continue
+			}
+			const bucketId = this.routeBuckets.get(routeKey) ?? routeKey
+			const bucket = this.bucketStates.get(bucketId)
+			if (bucket && bucket.delayUntil > now) {
+				await sleep(bucket.delayUntil - now)
+				continue
+			}
+			break
+		}
+	}
+
+	private scheduleRateLimit(routeKey: string, error: RateLimitError) {
+		const bucketId = error.bucket ?? this.routeBuckets.get(routeKey) ?? routeKey
+		const waitTime = Math.max(0, Math.ceil(error.retryAfter * 1000))
+		const now = Date.now()
+		const bucket = this.bucketStates.get(bucketId) ?? {
+			delayUntil: 0,
+			extraBackoff: 0,
+			remaining: 0
+		}
+		const existingDelayPassed = bucket.delayUntil <= now
+		const extraBackoff = existingDelayPassed
+			? Math.min(bucket.extraBackoff ? bucket.extraBackoff * 2 : 1000, 60_000)
+			: (bucket.extraBackoff ?? 0)
+		const nextAvailable = now + waitTime + extraBackoff
+		this.bucketStates.set(bucketId, {
+			delayUntil: nextAvailable,
+			extraBackoff,
+			remaining: 0
+		})
+		this.routeBuckets.set(routeKey, bucketId)
+		if (error.scope === "global") {
+			this.globalRateLimitUntil = nextAvailable
+		}
+	}
+
+	private updateBucketFromHeaders(routeKey: string, response: Response) {
+		const bucketId = response.headers.get("X-RateLimit-Bucket")
+		const remainingRaw = response.headers.get("X-RateLimit-Remaining")
+		const resetAfterRaw = response.headers.get("X-RateLimit-Reset-After")
+		const hasInfo = !!bucketId || !!remainingRaw || !!resetAfterRaw
+		if (!hasInfo) return
+
+		const key = bucketId ?? this.routeBuckets.get(routeKey) ?? routeKey
+		if (bucketId) this.routeBuckets.set(routeKey, bucketId)
+		const remaining = remainingRaw ? Number(remainingRaw) : undefined
+		const resetAfter = resetAfterRaw ? Number(resetAfterRaw) * 1000 : undefined
+		const now = Date.now()
+		const bucket = this.bucketStates.get(key) ?? {
+			delayUntil: 0,
+			extraBackoff: 0,
+			remaining: 1
+		}
+
+		if (typeof remaining === "number" && !Number.isNaN(remaining)) {
+			bucket.remaining = remaining
+		}
+		if (
+			typeof resetAfter === "number" &&
+			!Number.isNaN(resetAfter) &&
+			bucket.remaining <= 0
+		) {
+			bucket.delayUntil = now + resetAfter
+		} else if (bucket.remaining > 0) {
+			bucket.delayUntil = 0
+		}
+		bucket.extraBackoff = 0
+		this.bucketStates.set(key, bucket)
+	}
+
+	private getRouteKey(method: string, path: string) {
+		const segments = path.split("/")
+		const normalized = segments
+			.map((segment, index) => {
+				if (!/^\d{16,}$/.test(segment)) return segment
+				const prev = segments[index - 1]
+				if (prev && ["channels", "guilds", "webhooks"].includes(prev)) {
+					return ":id"
+				}
+				return ":id"
+			})
+			.join("/")
+		return `${method}:${normalized}`
+	}
+
+	clearQueue() {
+		this.queue = []
+	}
+
+	get queueSize() {
+		return this.queue.length
 	}
 
 	abortAllRequests() {
 		if (this.abortController) {
 			this.abortController.abort()
 		}
-		this.queue = []
+		this.clearQueue()
 	}
 }
+
+const sleep = (ms: number) =>
+	new Promise((resolve) => setTimeout(resolve, Math.max(ms, 0)))

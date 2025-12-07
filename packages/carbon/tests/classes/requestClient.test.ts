@@ -1,4 +1,4 @@
-import { expect, test, vi } from "vitest"
+import { beforeEach, expect, test, vi } from "vitest"
 import { DiscordError, RequestClient } from "../../src/index.js"
 
 const mockFetch = vi.fn()
@@ -9,14 +9,21 @@ const clientOptions = {
 	baseUrl: "https://discord.com/api"
 }
 
+const createMockResponse = (status: number, body: unknown) => ({
+	status,
+	headers: new Headers(),
+	text: async () => JSON.stringify(body)
+})
+
+beforeEach(() => {
+	mockFetch.mockReset()
+})
+
 test("RequestClient: successful GET request", async () => {
 	const requestClient = new RequestClient("test-token", clientOptions)
 	const mockResponse = { data: "test data" }
 
-	mockFetch.mockResolvedValueOnce({
-		status: 200,
-		json: async () => mockResponse
-	})
+	mockFetch.mockResolvedValueOnce(createMockResponse(200, mockResponse))
 
 	const response = await requestClient.get("/test-path")
 	expect(response).toEqual(mockResponse)
@@ -25,9 +32,8 @@ test("RequestClient: successful GET request", async () => {
 test("RequestClient: handles DiscordError", async () => {
 	const requestClient = new RequestClient("test-token", clientOptions)
 
-	mockFetch.mockResolvedValueOnce({
-		status: 400,
-		json: async () => ({
+	mockFetch.mockResolvedValueOnce(
+		createMockResponse(400, {
 			code: 50035,
 			message: "Invalid Form Body",
 			errors: {
@@ -53,7 +59,7 @@ test("RequestClient: handles DiscordError", async () => {
 				}
 			}
 		})
-	})
+	)
 
 	await expect(requestClient.get("/invalid-path")).rejects.toThrow(DiscordError)
 })
@@ -62,10 +68,7 @@ test("RequestClient: processes queue", async () => {
 	const requestClient = new RequestClient("test-token", clientOptions)
 	const mockResponse = { data: "test data" }
 
-	mockFetch.mockResolvedValue({
-		status: 200,
-		json: async () => mockResponse
-	})
+	mockFetch.mockResolvedValue(createMockResponse(200, mockResponse))
 
 	const promise1 = requestClient.get("/test-path-1")
 	const promise2 = requestClient.get("/test-path-2")
