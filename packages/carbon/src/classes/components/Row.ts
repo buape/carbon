@@ -17,9 +17,9 @@ export class Row<
 	 */
 	components: T[] = []
 
-	constructor(components?: T[]) {
+	constructor(components: T[] = []) {
 		super()
-		if (components) this.components = components
+		this.components = components
 	}
 
 	/**

@@ -19,11 +19,11 @@ export class Section extends BaseComponent {
 	 * You can only have 1 Thumbnail or Button in a Section.
 	 * If you don't want an accessory, you should be just using the TextDisplay directly.
 	 */
-	accessory: Thumbnail | Button | LinkButton
+	accessory: Thumbnail | Button | LinkButton | undefined
 
 	constructor(
 		components: TextDisplay[] = [],
-		accessory: Thumbnail | Button | LinkButton
+		accessory?: Thumbnail | Button | LinkButton
 	) {
 		super()
 		this.components = components
@@ -35,6 +35,9 @@ export class Section extends BaseComponent {
 			throw new Error(
 				"Sections must contain at least one TextDisplay component"
 			)
+		}
+		if (!this.accessory) {
+			throw new Error("Sections must have an accessory component")
 		}
 		return {
 			type: this.type,

@@ -44,21 +44,20 @@ export class Container extends BaseComponent {
 			| Separator
 			| File
 		)[] = [],
-		options:
-			| { accentColor?: `#${string}` | string | number; spoiler?: boolean }
-			| string
-			| number = {}
+		options: {
+			accentColor?: `#${string}` | string | number
+			spoiler?: boolean
+		} = {}
 	) {
 		super()
 		this.components = components
 
-		if (typeof options === "string" || typeof options === "number") {
-			this.accentColor = options
-		} else {
+		if (options.accentColor) {
 			this.accentColor = options.accentColor
-			if (options.spoiler !== undefined) {
-				this.spoiler = options.spoiler
-			}
+		}
+
+		if (options.spoiler) {
+			this.spoiler = options.spoiler
 		}
 	}
 

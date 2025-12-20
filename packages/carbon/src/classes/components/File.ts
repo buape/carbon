@@ -12,20 +12,23 @@ export class File extends BaseComponent {
 	/**
 	 * The attachment to display in the file component.
 	 */
-	file: `attachment://${string}`
+	file: `attachment://${string}` | undefined
 
 	/**
 	 * Whether the file should be displayed as a spoiler.
 	 */
 	spoiler = false
 
-	constructor(file: `attachment://${string}`, spoiler?: boolean) {
+	constructor(file?: `attachment://${string}`, spoiler?: boolean) {
 		super()
-		this.file = file
+		this.file = file || undefined
 		this.spoiler = spoiler ?? false
 	}
 
 	serialize = (): APIFileComponent => {
+		if (!this.file) {
+			throw new Error("File component must have a file attached")
+		}
 		return {
 			type: ComponentType.File,
 			id: this.id,
