@@ -33,7 +33,7 @@ class ContainerCommand extends Command {
 	async run(interaction: CommandInteraction) {
 		const components = buildComponents()
 		await interaction.reply({
-			components: [new Container(components, "#FF0000")]
+			components: [new Container(components, { accentColor: "#FF0000" })]
 		})
 	}
 }
