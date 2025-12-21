@@ -3,3 +3,6 @@ enable_free_tier: true
 reviews:
     auto_review:
         ignore_title_keywords: ["Pending Releases"]
+issue_enrichment:
+    auto_enrich:
+        enabled: false
