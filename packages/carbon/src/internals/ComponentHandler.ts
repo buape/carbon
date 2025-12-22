@@ -3,6 +3,7 @@ import {
 	type APIMessageComponentInteraction,
 	type APIMessageComponentInteractionData,
 	type APIMessageComponentSelectMenuInteraction,
+	type ComponentType,
 	InteractionResponseType,
 	type RESTPostAPIInteractionCallbackJSONBody,
 	Routes
@@ -52,9 +53,9 @@ export class ComponentHandler extends Base {
 		return false
 	}
 
-	private findComponent(
+	findComponent(
 		customId: string,
-		componentType: number
+		componentType: ComponentType
 	): BaseMessageInteractiveComponent | undefined {
 		for (const component of this.componentCache.values()) {
 			const componentKey = component.customIdParser(component.customId).key

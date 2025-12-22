@@ -36,6 +36,7 @@ import {
 	subtleCrypto,
 	valueToUint8Array
 } from "../utils/index.js"
+import type { Modal } from "./Modal.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 type SerializedCommand = ReturnType<BaseCommand["serialize"]>
@@ -125,10 +126,6 @@ export class Client {
 	 */
 	listeners: BaseListener[] = []
 	/**
-	 * The components that the client has globally registered
-	 */
-	components: BaseMessageInteractiveComponent[] = []
-	/**
 	 * The rest client used to interact with the Discord API
 	 */
 	rest: RequestClient
@@ -183,6 +180,7 @@ export class Client {
 			commands?: BaseCommand[]
 			listeners?: BaseListener[]
 			components?: BaseMessageInteractiveComponent[]
+			modals?: Modal[]
 		},
 		plugins: Plugin[] = []
 	) {
@@ -195,7 +193,6 @@ export class Client {
 		this.options = options
 		this.commands = handlers.commands ?? []
 		this.listeners = handlers.listeners ?? []
-		this.components = handlers.components ?? []
 
 		// Remove trailing slashes from the base URL
 		options.baseUrl = options.baseUrl.replace(/\/+$/, "")
@@ -207,13 +204,16 @@ export class Client {
 		this.temporaryListeners = new TemporaryListenerManager(this)
 		this.emoji = new EmojiHandler(this)
 
-		for (const component of this.components) {
+		for (const component of handlers.components ?? []) {
 			this.componentHandler.registerComponent(component)
 		}
 		for (const command of this.commands) {
 			for (const component of command.components ?? []) {
 				this.componentHandler.registerComponent(component)
 			}
+		}
+		for (const modal of handlers.modals ?? []) {
+			this.modalHandler.registerModal(modal)
 		}
 
 		this.rest = new RequestClient(options.token, options.requestOptions)
