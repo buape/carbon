@@ -43,3 +43,5 @@ jobs:
 
             - name: ${{ matrix.task.name }}
               run: ${{ matrix.task.run }}
+              env:
+                WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
