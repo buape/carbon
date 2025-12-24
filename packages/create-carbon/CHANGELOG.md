@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.5.2
+
+### Patch Changes
+
+- 931dfcb: fix: Adjust how the nextjs handler is created
+
 ## 0.5.1
 
 ### Patch Changes
