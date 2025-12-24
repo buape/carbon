@@ -66,7 +66,7 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 			/**
 			 * The value of the choice, this is what the bot will receive from Discord as the value
 			 */
-			value: string
+			value: string | number
 		}[]
 	) {
 		let safeChoices = choices
