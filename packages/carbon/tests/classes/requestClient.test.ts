@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from "vitest"
-import { DiscordError, RequestClient } from "../../src/index.js"
+import { DiscordError, RateLimitError, RequestClient } from "../../src/index.js"
 
 const mockFetch = vi.fn()
 
@@ -9,9 +9,13 @@ const clientOptions = {
 	baseUrl: "https://discord.com/api"
 }
 
-const createMockResponse = (status: number, body: unknown) => ({
+const createMockResponse = (
+	status: number,
+	body: unknown,
+	headers?: Record<string, string>
+) => ({
 	status,
-	headers: new Headers(),
+	headers: new Headers(headers),
 	text: async () => JSON.stringify(body)
 })
 
@@ -77,4 +81,87 @@ test("RequestClient: processes queue", async () => {
 
 	expect(response1).toEqual(mockResponse)
 	expect(response2).toEqual(mockResponse)
+})
+
+test("RequestClient: scopes rate limits by major parameter", async () => {
+	vi.useFakeTimers()
+	try {
+		const requestClient = new RequestClient("test-token", {
+			...clientOptions,
+			queueRequests: false
+		})
+
+		mockFetch
+			.mockResolvedValueOnce(
+				createMockResponse(
+					429,
+					{
+						message: "You are being rate limited.",
+						retry_after: 1,
+						global: false
+					},
+					{
+						"X-RateLimit-Bucket": "bucket-1",
+						"X-RateLimit-Scope": "shared"
+					}
+				)
+			)
+			.mockResolvedValueOnce(createMockResponse(200, { ok: true }))
+
+		await expect(requestClient.get("/channels/111/messages")).rejects.toThrow(
+			RateLimitError
+		)
+
+		await expect(requestClient.get("/channels/222/messages")).resolves.toEqual({
+			ok: true
+		})
+	} finally {
+		vi.useRealTimers()
+	}
+})
+
+test("RequestClient: waits on the same major bucket", async () => {
+	vi.useFakeTimers()
+	try {
+		const requestClient = new RequestClient("test-token", {
+			...clientOptions,
+			queueRequests: false
+		})
+
+		mockFetch
+			.mockResolvedValueOnce(
+				createMockResponse(
+					429,
+					{
+						message: "You are being rate limited.",
+						retry_after: 1,
+						global: false
+					},
+					{
+						"X-RateLimit-Bucket": "bucket-1",
+						"X-RateLimit-Scope": "shared"
+					}
+				)
+			)
+			.mockResolvedValueOnce(createMockResponse(200, { ok: true }))
+
+		await expect(requestClient.get("/channels/111/messages")).rejects.toThrow(
+			RateLimitError
+		)
+
+		let resolved = false
+		const followup = requestClient.get("/channels/111/messages").then(() => {
+			resolved = true
+		})
+
+		await Promise.resolve()
+		expect(mockFetch).toHaveBeenCalledTimes(1)
+		expect(resolved).toBe(false)
+
+		await vi.advanceTimersByTimeAsync(2100)
+		await followup
+		expect(mockFetch).toHaveBeenCalledTimes(2)
+	} finally {
+		vi.useRealTimers()
+	}
 })

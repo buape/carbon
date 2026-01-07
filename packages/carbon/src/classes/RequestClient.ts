@@ -354,11 +354,11 @@ export class RequestClient {
 							global: response.headers.get("X-RateLimit-Scope") === "global"
 						}
 			const rateLimitError = new RateLimitError(response, rateLimitBody)
-			this.scheduleRateLimit(routeKey, rateLimitError)
+			this.scheduleRateLimit(routeKey, path, rateLimitError)
 			throw rateLimitError
 		}
 
-		this.updateBucketFromHeaders(routeKey, response)
+		this.updateBucketFromHeaders(routeKey, path, response)
 
 		if (response.status >= 400 && response.status < 600) {
 			const discordErrorBody =
@@ -414,8 +414,8 @@ export class RequestClient {
 				await sleep(this.globalRateLimitUntil - now)
 				continue
 			}
-			const bucketId = this.routeBuckets.get(routeKey) ?? routeKey
-			const bucket = this.bucketStates.get(bucketId)
+			const bucketKey = this.routeBuckets.get(routeKey) ?? routeKey
+			const bucket = this.bucketStates.get(bucketKey)
 			if (bucket && bucket.delayUntil > now) {
 				await sleep(bucket.delayUntil - now)
 				continue
@@ -424,11 +424,17 @@ export class RequestClient {
 		}
 	}
 
-	private scheduleRateLimit(routeKey: string, error: RateLimitError) {
-		const bucketId = error.bucket ?? this.routeBuckets.get(routeKey) ?? routeKey
+	private scheduleRateLimit(
+		routeKey: string,
+		path: string,
+		error: RateLimitError
+	) {
+		const bucketKey = error.bucket
+			? this.getBucketKey(routeKey, path, error.bucket)
+			: (this.routeBuckets.get(routeKey) ?? routeKey)
 		const waitTime = Math.max(0, Math.ceil(error.retryAfter * 1000))
 		const now = Date.now()
-		const bucket = this.bucketStates.get(bucketId) ?? {
+		const bucket = this.bucketStates.get(bucketKey) ?? {
 			delayUntil: 0,
 			extraBackoff: 0,
 			remaining: 0
@@ -438,26 +444,32 @@ export class RequestClient {
 			? Math.min(bucket.extraBackoff ? bucket.extraBackoff * 2 : 1000, 60_000)
 			: (bucket.extraBackoff ?? 0)
 		const nextAvailable = now + waitTime + extraBackoff
-		this.bucketStates.set(bucketId, {
+		this.bucketStates.set(bucketKey, {
 			delayUntil: nextAvailable,
 			extraBackoff,
 			remaining: 0
 		})
-		this.routeBuckets.set(routeKey, bucketId)
+		this.routeBuckets.set(routeKey, bucketKey)
 		if (error.scope === "global") {
 			this.globalRateLimitUntil = nextAvailable
 		}
 	}
 
-	private updateBucketFromHeaders(routeKey: string, response: Response) {
+	private updateBucketFromHeaders(
+		routeKey: string,
+		path: string,
+		response: Response
+	) {
 		const bucketId = response.headers.get("X-RateLimit-Bucket")
 		const remainingRaw = response.headers.get("X-RateLimit-Remaining")
 		const resetAfterRaw = response.headers.get("X-RateLimit-Reset-After")
 		const hasInfo = !!bucketId || !!remainingRaw || !!resetAfterRaw
 		if (!hasInfo) return
 
-		const key = bucketId ?? this.routeBuckets.get(routeKey) ?? routeKey
-		if (bucketId) this.routeBuckets.set(routeKey, bucketId)
+		const key = bucketId
+			? this.getBucketKey(routeKey, path, bucketId)
+			: (this.routeBuckets.get(routeKey) ?? routeKey)
+		if (bucketId) this.routeBuckets.set(routeKey, key)
 		const remaining = remainingRaw ? Number(remainingRaw) : undefined
 		const resetAfter = resetAfterRaw ? Number(resetAfterRaw) * 1000 : undefined
 		const now = Date.now()
@@ -483,14 +495,46 @@ export class RequestClient {
 		this.bucketStates.set(key, bucket)
 	}
 
+	private getBucketKey(
+		routeKey: string,
+		path: string,
+		bucketId?: string | null
+	) {
+		if (!bucketId) return routeKey
+		const major = this.getMajorParameter(path)
+		return major ? `${bucketId}:${major}` : bucketId
+	}
+
+	private getMajorParameter(path: string) {
+		const segments = path.split("/")
+		for (let index = 0; index < segments.length; index += 1) {
+			const segment = segments[index]
+			const prev = segments[index - 1]
+			if (prev === "channels" || prev === "guilds") {
+				return segment
+			}
+			if (prev === "webhooks") {
+				const webhookToken = segments[index + 1]
+				return webhookToken ? `${segment}/${webhookToken}` : segment
+			}
+		}
+		return null
+	}
+
 	private getRouteKey(method: string, path: string) {
 		const segments = path.split("/")
 		const normalized = segments
 			.map((segment, index) => {
 				if (!/^\d{16,}$/.test(segment)) return segment
 				const prev = segments[index - 1]
-				if (prev && ["channels", "guilds", "webhooks"].includes(prev)) {
-					return ":id"
+				if (prev && ["channels", "guilds"].includes(prev)) {
+					return segment
+				}
+				if (prev === "webhooks") {
+					return segment
+				}
+				if (segments[index - 2] === "webhooks") {
+					return segment
 				}
 				return ":id"
 			})
