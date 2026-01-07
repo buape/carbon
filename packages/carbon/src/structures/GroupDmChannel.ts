@@ -133,6 +133,13 @@ export class GroupDmChannel<
 		this.setField("name", name)
 	}
 
+	/**
+	 * Trigger a typing indicator in the channel (this will expire after 10 seconds)
+	 */
+	async triggerTyping() {
+		await this.client.rest.post(Routes.channelTyping(this.id), {})
+	}
+
 	// TODO: Do these even work without access token?
 
 	// async addRecipient(user: User | string) {

@@ -28,4 +28,11 @@ export class DmChannel<IsPartial extends boolean = false> extends BaseChannel<
 		})) as APIMessage
 		return new Message(this.client, data)
 	}
+
+	/**
+	 * Trigger a typing indicator in the channel (this will expire after 10 seconds)
+	 */
+	async triggerTyping() {
+		await this.client.rest.post(Routes.channelTyping(this.id), {})
+	}
 }
