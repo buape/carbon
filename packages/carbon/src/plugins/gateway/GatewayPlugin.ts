@@ -228,6 +228,15 @@ export class GatewayPlugin extends Plugin {
 					break
 				}
 
+				case GatewayOpcodes.Heartbeat: {
+					this.lastHeartbeatAck = false
+					this.send({
+						op: GatewayOpcodes.Heartbeat,
+						d: this.sequence
+					})
+					break
+				}
+
 				case GatewayOpcodes.Dispatch: {
 					const payload1 = payload as GatewayDispatchPayload
 					const t1 = payload1.t as ListenerEventType

@@ -4,6 +4,7 @@ export interface HeartbeatManager {
 	sequence: number | null
 	lastHeartbeatAck: boolean
 	heartbeatInterval?: NodeJS.Timeout
+	firstHeartbeatTimeout?: NodeJS.Timeout
 	send(payload: {
 		op: (typeof GatewayOpcodes)[keyof typeof GatewayOpcodes]
 		d: number | null
@@ -21,10 +22,11 @@ export function startHeartbeat(
 ): void {
 	stopHeartbeat(manager)
 
-	const jitter = Math.random() * 1000
-	const interval = options.interval + jitter
+	const jitter = Math.random()
+	const initialDelay = Math.floor(options.interval * jitter)
+	const interval = options.interval
 
-	manager.heartbeatInterval = setInterval(() => {
+	const sendHeartbeat = () => {
 		if (!manager.lastHeartbeatAck) {
 			options.reconnectCallback()
 			return
@@ -35,15 +37,19 @@ export function startHeartbeat(
 			op: GatewayOpcodes.Heartbeat,
 			d: manager.sequence
 		})
-	}, interval)
+	}
 
-	manager.send({
-		op: GatewayOpcodes.Heartbeat,
-		d: manager.sequence
-	})
+	manager.firstHeartbeatTimeout = setTimeout(() => {
+		sendHeartbeat()
+		manager.heartbeatInterval = setInterval(sendHeartbeat, interval)
+	}, initialDelay)
 }
 
 export function stopHeartbeat(manager: HeartbeatManager): void {
+	if (manager.firstHeartbeatTimeout) {
+		clearTimeout(manager.firstHeartbeatTimeout)
+		manager.firstHeartbeatTimeout = undefined
+	}
 	if (manager.heartbeatInterval) {
 		clearInterval(manager.heartbeatInterval)
 		manager.heartbeatInterval = undefined
