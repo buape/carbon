@@ -134,12 +134,13 @@ export class GatewayPlugin extends Plugin {
 	public connect(resume = false): void {
 		this.ws?.close()
 
-		const url =
+		const baseUrl =
 			resume && this.state.resumeGatewayUrl
 				? this.state.resumeGatewayUrl
 				: (this.gatewayInfo?.url ??
 					this.options.url ??
-					"wss://gateway.discord.gg/?v=10&encoding=json")
+					"wss://gateway.discord.gg/")
+		const url = this.ensureGatewayParams(baseUrl)
 		this.ws = this.createWebSocket(url)
 		this.setupWebSocket()
 	}
@@ -185,7 +186,10 @@ export class GatewayPlugin extends Plugin {
 
 			const { op, d, s, t } = payload
 
-			if (s) this.sequence = s
+			if (s !== null && s !== undefined) {
+				this.sequence = s
+				this.state.sequence = s
+			}
 
 			switch (op) {
 				case GatewayOpcodes.Hello: {
@@ -209,7 +213,6 @@ export class GatewayPlugin extends Plugin {
 					} else {
 						this.identify()
 					}
-					this.isConnected = true
 					break
 				}
 
@@ -251,6 +254,9 @@ export class GatewayPlugin extends Plugin {
 						}
 						if (t && this.client) {
 							if (!this.options.eventFilter || this.options.eventFilter?.(t1)) {
+								if (t1 === "READY" || t1 === "RESUMED") {
+									this.isConnected = true
+								}
 								if (t1 === "READY") {
 									const readyData = d as ListenerEventRawData[typeof t1]
 									readyData.guilds.forEach((guild) => {
@@ -338,7 +344,7 @@ export class GatewayPlugin extends Plugin {
 					}
 					closed = true
 					this.state.sequence = this.sequence
-					this.ws?.close(3024)
+					this.ws?.close()
 					this.handleReconnect()
 					break
 			}
@@ -448,16 +454,15 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	protected canResume(): boolean {
-		return Boolean(this.state.sessionId && this.sequence)
+		return Boolean(this.state.sessionId && this.sequence !== null)
 	}
 
 	protected resume(): void {
-		if (!this.client || !this.state.sessionId || this.state.sequence === null)
-			return
+		if (!this.client || !this.state.sessionId || this.sequence === null) return
 		const payload = createResumePayload({
 			token: this.client.options.token,
 			sessionId: this.state.sessionId,
-			sequence: this.state.sequence
+			sequence: this.sequence
 		})
 		this.send(payload, true)
 	}
@@ -601,5 +606,27 @@ export class GatewayPlugin extends Plugin {
 	 */
 	public hasIntent(intent: number): boolean {
 		return (this.options.intents & intent) !== 0
+	}
+
+	private ensureGatewayParams(url: string): string {
+		try {
+			const parsed = new URL(url)
+			if (!parsed.searchParams.get("v")) {
+				parsed.searchParams.set("v", "10")
+			}
+			if (!parsed.searchParams.get("encoding")) {
+				parsed.searchParams.set("encoding", "json")
+			}
+			return parsed.toString()
+		} catch {
+			const hasQuery = url.includes("?")
+			const hasV = url.includes("v=")
+			const hasEncoding = url.includes("encoding=")
+			const separator = hasQuery ? "&" : "?"
+			const parts: string[] = []
+			if (!hasV) parts.push("v=10")
+			if (!hasEncoding) parts.push("encoding=json")
+			return parts.length ? `${url}${separator}${parts.join("&")}` : url
+		}
 	}
 }
