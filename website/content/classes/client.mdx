@@ -28,3 +28,38 @@ Here we have created a client with the following options:
 
 And we have also provided it with a list of commands, which in this case is just the `PingCommand` we created earlier.
 
+## Event Queue Options
+
+The client can be configured with an event queue to control how gateway events are processed.
+
+```ts title="src/index.ts"
+const client = new Client({
+    baseUrl: " ... ",
+    deploySecret: " ... ",
+    clientId: " ... ",
+    publicKey: " ... ",
+    token: " ... ",
+    eventQueue: {
+        maxQueueSize: 10000,
+        maxConcurrency: 50,
+        listenerTimeout: 30000,
+        listenerConcurrency: 10,
+        yieldIntervalMs: 0,
+        logSlowListeners: true,
+        slowListenerThreshold: 1000
+    }
+}, [new PingCommand()])
+```
+
+- `maxQueueSize`: Maximum number of events that can be queued before backpressure is applied
+- `maxConcurrency`: Maximum number of concurrent event processing operations
+- `listenerTimeout`: Maximum time in ms a single listener can take before timing out
+- `listenerConcurrency`: Maximum number of listeners processed at the same time per event
+- `yieldIntervalMs`: Yield to the event loop after this many ms of listener work
+- `logSlowListeners`: Whether to log slow listeners
+- `slowListenerThreshold`: Threshold in ms for logging slow listeners
+
+Guidance:
+
+- Use lower `listenerConcurrency` (1-5) for CPU-heavy or sync I/O handlers, higher for mostly async work.
+- Set `yieldIntervalMs` to 10-50ms for long-running handlers to reduce event loop starvation, or keep 0 for maximum throughput.

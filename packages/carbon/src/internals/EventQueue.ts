@@ -29,6 +29,8 @@ export interface EventQueueOptions {
 	 * @default 30000 (30 seconds)
 	 */
 	listenerTimeout?: number
+	listenerConcurrency?: number
+	yieldIntervalMs?: number
 
 	/**
 	 * Whether to log slow listeners
@@ -48,6 +50,7 @@ export class EventQueue {
 	private queue: QueuedEvent<keyof ListenerEventRawData>[] = []
 	private processing = 0
 	private options: Required<EventQueueOptions>
+	private lastYieldAt = 0
 
 	// Metrics
 	private processedCount = 0
@@ -60,6 +63,8 @@ export class EventQueue {
 			maxQueueSize: options.maxQueueSize ?? 10000,
 			maxConcurrency: options.maxConcurrency ?? 50,
 			listenerTimeout: options.listenerTimeout ?? 30000,
+			listenerConcurrency: options.listenerConcurrency ?? 10,
+			yieldIntervalMs: options.yieldIntervalMs ?? 0,
 			logSlowListeners: options.logSlowListeners ?? true,
 			slowListenerThreshold: options.slowListenerThreshold ?? 1000
 		}
@@ -116,10 +121,26 @@ export class EventQueue {
 		event: QueuedEvent<T>
 	): Promise<void> {
 		const listeners = this.client.listeners.filter((x) => x.type === event.type)
+		const concurrency =
+			this.options.listenerConcurrency <= 0
+				? listeners.length
+				: this.options.listenerConcurrency
+		let index = 0
 
-		await Promise.allSettled(
-			listeners.map((listener) => this.processListener(listener, event))
+		const runNext = async (): Promise<void> => {
+			while (index < listeners.length) {
+				const listener = listeners[index++]
+				if (!listener) continue
+				await this.maybeYield()
+				await this.processListener(listener, event)
+			}
+		}
+
+		const workers = Array.from(
+			{ length: Math.min(concurrency, listeners.length) },
+			() => runNext()
 		)
+		await Promise.allSettled(workers)
 	}
 
 	private async processListener<T extends keyof ListenerEventRawData>(
@@ -170,6 +191,15 @@ export class EventQueue {
 					error
 				)
 			}
+		}
+	}
+
+	private async maybeYield(): Promise<void> {
+		if (this.options.yieldIntervalMs <= 0) return
+		const now = Date.now()
+		if (now - this.lastYieldAt >= this.options.yieldIntervalMs) {
+			this.lastYieldAt = now
+			await new Promise<void>((resolve) => setImmediate(resolve))
 		}
 	}
 
