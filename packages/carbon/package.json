@@ -26,7 +26,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@types/node": "^24.10.1",
-		"discord-api-types": "0.38.36"
+		"discord-api-types": "0.38.37"
 	},
 	"optionalDependencies": {
 		"@cloudflare/workers-types": "4.20251205.0",
