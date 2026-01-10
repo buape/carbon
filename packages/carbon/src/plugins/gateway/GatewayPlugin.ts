@@ -59,6 +59,8 @@ export class GatewayPlugin extends Plugin {
 	public isConnected = false
 	protected pings: number[] = []
 	protected babyCache: BabyCache
+	private reconnectTimeout?: NodeJS.Timeout
+	private isConnecting = false
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
@@ -132,6 +134,12 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	public connect(resume = false): void {
+		if (this.isConnecting) return
+		if (this.reconnectTimeout) {
+			clearTimeout(this.reconnectTimeout)
+			this.reconnectTimeout = undefined
+		}
+
 		this.ws?.close()
 
 		const baseUrl =
@@ -142,6 +150,7 @@ export class GatewayPlugin extends Plugin {
 					"wss://gateway.discord.gg/")
 		const url = this.ensureGatewayParams(baseUrl)
 		this.ws = this.createWebSocket(url)
+		this.isConnecting = true
 		this.setupWebSocket()
 	}
 
@@ -150,6 +159,11 @@ export class GatewayPlugin extends Plugin {
 		this.monitor.resetUptime()
 		this.ws?.close()
 		this.ws = null
+		if (this.reconnectTimeout) {
+			clearTimeout(this.reconnectTimeout)
+			this.reconnectTimeout = undefined
+		}
+		this.isConnecting = false
 		this.isConnected = false
 		this.pings = []
 	}
@@ -167,6 +181,7 @@ export class GatewayPlugin extends Plugin {
 		let closed = false
 
 		this.ws.on("open", () => {
+			this.isConnecting = false
 			this.reconnectAttempts = 0
 			this.emitter.emit("debug", "WebSocket connection opened")
 		})
@@ -351,6 +366,7 @@ export class GatewayPlugin extends Plugin {
 		})
 
 		this.ws.on("close", (code: number, _reason: Buffer) => {
+			this.isConnecting = false
 			this.emitter.emit(
 				"debug",
 				`WebSocket connection closed with code ${code}`
@@ -364,6 +380,7 @@ export class GatewayPlugin extends Plugin {
 		})
 
 		this.ws.on("error", (error: Error) => {
+			this.isConnecting = false
 			this.monitor.recordError()
 			this.emitter.emit("error", error)
 		})
@@ -379,8 +396,6 @@ export class GatewayPlugin extends Plugin {
 			baseDelay = 1000,
 			maxDelay = 30000
 		} = this.options.reconnect ?? {}
-
-		this.disconnect()
 
 		if (this.reconnectAttempts >= maxAttempts) {
 			this.emitter.emit(
@@ -422,6 +437,12 @@ export class GatewayPlugin extends Plugin {
 			}
 		}
 
+		if (this.reconnectTimeout || this.isConnecting) {
+			return
+		}
+
+		this.disconnect()
+
 		const backoffTime = Math.min(
 			baseDelay * 2 ** this.reconnectAttempts,
 			maxDelay
@@ -438,7 +459,10 @@ export class GatewayPlugin extends Plugin {
 			`${shouldResume ? "Attempting resume" : "Reconnecting"} with backoff: ${backoffTime}ms${options.code ? ` after code ${options.code}` : ""}`
 		)
 
-		setTimeout(() => this.connect(shouldResume), backoffTime)
+		this.reconnectTimeout = setTimeout(() => {
+			this.reconnectTimeout = undefined
+			this.connect(shouldResume)
+		}, backoffTime)
 	}
 
 	protected handleClose(code: number): void {

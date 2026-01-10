@@ -224,6 +224,10 @@ export class RequestClient {
 		}
 
 		this.abortController = new AbortController()
+		const timeoutMs =
+			typeof this.options.timeout === "number" && this.options.timeout > 0
+				? this.options.timeout
+				: undefined
 		let body: BodyInit | undefined
 
 		if (
@@ -303,12 +307,25 @@ export class RequestClient {
 			}
 		}
 
-		const response = await fetch(url, {
-			method,
-			headers,
-			body,
-			signal: this.abortController.signal
-		})
+		let timeoutId: ReturnType<typeof setTimeout> | undefined
+		if (timeoutMs !== undefined) {
+			timeoutId = setTimeout(() => {
+				this.abortController?.abort()
+			}, timeoutMs)
+		}
+		let response: Response
+		try {
+			response = await fetch(url, {
+				method,
+				headers,
+				body,
+				signal: this.abortController.signal
+			})
+		} finally {
+			if (timeoutId) {
+				clearTimeout(timeoutId)
+			}
+		}
 
 		let rawBody = ""
 		let parsedBody: unknown
