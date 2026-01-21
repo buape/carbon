@@ -21,7 +21,7 @@
 		"yocto-spinner": "1.0.0"
 	},
 	"devDependencies": {
-		"@types/node": "^24.10.1"
+		"@types/node": "^25.0.9"
 	},
 	"bin": "./dist/src/index.js"
 }

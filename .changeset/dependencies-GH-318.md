@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-chore(deps): update dependencies
+chore: update dependencies
