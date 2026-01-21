@@ -1,5 +1,36 @@
 # @buape/carbon
 
+## 0.14.0
+
+### Minor Changes
+
+- f7a0f46: feat: misc performance improvements
+- 888c240: feat: Changed BaseInteraction#replyAndWaitForComponent to return the message from the interaction reply
+- b4c5614: feat: add a getMember method to the OptionsHandler to get the member data from a user option
+- 888c240: feat: Added BaseInteraction#editAndWaitForComponent
+- 20973ef: feat: checkbox and radio modal components
+- eff69b9: feat: add voice plugin with gateway adapter
+- 962f6ce: feat: Add Interaction#targetMessage and Interaction#targetUser for Message and User context menu commands
+- 401ade3: feat: allow direct instantiation of certain components
+- 3d09205: feat: add support for typing in DMs and group DMs
+- deae588: feat: remove client.components in favor of client.componentHandler.findComponent
+- 2f9d4ca: feat: Add better ratelimit handling and queue control for the RequestClient
+- 3d09205: feat: more heartbeat and event tuning for cpu usage
+- deae588: feat: allow globally registered Modals
+- e45684b: feat: add Command#getMention method
+
+### Patch Changes
+
+- 095a41b: fix: Add handling to the component customIdParser so long numerical strings do not get casted to a Number
+- 0ba80ae: fix: User#createDm took a userId parameter instead of using User#id
+- 1406843: fix: Fixed memory leak in `GatewayForwarderPlugin` by properly consuming HTTP response bodies
+- 660e2b9: chore: update dependencies
+- 0319ad0: fix: Fixed memory leak in ClientManager by consuming request bodies before error responses
+- 3d09205: fix: adjust heartbeat timing
+- 931dfcb: fix: Adjust how the nextjs handler is created
+- 3d09205: fix: handle per-route ratelimiting better
+- ec12049: fix: support numbers in autocomplete responses
+
 ## 0.13.0
 
 ### Minor Changes
