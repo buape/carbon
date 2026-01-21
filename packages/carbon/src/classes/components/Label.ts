@@ -1,7 +1,11 @@
-import { type APILabelComponent, ComponentType } from "discord-api-types/v10"
+import { ComponentType } from "discord-api-types/v10"
 import type { AnySelectMenu } from "../../abstracts/AnySelectMenu.js"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
+import type { APILabelComponent2 } from "../../types/index.js"
+import type { Checkbox } from "./Checkbox.js"
+import type { CheckboxGroup } from "./CheckboxGroup.js"
 import type { FileUpload } from "./FileUpload.js"
+import type { RadioGroup } from "./RadioGroup.js"
 import type { TextInput } from "./TextInput.js"
 
 export abstract class Label extends BaseModalComponent {
@@ -18,23 +22,37 @@ export abstract class Label extends BaseModalComponent {
 	description?: string
 
 	/**
-	 * The component within this label (TextInput or StringSelectMenu)
+	 * The component within this label
 	 */
-	component?: TextInput | AnySelectMenu | FileUpload
+	component?:
+		| TextInput
+		| AnySelectMenu
+		| FileUpload
+		| Checkbox
+		| CheckboxGroup
+		| RadioGroup
 
 	/**
 	 * The custom ID of the label - required by BaseModalComponent
 	 */
 	customId = "label"
 
-	constructor(component?: TextInput | AnySelectMenu | FileUpload) {
+	constructor(
+		component?:
+			| TextInput
+			| AnySelectMenu
+			| FileUpload
+			| Checkbox
+			| CheckboxGroup
+			| RadioGroup
+	) {
 		super()
 		if (component) {
 			this.component = component
 		}
 	}
 
-	serialize = (): APILabelComponent => {
+	serialize = (): APILabelComponent2 => {
 		if (!this.component) {
 			throw new Error(
 				"Label must have a component, either assign it ahead of time or pass it to the constructor"

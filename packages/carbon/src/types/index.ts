@@ -1,4 +1,14 @@
-import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
+import type {
+	APIActionRowComponent,
+	APIAllowedMentions,
+	APIAttachment,
+	APIComponentInLabel,
+	APIComponentInModalActionRow,
+	APILabelComponent,
+	APIModalComponent,
+	APIModalInteractionResponseCallbackData,
+	APITextDisplayComponent
+} from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Container } from "../classes/components/Container.js"
@@ -38,6 +48,28 @@ export type ConditionalCommandOption = (
 export type ConditionalComponentOption = (
 	interaction: BaseComponentInteraction
 ) => boolean
+
+export type APILabelComponent2 = Omit<APILabelComponent, "component"> & {
+	component:
+		| APIComponentInLabel
+		| import("discord-api-types/v10").APICheckboxActionComponent
+		| import("discord-api-types/v10").APICheckboxGroupActionComponent
+		| import("discord-api-types/v10").APIRadioGroupActionComponent
+	// god i hate inline imports but this is the best way to do this for now and be reliable
+}
+
+export type APIModalInteractionResponseCallbackComponent2 =
+	| APIActionRowComponent<APIComponentInModalActionRow>
+	| APILabelComponent2
+	| APITextDisplayComponent
+
+export type APIModalInteractionResponseCallbackData2 = Omit<
+	APIModalInteractionResponseCallbackData,
+	"components"
+> & {
+	components: APIModalInteractionResponseCallbackComponent2[]
+}
+
 export type TopLevelComponents =
 	| Row<BaseMessageInteractiveComponent>
 	| Container
@@ -175,3 +207,57 @@ export type ArrayOrSingle<T> = T | T[]
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 
 export * from "./listeners.js"
+
+declare module "discord-api-types/v10" {
+	export type APIModalComponent2 =
+		| APIModalComponent
+		| APILabelComponent2
+		| APICheckboxActionComponent
+		| APICheckboxGroupActionComponent
+		| APIRadioGroupActionComponent
+
+	enum ComponentType {
+		RadioGroup = 21,
+		CheckboxGroup = 22,
+		Checkbox = 23
+	}
+
+	export interface APIRadioGroupActionComponent {
+		type: 21 //ComponentType.RadioGroup
+		id?: number
+		custom_id: string
+		options: APIRadioGroupOption[] // 2-10
+		required?: boolean
+	}
+
+	export interface APIRadioGroupOption {
+		value: string
+		label: string
+		description?: string
+		default?: boolean
+	}
+
+	export interface APICheckboxGroupActionComponent {
+		type: 22 //ComponentType.CheckboxGroup
+		id?: number
+		custom_id: string
+		options: APICheckboxGroupOption[] // 1-10
+		min_values?: number // 0-10, defaults to 1
+		max_values?: number // 1-10, defaults to len(options)
+		required?: boolean
+	}
+
+	export interface APICheckboxGroupOption {
+		value: string
+		label: string
+		description?: string
+		default?: boolean
+	}
+
+	export interface APICheckboxActionComponent {
+		type: 23 //	ComponentType.Checkbox
+		id?: number
+		custom_id: string
+		default?: boolean
+	}
+}

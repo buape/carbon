@@ -14,10 +14,7 @@ export * from "./abstracts/BaseInteraction.js"
 export * from "./abstracts/BaseListener.js"
 export * from "./abstracts/GuildThreadOnlyChannel.js"
 export * from "./abstracts/Plugin.js"
-export {
-	BaseModalComponent,
-	type APIFileUploadComponent
-} from "./abstracts/BaseModalComponent.js"
+export * from "./abstracts/BaseModalComponent.js"
 export * from "./abstracts/BaseMessageInteractiveComponent.js"
 
 // ----- Classes -----
@@ -47,6 +44,9 @@ export * from "./classes/components/Separator.js"
 export * from "./classes/components/File.js"
 export * from "./classes/components/Thumbnail.js"
 export * from "./classes/components/FileUpload.js"
+export * from "./classes/components/Checkbox.js"
+export * from "./classes/components/CheckboxGroup.js"
+export * from "./classes/components/RadioGroup.js"
 
 // ----- Errors -----
 export * from "./errors/BaseError.js"

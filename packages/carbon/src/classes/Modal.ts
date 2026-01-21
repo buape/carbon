@@ -1,6 +1,9 @@
-import type { APIModalInteractionResponseCallbackData } from "discord-api-types/v10"
 import type { ModalInteraction } from "../internals/ModalInteraction.js"
-import type { ComponentData, ComponentParserResult } from "../types/index.js"
+import type {
+	APIModalInteractionResponseCallbackData2,
+	ComponentData,
+	ComponentParserResult
+} from "../types/index.js"
 import { parseCustomId } from "../utils/customIdParser.js"
 import type { Label } from "./components/Label.js"
 import type { TextDisplay } from "./components/TextDisplay.js"
@@ -43,7 +46,7 @@ export abstract class Modal {
 		data: ComponentData
 	): unknown | Promise<unknown>
 
-	serialize = (): APIModalInteractionResponseCallbackData => {
+	serialize = (): APIModalInteractionResponseCallbackData2 => {
 		return {
 			title: this.title,
 			custom_id: this.customId,
