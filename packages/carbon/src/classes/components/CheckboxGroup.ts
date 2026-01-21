@@ -1,11 +1,8 @@
-import {
-	type APICheckboxGroupActionComponent,
-	ComponentType
-} from "discord-api-types/v10"
+import type { APICheckboxGroupActionComponent } from "discord-api-types/v10"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 
 export abstract class CheckboxGroup extends BaseModalComponent {
-	readonly type = ComponentType.CheckboxGroup as const
+	readonly type = 22 as const
 
 	abstract customId: string
 

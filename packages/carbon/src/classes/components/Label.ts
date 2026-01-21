@@ -1,6 +1,7 @@
-import { type APILabelComponent, ComponentType } from "discord-api-types/v10"
+import { ComponentType } from "discord-api-types/v10"
 import type { AnySelectMenu } from "../../abstracts/AnySelectMenu.js"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
+import type { APILabelComponent2 } from "../../types/index.js"
 import type { Checkbox } from "./Checkbox.js"
 import type { CheckboxGroup } from "./CheckboxGroup.js"
 import type { FileUpload } from "./FileUpload.js"
@@ -51,7 +52,7 @@ export abstract class Label extends BaseModalComponent {
 		}
 	}
 
-	serialize = (): APILabelComponent => {
+	serialize = (): APILabelComponent2 => {
 		if (!this.component) {
 			throw new Error(
 				"Label must have a component, either assign it ahead of time or pass it to the constructor"

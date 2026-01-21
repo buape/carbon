@@ -1,11 +1,8 @@
-import {
-	type APIRadioGroupActionComponent,
-	ComponentType
-} from "discord-api-types/v10"
+import type { APIRadioGroupActionComponent } from "discord-api-types/v10"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 
 export abstract class RadioGroup extends BaseModalComponent {
-	readonly type = ComponentType.RadioGroup as const
+	readonly type = 21 as const
 
 	abstract customId: string
 

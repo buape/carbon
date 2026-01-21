@@ -1,7 +1,13 @@
 import type {
+	APIActionRowComponent,
 	APIAllowedMentions,
 	APIAttachment,
-	APIModalComponent
+	APIComponentInLabel,
+	APIComponentInModalActionRow,
+	APILabelComponent,
+	APIModalComponent,
+	APIModalInteractionResponseCallbackData,
+	APITextDisplayComponent
 } from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
@@ -42,6 +48,28 @@ export type ConditionalCommandOption = (
 export type ConditionalComponentOption = (
 	interaction: BaseComponentInteraction
 ) => boolean
+
+export type APILabelComponent2 = Omit<APILabelComponent, "component"> & {
+	component:
+		| APIComponentInLabel
+		| import("discord-api-types/v10").APICheckboxActionComponent
+		| import("discord-api-types/v10").APICheckboxGroupActionComponent
+		| import("discord-api-types/v10").APIRadioGroupActionComponent
+	// god i hate inline imports but this is the best way to do this for now and be reliable
+}
+
+export type APIModalInteractionResponseCallbackComponent2 =
+	| APIActionRowComponent<APIComponentInModalActionRow>
+	| APILabelComponent2
+	| APITextDisplayComponent
+
+export type APIModalInteractionResponseCallbackData2 = Omit<
+	APIModalInteractionResponseCallbackData,
+	"components"
+> & {
+	components: APIModalInteractionResponseCallbackComponent2[]
+}
+
 export type TopLevelComponents =
 	| Row<BaseMessageInteractiveComponent>
 	| Container
@@ -183,6 +211,7 @@ export * from "./listeners.js"
 declare module "discord-api-types/v10" {
 	export type APIModalComponent2 =
 		| APIModalComponent
+		| APILabelComponent2
 		| APICheckboxActionComponent
 		| APICheckboxGroupActionComponent
 		| APIRadioGroupActionComponent
@@ -194,7 +223,7 @@ declare module "discord-api-types/v10" {
 	}
 
 	export interface APIRadioGroupActionComponent {
-		type: ComponentType.RadioGroup
+		type: 21 //ComponentType.RadioGroup
 		id?: number
 		custom_id: string
 		options: APIRadioGroupOption[] // 2-10
@@ -209,7 +238,7 @@ declare module "discord-api-types/v10" {
 	}
 
 	export interface APICheckboxGroupActionComponent {
-		type: ComponentType.CheckboxGroup
+		type: 22 //ComponentType.CheckboxGroup
 		id?: number
 		custom_id: string
 		options: APICheckboxGroupOption[] // 1-10
@@ -226,7 +255,7 @@ declare module "discord-api-types/v10" {
 	}
 
 	export interface APICheckboxActionComponent {
-		type: ComponentType.Checkbox
+		type: 23 //	ComponentType.Checkbox
 		id?: number
 		custom_id: string
 		default?: boolean

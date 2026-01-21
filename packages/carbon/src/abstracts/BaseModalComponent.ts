@@ -2,11 +2,11 @@ import type {
 	APICheckboxActionComponent,
 	APICheckboxGroupActionComponent,
 	APIFileUploadComponent,
-	APILabelComponent,
 	APIRadioGroupActionComponent,
 	APITextInputComponent,
 	ComponentType
 } from "discord-api-types/v10"
+import type { APILabelComponent2 } from "../types/index.js"
 import { BaseComponent } from "./BaseComponent.js"
 
 export abstract class BaseModalComponent extends BaseComponent {
@@ -16,7 +16,7 @@ export abstract class BaseModalComponent extends BaseComponent {
 
 	abstract serialize: () =>
 		| APITextInputComponent
-		| APILabelComponent
+		| APILabelComponent2
 		| APIFileUploadComponent
 		| APICheckboxGroupActionComponent
 		| APICheckboxActionComponent

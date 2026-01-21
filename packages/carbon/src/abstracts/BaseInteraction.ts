@@ -25,7 +25,11 @@ import {
 	User
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
-import type { MessagePayload, TopLevelComponents } from "../types/index.js"
+import type {
+	APIModalInteractionResponseCallbackData2,
+	MessagePayload,
+	TopLevelComponents
+} from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { Base } from "./Base.js"
 
@@ -246,7 +250,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 				body: {
 					type: InteractionResponseType.Modal,
 					data: modal.serialize()
-				} satisfies RESTPostAPIInteractionCallbackJSONBody
+				} satisfies
+					| RESTPostAPIInteractionCallbackJSONBody
+					| {
+							type: InteractionResponseType.Modal
+							data: APIModalInteractionResponseCallbackData2
+					  }
 			}
 		)
 	}
