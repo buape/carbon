@@ -1,10 +1,11 @@
 import {
 	type APIFileUploadComponent,
-	BaseModalComponent
-} from "../../abstracts/BaseModalComponent.js"
+	ComponentType
+} from "discord-api-types/v10"
+import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
 
 export abstract class FileUpload extends BaseModalComponent {
-	readonly type = 19 // ComponentType.FileUpload
+	readonly type = ComponentType.FileUpload
 
 	abstract customId: string
 	/**
