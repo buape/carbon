@@ -1,18 +1,14 @@
 import type {
+	APICheckboxActionComponent,
+	APICheckboxGroupActionComponent,
+	APIFileUploadComponent,
 	APILabelComponent,
+	APIRadioGroupActionComponent,
 	APITextInputComponent,
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseComponent } from "./BaseComponent.js"
 
-export type APIFileUploadComponent = {
-	type: 19
-	id?: number
-	custom_id: string
-	min_values?: number
-	max_values?: number
-	required?: boolean
-}
 export abstract class BaseModalComponent extends BaseComponent {
 	abstract override type: ComponentType
 
@@ -22,4 +18,7 @@ export abstract class BaseModalComponent extends BaseComponent {
 		| APITextInputComponent
 		| APILabelComponent
 		| APIFileUploadComponent
+		| APICheckboxGroupActionComponent
+		| APICheckboxActionComponent
+		| APIRadioGroupActionComponent
 }

@@ -1,6 +1,6 @@
 import type {
 	APIMessageComponent,
-	APIModalComponent,
+	APIModalComponent2,
 	ComponentType
 } from "discord-api-types/v10"
 
@@ -23,5 +23,5 @@ export abstract class BaseComponent {
 	 */
 	id?: number
 
-	abstract serialize: () => APIMessageComponent | APIModalComponent
+	abstract serialize: () => APIMessageComponent | APIModalComponent2
 }

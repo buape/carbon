@@ -14,6 +14,7 @@ import MessageCommand from "./commands/testing/message_command.js"
 import ModalCommand from "./commands/testing/modal.js"
 import Modal2Command from "./commands/testing/modal2.js"
 import Modal3Command from "./commands/testing/modal3.js"
+import Modal4Command from "./commands/testing/modal4.js"
 import OptionsCommand from "./commands/testing/options.js"
 import PermissionCommand from "./commands/testing/permissions.js"
 import SubcommandsCommand from "./commands/testing/subcommand.js"
@@ -60,6 +61,7 @@ const client = new Client(
 			new ModalCommand(),
 			new Modal2Command(),
 			new Modal3Command(),
+			new Modal4Command(),
 			new OptionsCommand(),
 			new PermissionCommand(),
 			new SubcommandsCommand(),

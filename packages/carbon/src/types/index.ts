@@ -1,4 +1,8 @@
-import type { APIAllowedMentions, APIAttachment } from "discord-api-types/v10"
+import type {
+	APIAllowedMentions,
+	APIAttachment,
+	APIModalComponent
+} from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Container } from "../classes/components/Container.js"
@@ -175,3 +179,56 @@ export type ArrayOrSingle<T> = T | T[]
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 
 export * from "./listeners.js"
+
+declare module "discord-api-types/v10" {
+	export type APIModalComponent2 =
+		| APIModalComponent
+		| APICheckboxActionComponent
+		| APICheckboxGroupActionComponent
+		| APIRadioGroupActionComponent
+
+	enum ComponentType {
+		RadioGroup = 21,
+		CheckboxGroup = 22,
+		Checkbox = 23
+	}
+
+	export interface APIRadioGroupActionComponent {
+		type: ComponentType.RadioGroup
+		id?: number
+		custom_id: string
+		options: APIRadioGroupOption[] // 2-10
+		required?: boolean
+	}
+
+	export interface APIRadioGroupOption {
+		value: string
+		label: string
+		description?: string
+		default?: boolean
+	}
+
+	export interface APICheckboxGroupActionComponent {
+		type: ComponentType.CheckboxGroup
+		id?: number
+		custom_id: string
+		options: APICheckboxGroupOption[] // 1-10
+		min_values?: number // 0-10, defaults to 1
+		max_values?: number // 1-10, defaults to len(options)
+		required?: boolean
+	}
+
+	export interface APICheckboxGroupOption {
+		value: string
+		label: string
+		description?: string
+		default?: boolean
+	}
+
+	export interface APICheckboxActionComponent {
+		type: ComponentType.Checkbox
+		id?: number
+		custom_id: string
+		default?: boolean
+	}
+}
