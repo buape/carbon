@@ -80,7 +80,7 @@ export default class AskCommand extends Command {
 		const handler = new MessageResponseHandler()
 
 		// Add the handler to the client's listeners
-		interaction.client.listeners.push(handler)
+		interaction.client.registerListener(handler)
 		console.log(
 			"Added listener, total listeners:",
 			interaction.client.listeners.length
