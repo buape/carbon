@@ -1,7 +1,6 @@
 import { EventEmitter } from "node:events"
 import type { GatewayDispatchPayload } from "discord-api-types/v10"
 import WebSocket from "ws"
-import type { BaseListener } from "../../abstracts/BaseListener.js"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import {
@@ -125,9 +124,7 @@ export class GatewayPlugin extends Plugin {
 		}
 
 		if (this.options.autoInteractions) {
-			this.client?.listeners.push(
-				new InteractionEventListener() as BaseListener
-			)
+			this.client?.registerListener(new InteractionEventListener())
 		}
 
 		this.connect()

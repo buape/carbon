@@ -36,7 +36,7 @@ export class TemporaryListenerManager {
 			timestamp: Date.now()
 		})
 
-		this.client.listeners.push(listener)
+		this.client.registerListener(listener)
 
 		return () => this.unregister(id)
 	}

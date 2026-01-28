@@ -3,12 +3,13 @@ import type {
 	DiscordGatewayAdapterImplementerMethods,
 	DiscordGatewayAdapterLibraryMethods
 } from "@discordjs/voice"
-import type { BaseListener } from "../../abstracts/BaseListener.js"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import type { GatewayPlugin } from "../gateway/index.js"
 import type { GatewayPayload, ShardingPlugin } from "../sharding/index.js"
 import { GuildDelete } from "./GuildDeleteListener.js"
+import { VoiceServerUpdate } from "./VoiceServerUpdateListener.js"
+import { VoiceStateUpdate } from "./VoiceStateUpdateListener.js"
 
 export class VoicePlugin extends Plugin {
 	readonly id = "voice"
@@ -31,7 +32,9 @@ export class VoicePlugin extends Plugin {
 		if (!this.gatewayPlugin && !this.shardingPlugin) {
 			throw new Error("Voice cannot be used without a gateway connection.")
 		}
-		this.client.listeners.push(new GuildDelete() as BaseListener)
+		this.client.registerListener(new GuildDelete())
+		this.client.registerListener(new VoiceStateUpdate())
+		this.client.registerListener(new VoiceServerUpdate())
 	}
 
 	getGateway(guild_id: string) {
