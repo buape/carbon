@@ -451,6 +451,16 @@ export class Client {
 		}
 	}
 
+	/**
+	 * Register an event listener with the client.
+	 * This method provides type-safe listener registration without requiring
+	 * manual type casting at the call site.
+	 * @param listener The listener to register
+	 */
+	registerListener<T extends BaseListener>(listener: T): void {
+		this.listeners.push(listener as BaseListener)
+	}
+
 	// ======================== Begin Fetchers ================================================
 
 	/**
