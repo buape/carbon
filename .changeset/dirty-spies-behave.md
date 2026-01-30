@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-feat: add voice event forwarding and registerListener method
+fix: add voice event forwarding
