@@ -269,12 +269,12 @@ export class GatewayPlugin extends Plugin {
 							this.state.sessionId = readyData.session_id
 							this.state.resumeGatewayUrl = readyData.resume_gateway_url
 						}
+						if (t1 === "READY" || t1 === "RESUMED") {
+							this.isConnected = true
+							this.reconnectAttempts = 0
+						}
 						if (t && this.client) {
 							if (!this.options.eventFilter || this.options.eventFilter?.(t1)) {
-								if (t1 === "READY" || t1 === "RESUMED") {
-									this.isConnected = true
-									this.reconnectAttempts = 0
-								}
 								if (t1 === "READY") {
 									const readyData = d as ListenerEventRawData[typeof t1]
 									readyData.guilds.forEach((guild) => {
