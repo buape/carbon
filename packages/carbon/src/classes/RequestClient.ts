@@ -1,6 +1,7 @@
 import { DiscordError } from "../errors/DiscordError.js"
 import { RateLimitError } from "../errors/RatelimitError.js"
 import type { MessagePayload, MessagePayloadFile } from "../types/index.js"
+import { createProxyAgent, getProxyUrl } from "../utils/proxy.js"
 
 /**
  * The options used to initialize the RequestClient
@@ -46,9 +47,14 @@ export type RequestClientOptions = {
 	 * @default 1000
 	 */
 	maxQueueSize?: number
+	/**
+	 * Proxy URL for HTTP requests.
+	 * If not specified, will check DISCORD_HTTP_PROXY, then HTTP_PROXY/HTTPS_PROXY environment variables.
+	 */
+	proxyUrl?: string
 }
 
-const defaultOptions: Required<RequestClientOptions> = {
+const defaultOptions: Omit<Required<RequestClientOptions>, "proxyUrl"> = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
 	apiVersion: 10,
@@ -97,12 +103,22 @@ export class RequestClient {
 		}
 	> = new Map()
 	private globalRateLimitUntil = 0
+	private proxyDispatcher: unknown | null = null
 
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
 		this.options = {
 			...defaultOptions,
 			...options
+		}
+
+		// Initialize proxy support
+		const proxyUrl = getProxyUrl(this.options.proxyUrl)
+		if (proxyUrl) {
+			const proxyAgent = createProxyAgent(proxyUrl)
+			if (proxyAgent) {
+				this.proxyDispatcher = proxyAgent.dispatcher
+			}
 		}
 	}
 
@@ -315,12 +331,21 @@ export class RequestClient {
 		}
 		let response: Response
 		try {
-			response = await fetch(url, {
+			// Prepare fetch options
+			const fetchOptions: RequestInit = {
 				method,
 				headers,
 				body,
 				signal: this.abortController.signal
-			})
+			}
+
+			// Add proxy dispatcher if available (for undici in Node.js)
+			if (this.proxyDispatcher) {
+				// biome-ignore lint/suspicious/noExplicitAny: undici dispatcher type
+				;(fetchOptions as any).dispatcher = this.proxyDispatcher
+			}
+
+			response = await fetch(url, fetchOptions)
 		} finally {
 			if (timeoutId) {
 				clearTimeout(timeoutId)

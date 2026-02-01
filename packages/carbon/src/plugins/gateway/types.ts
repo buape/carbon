@@ -48,6 +48,11 @@ export interface GatewayPluginOptions {
 	 * @default false
 	 */
 	autoInteractions?: boolean
+	/**
+	 * Proxy URL for WebSocket connections.
+	 * If not specified, will check DISCORD_HTTP_PROXY, then HTTP_PROXY/HTTPS_PROXY environment variables.
+	 */
+	proxyUrl?: string
 }
 
 /**

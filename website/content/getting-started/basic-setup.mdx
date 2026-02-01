@@ -124,3 +124,48 @@ You'll now need to set up an adapter to wrap your handle function to work with y
 </Cards>
 </Step>
 </Steps>
+
+## Proxy Configuration
+
+Carbon supports routing Discord API requests and Gateway connections through an HTTP proxy, which is useful for network environments that require proxy usage.
+
+### Environment Variables
+
+Set the `DISCORD_HTTP_PROXY` environment variable to your proxy server URL:
+
+```bash
+export DISCORD_HTTP_PROXY=http://127.0.0.1:7891
+```
+
+The proxy will be used for both:
+- Discord REST API calls (sending messages, fetching data, etc.)
+- Discord Gateway WebSocket connections
+
+### Environment Variable Priority
+
+Carbon checks for proxy configuration in the following order:
+
+1. `proxyUrl` option passed directly to Client/GatewayPlugin
+2. `DISCORD_HTTP_PROXY` environment variable
+3. `HTTP_PROXY` / `HTTPS_PROXY` environment variables (fallback)
+4. Direct connection (no proxy)
+
+### Programmatic Configuration
+
+You can also configure the proxy programmatically when creating the client:
+
+```ts title="src/index.ts"
+const client = new Client({
+	baseUrl: process.env.BASE_URL,
+	deploySecret: process.env.DEPLOY_SECRET,
+	clientId: process.env.DISCORD_CLIENT_ID,
+	publicKey: process.env.DISCORD_PUBLIC_KEY,
+	token: process.env.DISCORD_TOKEN,
+	// Configure proxy programmatically
+	proxyUrl: "http://127.0.0.1:7891",
+}, [])
+```
+
+<Callout type="warning">
+Proxy support is available in Node.js and Bun environments. Cloudflare Workers does not support custom proxy configuration.
+</Callout>

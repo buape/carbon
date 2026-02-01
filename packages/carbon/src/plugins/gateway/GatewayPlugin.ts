@@ -8,6 +8,7 @@ import {
 	type ListenerEventRawData,
 	type ListenerEventType
 } from "../../types/index.js"
+import { createProxyAgent, getProxyUrl } from "../../utils/proxy.js"
 import { BabyCache } from "./BabyCache.js"
 import { InteractionEventListener } from "./InteractionEventListener.js"
 import {
@@ -169,6 +170,18 @@ export class GatewayPlugin extends Plugin {
 		if (!url) {
 			throw new Error("Gateway URL is required")
 		}
+
+		// Check for proxy configuration
+		const proxyUrl = getProxyUrl(this.options.proxyUrl)
+		if (proxyUrl) {
+			const proxyAgent = createProxyAgent(proxyUrl)
+			if (proxyAgent?.agent) {
+				// Use proxy agent for WebSocket connection
+				// biome-ignore lint/suspicious/noExplicitAny: ws library agent option
+				return new WebSocket(url, { agent: proxyAgent.agent as any })
+			}
+		}
+
 		return new WebSocket(url)
 	}
 
