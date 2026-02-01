@@ -15,3 +15,4 @@ website/.source
 .open-next/
 website/public/*.txt
 .idea/
+.worktrees/
