@@ -5,6 +5,7 @@ import {
 	GatewayIntentBits,
 	type GatewayReadyDispatchData
 } from "discord-api-types/v10"
+import type { Agent } from 'http'
 import type { ListenerEventType } from "../../types/index.js"
 
 export interface GatewayPluginOptions {
@@ -48,6 +49,22 @@ export interface GatewayPluginOptions {
 	 * @default false
 	 */
 	autoInteractions?: boolean
+	/**
+	 * Optional HTTP/SOCKS agent for WebSocket connections
+	 * Useful for proxy support (e.g., SOCKS5, HTTP proxy)
+	 *
+	 * @example
+	 * ```typescript
+	 * import { SocksProxyAgent } from 'socks-proxy-agent'
+	 * const agent = new SocksProxyAgent('socks5://127.0.0.1:7898')
+	 *
+	 * new GatewayPlugin({
+	 *     intents,
+	 *     agent
+	 * })
+	 * ```
+	 */
+	agent?: Agent
 }
 
 /**

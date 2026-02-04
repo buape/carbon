@@ -169,7 +169,8 @@ export class GatewayPlugin extends Plugin {
 		if (!url) {
 			throw new Error("Gateway URL is required")
 		}
-		return new WebSocket(url)
+		const options = this.options.agent ? { agent: this.options.agent } : undefined
+		return new WebSocket(url, options)
 	}
 
 	protected setupWebSocket(): void {
