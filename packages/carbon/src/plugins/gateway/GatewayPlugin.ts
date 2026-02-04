@@ -213,9 +213,7 @@ export class GatewayPlugin extends Plugin {
 						interval,
 						reconnectCallback: () => {
 							if (closed) {
-								throw new Error(
-									"Attempted to reconnect zombie connection after disconnecting first (this shouldn't be possible)"
-								)
+								return
 							}
 							closed = true
 							this.handleZombieConnection()
@@ -353,9 +351,7 @@ export class GatewayPlugin extends Plugin {
 
 				case GatewayOpcodes.Reconnect:
 					if (closed) {
-						throw new Error(
-							"Attempted to reconnect gateway after disconnecting first (this shouldn't be possible)"
-						)
+						return
 					}
 					closed = true
 					this.state.sequence = this.sequence
