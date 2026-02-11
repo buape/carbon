@@ -153,6 +153,7 @@ export class GatewayPlugin extends Plugin {
 
 	public disconnect(): void {
 		stopHeartbeat(this)
+		this.lastHeartbeatAck = true
 		this.monitor.resetUptime()
 		this.ws?.close()
 		this.ws = null
