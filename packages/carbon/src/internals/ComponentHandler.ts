@@ -37,16 +37,27 @@ export class ComponentHandler extends Base {
 		}
 	> = new Map()
 
+	private getComponentCacheKey(
+		key: string,
+		componentType: ComponentType
+	): string {
+		return `${componentType}:${key}`
+	}
+
 	registerComponent(component: BaseMessageInteractiveComponent) {
-		if (!this.componentCache.has(component.customId)) {
-			this.componentCache.set(component.customId, component)
+		const componentKey = component.customIdParser(component.customId).key
+		const cacheKey = this.getComponentCacheKey(componentKey, component.type)
+		if (!this.componentCache.has(cacheKey)) {
+			this.componentCache.set(cacheKey, component)
 		}
 	}
 
-	hasComponentWithKey(key: string): boolean {
+	hasComponentWithKey(key: string, componentType?: ComponentType): boolean {
 		for (const component of this.componentCache.values()) {
 			const componentKey = component.customIdParser(component.customId).key
-			if (componentKey === key) {
+			if (componentKey !== key) continue
+
+			if (componentType === undefined || component.type === componentType) {
 				return true
 			}
 		}

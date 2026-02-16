@@ -133,7 +133,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 						const key = childComponent.customIdParser(
 							childComponent.customId
 						).key
-						if (!this.client.componentHandler.hasComponentWithKey(key)) {
+						if (
+							!this.client.componentHandler.hasComponentWithKey(
+								key,
+								childComponent.type
+							)
+						) {
 							this.client.componentHandler.registerComponent(childComponent)
 						}
 					}
@@ -143,7 +148,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 					const key = component.accessory.customIdParser(
 						component.accessory.customId
 					).key
-					if (!this.client.componentHandler.hasComponentWithKey(key)) {
+					if (
+						!this.client.componentHandler.hasComponentWithKey(
+							key,
+							component.accessory.type
+						)
+					) {
 						this.client.componentHandler.registerComponent(component.accessory)
 					}
 				}
