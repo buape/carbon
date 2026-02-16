@@ -21,6 +21,7 @@ export function startHeartbeat(
 	options: HeartbeatOptions
 ): void {
 	stopHeartbeat(manager)
+	manager.lastHeartbeatAck = true
 
 	const jitter = Math.random()
 	const initialDelay = Math.floor(options.interval * jitter)
