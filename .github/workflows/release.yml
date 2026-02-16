@@ -11,6 +11,10 @@ jobs:
     release:
         name: Release
         runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: write
+            pull-requests: write
         steps:
             - name: Check out code
               uses: actions/checkout@v4
@@ -27,4 +31,3 @@ jobs:
                   commit: "chore: update changelog and release"
               env:
                   GITHUB_TOKEN: ${{ secrets.BUAPEBOT_SECRET }}
-                  NPM_TOKEN: ${{ secrets.NPM_SECRET }}
