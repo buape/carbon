@@ -12,7 +12,7 @@ jobs:
     snapshot_filter:
         name: Snapshot filter
         runs-on: ubuntu-latest
-        if: "github.event_name == 'push' && !contains(github.event.head_commit.message, 'chore: update changelog and release')"
+        if: "(github.event_name == 'push' && !contains(github.event.head_commit.message, 'chore: update changelog and release')) || github.event_name == 'workflow_dispatch'"
         permissions:
             contents: read
         outputs:
@@ -26,6 +26,11 @@ jobs:
             - name: Check snapshot changes
               id: snapshot_changes
               run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                      echo "publish=true" >> "$GITHUB_OUTPUT"
+                      exit 0
+                  fi
+
                   if [ -z "${{ github.event.before }}" ] || [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
                       echo "publish=true" >> "$GITHUB_OUTPUT"
                       exit 0
