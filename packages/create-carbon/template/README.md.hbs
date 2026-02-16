@@ -55,7 +55,7 @@ A Discord bot built with [Carbon](https://carbon.buape.com).
 
 ## Setup
 
-1. Create a `.env` file with the following variables:
+1. Create a `{{#if (eq runtime "cloudflare")}}.dev.vars{{else if (eq runtime "next")}}.env.local{{else}}.env{{/if}}` file with the following variables:
 ```env
 BASE_URL="your-base-url"
 DEPLOY_SECRET="your-deploy-secret"

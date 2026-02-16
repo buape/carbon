@@ -41,13 +41,15 @@ path: package.json
 	"scripts": {
 		"dev": "wrangler dev --port 3000",
 		"deploy": "wrangler deploy",
+		"cf-typegen": "wrangler types",
+		"postinstall": "wrangler types",
 		"wrangler": "wrangler"
 	},
 	"dependencies": {
 		"@buape/carbon": "{{get versions "@buape/carbon"}}"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "{{get versions "@cloudflare/workers-types"}}",
+		"@types/node": "{{get versions "@types/node"}}",
 		"typescript": "{{get versions "typescript"}}",
 		"wrangler": "{{get versions "wrangler"}}"
 	}

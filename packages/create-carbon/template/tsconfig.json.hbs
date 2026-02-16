@@ -3,7 +3,7 @@ path: tsconfig.json
 ---
 
 {
-	"include": ["src"{{#if (eq runtime "next")}}, "next-env.d.ts", ".next/types/**/*.ts"{{/if}}],
+	"include": ["src"{{#if (eq runtime "cloudflare")}}, "worker-configuration.d.ts"{{/if}}{{#if (eq runtime "next")}}, "next-env.d.ts", ".next/types/**/*.ts"{{/if}}],
 	"exclude": ["node_modules"{{#if (eq runtime "next")}}, ".next"{{else}}, "dist"{{/if}}],
 	"compilerOptions": {
 		"strict": true,

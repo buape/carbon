@@ -5,8 +5,15 @@ path: wrangler.jsonc
 ---
 
 {
+	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "{{name}}",
-	"main": "src/entry.ts",
-	"compatibility_date": "2025-08-29",
-	"compatibility_flags": ["nodejs_compat"]
+	"main": "src/index.ts",
+	"compatibility_date": "2025-12-17",
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env"
+	]
 }

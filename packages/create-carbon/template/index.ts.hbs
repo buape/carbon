@@ -7,7 +7,7 @@ path: src/index.ts
 ---
 
 {{#if (eq runtime "node")}}
-import 'dotenv/config';
+import "dotenv/config"
 {{/if}}
 import { Client } from "@buape/carbon"
 {{#if plugins.linkedRoles}}
@@ -94,11 +94,15 @@ const client = new Client(
 createServer(client, { port: 3000 })
 {{else if (eq runtime "cloudflare")}}
 const handler = createHandler(client)
-export default { fetch: handler }
+export default {
+	fetch(request: Request, _env: Env, ctx: ExecutionContext) {
+		return handler(request, ctx)
+	}
+} satisfies ExportedHandler<Env>
 {{else if (eq runtime "next")}}
-const handler = createHandler(client);
-export const GET = (req: Request) => handler(req, {});
-export const POST = (req: Request) => handler(req, {});
+const handler = createHandler(client)
+export const GET = (req: Request) => handler(req, {})
+export const POST = (req: Request) => handler(req, {})
 {{/if}}
 
 declare global {

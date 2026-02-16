@@ -53,7 +53,6 @@ const dependencies = {
 	"@types/bun": undefined,
 	// Cloudflare
 	wrangler: undefined,
-	"@cloudflare/workers-types": undefined,
 	// Next.js
 	next: undefined,
 	react: undefined,
