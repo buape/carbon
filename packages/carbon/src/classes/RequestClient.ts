@@ -1,6 +1,6 @@
 import { DiscordError } from "../errors/DiscordError.js"
 import { RateLimitError } from "../errors/RatelimitError.js"
-import type { MessagePayload, MessagePayloadFile } from "../types/index.js"
+import type { MessagePayloadFile } from "../types/index.js"
 
 /**
  * The options used to initialize the RequestClient
@@ -230,74 +230,81 @@ export class RequestClient {
 				: undefined
 		let body: BodyInit | undefined
 
-		if (
-			data?.body &&
-			typeof data.body === "object" &&
-			("files" in data.body ||
-				("data" in data.body &&
-					data.body.data &&
-					typeof data.body.data === "object" &&
-					"files" in data.body.data))
-		) {
-			const payload = data.body as MessagePayload
-			if (typeof payload === "string") {
-				data.body = { content: payload, attachments: [] }
+		if (data?.body && typeof data.body === "object") {
+			const bodyObject = data.body as Record<string, unknown>
+			const topLevelFiles =
+				"files" in bodyObject
+					? (bodyObject.files as MessagePayloadFile[] | undefined)
+					: undefined
+			const nestedData =
+				"data" in bodyObject &&
+				bodyObject.data &&
+				typeof bodyObject.data === "object"
+					? (bodyObject.data as Record<string, unknown>)
+					: undefined
+			const nestedFiles =
+				nestedData && "files" in nestedData
+					? (nestedData.files as MessagePayloadFile[] | undefined)
+					: undefined
+
+			let payloadJson: Record<string, unknown> | null = null
+			let filesContainer: Record<string, unknown> | null = null
+			let files: MessagePayloadFile[] = []
+
+			if (topLevelFiles !== undefined) {
+				payloadJson = { ...bodyObject }
+				filesContainer = payloadJson
+				files = topLevelFiles ?? []
+			} else if (nestedFiles !== undefined && nestedData) {
+				payloadJson = { ...bodyObject, data: { ...nestedData } }
+				filesContainer = payloadJson.data as Record<string, unknown>
+				files = nestedFiles ?? []
+			}
+
+			if (payloadJson && filesContainer) {
+				const formData = new FormData()
+				const existingAttachments = Array.isArray(filesContainer.attachments)
+					? [...(filesContainer.attachments as Array<Record<string, unknown>>)]
+					: []
+
+				const uploadedAttachments: Array<Record<string, unknown>> = []
+				for (const [index, file] of files.entries()) {
+					let { data: fileData } = file
+
+					if (!(fileData instanceof Blob)) {
+						fileData = new Blob([fileData])
+					}
+
+					formData.append(`files[${index}]`, fileData, file.name)
+					uploadedAttachments.push({
+						id: index,
+						filename: file.name,
+						...(file.description !== undefined
+							? { description: file.description }
+							: {}),
+						...(file.duration_secs !== undefined
+							? { duration_secs: file.duration_secs }
+							: {}),
+						...(file.waveform !== undefined ? { waveform: file.waveform } : {})
+					})
+				}
+
+				filesContainer.attachments = [
+					...existingAttachments,
+					...uploadedAttachments
+				]
+				delete filesContainer.files
+
+				formData.append("payload_json", JSON.stringify(payloadJson))
+				body = formData
 			} else {
-				data.body = { ...payload, attachments: [] }
-			}
-
-			const formData = new FormData()
-			const files = (() => {
-				if (typeof payload === "object" && payload !== null) {
-					if ("files" in payload) {
-						return (payload as { files?: MessagePayloadFile[] }).files || []
-					}
-					if (
-						"data" in payload &&
-						typeof payload.data === "object" &&
-						payload.data !== null
-					) {
-						return (
-							(payload as { data: { files?: MessagePayloadFile[] } }).data
-								.files || []
-						)
-					}
+				headers.set("Content-Type", "application/json")
+				if (data.rawBody) {
+					body = data.body as unknown as BodyInit
+				} else {
+					body = JSON.stringify(data.body)
 				}
-				return []
-			})()
-
-			for (const [index, file] of files.entries()) {
-				let { data: fileData } = file
-
-				if (!(fileData instanceof Blob)) {
-					fileData = new Blob([fileData])
-				}
-
-				formData.append(`files[${index}]`, fileData, file.name)
-				;(
-					data.body as {
-						attachments: Array<{
-							id: number
-							filename: string
-							description?: string
-						}>
-					}
-				).attachments.push({
-					id: index,
-					filename: file.name,
-					description: file.description
-				})
 			}
-
-			if (data.body != null) {
-				const cleanedBody = {
-					...data.body,
-					files: undefined
-				}
-				formData.append("payload_json", JSON.stringify(cleanedBody))
-			}
-
-			body = formData
 		} else if (data?.body != null) {
 			headers.set("Content-Type", "application/json")
 			if (data.rawBody) {

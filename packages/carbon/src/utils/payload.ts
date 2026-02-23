@@ -34,6 +34,35 @@ export const serializePayload = (
 
 	if (
 		payload.flags &&
+		(payload.flags & MessageFlags.IsVoiceMessage) ===
+			MessageFlags.IsVoiceMessage
+	) {
+		if (payload.content) {
+			throw new Error(
+				"You cannot send a voice message with content. Voice messages must only include an audio attachment."
+			)
+		}
+
+		if (!payload.files || payload.files.length !== 1) {
+			throw new Error(
+				"Voice messages must include exactly one audio file attachment."
+			)
+		}
+
+		const voiceFile = payload.files[0]
+		if (
+			!voiceFile ||
+			voiceFile.duration_secs === undefined ||
+			voiceFile.waveform === undefined
+		) {
+			throw new Error(
+				"Voice message attachments must include duration_secs and waveform metadata."
+			)
+		}
+	}
+
+	if (
+		payload.flags &&
 		(payload.flags & MessageFlags.IsComponentsV2) ===
 			MessageFlags.IsComponentsV2
 	) {
