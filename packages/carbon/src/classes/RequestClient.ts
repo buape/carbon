@@ -261,7 +261,7 @@ export class RequestClient {
 				files = nestedFiles ?? []
 			}
 
-			if (payloadJson && filesContainer) {
+			if (payloadJson && filesContainer && files.length > 0) {
 				const formData = new FormData()
 				const existingAttachments = Array.isArray(filesContainer.attachments)
 					? [...(filesContainer.attachments as Array<Record<string, unknown>>)]
@@ -275,9 +275,10 @@ export class RequestClient {
 						fileData = new Blob([fileData])
 					}
 
-					formData.append(`files[${index}]`, fileData, file.name)
+					const attachmentId = existingAttachments.length + index
+					formData.append(`files[${attachmentId}]`, fileData, file.name)
 					uploadedAttachments.push({
-						id: index,
+						id: attachmentId,
 						filename: file.name,
 						...(file.description !== undefined
 							? { description: file.description }
