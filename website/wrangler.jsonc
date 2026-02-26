@@ -1,13 +1,17 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
+	"main": "worker/index.ts",
 	"account_id": "cb8680c9bbcf0c359fccbb5e634df935",
 	"name": "carbon-buape-com",
-	"compatibility_date": "2025-07-02",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_date": "2025-12-17",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"nodejs_compat_populate_process_env"
+	],
 	"assets": {
-		"directory": ".open-next/assets",
-		"binding": "ASSETS"
+		"directory": "dist",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
 	},
 	"routes": [
 		{

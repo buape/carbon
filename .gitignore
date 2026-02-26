@@ -14,4 +14,6 @@ packages/*/docs/
 website/.source
 .open-next/
 website/public/*.txt
+website/.wrangler/
+website/worker-configuration.d.ts
 .idea/
