@@ -46,9 +46,19 @@ export type RequestClientOptions = {
 	 * @default 1000
 	 */
 	maxQueueSize?: number
+	/**
+	 * A custom fetch function to use for requests.
+	 * This allows you to inject your own fetch implementation for testing, mocking, or custom behavior.
+	 */
+	fetch?: (
+		input: string | URL | Request,
+		init?: RequestInit
+	) => Promise<Response>
 }
 
-const defaultOptions: Required<RequestClientOptions> = {
+const defaultOptions: Omit<Required<RequestClientOptions>, "fetch"> & {
+	fetch?: RequestClientOptions["fetch"]
+} = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
 	apiVersion: 10,
@@ -85,6 +95,9 @@ export class RequestClient {
 	readonly options: RequestClientOptions
 	protected queue: QueuedRequest[] = []
 	private token: string
+	private customFetch:
+		| ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
+		| undefined
 	private abortController: AbortController | null = null
 	private processingQueue = false
 	private routeBuckets: Map<string, string> = new Map()
@@ -100,6 +113,7 @@ export class RequestClient {
 
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
+		this.customFetch = options?.fetch
 		this.options = {
 			...defaultOptions,
 			...options
@@ -314,8 +328,9 @@ export class RequestClient {
 			}, timeoutMs)
 		}
 		let response: Response
+		const fetchFn = this.customFetch ?? fetch
 		try {
-			response = await fetch(url, {
+			response = await fetchFn(url, {
 				method,
 				headers,
 				body,
