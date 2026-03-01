@@ -272,17 +272,14 @@ export class ClientManager {
 	 * @param ctx Optional context (for Cloudflare Workers, etc.)
 	 */
 	async handleRequest(req: Request, ctx?: Context): Promise<Response> {
-		const url = new URL(req.url)
-		const baseUrl = new URL(this.baseUrl)
-		const basePathname = baseUrl.pathname.replace(/\/$/, "")
-		const reqPathname = url.pathname.replace(/\/$/, "")
-
-		if (!reqPathname.startsWith(basePathname)) {
+		const url = new URL(req.url, "http://localhost")
+		const pathname = resolveRequestPathname(new URL(this.baseUrl), url)
+		if (!pathname) {
 			await req.text().catch(() => {})
 			return new Response("Not Found: Invalid base URL", { status: 404 })
 		}
 
-		const truePathname = reqPathname.slice(basePathname.length)
+		const truePathname = pathname
 		if (truePathname === "/deploy" && req.method === "GET") {
 			return this.handleGlobalDeploy(req)
 		}
@@ -389,4 +386,12 @@ export class ClientManager {
 	protected isValidClientId(id: string): boolean {
 		return /^\d{17,19}$/.test(id)
 	}
+}
+
+function resolveRequestPathname(baseUrl: URL, reqUrl: URL) {
+	// Need to use pathname only due to host name being different in Cloudflare Tunnel
+	const basePathname = baseUrl.pathname.replace(/\/$/, "")
+	const reqPathname = reqUrl.pathname.replace(/\/$/, "")
+	if (!reqPathname.startsWith(basePathname)) return null
+	return reqPathname.slice(basePathname.length)
 }
