@@ -206,10 +206,32 @@ export class Webhook<IsPartial extends boolean = false> {
 	 * Only returned by the webhooks OAuth2 flow
 	 */
 	get url(): string {
-		const base = `https://discord.com/api/webhooks/${this.id}/${this.token}`
-		const queryParams = new URLSearchParams()
-		if (this.threadId) queryParams.set("thread_id", this.threadId)
-		return base
+		return `https://discord.com/api/webhooks/${this.id}/${this.token}`
+	}
+
+	private buildQuery({
+		threadId,
+		wait,
+		withComponents,
+		useDefaultThread = false
+	}: {
+		threadId?: string
+		wait?: boolean
+		withComponents?: boolean
+		useDefaultThread?: boolean
+	}) {
+		const query: Record<string, string> = {}
+		const resolvedThreadId = useDefaultThread
+			? (threadId ?? this.threadId)
+			: threadId
+		if (resolvedThreadId) query.thread_id = resolvedThreadId
+		if (wait) query.wait = "true"
+		if (withComponents) query.with_components = "true"
+		return query
+	}
+
+	private normalizeQuery(query: Record<string, string>) {
+		return Object.keys(query).length > 0 ? query : undefined
 	}
 
 	urlWithOptions({
@@ -232,12 +254,9 @@ export class Webhook<IsPartial extends boolean = false> {
 		withComponents?: boolean
 	}): string {
 		let base = `/webhooks/${this.id}/${this.token}`
-		const queryParams = new URLSearchParams()
-		if (this.threadId) queryParams.set("thread_id", this.threadId)
-		if (threadId) queryParams.set("thread_id", threadId)
-		if (wait) queryParams.set("wait", "true")
-		if (withComponents) queryParams.set("with_components", "true")
-		if (queryParams.size > 0) base += `?${queryParams.toString()}`
+		const query = this.buildQuery({ threadId, wait, withComponents })
+		const queryString = new URLSearchParams(query).toString()
+		if (queryString) base += `?${queryString}`
 		return base
 	}
 
@@ -293,13 +312,13 @@ export class Webhook<IsPartial extends boolean = false> {
 			throw new Error("Cannot send webhook message without token")
 
 		const serialized = serializePayload(data)
-		const finalThreadId = threadId || this.threadId
+		const query = this.buildQuery({ threadId, wait, useDefaultThread: true })
 		const response = (await this.rest.post(
-			this.urlWithOptions({ wait, threadId }),
+			`/webhooks/${this.id}/${this.token}`,
 			{
 				body: serialized
 			},
-			finalThreadId ? { thread_id: finalThreadId } : undefined
+			this.normalizeQuery(query)
 		)) as T extends true ? APIMessage : undefined
 		return response
 	}
@@ -319,14 +338,13 @@ export class Webhook<IsPartial extends boolean = false> {
 			throw new Error("Cannot edit webhook message without token")
 
 		const serialized = serializePayload(data)
-		const finalThreadId = threadId || this.threadId
+		const query = this.buildQuery({ threadId, useDefaultThread: true })
 		const message = (await this.rest.patch(
-			Routes.webhookMessage(this.id, this.token, messageId) +
-				(threadId ? `?thread_id=${threadId}` : ""),
+			Routes.webhookMessage(this.id, this.token, messageId),
 			{
 				body: serialized
 			},
-			finalThreadId ? { thread_id: finalThreadId } : undefined
+			this.normalizeQuery(query)
 		)) as APIMessage
 
 		return message
@@ -342,12 +360,11 @@ export class Webhook<IsPartial extends boolean = false> {
 		if (!this.token)
 			throw new Error("Cannot delete webhook message without token")
 
-		const finalThreadId = threadId || this.threadId
+		const query = this.buildQuery({ threadId, useDefaultThread: true })
 		await this.rest.delete(
-			Routes.webhookMessage(this.id, this.token, messageId) +
-				(threadId ? `?thread_id=${threadId}` : ""),
+			Routes.webhookMessage(this.id, this.token, messageId),
 			undefined,
-			finalThreadId ? { thread_id: finalThreadId } : undefined
+			this.normalizeQuery(query)
 		)
 	}
 
@@ -360,11 +377,10 @@ export class Webhook<IsPartial extends boolean = false> {
 	async getMessage(messageId: string, threadId?: string): Promise<APIMessage> {
 		if (!this.token) throw new Error("Cannot get webhook message without token")
 
-		const finalThreadId = threadId || this.threadId
+		const query = this.buildQuery({ threadId, useDefaultThread: true })
 		const message = (await this.rest.get(
-			Routes.webhookMessage(this.id, this.token, messageId) +
-				(threadId ? `?thread_id=${threadId}` : ""),
-			finalThreadId ? { thread_id: finalThreadId } : undefined
+			Routes.webhookMessage(this.id, this.token, messageId),
+			this.normalizeQuery(query)
 		)) as RESTGetAPIWebhookWithTokenMessageResult
 
 		return message
