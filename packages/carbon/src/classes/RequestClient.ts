@@ -42,6 +42,11 @@ export type RequestClientOptions = {
 	 */
 	queueRequests?: boolean
 	/**
+	 * Optional custom dispatcher passed to fetch (Node/undici runtimes).
+	 * Useful for HTTP(S) proxying without mutating globalThis.fetch.
+	 */
+	dispatcher?: unknown
+	/**
 	 * The maximum amount of queued requests before throwing.
 	 * @default 1000
 	 */
@@ -55,6 +60,7 @@ const defaultOptions: Required<RequestClientOptions> = {
 	userAgent: "DiscordBot (https://github.com/buape/carbon, v0.0.0)",
 	timeout: 15000,
 	queueRequests: true,
+	dispatcher: undefined,
 	maxQueueSize: 1000
 }
 
@@ -314,13 +320,17 @@ export class RequestClient {
 			}, timeoutMs)
 		}
 		let response: Response
+		const requestInit: RequestInit & { dispatcher?: unknown } = {
+			method,
+			headers,
+			body,
+			signal: this.abortController.signal
+		}
+		if (this.options.dispatcher !== undefined) {
+			requestInit.dispatcher = this.options.dispatcher
+		}
 		try {
-			response = await fetch(url, {
-				method,
-				headers,
-				body,
-				signal: this.abortController.signal
-			})
+			response = await fetch(url, requestInit)
 		} finally {
 			if (timeoutId) {
 				clearTimeout(timeoutId)
