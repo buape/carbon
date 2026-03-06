@@ -1,8 +1,12 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: WEBHOOK_URL checks */
-import { describe, expect, test } from "vitest"
-import { Webhook } from "../../src/index.js"
+import { afterEach, describe, expect, test, vi } from "vitest"
+import { Button, Row, Webhook } from "../../src/index.js"
 
 const WEBHOOK_URL = process.env.WEBHOOK_URL
+
+afterEach(() => {
+	vi.restoreAllMocks()
+})
 
 describe("Webhook Constructor", () => {
 	test("creates webhook from URL string", () => {
@@ -126,5 +130,46 @@ describe("Webhook Methods", async () => {
 			.getMessage(message.id)
 			.catch(() => undefined)
 		expect(fetchedMessage).toBeUndefined()
+	})
+})
+
+class TestButtonComponent extends Button {
+	label = "Click me"
+	customId = "test"
+}
+
+const buildComponentRow = () => new Row([new TestButtonComponent()])
+
+describe("Webhook query helpers", () => {
+	test("send auto-enables with_components when payload has components", async () => {
+		const webhook = new Webhook({
+			id: "123456789012345678",
+			token: "test_webhook_token_12345"
+		})
+		const postSpy = vi.spyOn(webhook.rest, "post").mockResolvedValue(undefined)
+
+		await webhook.send({ components: [buildComponentRow()] })
+
+		expect(postSpy).toHaveBeenCalledTimes(1)
+		const [, , query] = postSpy.mock.calls[0]
+		expect(query).toEqual({ with_components: "true" })
+	})
+
+	test("edit auto-enables with_components when payload has components", async () => {
+		const webhook = new Webhook({
+			id: "123456789012345678",
+			token: "test_webhook_token_12345"
+		})
+		const patchSpy = vi
+			.spyOn(webhook.rest, "patch")
+			.mockResolvedValue({} as never)
+
+		await webhook.edit("999888777666555444", {
+			components: [buildComponentRow()]
+		})
+
+		expect(patchSpy).toHaveBeenCalledTimes(1)
+		const [, , query] = patchSpy.mock.calls[0]
+		expect(query).toEqual({ with_components: "true" })
 	})
 })

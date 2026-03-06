@@ -312,7 +312,13 @@ export class Webhook<IsPartial extends boolean = false> {
 			throw new Error("Cannot send webhook message without token")
 
 		const serialized = serializePayload(data)
-		const query = this.buildQuery({ threadId, wait, useDefaultThread: true })
+		const shouldEnableComponents = Boolean(serialized.components?.length)
+		const query = this.buildQuery({
+			threadId,
+			wait,
+			useDefaultThread: true,
+			withComponents: shouldEnableComponents
+		})
 		const response = (await this.rest.post(
 			`/webhooks/${this.id}/${this.token}`,
 			{
@@ -338,7 +344,12 @@ export class Webhook<IsPartial extends boolean = false> {
 			throw new Error("Cannot edit webhook message without token")
 
 		const serialized = serializePayload(data)
-		const query = this.buildQuery({ threadId, useDefaultThread: true })
+		const shouldEnableComponents = Boolean(serialized.components?.length)
+		const query = this.buildQuery({
+			threadId,
+			useDefaultThread: true,
+			withComponents: shouldEnableComponents
+		})
 		const message = (await this.rest.patch(
 			Routes.webhookMessage(this.id, this.token, messageId),
 			{
