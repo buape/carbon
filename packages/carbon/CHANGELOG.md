@@ -1,5 +1,20 @@
 # @buape/carbon
 
+## 0.15.0
+
+### Minor Changes
+
+- 5c08a35: feat(breaking): change listener registration method to Client#registerListener
+
+### Patch Changes
+
+- 51ffa8f: fix: reset gateway heartbeat ack state on reconnects
+- ec9a41c: fix: change component registration to allow multiple handlers sharing a custom ID across component types.
+- 074caae: chore(deps): update dependency @types/bun to v1.3.8
+- 5c08a35: fix: add voice event forwarding
+- c4cf6f0: fix: reset reconnect backoff counter on READY/RESUMED instead of WebSocket open to prevent connection storms
+- 6eed6eb: fix: avoid crashing when reconnect is requested after socket is already closed
+
 ## 0.14.0
 
 ### Minor Changes
