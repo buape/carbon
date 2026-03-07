@@ -1,50 +1,75 @@
-import * as fs from "node:fs/promises"
-import * as path from "node:path"
-import fg from "fast-glob"
-import { remarkInclude } from "fumadocs-mdx/config"
-import matter from "gray-matter"
-import { remark } from "remark"
-import remarkGfm from "remark-gfm"
-import remarkMdx from "remark-mdx"
-import remarkStringify from "remark-stringify"
+import { promises as fs } from "node:fs"
+import path from "node:path"
 
-const processor = remark()
-	.use(remarkMdx)
-	.use(remarkInclude)
-	.use(remarkGfm)
-	.use(remarkStringify)
+const contentDir = path.resolve("content")
 
-const generateTxt = async (filePaths, outputName) => {
-	const scan = filePaths.map(async (file) => {
-		const fileContent = await fs.readFile(file)
-		const { content, data } = matter(fileContent.toString())
+const walk = async (dir) => {
+	const entries = await fs.readdir(dir, { withFileTypes: true })
+	const files = []
 
-		const processed = await processor.process({
-			path: file,
-			value: content
+	for (const entry of entries) {
+		const fullPath = path.join(dir, entry.name)
+		if (entry.isDirectory()) {
+			files.push(...(await walk(fullPath)))
+		} else if (entry.isFile() && entry.name.endsWith(".mdx")) {
+			files.push(fullPath)
+		}
+	}
+
+	return files
+}
+
+const stripFrontmatter = (content) => {
+	const normalized = content.replace(/\r\n/g, "\n")
+	if (!normalized.startsWith("---")) return { content, meta: {} }
+
+	const end = normalized.indexOf("\n---", 3)
+	if (end === -1) return { content, meta: {} }
+
+	const raw = normalized.slice(3, end).trim()
+	const meta = {}
+
+	for (const line of raw.split("\n")) {
+		const [key, ...rest] = line.split(":")
+		if (!key) continue
+		const value = rest.join(":").trim()
+		if (!value) continue
+
+		const normalized = value.replace(/^['"]|['"]$/g, "")
+		if (normalized === "true") meta[key.trim()] = true
+		else if (normalized === "false") meta[key.trim()] = false
+		else meta[key.trim()] = normalized
+	}
+
+	const nextContent = normalized.slice(end + 4).trimStart()
+	return { content: nextContent, meta }
+}
+
+const formatPath = (filePath) =>
+	path.relative(process.cwd(), filePath).replace(/\\/g, "/")
+
+const main = async () => {
+	const files = await walk(contentDir)
+	const entries = await Promise.all(
+		files.map(async (file) => {
+			const raw = await fs.readFile(file, "utf-8")
+			const { content, meta } = stripFrontmatter(raw)
+			return `<file path="${formatPath(file)}" meta="${JSON.stringify(
+				meta,
+				null,
+				2
+			)}">\n${content.trim()}\n</file>`
 		})
+	)
 
-		return `<file path="${file}" meta="${JSON.stringify(data, null, 2)}">
-${processed}
-</file>`
-	})
+	const output = `# Carbon Docs\nAPI Reference: https://carbon.buape.com/api.json\n\n${entries.join("\n\n")}`
 
-	const scanned = await Promise.all(scan)
-
-	const txtContent = `# Carbon Docs
-API Reference: https://carbon.buape.com/api.json
-
-${scanned.join("\n\n")}`
-
-	const outputPath = path.join("public", outputName)
-	await fs.writeFile(outputPath, txtContent)
-	console.log(`Generated ${outputPath}`)
-}
-
-async function main() {
 	await fs.mkdir("public", { recursive: true })
-	const allPath = await fg(["content/**/*.mdx"])
-	await generateTxt(allPath, "llms.txt")
+	await fs.writeFile(path.join("public", "llms.txt"), `${output}\n`)
+	console.log("Generated public/llms.txt")
 }
 
-main().catch(console.error)
+main().catch((error) => {
+	console.error(error)
+	process.exit(1)
+})

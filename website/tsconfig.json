@@ -1,35 +1,21 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
-		"target": "ES2020",
-		"lib": ["dom", "dom.iterable", "esnext"],
-		"allowJs": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"forceConsistentCasingInFileNames": true,
-		"noEmit": true,
-		"esModuleInterop": true,
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM", "DOM.Iterable"],
+		"module": "ESNext",
 		"moduleResolution": "bundler",
+		"types": ["vite/client"],
+		"jsx": "react-jsx",
+		"strict": true,
+		"skipLibCheck": true,
+		"noEmit": true,
 		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"jsx": "preserve",
-		"incremental": true,
+		"baseUrl": ".",
 		"paths": {
-			"~/*": ["./*"]
-		},
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
-		"module": "esnext"
+			"@/*": ["src/*"],
+			"~/*": ["./*"],
+			"lucide-react": ["src/lucide-react.tsx"]
+		}
 	},
-	"include": [
-		"next-env.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		".next/types/**/*.ts",
-		"postcss.config.cjs"
-	],
-	"exclude": ["node_modules"]
+	"include": ["src", "worker", "vite.config.ts", "scripts/**/*.mjs"]
 }

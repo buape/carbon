@@ -25,7 +25,8 @@
 		"web:dev": "pnpm run web:docs && cd website && pnpm run dev",
 		"web:deploy": "pnpm run web:docs && cd website && pnpm run deploy",
 		"web:docs": "pnpm run build && turbo run docs",
-		"web:start": "cd website && pnpm run start"
+		"web:start": "cd website && pnpm run start",
+		"web:test": "cd website && pnpm run test"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.11",
