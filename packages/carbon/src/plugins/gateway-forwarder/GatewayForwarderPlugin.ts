@@ -34,6 +34,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 	readonly options: GatewayForwarderPluginOptions
 	private privateKey: ReturnType<typeof createPrivateKey>
+	private guildAvailabilityCache: Map<string, boolean> = new Map()
 
 	constructor(options: GatewayForwarderPluginOptions) {
 		if (!options.privateKey) {
@@ -65,21 +66,57 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 				const payload = JSON.parse(data.toString()) as GatewayPayload
 
 				if (payload.t && payload.d) {
+					const gatewayType = payload.t as ListenerEventType
+					let forwardedType = gatewayType
+
+					if (gatewayType === "READY") {
+						const readyData = payload.d as {
+							guilds?: Array<{ id: string }>
+						}
+						this.guildAvailabilityCache.clear()
+						readyData.guilds?.forEach((guild) => {
+							this.guildAvailabilityCache.set(guild.id, false)
+						})
+					}
+
+					if (gatewayType === "GUILD_CREATE") {
+						const guildCreateData = payload.d as { id: string }
+						const cachedAvailability = this.guildAvailabilityCache.get(
+							guildCreateData.id
+						)
+						if (cachedAvailability === false) {
+							forwardedType = "GUILD_AVAILABLE"
+						}
+						this.guildAvailabilityCache.set(guildCreateData.id, true)
+					}
+
+					if (gatewayType === "GUILD_DELETE") {
+						const guildDeleteData = payload.d as {
+							id: string
+							unavailable?: boolean
+						}
+						if (guildDeleteData.unavailable) {
+							forwardedType = "GUILD_UNAVAILABLE"
+							this.guildAvailabilityCache.set(guildDeleteData.id, false)
+						} else {
+							this.guildAvailabilityCache.delete(guildDeleteData.id)
+						}
+					}
+
 					if (
 						this.options.eventFilter &&
-						!this.options.eventFilter(payload.t as ListenerEventType)
-					)
+						!this.options.eventFilter(forwardedType)
+					) {
 						return
+					}
 
-					// In the below code, the events are not truly webhook events,
-					// but we use the webhook event type so that the payloads are structured correctly to work as if they were webhook events
 					const timestamp = Date.now()
 					const webhookEvent: APIWebhookEvent = {
 						version: 1,
 						application_id: this.client?.options.clientId || "unknown",
 						type: ApplicationWebhookType.Event,
 						event: {
-							type: payload.t,
+							type: forwardedType,
 							timestamp: new Date().toISOString(),
 							data: payload.d
 						} as APIWebhookEvent["event"]
@@ -111,7 +148,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 					if (!response.ok) {
 						console.error(
-							`Failed to forward event ${payload.t}: ${response.status} ${response.statusText}`
+							`Failed to forward event ${forwardedType}: ${response.status} ${response.statusText}`
 						)
 					}
 				}
