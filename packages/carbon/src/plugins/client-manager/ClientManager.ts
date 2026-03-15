@@ -253,7 +253,7 @@ export class ClientManager {
 			if (!client) continue
 
 			try {
-				await client.handleDeployRequest()
+				await client.handleDeployRequest(req)
 				results.push({ clientId, status: "success" })
 			} catch (error) {
 				results.push({
