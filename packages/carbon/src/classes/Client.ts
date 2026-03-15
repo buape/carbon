@@ -41,6 +41,17 @@ import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
 type SerializedCommand = ReturnType<BaseCommand["serialize"]>
 
+const DISCORD_COMMAND_RESPONSE_ONLY_FIELDS = new Set([
+	"application_id",
+	"description_localized",
+	"dm_permission",
+	"guild_id",
+	"id",
+	"name_localized",
+	"nsfw",
+	"version"
+])
+
 const DISCORD_SUBCOMMAND_ONLY_FIELDS = new Set([
 	"description_localizations",
 	"integration_types",
@@ -667,7 +678,6 @@ export class Client {
 			])
 		)
 		const desiredCommands = commands.map((command) => ({
-			command,
 			body: command.serialize(),
 			key: this.getCommandDeploymentKey(command.name, command.type)
 		}))
@@ -728,8 +738,11 @@ export class Client {
 	}
 
 	private normalizeLiveCommandDefinition(command: APIApplicationCommand) {
-		const { id, application_id, guild_id, version, ...body } =
-			command as APIApplicationCommand & Record<string, unknown>
+		const body = Object.fromEntries(
+			Object.entries(
+				command as APIApplicationCommand & Record<string, unknown>
+			).filter(([key]) => !DISCORD_COMMAND_RESPONSE_ONLY_FIELDS.has(key))
+		)
 		return this.normalizeCommandDefinitionValue(body)
 	}
 

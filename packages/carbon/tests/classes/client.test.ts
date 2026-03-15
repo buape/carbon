@@ -277,6 +277,126 @@ describe("Client command deployment", () => {
 		expect(pingCommand.id).toBe("cmd-1")
 	})
 
+	test("treats Discord response-only fields as unchanged during reconcile", async () => {
+		const statusCommand = createCommand({
+			name: "status",
+			description: "Status"
+		})
+		const { client, rest } = createClient(
+			[statusCommand],
+			[
+				{
+					...createGlobalLiveCommand(
+						{
+							name: "status",
+							description: "Status",
+							type: ApplicationCommandType.ChatInput,
+							contexts: [
+								InteractionContextType.Guild,
+								InteractionContextType.BotDM,
+								InteractionContextType.PrivateChannel
+							],
+							integration_types: [
+								ApplicationIntegrationType.GuildInstall,
+								ApplicationIntegrationType.UserInstall
+							],
+							default_member_permissions: null
+						},
+						"cmd-1"
+					),
+					dm_permission: true,
+					nsfw: false,
+					name_localized: "status",
+					description_localized: "Status"
+				} as APIApplicationCommand
+			]
+		)
+
+		await client.reconcileCommands()
+
+		expect(rest.patch).not.toHaveBeenCalled()
+		expect(rest.post).not.toHaveBeenCalled()
+		expect(rest.delete).not.toHaveBeenCalled()
+	})
+
+	test("treats omitted required false option fields as unchanged during reconcile", async () => {
+		const skillCommand = createCommand({
+			name: "skill",
+			description: "Run a skill",
+			body: {
+				name: "skill",
+				description: "Run a skill",
+				type: ApplicationCommandType.ChatInput,
+				options: [
+					{
+						name: "name",
+						description: "Skill name",
+						type: 3,
+						required: true
+					},
+					{
+						name: "input",
+						description: "Skill input",
+						type: 3,
+						required: false
+					}
+				],
+				contexts: [
+					InteractionContextType.Guild,
+					InteractionContextType.BotDM,
+					InteractionContextType.PrivateChannel
+				],
+				integration_types: [
+					ApplicationIntegrationType.GuildInstall,
+					ApplicationIntegrationType.UserInstall
+				],
+				default_member_permissions: null
+			}
+		})
+		const { client, rest } = createClient(
+			[skillCommand],
+			[
+				createGlobalLiveCommand(
+					{
+						name: "skill",
+						description: "Run a skill",
+						type: ApplicationCommandType.ChatInput,
+						options: [
+							{
+								name: "name",
+								description: "Skill name",
+								type: 3,
+								required: true
+							},
+							{
+								name: "input",
+								description: "Skill input",
+								type: 3
+							}
+						],
+						contexts: [
+							InteractionContextType.Guild,
+							InteractionContextType.BotDM,
+							InteractionContextType.PrivateChannel
+						],
+						integration_types: [
+							ApplicationIntegrationType.GuildInstall,
+							ApplicationIntegrationType.UserInstall
+						],
+						default_member_permissions: null
+					},
+					"cmd-1"
+				)
+			]
+		)
+
+		await client.reconcileCommands()
+
+		expect(rest.patch).not.toHaveBeenCalled()
+		expect(rest.post).not.toHaveBeenCalled()
+		expect(rest.delete).not.toHaveBeenCalled()
+	})
+
 	test("does not patch unchanged subcommand commands during reconcile", async () => {
 		const adminCommand = createCommand({
 			name: "admin",
