@@ -39,50 +39,6 @@ import {
 import type { Modal } from "./Modal.js"
 import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
 
-type SerializedCommand = ReturnType<BaseCommand["serialize"]>
-
-const DISCORD_COMMAND_RESPONSE_ONLY_FIELDS = new Set([
-	"application_id",
-	"description_localized",
-	"dm_permission",
-	"guild_id",
-	"id",
-	"name_localized",
-	"nsfw",
-	"version"
-])
-
-const DISCORD_SUBCOMMAND_ONLY_FIELDS = new Set([
-	"description_localizations",
-	"integration_types",
-	"contexts",
-	"default_member_permissions",
-	"name_localizations"
-])
-
-const DISCORD_UNORDERED_ARRAY_FIELDS = new Set([
-	"channel_types",
-	"contexts",
-	"integration_types"
-])
-
-export type CommandDeploymentMode = "overwrite" | "reconcile"
-
-export interface DeployCommandsOptions {
-	/**
-	 * The strategy to use for global command deployment.
-	 * Guild and dev-guild deployments always use Discord's bulk overwrite route.
-	 *
-	 * @default "overwrite"
-	 */
-	mode?: CommandDeploymentMode
-}
-
-export interface DeployCommandsResult {
-	mode: CommandDeploymentMode
-	usedDevGuilds: boolean
-}
-
 /**
  * The options used for initializing the client
  */
@@ -123,7 +79,7 @@ export interface ClientOptions {
 	 *
 	 * @default "overwrite"
 	 */
-	commandDeploymentMode?: CommandDeploymentMode
+	commandDeploymentMode?: "overwrite" | "reconcile"
 	/**
 	 * Whether the deploy route should be disabled.
 	 * @default false
@@ -310,9 +266,14 @@ export class Client {
 	 * @returns A response
 	 */
 	public async handleDeployRequest(req?: Request) {
-		const result = await this.deployCommands({
-			mode: this.resolveDeployModeFromRequest(req)
-		})
+		let mode: "overwrite" | "reconcile" | undefined
+		if (req) {
+			const value = new URL(req.url).searchParams.get("mode")
+			if (value === "overwrite" || value === "reconcile") {
+				mode = value
+			}
+		}
+		const result = await this.deployCommands({ mode })
 
 		if (result.usedDevGuilds) {
 			return new Response("OK (devGuilds)", { status: 202 })
@@ -322,12 +283,16 @@ export class Client {
 	}
 
 	public async deployCommands(
-		options: DeployCommandsOptions = {}
-	): Promise<DeployCommandsResult> {
+		options: { mode?: "overwrite" | "reconcile" } = {}
+	) {
 		const commands = this.commands.filter((c) => c.name !== "*")
 		const globalCommands = commands.filter((c) => !c.guildIds)
-		const guildCommandsMap: Record<string, SerializedCommand[]> = {}
-		const mode = this.resolveCommandDeploymentMode(options.mode)
+		const guildCommandsMap: Record<
+			string,
+			ReturnType<BaseCommand["serialize"]>[]
+		> = {}
+		const mode =
+			options.mode ?? this.options.commandDeploymentMode ?? "overwrite"
 
 		for (const command of commands) {
 			if (command.guildIds) {
@@ -648,56 +613,133 @@ export class Client {
 		}
 	}
 
-	private resolveCommandDeploymentMode(
-		requestedMode?: CommandDeploymentMode
-	): CommandDeploymentMode {
-		return requestedMode ?? this.options.commandDeploymentMode ?? "overwrite"
-	}
+	private async reconcileGlobalCommands(commands: BaseCommand[]) {
+		const discordCommandResponseOnlyFields = new Set([
+			"application_id",
+			"description_localized",
+			"dm_permission",
+			"guild_id",
+			"id",
+			"name_localized",
+			"nsfw",
+			"version"
+		])
+		const discordSubcommandOnlyFields = new Set([
+			"description_localizations",
+			"integration_types",
+			"contexts",
+			"default_member_permissions",
+			"name_localizations"
+		])
+		const discordUnorderedArrayFields = new Set([
+			"channel_types",
+			"contexts",
+			"integration_types"
+		])
+		const normalizeCommandDefinitionValue = (
+			value: unknown,
+			path: string[] = []
+		): unknown => {
+			if (Array.isArray(value)) {
+				const normalized = value.map((entry) =>
+					normalizeCommandDefinitionValue(entry, path)
+				)
+				const key = path.at(-1)
+				if (
+					key &&
+					discordUnorderedArrayFields.has(key) &&
+					normalized.every(
+						(entry) =>
+							typeof entry === "string" ||
+							typeof entry === "number" ||
+							typeof entry === "boolean"
+					)
+				) {
+					return [...normalized].sort()
+				}
+				return normalized
+			}
 
-	private resolveDeployModeFromRequest(
-		req?: Request
-	): CommandDeploymentMode | undefined {
-		if (!req) return undefined
+			if (value && typeof value === "object") {
+				const normalizedEntries = Object.entries(
+					value as Record<string, unknown>
+				).flatMap(([key, entry]) => {
+					if (
+						path.includes("options") &&
+						discordSubcommandOnlyFields.has(key)
+					) {
+						return []
+					}
+					if (
+						(key === "required" || key === "autocomplete") &&
+						entry === false
+					) {
+						return []
+					}
 
-		const mode = new URL(req.url).searchParams.get("mode")
-		if (mode === "overwrite" || mode === "reconcile") {
-			return mode
+					const normalized = normalizeCommandDefinitionValue(entry, [
+						...path,
+						key
+					])
+					if (normalized === undefined) {
+						return []
+					}
+
+					return [[key, normalized] as const]
+				})
+
+				return Object.fromEntries(
+					normalizedEntries.sort(([left], [right]) => left.localeCompare(right))
+				)
+			}
+
+			return value
+		}
+		const normalizeLiveCommandDefinition = (command: APIApplicationCommand) => {
+			const body = Object.fromEntries(
+				Object.entries(
+					command as APIApplicationCommand & Record<string, unknown>
+				).filter(([key]) => !discordCommandResponseOnlyFields.has(key))
+			)
+			return normalizeCommandDefinitionValue(body)
 		}
 
-		return undefined
-	}
-
-	private async reconcileGlobalCommands(commands: BaseCommand[]) {
 		const liveCommands = (await this.rest.get(
 			Routes.applicationCommands(this.options.clientId)
 		)) as APIApplicationCommand[]
 		const liveByKey = new Map(
 			liveCommands.map((command) => [
-				this.getCommandDeploymentKey(command.name, command.type),
+				`${command.type}:${command.name}`,
 				command
 			])
 		)
 		const desiredCommands = commands.map((command) => ({
 			body: command.serialize(),
-			key: this.getCommandDeploymentKey(command.name, command.type)
+			key: `${command.type}:${command.name}`
 		}))
 		const desiredKeys = new Set(desiredCommands.map((command) => command.key))
 
 		for (const live of liveCommands) {
-			if (desiredKeys.has(this.getCommandDeploymentKey(live.name, live.type))) {
+			const key = `${live.type}:${live.name}`
+			if (desiredKeys.has(key)) {
 				continue
 			}
 
 			await this.rest.delete(
 				Routes.applicationCommand(this.options.clientId, live.id)
 			)
-			liveByKey.delete(this.getCommandDeploymentKey(live.name, live.type))
+			liveByKey.delete(key)
 		}
 
 		for (const desired of desiredCommands) {
 			const existing = liveByKey.get(desired.key)
 			if (!existing) continue
-			if (this.areCommandDefinitionsEqual(existing, desired.body)) continue
+			if (
+				JSON.stringify(normalizeLiveCommandDefinition(existing)) ===
+				JSON.stringify(normalizeCommandDefinitionValue(desired.body))
+			) {
+				continue
+			}
 
 			const updated = (await this.rest.patch(
 				Routes.applicationCommand(this.options.clientId, existing.id),
@@ -721,86 +763,6 @@ export class Client {
 			.filter((command): command is APIApplicationCommand => Boolean(command))
 		this.cachedGlobalCommands = deployed
 		this.updateCommandIdsFromDeployment(deployed)
-	}
-
-	private getCommandDeploymentKey(name: string, type: number) {
-		return `${type}:${name}`
-	}
-
-	private areCommandDefinitionsEqual(
-		live: APIApplicationCommand,
-		desired: SerializedCommand
-	) {
-		return (
-			JSON.stringify(this.normalizeLiveCommandDefinition(live)) ===
-			JSON.stringify(this.normalizeCommandDefinitionValue(desired))
-		)
-	}
-
-	private normalizeLiveCommandDefinition(command: APIApplicationCommand) {
-		const body = Object.fromEntries(
-			Object.entries(
-				command as APIApplicationCommand & Record<string, unknown>
-			).filter(([key]) => !DISCORD_COMMAND_RESPONSE_ONLY_FIELDS.has(key))
-		)
-		return this.normalizeCommandDefinitionValue(body)
-	}
-
-	private normalizeCommandDefinitionValue(
-		value: unknown,
-		path: string[] = []
-	): unknown {
-		if (Array.isArray(value)) {
-			const normalized = value.map((entry) =>
-				this.normalizeCommandDefinitionValue(entry, path)
-			)
-			const key = path.at(-1)
-			if (
-				key &&
-				DISCORD_UNORDERED_ARRAY_FIELDS.has(key) &&
-				normalized.every(
-					(entry) =>
-						typeof entry === "string" ||
-						typeof entry === "number" ||
-						typeof entry === "boolean"
-				)
-			) {
-				return [...normalized].sort()
-			}
-			return normalized
-		}
-
-		if (value && typeof value === "object") {
-			const normalizedEntries = Object.entries(
-				value as Record<string, unknown>
-			).flatMap(([key, entry]) => {
-				if (
-					path.includes("options") &&
-					DISCORD_SUBCOMMAND_ONLY_FIELDS.has(key)
-				) {
-					return []
-				}
-				if ((key === "required" || key === "autocomplete") && entry === false) {
-					return []
-				}
-
-				const normalized = this.normalizeCommandDefinitionValue(entry, [
-					...path,
-					key
-				])
-				if (normalized === undefined) {
-					return []
-				}
-
-				return [[key, normalized] as const]
-			})
-
-			return Object.fromEntries(
-				normalizedEntries.sort(([left], [right]) => left.localeCompare(right))
-			)
-		}
-
-		return value
 	}
 
 	// ======================== End Fetchers ================================================

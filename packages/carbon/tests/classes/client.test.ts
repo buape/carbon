@@ -17,6 +17,27 @@ vi.mock("../../src/plugins/paginator/index.js", () => ({}))
 import type { BaseCommand } from "../../src/abstracts/BaseCommand.js"
 import { Client } from "../../src/classes/Client.js"
 
+const defaultClientOptions = {
+	baseUrl: "https://example.com",
+	clientId: "client-1",
+	deploySecret: "secret",
+	publicKey: "public-key",
+	token: "token"
+}
+
+const defaultCommandFields = {
+	contexts: [
+		InteractionContextType.Guild,
+		InteractionContextType.BotDM,
+		InteractionContextType.PrivateChannel
+	],
+	integration_types: [
+		ApplicationIntegrationType.GuildInstall,
+		ApplicationIntegrationType.UserInstall
+	],
+	default_member_permissions: null
+}
+
 function createCommand(params: {
 	name: string
 	description: string
@@ -34,16 +55,7 @@ function createCommand(params: {
 				name: params.name,
 				description: params.description,
 				type: ApplicationCommandType.ChatInput,
-				contexts: [
-					InteractionContextType.Guild,
-					InteractionContextType.BotDM,
-					InteractionContextType.PrivateChannel
-				],
-				integration_types: [
-					ApplicationIntegrationType.GuildInstall,
-					ApplicationIntegrationType.UserInstall
-				],
-				default_member_permissions: null
+				...defaultCommandFields
 			}
 	} as unknown as BaseCommand
 }
@@ -170,13 +182,7 @@ function createRestHarness(
 function createClient(
 	commands: BaseCommand[],
 	initialGlobalCommands: APIApplicationCommand[] = [],
-	options: ConstructorParameters<typeof Client>[0] = {
-		baseUrl: "https://example.com",
-		clientId: "client-1",
-		deploySecret: "secret",
-		publicKey: "public-key",
-		token: "token"
-	}
+	options: ConstructorParameters<typeof Client>[0] = defaultClientOptions
 ) {
 	const client = new Client(options, { commands }, [])
 	const harness = createRestHarness(initialGlobalCommands)
@@ -203,16 +209,7 @@ describe("Client command deployment", () => {
 						name: "ping",
 						description: "Stale ping",
 						type: ApplicationCommandType.ChatInput,
-						contexts: [
-							InteractionContextType.Guild,
-							InteractionContextType.BotDM,
-							InteractionContextType.PrivateChannel
-						],
-						integration_types: [
-							ApplicationIntegrationType.GuildInstall,
-							ApplicationIntegrationType.UserInstall
-						],
-						default_member_permissions: null
+						...defaultCommandFields
 					},
 					"cmd-1"
 				),
@@ -226,12 +223,8 @@ describe("Client command deployment", () => {
 				)
 			],
 			{
-				baseUrl: "https://example.com",
-				clientId: "client-1",
-				commandDeploymentMode: "reconcile",
-				deploySecret: "secret",
-				publicKey: "public-key",
-				token: "token"
+				...defaultClientOptions,
+				commandDeploymentMode: "reconcile"
 			}
 		)
 
@@ -291,16 +284,7 @@ describe("Client command deployment", () => {
 							name: "status",
 							description: "Status",
 							type: ApplicationCommandType.ChatInput,
-							contexts: [
-								InteractionContextType.Guild,
-								InteractionContextType.BotDM,
-								InteractionContextType.PrivateChannel
-							],
-							integration_types: [
-								ApplicationIntegrationType.GuildInstall,
-								ApplicationIntegrationType.UserInstall
-							],
-							default_member_permissions: null
+							...defaultCommandFields
 						},
 						"cmd-1"
 					),
@@ -331,26 +315,17 @@ describe("Client command deployment", () => {
 					{
 						name: "name",
 						description: "Skill name",
-						type: 3,
+						type: ApplicationCommandOptionType.String,
 						required: true
 					},
 					{
 						name: "input",
 						description: "Skill input",
-						type: 3,
+						type: ApplicationCommandOptionType.String,
 						required: false
 					}
 				],
-				contexts: [
-					InteractionContextType.Guild,
-					InteractionContextType.BotDM,
-					InteractionContextType.PrivateChannel
-				],
-				integration_types: [
-					ApplicationIntegrationType.GuildInstall,
-					ApplicationIntegrationType.UserInstall
-				],
-				default_member_permissions: null
+				...defaultCommandFields
 			}
 		})
 		const { client, rest } = createClient(
@@ -365,25 +340,16 @@ describe("Client command deployment", () => {
 							{
 								name: "name",
 								description: "Skill name",
-								type: 3,
+								type: ApplicationCommandOptionType.String,
 								required: true
 							},
 							{
 								name: "input",
 								description: "Skill input",
-								type: 3
+								type: ApplicationCommandOptionType.String
 							}
 						],
-						contexts: [
-							InteractionContextType.Guild,
-							InteractionContextType.BotDM,
-							InteractionContextType.PrivateChannel
-						],
-						integration_types: [
-							ApplicationIntegrationType.GuildInstall,
-							ApplicationIntegrationType.UserInstall
-						],
-						default_member_permissions: null
+						...defaultCommandFields
 					},
 					"cmd-1"
 				)
@@ -410,28 +376,10 @@ describe("Client command deployment", () => {
 						name: "status",
 						description: "Show status",
 						type: ApplicationCommandOptionType.Subcommand,
-						contexts: [
-							InteractionContextType.Guild,
-							InteractionContextType.BotDM,
-							InteractionContextType.PrivateChannel
-						],
-						integration_types: [
-							ApplicationIntegrationType.GuildInstall,
-							ApplicationIntegrationType.UserInstall
-						],
-						default_member_permissions: null
+						...defaultCommandFields
 					}
 				],
-				contexts: [
-					InteractionContextType.Guild,
-					InteractionContextType.BotDM,
-					InteractionContextType.PrivateChannel
-				],
-				integration_types: [
-					ApplicationIntegrationType.GuildInstall,
-					ApplicationIntegrationType.UserInstall
-				],
-				default_member_permissions: null
+				...defaultCommandFields
 			}
 		})
 		const { client, rest } = createClient(
@@ -449,16 +397,7 @@ describe("Client command deployment", () => {
 								type: ApplicationCommandOptionType.Subcommand
 							}
 						],
-						contexts: [
-							InteractionContextType.Guild,
-							InteractionContextType.BotDM,
-							InteractionContextType.PrivateChannel
-						],
-						integration_types: [
-							ApplicationIntegrationType.GuildInstall,
-							ApplicationIntegrationType.UserInstall
-						],
-						default_member_permissions: null
+						...defaultCommandFields
 					},
 					"cmd-1"
 				)
