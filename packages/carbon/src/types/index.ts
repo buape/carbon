@@ -179,6 +179,14 @@ export type MessagePayloadFile = {
 	 * The alt text of the file, shown for accessibility
 	 */
 	description?: string
+	/**
+	 * The duration of the audio file in seconds (required for voice messages)
+	 */
+	duration_secs?: number
+	/**
+	 * Base64-encoded waveform sample data (required for voice messages)
+	 */
+	waveform?: string
 }
 
 export type VoiceState = {
