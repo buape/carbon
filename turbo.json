@@ -12,17 +12,6 @@
 		},
 		"dev": {
 			"persistent": true
-		},
-		"docs": {
-			"dependsOn": ["^docs"],
-			"inputs": [
-				"src/**",
-				"typedoc.json",
-				"../../typedoc.json",
-				"../../type-aliases-meta.sh",
-				"../../type-aliases.meta.json"
-			],
-			"outputs": ["docs/**"]
 		}
 	}
 }
