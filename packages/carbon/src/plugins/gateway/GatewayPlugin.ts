@@ -438,6 +438,24 @@ export class GatewayPlugin extends Plugin {
 			return
 		}
 
+		// After 3 consecutive failed reconnect attempts with a resumable session,
+		// invalidate the session and force a fresh IDENTIFY. This prevents infinite
+		// resume loops when Discord rejects the session (e.g. code 1005) but the
+		// close code isn't one that triggers automatic session invalidation.
+		const resumeFailureThreshold = 3
+		if (this.reconnectAttempts >= resumeFailureThreshold && this.canResume()) {
+			this.emitter.emit(
+				"debug",
+				`Session invalidated after ${this.reconnectAttempts} failed resume attempts — forcing fresh IDENTIFY`
+			)
+			this.state.sessionId = null
+			this.state.resumeGatewayUrl = null
+			this.state.sequence = null
+			this.sequence = null
+			this.pings = []
+			options.forceNoResume = true
+		}
+
 		this.disconnect()
 
 		const backoffTime = Math.min(
