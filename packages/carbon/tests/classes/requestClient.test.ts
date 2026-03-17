@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord-api-types/v10"
 import { beforeEach, expect, test, vi } from "vitest"
 import { DiscordError, RateLimitError, RequestClient } from "../../src/index.js"
 
@@ -164,6 +165,102 @@ test("RequestClient: waits on the same major bucket", async () => {
 	} finally {
 		vi.useRealTimers()
 	}
+})
+
+test("RequestClient: serializes voice attachment metadata into payload_json", async () => {
+	const requestClient = new RequestClient("test-token", clientOptions)
+	mockFetch.mockResolvedValueOnce(createMockResponse(200, { ok: true }))
+
+	await requestClient.post("/test-path", {
+		body: {
+			flags: MessageFlags.IsVoiceMessage,
+			files: [
+				{
+					name: "voice.ogg",
+					data: new Blob(["audio"]),
+					duration_secs: 1.23,
+					waveform: "AAECAw=="
+				}
+			]
+		}
+	})
+
+	expect(mockFetch).toHaveBeenCalledTimes(1)
+	const [, requestInit] = mockFetch.mock.calls[0] as [string, RequestInit]
+	const formData = requestInit.body as FormData
+	const payloadJson = formData.get("payload_json")
+	expect(typeof payloadJson).toBe("string")
+	if (typeof payloadJson !== "string") return
+	const parsed = JSON.parse(payloadJson) as {
+		files?: unknown
+		attachments?: Array<{
+			id: number
+			filename: string
+			duration_secs?: number
+			waveform?: string
+		}>
+	}
+
+	expect(parsed.files).toBeUndefined()
+	expect(parsed.attachments).toEqual([
+		{
+			id: 0,
+			filename: "voice.ogg",
+			duration_secs: 1.23,
+			waveform: "AAECAw=="
+		}
+	])
+})
+
+test("RequestClient: serializes nested interaction files to data.attachments", async () => {
+	const requestClient = new RequestClient("test-token", clientOptions)
+	mockFetch.mockResolvedValueOnce(createMockResponse(200, { ok: true }))
+
+	await requestClient.post("/test-path", {
+		body: {
+			type: 4,
+			data: {
+				files: [
+					{
+						name: "voice.ogg",
+						data: new Blob(["audio"]),
+						duration_secs: 2.5,
+						waveform: "AQID"
+					}
+				]
+			}
+		}
+	})
+
+	expect(mockFetch).toHaveBeenCalledTimes(1)
+	const [, requestInit] = mockFetch.mock.calls[0] as [string, RequestInit]
+	const formData = requestInit.body as FormData
+	const payloadJson = formData.get("payload_json")
+	expect(typeof payloadJson).toBe("string")
+	if (typeof payloadJson !== "string") return
+	const parsed = JSON.parse(payloadJson) as {
+		attachments?: unknown
+		data: {
+			files?: unknown
+			attachments?: Array<{
+				id: number
+				filename: string
+				duration_secs?: number
+				waveform?: string
+			}>
+		}
+	}
+
+	expect(parsed.attachments).toBeUndefined()
+	expect(parsed.data.files).toBeUndefined()
+	expect(parsed.data.attachments).toEqual([
+		{
+			id: 0,
+			filename: "voice.ogg",
+			duration_secs: 2.5,
+			waveform: "AQID"
+		}
+	])
 })
 
 test("RequestClient: uses custom fetch function when provided", async () => {
