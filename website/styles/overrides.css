@@ -1,0 +1,36 @@
+html,
+body,
+#tome-root {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+
+/* Sidebar brand: replace text with Carbon wordmark */
+aside > a[href="/"] {
+	position: relative;
+	font-size: 0;
+	line-height: 0;
+	color: transparent;
+	text-indent: -9999px;
+	overflow: hidden;
+	gap: 0;
+	padding: 8px 16px;
+	align-items: center;
+}
+
+aside > a[href="/"] span {
+	display: none;
+}
+
+aside > a[href="/"]::before {
+	content: "";
+	display: block;
+	width: 164px;
+	height: 24px;
+	background-image: url("https://cdn-raw.buape.com/carbon/wordmark_transparent.png");
+	background-position: left center;
+	background-repeat: no-repeat;
+	background-size: auto 160%;
+	text-indent: 0;
+}
