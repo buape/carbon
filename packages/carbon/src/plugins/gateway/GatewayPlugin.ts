@@ -443,10 +443,7 @@ export class GatewayPlugin extends Plugin {
 		// resume loops when Discord rejects the session (e.g. code 1005) but the
 		// close code isn't one that triggers automatic session invalidation.
 		const resumeFailureThreshold = 3
-		if (
-			this.reconnectAttempts >= resumeFailureThreshold &&
-			this.canResume()
-		) {
+		if (this.reconnectAttempts >= resumeFailureThreshold && this.canResume()) {
 			this.emitter.emit(
 				"debug",
 				`Session invalidated after ${this.reconnectAttempts} failed resume attempts — forcing fresh IDENTIFY`
