@@ -1,6 +1,7 @@
 import {
 	type APIApplicationCommand,
 	ApplicationCommandType,
+	type EntryPointCommandHandlerType,
 	type RESTPostAPIApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
@@ -85,14 +86,24 @@ export abstract class BaseCommand {
 	guildIds?: string[]
 
 	/**
+	 * The handler for an entry point command.
+	 * Only used for command type `PrimaryEntryPoint`.
+	 */
+	handler?: EntryPointCommandHandlerType
+
+	/**
 	 * Serializes the command into a JSON object that can be sent to Discord
 	 * @internal
 	 */
 	serialize() {
-		if (this.type === ApplicationCommandType.PrimaryEntryPoint) {
-			throw new Error("Primary Entry Point commands cannot be serialized")
+		if (
+			this.type === ApplicationCommandType.PrimaryEntryPoint &&
+			this.guildIds &&
+			this.guildIds.length > 0
+		) {
+			throw new Error("Primary Entry Point commands cannot be guild-scoped")
 		}
-		// Only chat input commands can have descriptions
+
 		if (this.type === ApplicationCommandType.ChatInput) {
 			const data: RESTPostAPIApplicationCommandsJSONBody = {
 				name: this.name,
@@ -112,6 +123,25 @@ export abstract class BaseCommand {
 
 			return data
 		}
+
+		if (this.type === ApplicationCommandType.PrimaryEntryPoint) {
+			const data: RESTPostAPIApplicationCommandsJSONBody = {
+				name: this.name,
+				name_localizations: this.nameLocalizations,
+				type: this.type,
+				handler: this.handler,
+				integration_types: this.integrationTypes,
+				contexts: this.contexts,
+				default_member_permissions: Array.isArray(this.permission)
+					? this.permission.reduce((a, p) => a | p, 0n).toString()
+					: this.permission
+						? `${this.permission}`
+						: null
+			}
+
+			return data
+		}
+
 		const data: RESTPostAPIApplicationCommandsJSONBody = {
 			name: this.name,
 			name_localizations: this.nameLocalizations,

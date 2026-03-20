@@ -8,6 +8,7 @@ import {
 	type APIRole,
 	type APIUser,
 	type APIWebhookEvent,
+	ApplicationCommandType,
 	ApplicationWebhookType,
 	InteractionResponseType,
 	InteractionType,
@@ -303,15 +304,35 @@ export class Client {
 			}
 		}
 
-		// If devGuilds is set, deploy all commands to those guilds (for development)
+		// If devGuilds is set, deploy all non-entry-point commands to those guilds (for development)
 		if (this.options.devGuilds && this.options.devGuilds.length > 0) {
+			const devGuildCommands = commands.filter(
+				(command) => command.type !== ApplicationCommandType.PrimaryEntryPoint
+			)
 			for (const guildId of this.options.devGuilds) {
 				const deployed = (await this.rest.put(
 					Routes.applicationGuildCommands(this.options.clientId, guildId),
-					{ body: commands.map((c) => c.serialize()) }
+					{ body: devGuildCommands.map((c) => c.serialize()) }
 				)) as APIApplicationCommand[]
 				this.updateCommandIdsFromDeployment(deployed)
 			}
+
+			const primaryEntryPointCommands = commands.filter(
+				(command) => command.type === ApplicationCommandType.PrimaryEntryPoint
+			)
+			if (primaryEntryPointCommands.length > 0) {
+				const deployed = (await this.rest.put(
+					Routes.applicationCommands(this.options.clientId),
+					{
+						body: primaryEntryPointCommands.map((command) =>
+							command.serialize()
+						)
+					}
+				)) as APIApplicationCommand[]
+				this.updateCommandIdsFromDeployment(deployed)
+				this.cachedGlobalCommands = deployed
+			}
+
 			return {
 				mode,
 				usedDevGuilds: true
