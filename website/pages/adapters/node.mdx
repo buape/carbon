@@ -1,0 +1,138 @@
+---
+title: Node.js
+description: Learn how to set up and deploy your Carbon bot using the Node.js runtime, including development and production environments.
+---
+
+
+<CardGroup>
+		<Card title="Automatic Setup"
+				href="/getting-started/basic-setup#automatic-setup">
+Quickly set up your Carbon bot with minimal configuration using the automatic setup guide.
+</Card>
+		<Card title="Other Runtimes"
+				href="/adapters">
+Explore how to set up and deploy your Carbon bot using different runtimes.
+</Card>
+</CardGroup>
+
+## Manual Setup
+
+This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
+
+<Steps>
+
+<Step title="Create a Server">
+
+Using the `@buape/carbon/adapters/node` package, you can create a server to host your bot. This server will handle incoming interactions and route them to your bot.
+
+```ts
+import { createServer } from '@buape/carbon/adapters/node'
+
+const client = new Client( ... )
+
+createServer(client, { port: 3000 })
+```
+
+</Step>
+</Steps>
+
+## Running in Development
+
+<Steps>
+
+<Step title="Set Environment Variables">
+
+First things first, you'll need to grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them in your `.env` file.
+
+</Step>
+
+<Step title="Start a Proxy">
+
+Discord requires a public URL to route interactions to your project. To achieve this, you'll need to set up a proxy. The simplest way to do this is by using [`localtunnel`](https://www.npmjs.com/package/localtunnel). Once you have the public URL, you may want to set it as `BASE_URL="<PUBLIC_URL>"` in your `.env` file.
+
+```bash
+npx localtunnel
+```
+
+<Callout type="info">
+You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+</Callout>
+</Step>
+
+<Step title="Configure Portal URLs">
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
+
+</Step>
+
+<Step title="Invite your App">
+
+You'll need to invite your app to your server to interact with it. To do so, navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+</Step>
+
+<Step title="Run the Bot">
+
+You can now run your bot using:
+
+```bash
+npm run dev
+```
+</Step>
+
+<Step title="Deploy Your Commands to Discord">
+
+Finally, to deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This will send your command data to Discord to register them with your bot.
+</Step>
+
+<Callout type="info">
+To deploy commands to specific guilds, add a `guildIds` property to your command classes with an array of guild IDs. To deploy all commands to certain guilds during development, set the `devGuilds` option in your client config (e.g., from an environment variable). Commands with `guildIds` are only available in those guilds; commands without are deployed globally. If `devGuilds` is set, all commands are deployed to those guilds instead of globally.
+</Callout>
+
+</Steps>
+
+## Deploying to Production
+
+<Steps>
+<Step title="Prepare a Server">
+
+Since you're deploying a Node.js project, you'll need a server to host your bot. You'll also need to set up [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) on your server.
+
+</Step>
+
+<Step title="Initialize a Git Repository">
+
+You'll need to transfer your project files to your server, this can be done using [Git](https://git-scm.com/) and [GitHub](https://github.com/). To do this, initialize a new Git repository, commit your files and push them to GitHub. On your server you can then clone your repository.
+
+<Callout type="warning">
+Make sure not to commit your `.env` file or any secrets to your repository.
+</Callout>
+</Step>
+
+<Step title="Prepare Environment">
+
+Almost there! Now just like in development, you'll need to set up a proxy, configure your environment variables and set up your Discord app's URLs. Additionally you'll need to install your dependencies using:
+
+```bash
+npm install
+```
+</Step>
+
+<Step title="Build and Start the Bot">
+
+Now that you've prepared your environment, you can finally build and start your bot using:
+
+```bash
+npm run build
+npm run start
+```
+
+You may also want to set up a process manager like [PM2](https://npmjs.com/package/pm2) to keep your bot running in the background.
+
+</Step>
+
+<Callout type="info">
+Remember to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+</Callout>
+
+</Steps>
