@@ -142,7 +142,8 @@ test("RateLimitError", () => {
 			message: "You are being rate limited.",
 			retry_after: 64.57,
 			global: true
-		}
+		},
+		new Request("https://discord.com/api/users/@me", { method: "GET" })
 	)
 
 	expect(error.status).toBe(429)
@@ -151,6 +152,8 @@ test("RateLimitError", () => {
 	expect(error.retryAfter).toBe(64.57)
 	expect(error.scope).toBe("global")
 	expect(error.bucket).toBeNull()
+	expect(error.method).toBe("GET")
+	expect(error.url).toBe("https://discord.com/api/users/@me")
 
 	const error2 = new RateLimitError(
 		new Response(null, {
@@ -171,7 +174,10 @@ test("RateLimitError", () => {
 			message: "The resource is being rate limited.",
 			retry_after: 1336.57,
 			global: false
-		}
+		},
+		new Request("https://discord.com/api/channels/123/messages", {
+			method: "POST"
+		})
 	)
 
 	expect(error2.status).toBe(429)
@@ -180,4 +186,6 @@ test("RateLimitError", () => {
 	expect(error2.retryAfter).toBe(1336.57)
 	expect(error2.scope).toBe("shared")
 	expect(error2.bucket).toBe("abcd1234")
+	expect(error2.method).toBe("POST")
+	expect(error2.url).toBe("https://discord.com/api/channels/123/messages")
 })

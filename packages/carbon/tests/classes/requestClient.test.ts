@@ -84,6 +84,28 @@ test("RequestClient: processes queue", async () => {
 	expect(response2).toEqual(mockResponse)
 })
 
+test("RequestClient: includes method and url on RateLimitError", async () => {
+	const requestClient = new RequestClient("test-token", {
+		...clientOptions,
+		queueRequests: false
+	})
+
+	mockFetch.mockResolvedValueOnce(
+		createMockResponse(429, {
+			message: "You are being rate limited.",
+			retry_after: 1,
+			global: false
+		})
+	)
+
+	const result = await requestClient
+		.get("/rate-limited")
+		.catch((error) => error)
+	expect(result).toBeInstanceOf(RateLimitError)
+	expect(result.method).toBe("GET")
+	expect(result.url).toBe("https://discord.com/api/rate-limited")
+})
+
 test("RequestClient: scopes rate limits by major parameter", async () => {
 	vi.useFakeTimers()
 	try {

@@ -237,6 +237,7 @@ export class RequestClient {
 					.join("&")}`
 			: ""
 		const url = `${this.options.baseUrl}${path}${queryString}`
+		const originalRequest = new Request(url, { method })
 		const headers =
 			this.token === "webhook"
 				? new Headers()
@@ -407,7 +408,11 @@ export class RequestClient {
 							})(),
 							global: response.headers.get("X-RateLimit-Scope") === "global"
 						}
-			const rateLimitError = new RateLimitError(response, rateLimitBody)
+			const rateLimitError = new RateLimitError(
+				response,
+				rateLimitBody,
+				originalRequest
+			)
 			this.scheduleRateLimit(routeKey, path, rateLimitError)
 			throw rateLimitError
 		}

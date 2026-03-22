@@ -7,6 +7,9 @@ export class RateLimitError extends DiscordError {
 	retryAfter: number
 	scope: "global" | "shared" | "user"
 	bucket: string | null
+	request: Request
+	method: string
+	url: string
 
 	constructor(
 		response: Response,
@@ -14,7 +17,8 @@ export class RateLimitError extends DiscordError {
 			message: string
 			retry_after: number
 			global: boolean
-		}
+		},
+		request: Request
 	) {
 		super(response, body)
 		if (this.status !== 429)
@@ -25,5 +29,8 @@ export class RateLimitError extends DiscordError {
 			| "shared"
 			| "user"
 		this.bucket = response.headers.get("X-RateLimit-Bucket")
+		this.request = request
+		this.method = request.method
+		this.url = request.url
 	}
 }
