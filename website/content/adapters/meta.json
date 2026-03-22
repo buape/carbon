@@ -1,5 +1,0 @@
-{
-	"title": "Adapters",
-	"icon": "Cable",
-	"pages": ["fetch", "node", "bun"]
-}

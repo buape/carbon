@@ -1,0 +1,28 @@
+---
+title: Adapters
+description: Explore the different runtimes supported by Carbon, including serverless options like Cloudflare Workers and traditional server environments like Node.js and Bun.
+---
+
+
+<CardGroup>
+	<Card title="Cloudflare Workers"
+		href="/adapters/fetch/cloudflare">
+Cloudflare Workers are a free and lightweight option for running Carbon bots with minimal setup. They have strict limits on memory, execution time, and Node.js library compatibility, which may restrict complex applications.
+</Card>
+	<Card title="Next.js"
+		href="/adapters/fetch/next">
+Next.js can be integrated seamlessly with web apps, allowing unified projects. They can be hosted for free on Vercel, with usage limits, or deployed on a	server for greater flexibility in handling heavier workloads.
+</Card>
+	<Card title="Node.js"
+		href="/adapters/node">
+Node.js on a dedicated server offers full control for resource-heavy or custom API needs. Developers can use the entire Node.js library ecosystem but must handle infrastructure setup and maintenance.
+</Card>
+	<Card title="Bun"
+		href="/adapters/bun">
+Bun is a fast and efficient runtime that can be run on dedicated servers. It is almost fully compatible with Node.js modules and delivers high performance, making it a solid alternative to Node.js for modern applications.
+</Card>
+	<Card title="More"
+		href="/adapters/fetch">
+Discover additional ways to deploy Carbon bots with any environment or framework that supports the fetch request handler API. This flexibility allows you to integrate seamlessly across different setups without needing custom adapters.
+</Card>
+</CardGroup>
