@@ -9,6 +9,10 @@
 		"dev": "tsc -w"
 	},
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/buape/carbon"
+	},
 	"files": [
 		"dist",
 		"template",
