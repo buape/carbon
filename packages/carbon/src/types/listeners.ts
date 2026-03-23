@@ -100,8 +100,8 @@ export const GatewayEvent = {
 export const ListenerEvent = {
 	...GatewayEvent,
 	...WebhookEvent,
-	GuildAvailable: "GUILD_AVAILABLE",
-	GuildUnavailable: "GUILD_UNAVAILABLE"
+	GuildAvailable: "GUILD_AVAILABLE" as const,
+	GuildUnavailable: "GUILD_UNAVAILABLE" as const
 }
 
 export type ListenerEventType =

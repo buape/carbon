@@ -26,6 +26,17 @@ export abstract class GuildAvailableListener extends BaseListener {
 		data: ListenerEventData[this["type"]],
 		client: Client
 	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = new Guild(client, data)
+		return {
+			guild,
+			...data
+		}
+	}
 }
 
 export abstract class GuildUnavailableListener extends BaseListener {
@@ -34,6 +45,17 @@ export abstract class GuildUnavailableListener extends BaseListener {
 		data: ListenerEventData[this["type"]],
 		client: Client
 	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = new Guild<true>(client, data.id)
+		return {
+			guild,
+			...data
+		}
+	}
 }
 
 export abstract class ApplicationAuthorizedListener extends BaseListener {
