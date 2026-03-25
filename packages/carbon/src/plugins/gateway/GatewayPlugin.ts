@@ -48,10 +48,12 @@ export class GatewayPlugin extends Plugin {
 	protected monitor: ConnectionMonitor
 	protected rateLimit: GatewayRateLimit
 	public heartbeatInterval?: NodeJS.Timeout
+	public firstHeartbeatTimeout?: NodeJS.Timeout
 	public sequence: number | null = null
 	public lastHeartbeatAck = true
 	protected emitter: EventEmitter
 	private reconnectAttempts = 0
+	private invalidSessionTimeout?: NodeJS.Timeout
 	public shardId?: number
 	public totalShards?: number
 	protected gatewayInfo?: APIGatewayBotInfo
@@ -132,6 +134,9 @@ export class GatewayPlugin extends Plugin {
 
 	public connect(resume = false): void {
 		if (this.isConnecting) return
+		this.clearInvalidSessionTimeout()
+		stopHeartbeat(this)
+		this.lastHeartbeatAck = true
 		if (this.reconnectTimeout) {
 			clearTimeout(this.reconnectTimeout)
 			this.reconnectTimeout = undefined
@@ -152,6 +157,7 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	public disconnect(): void {
+		this.clearInvalidSessionTimeout()
 		stopHeartbeat(this)
 		this.lastHeartbeatAck = true
 		this.monitor.resetUptime()
@@ -164,6 +170,15 @@ export class GatewayPlugin extends Plugin {
 		this.isConnecting = false
 		this.isConnected = false
 		this.pings = []
+	}
+
+	private clearInvalidSessionTimeout(): void {
+		if (!this.invalidSessionTimeout) {
+			return
+		}
+
+		clearTimeout(this.invalidSessionTimeout)
+		this.invalidSessionTimeout = undefined
 	}
 
 	protected createWebSocket(url: string): WebSocket {
@@ -334,7 +349,13 @@ export class GatewayPlugin extends Plugin {
 
 				case GatewayOpcodes.InvalidSession: {
 					const canResume = Boolean(d)
-					setTimeout(() => {
+					const activeSocket = this.ws
+					this.clearInvalidSessionTimeout()
+					this.invalidSessionTimeout = setTimeout(() => {
+						this.invalidSessionTimeout = undefined
+						if (closed || this.ws !== activeSocket) {
+							return
+						}
 						closed = true
 						if (canResume && this.canResume()) {
 							this.connect(true)
@@ -388,6 +409,7 @@ export class GatewayPlugin extends Plugin {
 		isZombieConnection?: boolean
 		forceNoResume?: boolean
 	}): void {
+		this.clearInvalidSessionTimeout()
 		const {
 			maxAttempts = 5,
 			baseDelay = 1000,
