@@ -39,6 +39,18 @@ interface HelloData {
 	heartbeat_interval: number
 }
 
+type IntentionalCloseWebSocket = WebSocket & {
+	__carbonIntentionalClose?: boolean
+}
+
+function markIntentionalSocketClose(ws: WebSocket | null): void {
+	if (!ws) {
+		return
+	}
+
+	;(ws as IntentionalCloseWebSocket).__carbonIntentionalClose = true
+}
+
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
 	protected client?: Client
@@ -142,6 +154,7 @@ export class GatewayPlugin extends Plugin {
 			this.reconnectTimeout = undefined
 		}
 
+		markIntentionalSocketClose(this.ws)
 		this.ws?.close()
 
 		const baseUrl =
@@ -161,6 +174,7 @@ export class GatewayPlugin extends Plugin {
 		stopHeartbeat(this)
 		this.lastHeartbeatAck = true
 		this.monitor.resetUptime()
+		markIntentionalSocketClose(this.ws)
 		this.ws?.close()
 		this.ws = null
 		if (this.reconnectTimeout) {
@@ -191,9 +205,10 @@ export class GatewayPlugin extends Plugin {
 	protected setupWebSocket(): void {
 		if (!this.ws) return
 
+		const socket = this.ws as IntentionalCloseWebSocket
 		let closed = false
 
-		this.ws.on("open", () => {
+		socket.on("open", () => {
 			this.isConnecting = false
 			// Note: reconnectAttempts is reset on READY/RESUMED instead of here,
 			// so that exponential backoff keeps increasing when the socket opens
@@ -201,7 +216,7 @@ export class GatewayPlugin extends Plugin {
 			this.emitter.emit("debug", "WebSocket connection opened")
 		})
 
-		this.ws.on("message", (data: WebSocket.Data) => {
+		socket.on("message", (data: WebSocket.Data) => {
 			this.monitor.recordMessageReceived()
 
 			const payload = validatePayload(data.toString())
@@ -383,7 +398,7 @@ export class GatewayPlugin extends Plugin {
 			}
 		})
 
-		this.ws.on("close", (code: number, _reason: Buffer) => {
+		socket.on("close", (code: number, _reason: Buffer) => {
 			this.isConnecting = false
 			this.emitter.emit(
 				"debug",
@@ -391,13 +406,13 @@ export class GatewayPlugin extends Plugin {
 			)
 			this.monitor.recordReconnect()
 
-			if (closed) return
+			if (closed || socket.__carbonIntentionalClose) return
 			closed = true
 
 			this.handleClose(code)
 		})
 
-		this.ws.on("error", (error: Error) => {
+		socket.on("error", (error: Error) => {
 			this.isConnecting = false
 			this.monitor.recordError()
 			this.emitter.emit("error", error)

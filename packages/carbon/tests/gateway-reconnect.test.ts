@@ -11,6 +11,7 @@ class MockWebSocket extends EventEmitter {
 
 	close(): void {
 		this.readyState = 3
+		this.emit("close", 1005, Buffer.alloc(0))
 	}
 }
 
@@ -26,6 +27,49 @@ class TestGatewayPlugin extends GatewayPlugin {
 
 afterEach(() => {
 	vi.useRealTimers()
+})
+
+test("disconnect does not emit reconnect exhaustion for intentional close", () => {
+	const plugin = new TestGatewayPlugin({
+		intents: GatewayIntents.Guilds,
+		url: "wss://gateway.discord.gg",
+		reconnect: { maxAttempts: 0 }
+	})
+	const errorListener = vi.fn()
+	;(plugin as GatewayPlugin & { emitter: EventEmitter }).emitter.on(
+		"error",
+		errorListener
+	)
+
+	plugin.connect()
+	plugin.disconnect()
+
+	expect(errorListener).not.toHaveBeenCalled()
+})
+
+test("unexpected close still emits reconnect exhaustion when retries are disabled", () => {
+	const plugin = new TestGatewayPlugin({
+		intents: GatewayIntents.Guilds,
+		url: "wss://gateway.discord.gg",
+		reconnect: { maxAttempts: 0 }
+	})
+	const errorListener = vi.fn()
+	;(plugin as GatewayPlugin & { emitter: EventEmitter }).emitter.on(
+		"error",
+		errorListener
+	)
+
+	plugin.connect()
+	const socket = plugin.sockets[0]
+	if (!socket) {
+		throw new Error("Expected initial socket")
+	}
+
+	socket.emit("close", 1005, Buffer.alloc(0))
+
+	expect(errorListener).toHaveBeenCalledWith(
+		new Error("Max reconnect attempts (0) reached after code 1005")
+	)
 })
 
 test("does not reconnect twice when Invalid Session is followed by close", () => {
