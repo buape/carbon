@@ -1,5 +1,12 @@
 # create-carbon
 
+## 0.5.3
+
+### Patch Changes
+
+- 918a603: fix: refresh the Cloudflare worker template with native entrypoints and wrangler type generation.
+- 1d585cf: fix: skip gateway-only event templates unless the gateway plugin is selected.
+
 ## 0.5.2
 
 ### Patch Changes
