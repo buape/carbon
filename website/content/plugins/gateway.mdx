@@ -39,18 +39,10 @@ const client = new Client(
 	{},
 	[
 		new GatewayPlugin({
-			intents: GatewayIntents.Guilds | 
-					GatewayIntents.GuildMessages | 
-					GatewayIntents.MessageContent,
-			// Optional: Configure connection behavior
-			largeThreshold: 250,  // Number of offline members to load
-			presence: {           // Bot's initial presence
-				status: "online",
-				activities: [{
-					name: "with Carbon",
-					type: ActivityType.Playing
-				}]
-			}
+			intents:
+				GatewayIntents.Guilds |
+				GatewayIntents.GuildMessages |
+				GatewayIntents.MessageContent
 		})
 	]
 )
@@ -62,7 +54,53 @@ When choosing your intents, think about what your bot actually needs. For exampl
 
 Once you've got the Gateway plugin set up, you'll need to create listeners to handle the events you receive. Head over to our [Listeners guide](/classes/listeners) to learn how to handle messages, member updates, and other Gateway events.
 
-Carbon also supports automatically handling interactions via the Gateway through Carbon. This is useful if you want to handle interactions in the same process as the Gateway plugin, without the HTTP interactions route. Just set the `autoInteractions` option to `true` in the Gateway plugin options:
+Carbon also supports automatically handling interactions via the Gateway through Carbon. This is useful if you want to handle interactions in the same process as the Gateway plugin, without the HTTP interactions route. Just set the `autoInteractions` option to `true` in the Gateway plugin options.
+
+## Runtime Error Handling
+
+The `GatewayPlugin` emits internal `"error"` events when websocket/protocol issues happen. In Node, `EventEmitter` treats `"error"` as special. If nothing is listening for it, your app can crash with `Unhandled error`.
+
+This is intentional to allow external systems (Docker, pm2, etc) to handle restarting the app in these error situations, but if you want, you can subclass the plugin and attach error/warning listeners instead.
+
+```ts
+import {
+	GatewayPlugin,
+	GatewayIntents,
+	type GatewayPluginOptions
+} from "@buape/carbon/plugins/gateway"
+
+class ObservedGatewayPlugin extends GatewayPlugin {
+	constructor(options: GatewayPluginOptions) {
+		super(options)
+
+		this.emitter.on("error", (value) => {
+			const error =
+				value instanceof Error ? value : new Error(String(value))
+			console.error("[Gateway]", error)
+		})
+
+		this.emitter.on("warning", (warning) => {
+			console.warn("[Gateway]", warning)
+		})
+	}
+}
+
+new ObservedGatewayPlugin({
+	intents: GatewayIntents.Guilds
+})
+```
+
+For sharding, set `customGatewayPlugin`:
+
+```ts
+import { ShardingPlugin } from "@buape/carbon/plugins/sharding"
+
+const sharding = new ShardingPlugin({
+	intents: GatewayIntents.Guilds
+})
+
+sharding.customGatewayPlugin = ObservedGatewayPlugin
+```
 
 ## Scaling with Sharding
 
@@ -83,12 +121,10 @@ const client = new Client(
 	{},
 	[
 		new ShardingPlugin({
-			intents: GatewayIntents.Guilds | 
-					GatewayIntents.GuildMessages | 
-					GatewayIntents.MessageContent,
-			// Optional: Manual shard configuration
-			shardCount: 10,      // Let Discord auto-scale by default
-			shardIds: [0, 1, 2], // Run specific shards in this process
+			intents:
+				GatewayIntents.Guilds |
+				GatewayIntents.GuildMessages |
+				GatewayIntents.MessageContent,
 		})
 	]
 )
@@ -102,6 +138,8 @@ The Gateway connection follows a specific lifecycle that Discord has defined. It
 
 During normal operation, we keep sending those heartbeats on schedule and process any Gateway events that come in. We're always watching those heartbeat acknowledgments too - they're our canary in the coal mine for connection health. If something goes wrong and we get disconnected, we first try to detect what happened (maybe we missed an ACK, or maybe we got a specific close code). Then we'll try to resume our session if it's still valid, or fall back to starting fresh if we need to. And of course, we use exponential backoff when reconnecting to avoid overwhelming Discord's servers.
 
+For more specifics on the the exact connection flow, heck out [Gateway Lifecycle](/plugins/gateway-lifecycle).
+
 ## Quick Tips
 
 Starting out with Gateway connections? Here's what you need to know: Start with the `GatewayPlugin` if your bot is in fewer than 2,500 servers - it's simpler and works great for most bots. When you do need to scale up, let Discord tell you how many shards to use - the `ShardingPlugin` will automatically query Discord's API to get the right number.
@@ -109,3 +147,5 @@ Starting out with Gateway connections? Here's what you need to know: Start with 
 Only request the intents you actually need - this helps your bot run more efficiently and keeps Discord's servers happy. And remember that some intents (like `MessageContent`) are "privileged" and need to be enabled in your Discord application settings. Keep an eye on your connection health through events like `RESUMED`, `READY`, and `INVALID_SESSION`.
 
 Don't forget about the basics either - always use proper User-Agent headers in your requests to Discord's API, and make sure you're handling rate limits properly (though the plugins do this automatically). If you run into any issues or have questions, join our [Discord server](https://go.buape.com/carbon) - we're always happy to help!
+
+If you also need to send events back over the socket (presence, voice state, member requests), see [Gateway Event Sending](/plugins/gateway-events).

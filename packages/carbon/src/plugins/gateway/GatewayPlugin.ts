@@ -3,23 +3,27 @@ import type { GatewayDispatchPayload } from "discord-api-types/v10"
 import WebSocket from "ws"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
-import {
-	ListenerEvent,
-	type ListenerEventRawData,
-	type ListenerEventType
+import type {
+	ListenerEventRawData,
+	ListenerEventType
 } from "../../types/index.js"
 import { BabyCache } from "./BabyCache.js"
 import { InteractionEventListener } from "./InteractionEventListener.js"
 import {
 	type APIGatewayBotInfo,
-	GatewayCloseCodes,
+	fatalGatewayCloseCodes,
 	GatewayIntents,
 	GatewayOpcodes,
 	type GatewayPayload,
 	type GatewayPluginOptions,
 	type GatewayState,
+	type HelloData,
+	listenerEvents,
+	nonResumableGatewayCloseCodes,
 	type ReadyEventData,
+	type ReconnectScheduleOptions,
 	type RequestGuildMembersData,
+	reconnectDefaults,
 	type UpdatePresenceData,
 	type UpdateVoiceStateData
 } from "./types.js"
@@ -35,10 +39,6 @@ import {
 } from "./utils/payload.js"
 import { GatewayRateLimit } from "./utils/rateLimit.js"
 
-interface HelloData {
-	heartbeat_interval: number
-}
-
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
 	protected client?: Client
@@ -53,7 +53,6 @@ export class GatewayPlugin extends Plugin {
 	public lastHeartbeatAck = true
 	protected emitter: EventEmitter
 	private reconnectAttempts = 0
-	private invalidSessionTimeout?: NodeJS.Timeout
 	public shardId?: number
 	public totalShards?: number
 	protected gatewayInfo?: APIGatewayBotInfo
@@ -62,16 +61,21 @@ export class GatewayPlugin extends Plugin {
 	protected babyCache: BabyCache
 	private reconnectTimeout?: NodeJS.Timeout
 	private isConnecting = false
+	private socketGeneration = 0
+	private shouldReconnect = false
+	private nextConnectionShouldResume = false
+	private silentSocketClosures = new WeakSet<WebSocket>()
+	private consecutiveResumeFailures = 0
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
 		super()
 		this.options = {
 			reconnect: {
-				maxAttempts: 5,
-				baseDelay: 1000,
-				maxDelay: 30000
+				...reconnectDefaults,
+				...options.reconnect
 			},
-			...options
+			...options,
+			intents: options.intents ?? 0
 		}
 		this.state = {
 			sequence: null,
@@ -98,51 +102,57 @@ export class GatewayPlugin extends Plugin {
 			: null
 	}
 
+	/**
+	 * Bootstraps gateway metadata and opens the initial websocket connection.
+	 */
 	public async registerClient(client: Client): Promise<void> {
 		this.client = client
 
 		if (!this.gatewayInfo) {
-			try {
-				const response = await fetch(
-					"https://discord.com/api/v10/gateway/bot",
-					{
-						headers: {
-							Authorization: `Bot ${client.options.token}`
-						}
-					}
-				)
-				this.gatewayInfo = (await response.json()) as APIGatewayBotInfo
-			} catch (error) {
+			const response = await fetch("https://discord.com/api/v10/gateway/bot", {
+				headers: {
+					Authorization: `Bot ${client.options.token}`
+				}
+			})
+			if (!response.ok) {
 				throw new Error(
-					`Failed to get gateway information from Discord: ${error instanceof Error ? error.message : String(error)}`
+					`Failed to get gateway information from Discord: ${response.status} ${response.statusText}`
 				)
 			}
+			this.gatewayInfo = (await response.json()) as APIGatewayBotInfo
 		}
 
-		// Set shard information on the client
 		if (this.options.shard) {
 			client.shardId = this.options.shard[0]
 			client.totalShards = this.options.shard[1]
 		}
 
 		if (this.options.autoInteractions) {
-			this.client?.registerListener(new InteractionEventListener())
+			this.client.registerListener(new InteractionEventListener())
 		}
 
-		this.connect()
+		this.shouldReconnect = true
+		this.connect(false)
 	}
 
+	/**
+	 * Opens a new websocket connection and prepares either IDENTIFY or RESUME on HELLO.
+	 */
 	public connect(resume = false): void {
-		if (this.isConnecting) return
-		this.clearInvalidSessionTimeout()
-		stopHeartbeat(this)
-		this.lastHeartbeatAck = true
-		if (this.reconnectTimeout) {
-			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = undefined
+		if (this.isConnecting) {
+			return
 		}
 
-		this.ws?.close()
+		this.shouldReconnect = true
+		this.clearReconnectTimeout()
+		stopHeartbeat(this)
+		this.lastHeartbeatAck = true
+
+		const oldSocket = this.ws
+		if (oldSocket) {
+			this.silentSocketClosures.add(oldSocket)
+			oldSocket.terminate()
+		}
 
 		const baseUrl =
 			resume && this.state.resumeGatewayUrl
@@ -151,36 +161,40 @@ export class GatewayPlugin extends Plugin {
 					this.options.url ??
 					"wss://gateway.discord.gg/")
 		const url = this.ensureGatewayParams(baseUrl)
+
+		this.nextConnectionShouldResume = resume
+		this.socketGeneration++
 		this.ws = this.createWebSocket(url)
 		this.isConnecting = true
+		this.isConnected = false
 		this.setupWebSocket()
 	}
 
+	/**
+	 * Stops heartbeats, clears reconnect state, and closes the active socket intentionally.
+	 */
 	public disconnect(): void {
-		this.clearInvalidSessionTimeout()
+		this.shouldReconnect = false
+		this.clearReconnectTimeout()
 		stopHeartbeat(this)
 		this.lastHeartbeatAck = true
 		this.monitor.resetUptime()
-		this.ws?.close()
-		this.ws = null
-		if (this.reconnectTimeout) {
-			clearTimeout(this.reconnectTimeout)
-			this.reconnectTimeout = undefined
+		this.rateLimit.reset()
+		if (this.ws) {
+			this.silentSocketClosures.add(this.ws)
+			this.ws.close(1000, "Client disconnect")
 		}
+		this.ws = null
 		this.isConnecting = false
 		this.isConnected = false
+		this.reconnectAttempts = 0
+		this.consecutiveResumeFailures = 0
 		this.pings = []
 	}
 
-	private clearInvalidSessionTimeout(): void {
-		if (!this.invalidSessionTimeout) {
-			return
-		}
-
-		clearTimeout(this.invalidSessionTimeout)
-		this.invalidSessionTimeout = undefined
-	}
-
+	/**
+	 * Creates the websocket instance for a gateway URL. Override in tests if needed.
+	 */
 	protected createWebSocket(url: string): WebSocket {
 		if (!url) {
 			throw new Error("Gateway URL is required")
@@ -188,338 +202,155 @@ export class GatewayPlugin extends Plugin {
 		return new WebSocket(url)
 	}
 
+	/**
+	 * Attaches websocket lifecycle handlers for open, message, close, and error.
+	 */
 	protected setupWebSocket(): void {
-		if (!this.ws) return
+		if (!this.ws) {
+			return
+		}
 
-		let closed = false
+		const socket = this.ws
+		const generation = this.socketGeneration
 
-		this.ws.on("open", () => {
+		socket.on("open", () => {
+			if (!this.isCurrentSocket(socket, generation)) {
+				return
+			}
 			this.isConnecting = false
-			// Note: reconnectAttempts is reset on READY/RESUMED instead of here,
-			// so that exponential backoff keeps increasing when the socket opens
-			// but Discord closes it before completing the handshake.
-			this.emitter.emit("debug", "WebSocket connection opened")
+			this.emitter.emit("debug", "Gateway websocket opened")
 		})
 
-		this.ws.on("message", (data: WebSocket.Data) => {
-			this.monitor.recordMessageReceived()
-
-			const payload = validatePayload(data.toString())
-			if (!payload) {
-				this.monitor.recordError()
-				this.emitter.emit(
-					"error",
-					new Error("Invalid gateway payload received")
-				)
+		socket.on("message", (data: WebSocket.Data) => {
+			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
 
-			const { op, d, s, t } = payload
-
-			if (s !== null && s !== undefined) {
-				this.sequence = s
-				this.state.sequence = s
+			this.monitor.recordMessageReceived()
+			const payload = validatePayload(data.toString())
+			if (!payload) {
+				this.monitor.recordError()
+				this.emitter.emit("error", new Error("Invalid gateway payload"))
+				return
 			}
 
-			switch (op) {
-				case GatewayOpcodes.Hello: {
-					const helloData = d as HelloData
-					const interval = helloData.heartbeat_interval
-					startHeartbeat(this, {
-						interval,
-						reconnectCallback: () => {
-							if (closed) {
-								return
-							}
-							closed = true
-							this.handleZombieConnection()
-						}
-					})
+			if (payload.s !== null && payload.s !== undefined) {
+				this.sequence = payload.s
+				this.state.sequence = payload.s
+			}
 
-					if (this.canResume()) {
-						this.resume()
-					} else {
-						this.identify()
-					}
+			switch (payload.op) {
+				case GatewayOpcodes.Hello:
+					this.handleHello(payload.d, generation)
 					break
-				}
-
-				case GatewayOpcodes.HeartbeatAck: {
-					this.lastHeartbeatAck = true
-					this.monitor.recordHeartbeatAck()
-					// Record the latency for ping averaging
-					const latency = this.monitor.getMetrics().latency
-					if (latency > 0) {
-						this.pings.push(latency)
-						// Keep only the last 10 pings to prevent unbounded growth
-						if (this.pings.length > 10) {
-							this.pings.shift()
-						}
-					}
+				case GatewayOpcodes.HeartbeatAck:
+					this.handleHeartbeatAck()
 					break
-				}
-
-				case GatewayOpcodes.Heartbeat: {
-					this.lastHeartbeatAck = false
-					this.send({
-						op: GatewayOpcodes.Heartbeat,
-						d: this.sequence
-					})
+				case GatewayOpcodes.Heartbeat:
+					this.sendHeartbeatNow()
 					break
-				}
-
-				case GatewayOpcodes.Dispatch: {
-					const payload1 = payload as GatewayDispatchPayload
-					const t1 = payload1.t as ListenerEventType
-					try {
-						if (!Object.values(ListenerEvent).includes(t1)) {
-							break
-						}
-						if (t1 === "READY") {
-							const readyData = d as ReadyEventData
-							this.state.sessionId = readyData.session_id
-							this.state.resumeGatewayUrl = readyData.resume_gateway_url
-						}
-						if (t1 === "READY" || t1 === "RESUMED") {
-							this.isConnected = true
-							this.reconnectAttempts = 0
-						}
-						if (t && this.client) {
-							if (!this.options.eventFilter || this.options.eventFilter?.(t1)) {
-								if (t1 === "READY") {
-									const readyData = d as ListenerEventRawData[typeof t1]
-									readyData.guilds.forEach((guild) => {
-										this.babyCache.setGuild(guild.id, {
-											available: false,
-											lastEvent: Date.now()
-										})
-									})
-								}
-								if (t1 === "GUILD_CREATE") {
-									const guildCreateData = d as ListenerEventRawData[typeof t1]
-									const existingGuild = this.babyCache.getGuild(
-										guildCreateData.id
-									)
-									if (existingGuild && !existingGuild.available) {
-										this.babyCache.setGuild(guildCreateData.id, {
-											available: true,
-											lastEvent: Date.now()
-										})
-										this.client.eventHandler.handleEvent(
-											{
-												...guildCreateData,
-												clientId: this.client.options.clientId
-											},
-											"GUILD_AVAILABLE"
-										)
-										break
-									}
-								}
-								if (t1 === "GUILD_DELETE") {
-									const guildDeleteData = d as ListenerEventRawData[typeof t1]
-									const existingGuild = this.babyCache.getGuild(
-										guildDeleteData.id
-									)
-									if (existingGuild?.available && guildDeleteData.unavailable) {
-										this.babyCache.setGuild(guildDeleteData.id, {
-											available: false,
-											lastEvent: Date.now()
-										})
-										this.client.eventHandler.handleEvent(
-											{
-												...guildDeleteData,
-												clientId: this.client.options.clientId
-											},
-											"GUILD_UNAVAILABLE"
-										)
-										break
-									}
-								}
-								this.client.eventHandler.handleEvent(
-									{ ...payload1.d, clientId: this.client.options.clientId },
-									t1
-								)
-							}
-						}
-					} catch (err) {
-						console.error(err)
-					}
+				case GatewayOpcodes.Dispatch:
+					this.handleDispatch(payload as GatewayDispatchPayload)
 					break
-				}
-
-				case GatewayOpcodes.InvalidSession: {
-					const canResume = Boolean(d)
-					const activeSocket = this.ws
-					this.clearInvalidSessionTimeout()
-					this.invalidSessionTimeout = setTimeout(() => {
-						this.invalidSessionTimeout = undefined
-						if (closed || this.ws !== activeSocket) {
-							return
-						}
-						closed = true
-						if (canResume && this.canResume()) {
-							this.connect(true)
-						} else {
-							this.state.sessionId = null
-							this.state.resumeGatewayUrl = null
-							this.state.sequence = null
-							this.sequence = null
-							this.pings = []
-							this.connect(false)
-						}
-					}, 5000)
+				case GatewayOpcodes.InvalidSession:
+					this.handleInvalidSession(payload.d)
 					break
-				}
-
 				case GatewayOpcodes.Reconnect:
-					if (closed) {
-						return
-					}
-					closed = true
-					this.state.sequence = this.sequence
-					this.ws?.close()
-					this.handleReconnect()
+					this.handleReconnectOpcode()
 					break
 			}
 		})
 
-		this.ws.on("close", (code: number, _reason: Buffer) => {
+		socket.on("close", (code: number) => {
+			if (!this.isCurrentSocket(socket, generation)) {
+				return
+			}
+
 			this.isConnecting = false
-			this.emitter.emit(
-				"debug",
-				`WebSocket connection closed with code ${code}`
-			)
+			this.isConnected = false
+			stopHeartbeat(this)
+			this.lastHeartbeatAck = true
+
+			const wasSilentClose = this.silentSocketClosures.has(socket)
+			if (wasSilentClose) {
+				this.silentSocketClosures.delete(socket)
+				return
+			}
+
 			this.monitor.recordReconnect()
-
-			if (closed) return
-			closed = true
-
+			this.emitter.emit("debug", `Gateway websocket closed: ${code}`)
 			this.handleClose(code)
 		})
 
-		this.ws.on("error", (error: Error) => {
+		socket.on("error", (error: Error) => {
+			if (!this.isCurrentSocket(socket, generation)) {
+				return
+			}
 			this.isConnecting = false
 			this.monitor.recordError()
 			this.emitter.emit("error", error)
 		})
 	}
 
-	protected handleReconnectionAttempt(options: {
-		code?: number
-		isZombieConnection?: boolean
-		forceNoResume?: boolean
-	}): void {
-		this.clearInvalidSessionTimeout()
-		const {
-			maxAttempts = 5,
-			baseDelay = 1000,
-			maxDelay = 30000
-		} = this.options.reconnect ?? {}
-
-		if (this.reconnectAttempts >= maxAttempts) {
-			this.emitter.emit(
-				"error",
-				new Error(
-					`Max reconnect attempts (${maxAttempts}) reached${options.code ? ` after code ${options.code}` : ""}`
-				)
-			)
-			this.monitor.destroy()
-			return
-		}
-
-		if (options.code) {
-			switch (options.code) {
-				case GatewayCloseCodes.AuthenticationFailed:
-				case GatewayCloseCodes.InvalidAPIVersion:
-				case GatewayCloseCodes.InvalidIntents:
-				case GatewayCloseCodes.DisallowedIntents:
-				case GatewayCloseCodes.ShardingRequired: {
-					this.emitter.emit(
-						"error",
-						new Error(`Fatal Gateway error: ${options.code}`)
-					)
-					this.reconnectAttempts = maxAttempts
-					this.monitor.destroy()
-					return
-				}
-
-				case GatewayCloseCodes.InvalidSeq:
-				case GatewayCloseCodes.SessionTimedOut: {
-					this.state.sessionId = null
-					this.state.resumeGatewayUrl = null
-					this.state.sequence = null
-					this.sequence = null
-					this.pings = []
-					options.forceNoResume = true
-					break
-				}
-			}
-		}
-
-		if (this.reconnectTimeout || this.isConnecting) {
-			return
-		}
-
-		// After 3 consecutive failed reconnect attempts with a resumable session,
-		// invalidate the session and force a fresh IDENTIFY. This prevents infinite
-		// resume loops when Discord rejects the session (e.g. code 1005) but the
-		// close code isn't one that triggers automatic session invalidation.
-		const resumeFailureThreshold = 3
-		if (this.reconnectAttempts >= resumeFailureThreshold && this.canResume()) {
-			this.emitter.emit(
-				"debug",
-				`Session invalidated after ${this.reconnectAttempts} failed resume attempts — forcing fresh IDENTIFY`
-			)
-			this.state.sessionId = null
-			this.state.resumeGatewayUrl = null
-			this.state.sequence = null
-			this.sequence = null
-			this.pings = []
-			options.forceNoResume = true
-		}
-
-		this.disconnect()
-
-		const backoffTime = Math.min(
-			baseDelay * 2 ** this.reconnectAttempts,
-			maxDelay
-		)
-		this.reconnectAttempts++
-
-		if (options.isZombieConnection) {
-			this.monitor.recordZombieConnection()
-		}
-
-		const shouldResume = !options.forceNoResume && this.canResume()
-		this.emitter.emit(
-			"debug",
-			`${shouldResume ? "Attempting resume" : "Reconnecting"} with backoff: ${backoffTime}ms${options.code ? ` after code ${options.code}` : ""}`
-		)
-
-		this.reconnectTimeout = setTimeout(() => {
-			this.reconnectTimeout = undefined
-			this.connect(shouldResume)
-		}, backoffTime)
-	}
-
+	/**
+	 * Handles close codes and decides whether reconnection should resume or re-identify.
+	 */
 	protected handleClose(code: number): void {
-		this.handleReconnectionAttempt({ code })
+		if (!this.shouldReconnect) {
+			return
+		}
+
+		if (fatalGatewayCloseCodes.has(code)) {
+			this.shouldReconnect = false
+			this.emitter.emit("error", new Error(`Fatal gateway close code: ${code}`))
+			this.disconnect()
+			return
+		}
+
+		if (nonResumableGatewayCloseCodes.has(code)) {
+			this.resetSessionState()
+		}
+
+		this.scheduleReconnect({
+			code,
+			reason: "close",
+			preferResume: !nonResumableGatewayCloseCodes.has(code)
+		})
 	}
 
+	/**
+	 * Handles missing heartbeat acknowledgements by forcing a reconnect flow.
+	 */
 	protected handleZombieConnection(): void {
-		this.handleReconnectionAttempt({ isZombieConnection: true })
+		this.monitor.recordZombieConnection()
+		this.scheduleReconnect({
+			reason: "zombie",
+			preferResume: true
+		})
+		this.reconnectWithSocketRestart()
 	}
 
+	/**
+	 * Compatibility wrapper that maps to reconnect opcode handling.
+	 */
 	protected handleReconnect(): void {
-		this.handleReconnectionAttempt({})
+		this.handleReconnectOpcode()
 	}
 
+	/**
+	 * Returns whether session_id and sequence are both available for RESUME.
+	 */
 	protected canResume(): boolean {
 		return Boolean(this.state.sessionId && this.sequence !== null)
 	}
 
+	/**
+	 * Sends a RESUME payload using cached session_id and latest sequence.
+	 */
 	protected resume(): void {
-		if (!this.client || !this.state.sessionId || this.sequence === null) return
+		if (!this.client || !this.state.sessionId || this.sequence === null) {
+			return
+		}
 		const payload = createResumePayload({
 			token: this.client.options.token,
 			sessionId: this.state.sessionId,
@@ -528,35 +359,49 @@ export class GatewayPlugin extends Plugin {
 		this.send(payload, true)
 	}
 
+	/**
+	 * Sends a gateway payload with size and rate-limit safeguards.
+	 */
 	public send(payload: GatewayPayload, skipRateLimit = false): void {
-		if (this.ws && this.ws.readyState === 1) {
-			// Skip rate limiting for essential connection events
-			const isEssentialEvent =
-				payload.op === GatewayOpcodes.Heartbeat ||
-				payload.op === GatewayOpcodes.Identify ||
-				payload.op === GatewayOpcodes.Resume
+		if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+			throw new Error("Gateway websocket is not open")
+		}
 
-			if (!skipRateLimit && !isEssentialEvent && !this.rateLimit.canSend()) {
-				throw new Error(
-					`Gateway rate limit exceeded. ${this.rateLimit.getRemainingEvents()} events remaining. Reset in ${this.rateLimit.getResetTime()}ms`
-				)
-			}
+		const isEssentialEvent =
+			payload.op === GatewayOpcodes.Heartbeat ||
+			payload.op === GatewayOpcodes.Identify ||
+			payload.op === GatewayOpcodes.Resume
 
-			this.ws.send(JSON.stringify(payload))
-			this.monitor.recordMessageSent()
+		if (!skipRateLimit && !isEssentialEvent && !this.rateLimit.canSend()) {
+			throw new Error(
+				`Gateway rate limit exceeded. ${this.rateLimit.getRemainingEvents()} events remaining. Reset in ${this.rateLimit.getResetTime()}ms`
+			)
+		}
 
-			if (!isEssentialEvent) {
-				this.rateLimit.recordEvent()
-			}
+		const encodedPayload = JSON.stringify(payload)
+		if (Buffer.byteLength(encodedPayload, "utf8") > 4096) {
+			throw new Error("Gateway payload exceeds 4096-byte Discord limit")
+		}
 
-			if (payload.op === GatewayOpcodes.Heartbeat) {
-				this.monitor.recordHeartbeat()
-			}
+		this.ws.send(encodedPayload)
+		this.monitor.recordMessageSent()
+
+		if (!isEssentialEvent) {
+			this.rateLimit.recordEvent()
+		}
+
+		if (payload.op === GatewayOpcodes.Heartbeat) {
+			this.monitor.recordHeartbeat()
 		}
 	}
 
+	/**
+	 * Sends an IDENTIFY payload for a fresh gateway session.
+	 */
 	protected identify(): void {
-		if (!this.client) return
+		if (!this.client) {
+			return
+		}
 		const payload = createIdentifyPayload({
 			token: this.client.options.token,
 			intents: this.options.intents,
@@ -571,33 +416,27 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	/**
-	 * Update the bot's presence (status, activity, etc.)
-	 * @param data Presence data to update
+	 * Updates bot presence over the gateway connection.
 	 */
 	public updatePresence(data: UpdatePresenceData): void {
 		if (!this.isConnected) {
 			throw new Error("Gateway is not connected")
 		}
-		const payload = createUpdatePresencePayload(data)
-		this.send(payload)
+		this.send(createUpdatePresencePayload(data))
 	}
 
 	/**
-	 * Update the bot's voice state
-	 * @param data Voice state data to update
+	 * Updates bot voice state for a guild over the gateway connection.
 	 */
 	public updateVoiceState(data: UpdateVoiceStateData): void {
 		if (!this.isConnected) {
 			throw new Error("Gateway is not connected")
 		}
-
-		const payload = createUpdateVoiceStatePayload(data)
-		this.send(payload)
+		this.send(createUpdateVoiceStatePayload(data))
 	}
 
 	/**
-	 * Request guild members from Discord. The data will come in through the GUILD_MEMBERS_CHUNK event, not as a return on this function.
-	 * @param data Guild members request data
+	 * Requests guild members and validates required intents/options.
 	 */
 	public requestGuildMembers(data: RequestGuildMembersData): void {
 		if (!this.isConnected) {
@@ -628,12 +467,11 @@ export class GatewayPlugin extends Plugin {
 			)
 		}
 
-		const payload = createRequestGuildMembersPayload(data)
-		this.send(payload)
+		this.send(createRequestGuildMembersPayload(data))
 	}
 
 	/**
-	 * Get the current rate limit status
+	 * Returns the current outbound gateway rate-limit snapshot.
 	 */
 	public getRateLimitStatus() {
 		return {
@@ -644,7 +482,7 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	/**
-	 * Get information about optionsured intents
+	 * Returns helpers describing which intents are currently enabled.
 	 */
 	public getIntentsInfo() {
 		return {
@@ -662,13 +500,322 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	/**
-	 * Check if a specific intent is enabled
-	 * @param intent The intent to check
+	 * Checks if a specific intent bit is enabled.
 	 */
 	public hasIntent(intent: number): boolean {
 		return (this.options.intents & intent) !== 0
 	}
 
+	/**
+	 * Guards handlers from acting on stale websocket instances.
+	 */
+	private isCurrentSocket(socket: WebSocket, generation: number): boolean {
+		return this.ws === socket && this.socketGeneration === generation
+	}
+
+	/**
+	 * Processes HELLO, starts heartbeat scheduling, then sends RESUME or IDENTIFY.
+	 */
+	private handleHello(data: unknown, generation: number): void {
+		const heartbeatInterval = (data as HelloData)?.heartbeat_interval
+		if (typeof heartbeatInterval !== "number" || heartbeatInterval <= 0) {
+			this.monitor.recordError()
+			this.emitter.emit("error", new Error("Gateway HELLO missing heartbeat"))
+			this.handleZombieConnection()
+			return
+		}
+
+		startHeartbeat(this, {
+			interval: heartbeatInterval,
+			reconnectCallback: () => {
+				if (this.socketGeneration !== generation) {
+					return
+				}
+				this.handleZombieConnection()
+			}
+		})
+
+		const shouldResume = this.nextConnectionShouldResume && this.canResume()
+		this.nextConnectionShouldResume = false
+
+		try {
+			if (shouldResume) {
+				this.resume()
+				return
+			}
+
+			this.identify()
+		} catch {
+			this.handleZombieConnection()
+		}
+	}
+
+	/**
+	 * Marks heartbeat acknowledged and updates rolling ping metrics.
+	 */
+	private handleHeartbeatAck(): void {
+		this.lastHeartbeatAck = true
+		this.monitor.recordHeartbeatAck()
+		const latency = this.monitor.getMetrics().latency
+		if (latency > 0) {
+			this.pings.push(latency)
+			if (this.pings.length > 10) {
+				this.pings.shift()
+			}
+		}
+	}
+
+	/**
+	 * Immediately sends a heartbeat in response to gateway heartbeat requests.
+	 */
+	private sendHeartbeatNow(): void {
+		this.lastHeartbeatAck = false
+		try {
+			this.send({
+				op: GatewayOpcodes.Heartbeat,
+				d: this.sequence
+			})
+		} catch {
+			this.handleZombieConnection()
+		}
+	}
+
+	/**
+	 * Processes dispatch events, session caching, and Carbon event forwarding.
+	 */
+	private handleDispatch(payload: GatewayDispatchPayload): void {
+		const type = payload.t as ListenerEventType
+		if (!listenerEvents.has(type)) {
+			return
+		}
+
+		if (type === "READY") {
+			const readyData = payload.d as ReadyEventData
+			this.state.sessionId = readyData.session_id
+			this.state.resumeGatewayUrl = readyData.resume_gateway_url
+		}
+
+		if (type === "READY" || type === "RESUMED") {
+			this.isConnected = true
+			this.reconnectAttempts = 0
+			this.consecutiveResumeFailures = 0
+		}
+
+		if (!this.client) {
+			return
+		}
+
+		if (this.options.eventFilter && !this.options.eventFilter(type)) {
+			return
+		}
+
+		if (type === "READY") {
+			const readyData = payload.d as ListenerEventRawData["READY"]
+			readyData.guilds.forEach((guild) => {
+				this.babyCache.setGuild(guild.id, {
+					available: false,
+					lastEvent: Date.now()
+				})
+			})
+		}
+
+		if (type === "GUILD_CREATE") {
+			const guildCreateData = payload.d as ListenerEventRawData["GUILD_CREATE"]
+			const existingGuild = this.babyCache.getGuild(guildCreateData.id)
+			if (existingGuild && !existingGuild.available) {
+				this.babyCache.setGuild(guildCreateData.id, {
+					available: true,
+					lastEvent: Date.now()
+				})
+				this.client.eventHandler.handleEvent(
+					{
+						...guildCreateData,
+						clientId: this.client.options.clientId
+					},
+					"GUILD_AVAILABLE"
+				)
+				return
+			}
+		}
+
+		if (type === "GUILD_DELETE") {
+			const guildDeleteData = payload.d as ListenerEventRawData["GUILD_DELETE"]
+			const existingGuild = this.babyCache.getGuild(guildDeleteData.id)
+			if (existingGuild?.available && guildDeleteData.unavailable) {
+				this.babyCache.setGuild(guildDeleteData.id, {
+					available: false,
+					lastEvent: Date.now()
+				})
+				this.client.eventHandler.handleEvent(
+					{
+						...guildDeleteData,
+						clientId: this.client.options.clientId
+					},
+					"GUILD_UNAVAILABLE"
+				)
+				return
+			}
+
+			if (!guildDeleteData.unavailable) {
+				this.babyCache.removeGuild(guildDeleteData.id)
+			}
+		}
+
+		this.client.eventHandler.handleEvent(
+			{ ...payload.d, clientId: this.client.options.clientId },
+			type
+		)
+	}
+
+	/**
+	 * Handles INVALID_SESSION and schedules reconnect with Discord-compliant delay.
+	 */
+	private handleInvalidSession(data: unknown): void {
+		const isResumable = Boolean(data) && this.canResume()
+		if (!isResumable) {
+			this.resetSessionState()
+		}
+
+		const discordRequiredDelay = 1000 + Math.floor(Math.random() * 4000)
+		this.scheduleReconnect({
+			reason: "invalid-session",
+			preferResume: isResumable,
+			minDelayMs: discordRequiredDelay
+		})
+		this.reconnectWithSocketRestart()
+	}
+
+	/**
+	 * Handles RECONNECT opcode by scheduling reconnect with resume preference.
+	 */
+	private handleReconnectOpcode(): void {
+		this.scheduleReconnect({
+			reason: "reconnect-opcode",
+			preferResume: true,
+			allowImmediateFirstAttempt: true
+		})
+		this.reconnectWithSocketRestart()
+	}
+
+	/**
+	 * Terminates the current socket after reconnect has been scheduled.
+	 */
+	private reconnectWithSocketRestart(): void {
+		stopHeartbeat(this)
+		this.lastHeartbeatAck = true
+		if (!this.ws) {
+			return
+		}
+		this.silentSocketClosures.add(this.ws)
+		this.ws.terminate()
+	}
+
+	/**
+	 * Schedules a single reconnect attempt with backoff and attempt limits.
+	 */
+	private scheduleReconnect(options: ReconnectScheduleOptions): void {
+		if (!this.shouldReconnect || this.reconnectTimeout || this.isConnecting) {
+			return
+		}
+
+		const maxAttempts =
+			this.options.reconnect?.maxAttempts ?? reconnectDefaults.maxAttempts
+		if (Number.isFinite(maxAttempts) && this.reconnectAttempts >= maxAttempts) {
+			this.shouldReconnect = false
+			this.emitter.emit(
+				"error",
+				new Error(
+					`Max reconnect attempts (${maxAttempts}) reached${options.code ? ` after close code ${options.code}` : ""}`
+				)
+			)
+			return
+		}
+
+		let shouldResume = options.preferResume && this.canResume()
+		const resumeFailureThreshold = 3
+		if (
+			shouldResume &&
+			this.consecutiveResumeFailures >= resumeFailureThreshold
+		) {
+			this.resetSessionState()
+			shouldResume = false
+			this.emitter.emit(
+				"debug",
+				`Gateway forcing fresh IDENTIFY after ${resumeFailureThreshold} failed resume attempts`
+			)
+		}
+
+		const delay = this.computeReconnectDelay(options)
+		if (shouldResume) {
+			this.consecutiveResumeFailures++
+		} else {
+			this.consecutiveResumeFailures = 0
+		}
+		this.reconnectAttempts++
+
+		this.emitter.emit(
+			"debug",
+			`Gateway reconnect scheduled in ${delay}ms (${options.reason}, resume=${String(shouldResume)})`
+		)
+
+		this.reconnectTimeout = setTimeout(() => {
+			this.reconnectTimeout = undefined
+			this.connect(shouldResume)
+		}, delay)
+	}
+
+	/**
+	 * Computes exponential reconnect delay with jitter and optional minimum delay.
+	 */
+	private computeReconnectDelay(options: ReconnectScheduleOptions): number {
+		const baseDelay =
+			this.options.reconnect?.baseDelay ?? reconnectDefaults.baseDelay
+		const maxDelay =
+			this.options.reconnect?.maxDelay ?? reconnectDefaults.maxDelay
+
+		if (
+			options.allowImmediateFirstAttempt &&
+			this.reconnectAttempts === 0 &&
+			(options.minDelayMs ?? 0) === 0
+		) {
+			return 0
+		}
+
+		const exponentialDelay = Math.min(
+			baseDelay * 2 ** this.reconnectAttempts,
+			maxDelay
+		)
+		const jitterFactor = 0.85 + Math.random() * 0.3
+		const jitteredDelay = Math.floor(exponentialDelay * jitterFactor)
+		return Math.max(options.minDelayMs ?? 0, jitteredDelay)
+	}
+
+	/**
+	 * Clears any pending reconnect timer.
+	 */
+	private clearReconnectTimeout(): void {
+		if (!this.reconnectTimeout) {
+			return
+		}
+		clearTimeout(this.reconnectTimeout)
+		this.reconnectTimeout = undefined
+	}
+
+	/**
+	 * Clears resume-related session state after non-resumable failures.
+	 */
+	private resetSessionState(): void {
+		this.state.sessionId = null
+		this.state.resumeGatewayUrl = null
+		this.state.sequence = null
+		this.sequence = null
+		this.consecutiveResumeFailures = 0
+		this.pings = []
+	}
+
+	/**
+	 * Ensures gateway URLs include v=10 and encoding=json query parameters.
+	 */
 	private ensureGatewayParams(url: string): string {
 		try {
 			const parsed = new URL(url)

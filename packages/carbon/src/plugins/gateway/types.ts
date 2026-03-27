@@ -5,7 +5,7 @@ import {
 	GatewayIntentBits,
 	type GatewayReadyDispatchData
 } from "discord-api-types/v10"
-import type { ListenerEventType } from "../../types/index.js"
+import { ListenerEvent, type ListenerEventType } from "../../types/listeners.js"
 
 export interface GatewayPluginOptions {
 	/**
@@ -60,6 +60,42 @@ export interface GatewayState {
 	sessionId: string | null
 	/** URL for resuming the Gateway connection if disconnected */
 	resumeGatewayUrl: string | null
+}
+
+export interface HelloData {
+	heartbeat_interval: number
+}
+
+export interface ReconnectScheduleOptions {
+	code?: number
+	reason: "close" | "invalid-session" | "zombie" | "reconnect-opcode"
+	preferResume: boolean
+	minDelayMs?: number
+	allowImmediateFirstAttempt?: boolean
+}
+
+export const listenerEvents = new Set(Object.values(ListenerEvent))
+
+export const fatalGatewayCloseCodes = new Set<number>([
+	DiscordGatewayCloseCodes.AuthenticationFailed,
+	DiscordGatewayCloseCodes.InvalidShard,
+	DiscordGatewayCloseCodes.ShardingRequired,
+	DiscordGatewayCloseCodes.InvalidAPIVersion,
+	DiscordGatewayCloseCodes.InvalidIntents,
+	DiscordGatewayCloseCodes.DisallowedIntents
+])
+
+export const nonResumableGatewayCloseCodes = new Set<number>([
+	DiscordGatewayCloseCodes.InvalidSeq,
+	DiscordGatewayCloseCodes.SessionTimedOut,
+	DiscordGatewayCloseCodes.NotAuthenticated,
+	DiscordGatewayCloseCodes.AlreadyAuthenticated
+])
+
+export const reconnectDefaults = {
+	baseDelay: 1000,
+	maxDelay: 30000,
+	maxAttempts: 5
 }
 
 export const GatewayOpcodes = DiscordGatewayOpcodes

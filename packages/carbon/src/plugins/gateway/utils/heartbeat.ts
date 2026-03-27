@@ -34,10 +34,14 @@ export function startHeartbeat(
 		}
 
 		manager.lastHeartbeatAck = false
-		manager.send({
-			op: GatewayOpcodes.Heartbeat,
-			d: manager.sequence
-		})
+		try {
+			manager.send({
+				op: GatewayOpcodes.Heartbeat,
+				d: manager.sequence
+			})
+		} catch {
+			options.reconnectCallback()
+		}
 	}
 
 	manager.firstHeartbeatTimeout = setTimeout(() => {

@@ -1,0 +1,103 @@
+---
+title: Gateway Lifecycle
+description: Exact connection flow for Hello, heartbeats, resume, reconnect, and backoff.
+icon: Activity
+---
+
+This page documents Carbon's gateway lifecycle behavior against Discord's official flow.
+
+Discord reference: https://docs.discord.com/developers/events/gateway.md
+
+## 1) Connect
+
+Carbon resolves a gateway URL from:
+1. `resume_gateway_url` (resume path)
+2. cached `/gateway/bot` URL
+3. `options.url`
+4. fallback `wss://gateway.discord.gg/`
+
+`v=10` and `encoding=json` are always ensured.
+
+## 2) HELLO (`op=10`)
+
+On `HELLO`, Carbon:
+1. starts heartbeat scheduler
+2. waits initial jitter (`heartbeat_interval * random(0..1)`)
+3. sends first heartbeat
+4. sends `RESUME` if session is resumable, otherwise `IDENTIFY`
+
+## 3) Heartbeats
+
+- normal loop: heartbeat every `heartbeat_interval`
+- Discord heartbeat request (`op=1`): immediate heartbeat response
+- each outbound heartbeat expects `HEARTBEAT_ACK` (`op=11`)
+- if ACK is missing by next heartbeat send: connection treated as zombied, socket restarted, reconnect scheduled
+
+## 4) Dispatch + session tracking
+
+- sequence (`s`) cached whenever present
+- on `READY`:
+  - caches `session_id`
+  - caches `resume_gateway_url`
+  - marks connected
+- on `RESUMED`: marks connected
+- reconnect attempt counter resets on `READY` or `RESUMED`
+
+## 5) Reconnect + Invalid Session
+
+### Reconnect opcode (`op=7`)
+
+- reconnect scheduled immediately for first attempt
+- resume preferred
+- socket terminated and restarted
+
+### Invalid session (`op=9`)
+
+- if `d === true` and resume data exists: resume attempted
+- otherwise session cache cleared and fresh identify path used
+- reconnect delayed by Discord-compliant random `1s..5s`
+
+## 6) Close codes
+
+### Fatal (no reconnect)
+
+- `4004` Authentication Failed
+- `4010` Invalid Shard
+- `4011` Sharding Required
+- `4012` Invalid API Version
+- `4013` Invalid Intents
+- `4014` Disallowed Intents
+
+### Non-resumable (reconnect with fresh identify)
+
+- `4003` Not Authenticated
+- `4005` Already Authenticated
+- `4007` Invalid Seq
+- `4009` Session Timed Out
+
+### Otherwise
+
+- reconnect scheduled
+- resume preferred when session state exists
+
+## 7) Backoff and anti-spam protections
+
+Reconnect delay uses exponential backoff with jitter:
+
+- base: `reconnect.baseDelay` (default `1000ms`)
+- cap: `reconnect.maxDelay` (default `30000ms`)
+- attempts: increments per scheduled reconnect
+- jitter: `0.85 .. 1.15` multiplier
+
+Spam/race prevention:
+
+- only one reconnect timer at a time
+- skip scheduling while already connecting
+- stale socket events ignored via generation guard
+- intentional socket closes marked to avoid double reconnect handling
+
+## 8) Manual disconnect semantics
+
+`gateway.disconnect()` closes with code `1000` intentionally.
+
+That means session invalidation is expected (Discord standard behavior). Use reconnect/resume flows for transient outages, not manual disconnect.

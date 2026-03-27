@@ -41,11 +41,6 @@ export function validatePayload(data: string): GatewayPayload | null {
 			return null
 		}
 
-		if (!("d" in payload)) {
-			console.error("[Gateway] Invalid payload: Missing data field", { data })
-			return null
-		}
-
 		return payload
 	} catch (error) {
 		console.error("[Gateway] Failed to validate payload:", error, { data })
