@@ -56,7 +56,7 @@ export class Poll extends Base {
 		return this._rawData.results
 	}
 
-	get expiry(): string {
+	get expiry(): string | null {
 		return this._rawData.expiry
 	}
 

@@ -34,8 +34,18 @@ export class FieldsHandler extends Base {
 				const subComponent = component.component
 				if (subComponent.type === ComponentType.TextInput) {
 					this.rawData[subComponent.custom_id] = [subComponent.value]
-				} else {
+					return
+				}
+				if ("values" in subComponent) {
 					this.rawData[subComponent.custom_id] = subComponent.values
+					return
+				}
+				if (typeof subComponent.value === "string") {
+					this.rawData[subComponent.custom_id] = [subComponent.value]
+					return
+				}
+				if (typeof subComponent.value === "boolean") {
+					this.rawData[subComponent.custom_id] = [String(subComponent.value)]
 				}
 			}
 		})

@@ -26,7 +26,7 @@ export default class VoiceConnectCommand extends Command {
 		}
 
 		const voiceState = await interaction.member.getVoiceState()
-		if (!voiceState || !voiceState.channelId) {
+		if (!voiceState?.channelId) {
 			return interaction.reply({
 				content: "You're not in a voice channel"
 			})

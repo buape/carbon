@@ -106,7 +106,7 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The guild id this webhook is for
 	 */
-	get guildId(): IfPartial<IsPartial, string | undefined> {
+	get guildId(): IfPartial<IsPartial, string | null | undefined> {
 		if (!this._rawData) return undefined as never
 		return this._rawData.guild_id
 	}
@@ -114,7 +114,7 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The channel id this webhook is for
 	 */
-	get channelId(): IfPartial<IsPartial, string> {
+	get channelId(): IfPartial<IsPartial, string | null> {
 		if (!this._rawData) return undefined as never
 		return this._rawData.channel_id
 	}

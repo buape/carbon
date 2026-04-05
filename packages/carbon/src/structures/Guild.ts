@@ -499,7 +499,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	get stickers(): IfPartial<IsPartial, APISticker[]> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.stickers
+		return this._rawData.stickers ?? []
 	}
 
 	/**

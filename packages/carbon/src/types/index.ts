@@ -224,12 +224,6 @@ declare module "discord-api-types/v10" {
 		| APICheckboxGroupActionComponent
 		| APIRadioGroupActionComponent
 
-	enum ComponentType {
-		RadioGroup = 21,
-		CheckboxGroup = 22,
-		Checkbox = 23
-	}
-
 	export interface APIRadioGroupActionComponent {
 		type: 21 //ComponentType.RadioGroup
 		id?: number
