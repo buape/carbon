@@ -36,6 +36,29 @@ export interface ClientSetupOptions {
 	setEventsUrlOnDevPortal?: boolean
 }
 
+export interface ClientManagerStartupOptions {
+	/**
+	 * Maximum number of clients initialized in parallel during startup.
+	 */
+	concurrency?: number
+	/**
+	 * If true, startup stops scheduling new clients after first failure.
+	 */
+	failFast?: boolean
+}
+
+export interface ClientManagerStartupResult {
+	total: number
+	successes: number
+	failures: number
+	completedAt: number
+	results: Array<{
+		clientId: string
+		status: "success" | "error"
+		error?: string
+	}>
+}
+
 /**
  * Options for the ClientManager
  */
@@ -58,13 +81,17 @@ export interface ClientManagerOptions {
 	/**
 	 * Array of application credentials.
 	 * If you need dynamic application loading (e.g., from a database),
-	 * extend ClientManager and override getClient/getAllClients/getClientIds instead.
+	 * extend ClientManager and override getClient/getClients/getClientIds instead.
 	 */
 	applications?: ApplicationCredentials[]
 	/**
 	 * The initial setup options for the clients, this will be passed to clientManager#setupClient
 	 */
 	initialSetupOptions?: ClientSetupOptions
+	/**
+	 * Startup orchestration controls.
+	 */
+	startup?: ClientManagerStartupOptions
 }
 
 /**
@@ -73,7 +100,7 @@ export interface ClientManagerOptions {
  *
  * To use with a database, extend this class and override:
  * - getClient(clientId) - Return the client for a specific ID (or create it)
- * - getAllClients() - Return all available clients
+ * - getClients() - Return all available clients
  * - getClientIds() - Return all available client IDs
  *
  * Then call setupClient(credentials) to create clients on-demand.
@@ -107,6 +134,7 @@ export class ClientManager {
 	protected staticApplications: ApplicationCredentials[]
 	protected initialHandlers: ConstructorParameters<typeof Client>[1]
 	protected initialPlugins: ConstructorParameters<typeof Client>[2]
+	private startupPromise: Promise<ClientManagerStartupResult>
 
 	/**
 	 * Creates a new ClientManager
@@ -126,18 +154,101 @@ export class ClientManager {
 
 		this.setupRoutes()
 
-		this.getApplications().then(async (applications) => {
-			applications.map(async (application) => {
-				this.setupClient(
-					{
-						clientId: application.clientId,
-						publicKey: application.publicKey,
-						token: application.token
-					},
-					options.initialSetupOptions
-				)
-			})
+		this.startupPromise = this.initializeClients(
+			options.initialSetupOptions,
+			options.startup
+		)
+		void this.startupPromise.catch((error) => {
+			console.error("[ClientManager] Startup failed", error)
 		})
+	}
+
+	public async whenReady(): Promise<ClientManagerStartupResult> {
+		return this.startupPromise
+	}
+
+	private async initializeClients(
+		initialSetupOptions?: ClientSetupOptions,
+		startupOptions?: ClientManagerStartupOptions
+	): Promise<ClientManagerStartupResult> {
+		const applications = await this.getApplications()
+		if (applications.length === 0) {
+			return {
+				total: 0,
+				successes: 0,
+				failures: 0,
+				completedAt: Date.now(),
+				results: []
+			}
+		}
+
+		const concurrency = Math.max(1, startupOptions?.concurrency ?? 4)
+		const failFast = startupOptions?.failFast ?? false
+		let shouldStop = false
+		let nextIndex = 0
+		const results: ClientManagerStartupResult["results"] = []
+
+		const workers = Array.from(
+			{ length: Math.min(concurrency, applications.length) },
+			async () => {
+				while (true) {
+					if (shouldStop) return
+					const application = applications[nextIndex]
+					nextIndex += 1
+					if (!application) return
+
+					try {
+						await this.setupClient(
+							{
+								clientId: application.clientId,
+								publicKey: application.publicKey,
+								token: application.token
+							},
+							initialSetupOptions
+						)
+						results.push({
+							clientId: application.clientId,
+							status: "success"
+						})
+					} catch (error) {
+						const message =
+							error instanceof Error ? error.message : String(error)
+						results.push({
+							clientId: application.clientId,
+							status: "error",
+							error: message
+						})
+						if (failFast) {
+							shouldStop = true
+						}
+					}
+				}
+			}
+		)
+
+		await Promise.all(workers)
+
+		const failures = results.filter(
+			(result) => result.status === "error"
+		).length
+		const startupResult: ClientManagerStartupResult = {
+			total: applications.length,
+			successes: results.length - failures,
+			failures,
+			completedAt: Date.now(),
+			results
+		}
+
+		if (failFast && failures > 0) {
+			throw new Error(
+				`ClientManager startup failed with ${failures} error(s): ${results
+					.filter((result) => result.status === "error")
+					.map((result) => `${result.clientId}: ${result.error ?? "unknown"}`)
+					.join("; ")}`
+			)
+		}
+
+		return startupResult
 	}
 
 	/**

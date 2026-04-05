@@ -36,9 +36,9 @@ Here's how to set up the ClientManager with multiple bots:
 import { ClientManager } from "@buape/carbon"
 
 const manager = new ClientManager({
+	baseUrl: process.env.BASE_URL,
+	deploySecret: process.env.DEPLOY_SECRET,
 	sharedOptions: {
-		baseUrl: process.env.BASE_URL,
-		deploySecret: process.env.DEPLOY_SECRET,
 		// Any other options that are shared across all bots
 		autoDeploy: false,
 		devGuilds: process.env.DEV_MODE ? ["1234567890"] : undefined
@@ -82,7 +82,7 @@ For advanced use cases like bot-as-a-service platforms, you may need to load bot
 
 ### Extending ClientManager
 
-Extend the `ClientManager` class and override the `getClient`, `getAllClients`, and `getClientIds` methods. The ClientManager provides a `setupClient()` helper that you call with credentials to create a configured client:
+Extend the `ClientManager` class and override methods like `getClient`, `getClients`, and `getClientIds` as needed. The ClientManager provides a `setupClient()` helper that you call with credentials to create a configured client:
 
 ```typescript title="src/DatabaseClientManager.ts"
 import {
@@ -143,7 +143,7 @@ export class DatabaseClientManager extends ClientManager {
 		return credentials
 	}
 
-	async getAllApplications(): Promise<ApplicationCredentials[]> {
+	async getApplications(): Promise<ApplicationCredentials[]> {
 		// Fetch all active bots
 		const allCredentials = await this.db.query<ApplicationCredentials[]>(
 			"SELECT client_id, public_key, token FROM bots WHERE active = true"
@@ -172,10 +172,9 @@ import { db } from "./database"
 
 const manager = new DatabaseClientManager(
 	{
-		sharedOptions: {
-			baseUrl: process.env.BASE_URL,
-			deploySecret: process.env.DEPLOY_SECRET
-		}
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		sharedOptions: {}
 	},
 	db
 )
@@ -224,10 +223,9 @@ import { ClientManager } from "@buape/carbon"
 import { serve } from "@buape/carbon/adapters/node"
 
 const manager = new ClientManager({
-	sharedOptions: {
-		baseUrl: "https://example.com",
-		deploySecret: "your-deploy-secret"
-	},
+	baseUrl: "https://example.com",
+	deploySecret: "your-deploy-secret",
+	sharedOptions: {},
 	applications: [
 		{
 			clientId: "123456789012345678",
@@ -262,6 +260,8 @@ Most configuration options can be shared across all your bots:
 - `publicKey` - The application's public key for signature verification (required)
 - `token` - The bot's token (required)
 
+`baseUrl` and `deploySecret` are configured on `ClientManager` itself.
+
 ## Managing Commands Across Apps
 
 Each bot in your ClientManager is set up to be a mirror of the other bots. When registering commands and listeners, pass them through the `sharedOptions`:
@@ -272,9 +272,9 @@ import { PingCommand } from "./commands/ping"
 import { MessageListener } from "./listeners/message"
 
 const manager = new ClientManager({
+	baseUrl: process.env.BASE_URL,
+	deploySecret: process.env.DEPLOY_SECRET,
 	sharedOptions: {
-		baseUrl: process.env.BASE_URL,
-		deploySecret: process.env.DEPLOY_SECRET,
 		// Commands and listeners are shared across all bots
 		commands: [new PingCommand()],
 		listeners: [new MessageListener()]
@@ -320,7 +320,7 @@ if (client) {
 }
 
 // Get all clients
-const allClients = manager.getAllClients()
+const allClients = manager.getClients()
 console.log(`Managing ${allClients.length} bots`)
 
 // Get all client IDs
@@ -343,6 +343,8 @@ All client IDs must be valid Discord snowflakes (17-19 digit numbers). Invalid I
 ```typescript
 // ❌ This will throw an error
 new ClientManager({
+	baseUrl: "https://example.com",
+	deploySecret: "secret",
 	sharedOptions: { /* ... */ },
 	applications: [
 		{ clientId: "invalid", publicKey: "...", token: "..." }
@@ -357,6 +359,8 @@ You cannot register multiple applications with the same client ID:
 ```typescript
 // ❌ This will throw an error
 new ClientManager({
+	baseUrl: "https://example.com",
+	deploySecret: "secret",
 	sharedOptions: { /* ... */ },
 	applications: [
 		{ clientId: "123456789012345678", publicKey: "key1", token: "token1" },
@@ -386,3 +390,37 @@ Manage different bot brands or variants with different names and avatars but sha
 
 **Development/Production Separation:**
 Run development and production bots side-by-side from the same codebase for easier testing.
+
+## Startup Orchestration
+
+If you're managing lots of apps, startup behavior matters.
+
+You can set startup policy directly on `ClientManager`:
+
+```typescript title="src/index.ts"
+const manager = new ClientManager({
+    baseUrl: process.env.BASE_URL,
+    deploySecret: process.env.DEPLOY_SECRET,
+    sharedOptions: {},
+    applications: [
+        // ... your applications
+    ],
+    startup: {
+        concurrency: 4,
+        failFast: false
+    }
+})
+```
+
+- `concurrency`: how many clients initialize in parallel
+- `failFast`: stop scheduling new startup work after first failure
+
+You can also explicitly wait for startup completion:
+
+```typescript
+const startup = await manager.whenReady()
+console.log(startup)
+```
+
+That result includes totals plus per-client success/error outcomes, which is handy for readiness checks and startup logs.
+

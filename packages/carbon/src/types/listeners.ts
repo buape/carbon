@@ -109,6 +109,7 @@ export type ListenerEventType =
 
 export type ListenerEventAdditionalData = {
 	clientId: string
+	abortSignal?: AbortSignal
 }
 
 export type ListenerEventRawData = {

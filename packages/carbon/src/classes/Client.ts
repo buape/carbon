@@ -38,7 +38,11 @@ import {
 	valueToUint8Array
 } from "../utils/index.js"
 import type { Modal } from "./Modal.js"
-import { RequestClient, type RequestClientOptions } from "./RequestClient.js"
+import {
+	RequestClient,
+	type RequestClientOptions,
+	type RuntimeProfile
+} from "./RequestClient.js"
 
 /**
  * The options used for initializing the client
@@ -65,6 +69,12 @@ export interface ClientOptions {
 	 * The token of the bot
 	 */
 	token: string
+	/**
+	 * Runtime profile for Carbon core scheduling defaults.
+	 *
+	 * @default "serverless"
+	 */
+	runtimeProfile?: RuntimeProfile
 	/**
 	 * The options used to initialize the request client, if you want to customize it.
 	 */
@@ -196,12 +206,20 @@ export class Client {
 		if (!options.deploySecret && !options.disableDeployRoute)
 			throw new Error("Missing deploy secret")
 
-		this.options = options
+		const runtimeProfile = options.runtimeProfile ?? "serverless"
+		this.options = {
+			...options,
+			runtimeProfile,
+			eventQueue: {
+				runtimeProfile,
+				...options.eventQueue
+			}
+		}
 		this.commands = handlers.commands ?? []
 		this.listeners = handlers.listeners ?? []
 
 		// Remove trailing slashes from the base URL
-		options.baseUrl = options.baseUrl.replace(/\/+$/, "")
+		this.options.baseUrl = this.options.baseUrl.replace(/\/+$/, "")
 
 		this.commandHandler = new CommandHandler(this)
 		this.componentHandler = new ComponentHandler(this)
@@ -222,7 +240,10 @@ export class Client {
 			this.modalHandler.registerModal(modal)
 		}
 
-		this.rest = new RequestClient(options.token, options.requestOptions)
+		this.rest = new RequestClient(this.options.token, {
+			runtimeProfile,
+			...this.options.requestOptions
+		})
 
 		this.appendRoutes()
 		for (const plugin of plugins) {
@@ -231,13 +252,30 @@ export class Client {
 			this.plugins.push({ id: plugin.id, plugin })
 		}
 
-		if (options.autoDeploy) {
+		if (this.options.autoDeploy) {
 			this.deployCommands()
 		}
 	}
 
 	public getPlugin<T extends Plugin>(id: string): T | undefined {
 		return this.plugins.find((p) => p.id === id)?.plugin as T | undefined
+	}
+
+	public getRuntimeMetrics() {
+		const forwarderPlugin = this.getPlugin<
+			Plugin & {
+				getDeliveryMetrics?: () => unknown
+			}
+		>("gateway-forwarder")
+
+		return {
+			request: this.rest.getSchedulerMetrics(),
+			events: this.eventHandler.getMetrics(),
+			forwarder:
+				typeof forwarderPlugin?.getDeliveryMetrics === "function"
+					? forwarderPlugin.getDeliveryMetrics()
+					: null
+		}
 	}
 
 	private appendRoutes() {

@@ -1,6 +1,16 @@
 import { DiscordError } from "../errors/DiscordError.js"
 import { RateLimitError } from "../errors/RatelimitError.js"
-import type { MessagePayloadFile } from "../types/index.js"
+import { serializeRequestBody } from "../internals/RequestBody.js"
+import {
+	type RequestSchedulerOptions as InternalRequestSchedulerOptions,
+	normalizeRequestSchedulerOptions,
+	type RequestLane,
+	RequestScheduler
+} from "../internals/RequestScheduler.js"
+
+export type RuntimeProfile = "serverless" | "persistent"
+export type RequestPriority = RequestLane
+export type RequestSchedulerOptions = InternalRequestSchedulerOptions
 
 /**
  * The options used to initialize the RequestClient
@@ -42,29 +52,26 @@ export type RequestClientOptions = {
 	 */
 	queueRequests?: boolean
 	/**
-	 * The maximum amount of queued requests before throwing.
+	 * Legacy global max queue size. In lane-based scheduler mode this is used as fallback
+	 * when lane-specific max queue sizes are not configured.
+	 *
 	 * @default 1000
 	 */
 	maxQueueSize?: number
 	/**
+	 * Runtime profile used to derive scheduler defaults.
+	 *
+	 * @default "serverless"
+	 */
+	runtimeProfile?: RuntimeProfile
+	/**
+	 * Scheduler controls for weighted fairness and backpressure.
+	 */
+	scheduler?: RequestSchedulerOptions
+	/**
 	 * A custom fetch function to use for requests.
 	 * This allows you to inject your own fetch implementation for proxy support,
 	 * testing, mocking, or custom transport layers.
-	 *
-	 * @example
-	 * ```typescript
-	 * // Using with undici for proxy support
-	 * import { Agent, fetch as undiciFetch } from 'undici'
-	 *
-	 * const proxyAgent = new Agent({ /* proxy config *\/ })
-	 *
-	 * const client = new Client({
-	 *   token: 'your-token',
-	 *   requestOptions: {
-	 *     fetch: (input, init) => undiciFetch(input, { ...init, dispatcher: proxyAgent })
-	 *   }
-	 * })
-	 * ```
 	 */
 	fetch?: (
 		input: string | URL | Request,
@@ -72,14 +79,17 @@ export type RequestClientOptions = {
 	) => Promise<Response>
 }
 
-const defaultOptions: Required<Omit<RequestClientOptions, "fetch">> = {
+const defaultOptions: Required<
+	Omit<RequestClientOptions, "fetch" | "scheduler">
+> = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
 	apiVersion: 10,
 	userAgent: "DiscordBot (https://github.com/buape/carbon, v0.0.0)",
 	timeout: 15000,
 	queueRequests: true,
-	maxQueueSize: 1000
+	maxQueueSize: 1000,
+	runtimeProfile: "serverless"
 }
 
 export type QueuedRequest = {
@@ -90,6 +100,13 @@ export type QueuedRequest = {
 	resolve: (value?: unknown) => void
 	reject: (reason?: unknown) => void
 	routeKey: string
+}
+
+type ScheduledRequest = QueuedRequest & {
+	id: number
+	priority: RequestPriority
+	enqueuedAt: number
+	retryCount: number
 }
 
 export type RequestData = {
@@ -107,15 +124,22 @@ export class RequestClient {
 	 * The options used to initialize the client
 	 */
 	readonly options: RequestClientOptions
-	protected queue: QueuedRequest[] = []
-	private token: string
-	private customFetch:
+	protected token: string
+	protected customFetch:
 		| ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
 		| undefined
-	private abortController: AbortController | null = null
-	private processingQueue = false
-	private routeBuckets: Map<string, string> = new Map()
-	private bucketStates: Map<
+
+	protected nextRequestId = 0
+	protected wakeupTimer: ReturnType<typeof setTimeout> | null = null
+	protected wakeupDueAt: number | null = null
+	protected activeWorkers = 0
+	protected activeBucketKeys = new Set<string>()
+	protected maxConcurrentWorkers = 1
+	protected maxRateLimitRetries = 2
+	protected scheduler!: RequestScheduler<ScheduledRequest>
+
+	protected routeBuckets: Map<string, string> = new Map()
+	protected bucketStates: Map<
 		string,
 		{
 			delayUntil: number
@@ -123,7 +147,8 @@ export class RequestClient {
 			remaining: number
 		}
 	> = new Map()
-	private globalRateLimitUntil = 0
+	protected globalRateLimitUntil = 0
+	protected requestControllers = new Set<AbortController>()
 
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
@@ -132,6 +157,8 @@ export class RequestClient {
 			...defaultOptions,
 			...options
 		}
+
+		this.configureScheduler()
 	}
 
 	async get(path: string, query?: QueuedRequest["query"]) {
@@ -162,69 +189,224 @@ export class RequestClient {
 		return await this.request("DELETE", path, { data, query })
 	}
 
-	private async request(
+	protected configureScheduler() {
+		const normalized = normalizeRequestSchedulerOptions({
+			runtimeProfile: this.options.runtimeProfile ?? "serverless",
+			maxQueueSize: this.options.maxQueueSize,
+			scheduler: this.options.scheduler
+		})
+		this.maxConcurrentWorkers = normalized.maxConcurrency
+		this.maxRateLimitRetries = normalized.maxRateLimitRetries
+		this.scheduler = new RequestScheduler<ScheduledRequest>({
+			lanes: normalized.lanes
+		})
+	}
+
+	protected async request(
 		method: string,
 		path: string,
 		{ data, query }: { data?: RequestData; query?: QueuedRequest["query"] }
 	): Promise<unknown> {
 		const routeKey = this.getRouteKey(method, path)
-		if (this.options.queueRequests) {
-			if (
-				typeof this.options.maxQueueSize === "number" &&
-				this.options.maxQueueSize > 0 &&
-				this.queue.length >= this.options.maxQueueSize
-			) {
-				const stats = this.queue.reduce(
-					(acc, item) => {
-						const count = (acc.counts.get(item.routeKey) ?? 0) + 1
-						acc.counts.set(item.routeKey, count)
-						if (count > acc.topCount) {
-							acc.topCount = count
-							acc.topRoute = item.routeKey
-						}
-						return acc
-					},
-					{
-						counts: new Map<string, number>([[routeKey, 1]]),
-						topRoute: routeKey,
-						topCount: 1
-					}
-				)
-				throw new Error(
-					`Request queue is full (${this.queue.length} / ${this.options.maxQueueSize}), you should implement a queuing system in your requests or raise the queue size in Carbon. Top offender: ${stats.topRoute}`
-				)
-			}
+		if (!this.options.queueRequests) {
 			return new Promise((resolve, reject) => {
-				this.queue.push({
+				this.executeRequest({
+					id: this.nextRequestId++,
 					method,
 					path,
 					data,
 					query,
 					resolve,
 					reject,
-					routeKey
+					routeKey,
+					priority: this.getPriority(method, path),
+					enqueuedAt: Date.now(),
+					retryCount: 0
 				})
-				this.processQueue()
+					.then(resolve)
+					.catch((err) => {
+						reject(err)
+					})
 			})
 		}
+
 		return new Promise((resolve, reject) => {
-			this.executeRequest({
+			const priority = this.getPriority(method, path)
+			const enqueueError = this.enqueueRequest({
+				id: this.nextRequestId++,
 				method,
 				path,
 				data,
 				query,
 				resolve,
 				reject,
-				routeKey
+				routeKey,
+				priority,
+				enqueuedAt: Date.now(),
+				retryCount: 0
 			})
-				.then(resolve)
-				.catch((err) => {
-					reject(err)
-				})
+			if (enqueueError) {
+				reject(enqueueError)
+				return
+			}
+			this.pumpQueue()
 		})
 	}
 
-	private async executeRequest(request: QueuedRequest): Promise<unknown> {
+	protected enqueueRequest(request: ScheduledRequest): Error | null {
+		return this.scheduler.enqueue(request)
+	}
+
+	protected pumpQueue() {
+		if (!this.options.queueRequests) return
+
+		while (this.activeWorkers < this.maxConcurrentWorkers) {
+			const next = this.takeNextReadyRequest()
+			if (!next) return
+			this.activeWorkers += 1
+			const bucketKey = this.getCurrentBucketKey(next.routeKey)
+			this.activeBucketKeys.add(bucketKey)
+			this.runQueuedRequest(next)
+				.catch((error) => {
+					console.error("[RequestClient] Queue worker failed", error)
+				})
+				.finally(() => {
+					this.activeBucketKeys.delete(bucketKey)
+					this.activeWorkers -= 1
+					this.pumpQueue()
+				})
+		}
+	}
+
+	protected async runQueuedRequest(request: ScheduledRequest) {
+		try {
+			const result = await this.executeRequest(request)
+			request.resolve(result)
+		} catch (error) {
+			if (
+				error instanceof RateLimitError &&
+				this.options.queueRequests &&
+				request.retryCount < this.maxRateLimitRetries
+			) {
+				const enqueueError = this.enqueueRequest({
+					...request,
+					retryCount: request.retryCount + 1,
+					enqueuedAt: Date.now()
+				})
+				if (enqueueError) {
+					request.reject(enqueueError)
+					return
+				}
+				return
+			}
+
+			if (error instanceof Error) {
+				request.reject(error)
+				return
+			}
+			request.reject(
+				new Error("Unknown error during request", { cause: error })
+			)
+		}
+	}
+
+	protected takeNextReadyRequest() {
+		const next = this.scheduler.takeNext({
+			isRouteReady: (routeKey) => this.getRouteWaitTime(routeKey),
+			isBucketActive: (routeKey) =>
+				this.activeBucketKeys.has(this.getCurrentBucketKey(routeKey))
+		})
+		if (!next.request) {
+			if (next.waitMs !== null) {
+				this.scheduleWakeup(next.waitMs)
+			}
+			return null
+		}
+		this.clearWakeupTimer()
+		return next.request
+	}
+
+	protected scheduleWakeup(waitMs: number) {
+		if (waitMs <= 0) {
+			this.clearWakeupTimer()
+			this.pumpQueue()
+			return
+		}
+
+		const dueAt = Date.now() + waitMs
+		if (
+			this.wakeupTimer &&
+			this.wakeupDueAt !== null &&
+			this.wakeupDueAt <= dueAt
+		) {
+			return
+		}
+		if (this.wakeupTimer) {
+			clearTimeout(this.wakeupTimer)
+			this.wakeupTimer = null
+		}
+
+		this.wakeupDueAt = dueAt
+		this.wakeupTimer = setTimeout(
+			() => {
+				this.wakeupTimer = null
+				this.wakeupDueAt = null
+				this.pumpQueue()
+			},
+			Math.max(0, dueAt - Date.now())
+		)
+	}
+
+	protected clearWakeupTimer() {
+		if (!this.wakeupTimer) {
+			this.wakeupDueAt = null
+			return
+		}
+		clearTimeout(this.wakeupTimer)
+		this.wakeupTimer = null
+		this.wakeupDueAt = null
+	}
+
+	protected getRouteWaitTime(routeKey: string, now = Date.now()) {
+		if (this.globalRateLimitUntil > now) {
+			return this.globalRateLimitUntil - now
+		}
+		const bucketKey = this.getCurrentBucketKey(routeKey)
+		const bucket = this.bucketStates.get(bucketKey)
+		if (bucket && bucket.delayUntil > now) {
+			return bucket.delayUntil - now
+		}
+		return 0
+	}
+
+	protected getPriority(method: string, path: string): RequestPriority {
+		const normalizedPath = path.toLowerCase()
+		const normalizedMethod = method.toUpperCase()
+
+		if (/^\/interactions\/\d+\/[^/]+\/callback$/.test(normalizedPath)) {
+			return "critical"
+		}
+
+		if (
+			normalizedPath.startsWith("/webhooks/") &&
+			(normalizedMethod === "POST" ||
+				normalizedMethod === "PATCH" ||
+				normalizedMethod === "DELETE")
+		) {
+			return "standard"
+		}
+
+		if (
+			normalizedMethod !== "GET" &&
+			/\/channels\/\d+\/messages/.test(normalizedPath)
+		) {
+			return "standard"
+		}
+
+		return "background"
+	}
+
+	protected async executeRequest(request: ScheduledRequest): Promise<unknown> {
 		const { method, path, data, query, routeKey } = request
 		await this.waitForBucket(routeKey)
 
@@ -245,109 +427,24 @@ export class RequestClient {
 						Authorization: `${this.options.tokenHeader} ${this.token}`
 					})
 
-		// Add custom headers if provided
 		if (data?.headers) {
 			for (const [key, value] of Object.entries(data.headers)) {
 				headers.set(key, value)
 			}
 		}
 
-		this.abortController = new AbortController()
+		const abortController = new AbortController()
+		this.requestControllers.add(abortController)
 		const timeoutMs =
 			typeof this.options.timeout === "number" && this.options.timeout > 0
 				? this.options.timeout
 				: undefined
-		let body: BodyInit | undefined
-
-		if (data?.body && typeof data.body === "object") {
-			const bodyObject = data.body as Record<string, unknown>
-			const topLevelFiles =
-				"files" in bodyObject
-					? (bodyObject.files as MessagePayloadFile[] | undefined)
-					: undefined
-			const nestedData =
-				"data" in bodyObject &&
-				bodyObject.data &&
-				typeof bodyObject.data === "object"
-					? (bodyObject.data as Record<string, unknown>)
-					: undefined
-			const nestedFiles =
-				nestedData && "files" in nestedData
-					? (nestedData.files as MessagePayloadFile[] | undefined)
-					: undefined
-
-			let payloadJson: Record<string, unknown> | null = null
-			let filesContainer: Record<string, unknown> | null = null
-			let files: MessagePayloadFile[] = []
-
-			if (topLevelFiles !== undefined) {
-				payloadJson = { ...bodyObject }
-				filesContainer = payloadJson
-				files = topLevelFiles ?? []
-			} else if (nestedFiles !== undefined && nestedData) {
-				payloadJson = { ...bodyObject, data: { ...nestedData } }
-				filesContainer = payloadJson.data as Record<string, unknown>
-				files = nestedFiles ?? []
-			}
-
-			if (payloadJson && filesContainer && files.length > 0) {
-				const formData = new FormData()
-				const existingAttachments = Array.isArray(filesContainer.attachments)
-					? [...(filesContainer.attachments as Array<Record<string, unknown>>)]
-					: []
-
-				const uploadedAttachments: Array<Record<string, unknown>> = []
-				for (const [index, file] of files.entries()) {
-					let { data: fileData } = file
-
-					if (!(fileData instanceof Blob)) {
-						fileData = new Blob([fileData])
-					}
-
-					const attachmentId = existingAttachments.length + index
-					formData.append(`files[${attachmentId}]`, fileData, file.name)
-					uploadedAttachments.push({
-						id: attachmentId,
-						filename: file.name,
-						...(file.description !== undefined
-							? { description: file.description }
-							: {}),
-						...(file.duration_secs !== undefined
-							? { duration_secs: file.duration_secs }
-							: {}),
-						...(file.waveform !== undefined ? { waveform: file.waveform } : {})
-					})
-				}
-
-				filesContainer.attachments = [
-					...existingAttachments,
-					...uploadedAttachments
-				]
-				delete filesContainer.files
-
-				formData.append("payload_json", JSON.stringify(payloadJson))
-				body = formData
-			} else {
-				headers.set("Content-Type", "application/json")
-				if (data.rawBody) {
-					body = data.body as unknown as BodyInit
-				} else {
-					body = JSON.stringify(data.body)
-				}
-			}
-		} else if (data?.body != null) {
-			headers.set("Content-Type", "application/json")
-			if (data.rawBody) {
-				body = data.body as unknown as BodyInit
-			} else {
-				body = JSON.stringify(data.body)
-			}
-		}
+		const body = serializeRequestBody(data, headers)
 
 		let timeoutId: ReturnType<typeof setTimeout> | undefined
 		if (timeoutMs !== undefined) {
 			timeoutId = setTimeout(() => {
-				this.abortController?.abort()
+				abortController.abort()
 			}, timeoutMs)
 		}
 		let response: Response
@@ -357,12 +454,13 @@ export class RequestClient {
 				method,
 				headers,
 				body,
-				signal: this.abortController.signal
+				signal: abortController.signal
 			})
 		} finally {
 			if (timeoutId) {
 				clearTimeout(timeoutId)
 			}
+			this.requestControllers.delete(abortController)
 		}
 
 		let rawBody = ""
@@ -438,35 +536,7 @@ export class RequestClient {
 		return null
 	}
 
-	private async processQueue() {
-		if (this.processingQueue) return
-		this.processingQueue = true
-		while (this.queue.length > 0) {
-			const queueItem = this.queue.shift()
-			if (!queueItem) continue
-			const { resolve, reject } = queueItem
-			try {
-				const result = await this.executeRequest(queueItem)
-				resolve(result)
-			} catch (error) {
-				if (error instanceof RateLimitError && this.options.queueRequests) {
-					this.queue.unshift(queueItem)
-				} else if (error instanceof Error) {
-					reject(error)
-				} else {
-					reject(new Error("Unknown error during request", { cause: error }))
-				}
-			} finally {
-				this.abortController = null
-			}
-		}
-		this.processingQueue = false
-		if (this.queue.length > 0) {
-			this.processQueue()
-		}
-	}
-
-	private async waitForBucket(routeKey: string) {
+	protected async waitForBucket(routeKey: string) {
 		while (true) {
 			const now = Date.now()
 			if (this.globalRateLimitUntil > now) {
@@ -483,14 +553,14 @@ export class RequestClient {
 		}
 	}
 
-	private scheduleRateLimit(
+	protected scheduleRateLimit(
 		routeKey: string,
 		path: string,
 		error: RateLimitError
 	) {
 		const bucketKey = error.bucket
 			? this.getBucketKey(routeKey, path, error.bucket)
-			: (this.routeBuckets.get(routeKey) ?? routeKey)
+			: this.getCurrentBucketKey(routeKey)
 		const waitTime = Math.max(0, Math.ceil(error.retryAfter * 1000))
 		const now = Date.now()
 		const bucket = this.bucketStates.get(bucketKey) ?? {
@@ -514,7 +584,7 @@ export class RequestClient {
 		}
 	}
 
-	private updateBucketFromHeaders(
+	protected updateBucketFromHeaders(
 		routeKey: string,
 		path: string,
 		response: Response
@@ -527,7 +597,7 @@ export class RequestClient {
 
 		const key = bucketId
 			? this.getBucketKey(routeKey, path, bucketId)
-			: (this.routeBuckets.get(routeKey) ?? routeKey)
+			: this.getCurrentBucketKey(routeKey)
 		if (bucketId) this.routeBuckets.set(routeKey, key)
 		const remaining = remainingRaw ? Number(remainingRaw) : undefined
 		const resetAfter = resetAfterRaw ? Number(resetAfterRaw) * 1000 : undefined
@@ -554,7 +624,11 @@ export class RequestClient {
 		this.bucketStates.set(key, bucket)
 	}
 
-	private getBucketKey(
+	protected getCurrentBucketKey(routeKey: string) {
+		return this.routeBuckets.get(routeKey) ?? routeKey
+	}
+
+	protected getBucketKey(
 		routeKey: string,
 		path: string,
 		bucketId?: string | null
@@ -564,7 +638,7 @@ export class RequestClient {
 		return major ? `${bucketId}:${major}` : bucketId
 	}
 
-	private getMajorParameter(path: string) {
+	protected getMajorParameter(path: string) {
 		const segments = path.split("/")
 		for (let index = 0; index < segments.length; index += 1) {
 			const segment = segments[index]
@@ -580,7 +654,7 @@ export class RequestClient {
 		return null
 	}
 
-	private getRouteKey(method: string, path: string) {
+	protected getRouteKey(method: string, path: string) {
 		const segments = path.split("/")
 		const normalized = segments
 			.map((segment, index) => {
@@ -602,17 +676,30 @@ export class RequestClient {
 	}
 
 	clearQueue() {
-		this.queue = []
+		this.scheduler.clear(new Error("Request queue cleared"))
 	}
 
 	get queueSize() {
-		return this.queue.length
+		return this.scheduler.size
+	}
+
+	getSchedulerMetrics() {
+		const schedulerMetrics = this.scheduler.getMetrics()
+		return {
+			queueSize: this.queueSize,
+			activeWorkers: this.activeWorkers,
+			maxConcurrentWorkers: this.maxConcurrentWorkers,
+			...schedulerMetrics,
+			globalRateLimitUntil: this.globalRateLimitUntil,
+			activeBuckets: this.activeBucketKeys.size
+		}
 	}
 
 	abortAllRequests() {
-		if (this.abortController) {
-			this.abortController.abort()
+		for (const controller of this.requestControllers) {
+			controller.abort()
 		}
+		this.requestControllers.clear()
 		this.clearQueue()
 	}
 }

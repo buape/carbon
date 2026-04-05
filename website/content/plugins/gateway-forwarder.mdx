@@ -151,3 +151,54 @@ pnpm build && pnpm start
 ```
 
 And that's it! Your forwarder will run happily on Railway, keeping that WebSocket connection alive while your main bot scales independently. Just remember: keep that private key safe. If someone gets their hands on it, they could send fake events to your bot!
+
+## Delivery Policy Controls
+
+You can control forward delivery behavior directly in plugin config.
+
+Useful when your endpoint is slow, flaky, or under load.
+
+```typescript title="src/index.ts"
+new GatewayForwarderPlugin({
+    intents: GatewayIntents.Guilds,
+    webhookUrl: `${process.env.BASE_URL}/events`,
+    privateKey: process.env.FORWARDER_PRIVATE_KEY,
+    runtimeProfile: "serverless",
+    delivery: {
+        timeoutMs: 2500,
+        maxRetries: 2,
+        baseBackoffMs: 150,
+        maxBackoffMs: 1800,
+        jitterRatio: 0.2,
+        maxInFlight: 8,
+        maxQueueSize: 2000,
+        retryStatusCodes: [408, 409, 425, 429, 500, 502, 503, 504]
+    }
+})
+```
+
+What each setting does:
+
+- `timeoutMs`: max time for a single forward attempt
+- `maxRetries`: retry attempt limit
+- `baseBackoffMs` / `maxBackoffMs` / `jitterRatio`: retry timing behavior
+- `maxInFlight`: parallel delivery cap
+- `maxQueueSize`: max buffered deliveries before dropping
+
+Forwarded requests also include:
+
+- `X-Carbon-Forwarder-Event-Id`
+- `X-Carbon-Forwarder-Attempt`
+
+Those make receiver-side dedupe and debugging much easier.
+
+## Delivery Metrics
+
+Need delivery stats at runtime?
+
+```typescript
+const forwarder = client.getPlugin<GatewayForwarderPlugin>("gateway-forwarder")
+const metrics = forwarder?.getDeliveryMetrics()
+```
+
+Includes queue depth, in-flight count, sent/retried/failed/dropped counters, and failure reason counts.

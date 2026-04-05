@@ -411,3 +411,14 @@ describe("Client command deployment", () => {
 		expect(rest.delete).not.toHaveBeenCalled()
 	})
 })
+
+describe("Client runtime metrics", () => {
+	test("returns request and event metrics", () => {
+		const client = new Client(defaultClientOptions, {}, [])
+		const metrics = client.getRuntimeMetrics()
+
+		expect(metrics.request).toBeDefined()
+		expect(metrics.events).toBeDefined()
+		expect(metrics.forwarder).toBeNull()
+	})
+})

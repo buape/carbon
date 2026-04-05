@@ -31,9 +31,9 @@ function createPlugin(
 		...options
 	})
 	const ws = new MockWebSocket()
-	;(plugin as { ws: MockWebSocket | null }).ws = ws
-	;(plugin as { setupWebSocket: () => void }).setupWebSocket()
-	return { ws }
+	;(plugin as unknown as { ws: MockWebSocket | null }).ws = ws
+	;(plugin as unknown as { setupWebSocket: () => void }).setupWebSocket()
+	return { ws, plugin }
 }
 
 function emitPayload(ws: MockWebSocket, payload: GatewayPayload) {
@@ -166,5 +166,145 @@ describe("GatewayForwarderPlugin guild availability forwarding", () => {
 			"GUILD_CREATE"
 		])
 		expect(events[2]?.event.data).toEqual(guildCreate)
+	})
+
+	test("retries transient forward delivery failures with bounded backoff", async () => {
+		fetchMock
+			.mockResolvedValueOnce({
+				ok: false,
+				status: 503,
+				statusText: "Service Unavailable",
+				text: vi.fn().mockResolvedValue("")
+			})
+			.mockResolvedValueOnce({
+				ok: true,
+				status: 200,
+				statusText: "OK",
+				text: vi.fn().mockResolvedValue("")
+			})
+
+		const { ws, plugin } = createPlugin({
+			delivery: {
+				maxRetries: 2,
+				baseBackoffMs: 1,
+				maxBackoffMs: 1,
+				jitterRatio: 0,
+				timeoutMs: 50,
+				maxInFlight: 1
+			}
+		})
+
+		emitPayload(ws, {
+			op: GatewayOpcodes.Dispatch,
+			t: "GUILD_CREATE",
+			d: { id: "retry-guild", unavailable: false }
+		})
+
+		await new Promise((resolve) => setTimeout(resolve, 20))
+
+		expect(fetchMock).toHaveBeenCalledTimes(2)
+		const metrics = plugin.getDeliveryMetrics()
+		expect(metrics.retried).toBe(1)
+		expect(metrics.sent).toBe(1)
+		expect(metrics.failed).toBe(0)
+	})
+
+	test("respects maxInFlight by queueing excess deliveries", async () => {
+		const resolvers: Array<() => void> = []
+		fetchMock.mockImplementation(
+			() =>
+				new Promise((resolve) => {
+					resolvers.push(() =>
+						resolve({
+							ok: true,
+							status: 200,
+							statusText: "OK",
+							text: vi.fn().mockResolvedValue("")
+						})
+					)
+				})
+		)
+
+		const { ws, plugin } = createPlugin({
+			delivery: {
+				maxInFlight: 1,
+				maxQueueSize: 10,
+				maxRetries: 0,
+				timeoutMs: 5000
+			}
+		})
+
+		emitPayload(ws, {
+			op: GatewayOpcodes.Dispatch,
+			t: "GUILD_CREATE",
+			d: { id: "A", unavailable: false }
+		})
+		emitPayload(ws, {
+			op: GatewayOpcodes.Dispatch,
+			t: "GUILD_CREATE",
+			d: { id: "B", unavailable: false }
+		})
+
+		await Promise.resolve()
+		expect(fetchMock).toHaveBeenCalledTimes(1)
+		expect(plugin.getDeliveryMetrics().queueDepth).toBe(1)
+
+		resolvers.shift()?.()
+		await Promise.resolve()
+		await Promise.resolve()
+		await new Promise((resolve) => setTimeout(resolve, 0))
+
+		expect(fetchMock).toHaveBeenCalledTimes(2)
+		resolvers.shift()?.()
+		await Promise.resolve()
+		await new Promise((resolve) => setTimeout(resolve, 0))
+
+		expect(plugin.getDeliveryMetrics().sent).toBe(2)
+	})
+
+	test("throws for invalid delivery maxInFlight", () => {
+		expect(() =>
+			createPlugin({
+				delivery: {
+					maxInFlight: 0
+				}
+			})
+		).toThrow("delivery.maxInFlight")
+	})
+
+	test("counts timeout failures with bounded retries", async () => {
+		fetchMock.mockImplementation(
+			(_input, init) =>
+				new Promise((_, reject) => {
+					const signal = init?.signal as AbortSignal | undefined
+					signal?.addEventListener("abort", () => {
+						reject(new Error("aborted"))
+					})
+				})
+		)
+
+		const { ws, plugin } = createPlugin({
+			delivery: {
+				timeoutMs: 10,
+				maxRetries: 1,
+				baseBackoffMs: 1,
+				maxBackoffMs: 1,
+				jitterRatio: 0,
+				maxInFlight: 1,
+				maxQueueSize: 10
+			}
+		})
+
+		emitPayload(ws, {
+			op: GatewayOpcodes.Dispatch,
+			t: "GUILD_CREATE",
+			d: { id: "timeout-1", unavailable: false }
+		})
+
+		await new Promise((resolve) => setTimeout(resolve, 50))
+		const metrics = plugin.getDeliveryMetrics()
+		expect(metrics.timeouts).toBeGreaterThanOrEqual(1)
+		expect(metrics.failed).toBe(1)
+		expect(metrics.retried).toBe(1)
 	})
 })
