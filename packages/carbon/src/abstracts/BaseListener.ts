@@ -11,15 +11,21 @@ import type {
  * This abstract class defines the structure for event listeners and provides type safety for event handling.
  * @abstract
  */
-export abstract class BaseListener {
-	abstract readonly type: ListenerEventType
+export abstract class BaseListener<
+	TEvent extends ListenerEventType = ListenerEventType
+> {
+	abstract readonly type: TEvent
 	abstract handle(
-		data: ListenerEventData[this["type"]] & ListenerEventAdditionalData,
+		data: ListenerEventData[TEvent] & ListenerEventAdditionalData,
 		client: Client
 	): Promise<void>
 
 	abstract parseRawData(
-		data: ListenerEventRawData[this["type"]] & ListenerEventAdditionalData,
+		data: ListenerEventRawData[TEvent] & ListenerEventAdditionalData,
 		client: Client
-	): ListenerEventData[this["type"]]
+	): ListenerEventData[TEvent]
 }
+
+export type AnyListener = {
+	[TEvent in ListenerEventType]: BaseListener<TEvent>
+}[ListenerEventType]

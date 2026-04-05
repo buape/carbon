@@ -1,8 +1,8 @@
-import type { BaseListener } from "../abstracts/BaseListener.js"
+import type { AnyListener } from "../abstracts/BaseListener.js"
 import type { Client } from "../classes/Client.js"
 
 interface TemporaryListenerEntry {
-	listener: BaseListener
+	listener: AnyListener
 	timeout: ReturnType<typeof setTimeout>
 	timestamp: number
 }
@@ -17,7 +17,7 @@ export class TemporaryListenerManager {
 		this.defaultTimeout = defaultTimeout
 	}
 
-	register(listener: BaseListener, timeoutMs?: number): () => void {
+	register(listener: AnyListener, timeoutMs?: number): () => void {
 		const id = this.generateId(listener)
 		const timeout = timeoutMs ?? this.defaultTimeout
 
@@ -41,7 +41,7 @@ export class TemporaryListenerManager {
 		return () => this.unregister(id)
 	}
 
-	unregister(id: string | BaseListener): boolean {
+	unregister(id: string | AnyListener): boolean {
 		const listenerId = typeof id === "string" ? id : this.generateId(id)
 		const entry = this.listeners.get(listenerId)
 
@@ -59,7 +59,7 @@ export class TemporaryListenerManager {
 		return true
 	}
 
-	private generateId(listener: BaseListener): string {
+	private generateId(listener: AnyListener): string {
 		return `${listener.type}_${listener.constructor.name}_${Date.now()}_${Math.random().toString(36).substring(7)}`
 	}
 

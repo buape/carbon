@@ -20,7 +20,9 @@ import {
 } from "../types/index.js"
 import type { Client } from "./Client.js"
 
-export abstract class GuildAvailableListener extends BaseListener {
+export abstract class GuildAvailableListener extends BaseListener<
+	typeof ListenerEvent.GuildAvailable
+> {
 	readonly type = ListenerEvent.GuildAvailable
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -39,7 +41,9 @@ export abstract class GuildAvailableListener extends BaseListener {
 	}
 }
 
-export abstract class GuildUnavailableListener extends BaseListener {
+export abstract class GuildUnavailableListener extends BaseListener<
+	typeof ListenerEvent.GuildUnavailable
+> {
 	readonly type = ListenerEvent.GuildUnavailable
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -58,7 +62,9 @@ export abstract class GuildUnavailableListener extends BaseListener {
 	}
 }
 
-export abstract class ApplicationAuthorizedListener extends BaseListener {
+export abstract class ApplicationAuthorizedListener extends BaseListener<
+	typeof ListenerEvent.ApplicationAuthorized
+> {
 	readonly type = ListenerEvent.ApplicationAuthorized
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -82,7 +88,9 @@ export abstract class ApplicationAuthorizedListener extends BaseListener {
 	}
 }
 
-export abstract class EntitlementCreateListener extends BaseListener {
+export abstract class EntitlementCreateListener extends BaseListener<
+	typeof ListenerEvent.EntitlementCreate
+> {
 	readonly type = ListenerEvent.EntitlementCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -105,7 +113,9 @@ export abstract class EntitlementCreateListener extends BaseListener {
 	}
 }
 
-export abstract class QuestUserEnrollmentListener extends BaseListener {
+export abstract class QuestUserEnrollmentListener extends BaseListener<
+	typeof ListenerEvent.QuestUserEnrollment
+> {
 	readonly type = ListenerEvent.QuestUserEnrollment
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -119,7 +129,9 @@ export abstract class QuestUserEnrollmentListener extends BaseListener {
 	}
 }
 
-export abstract class ApplicationCommandPermissionsUpdateListener extends BaseListener {
+export abstract class ApplicationCommandPermissionsUpdateListener extends BaseListener<
+	typeof ListenerEvent.ApplicationCommandPermissionsUpdate
+> {
 	readonly type = ListenerEvent.ApplicationCommandPermissionsUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -138,7 +150,9 @@ export abstract class ApplicationCommandPermissionsUpdateListener extends BaseLi
 	}
 }
 
-export abstract class AutoModerationActionExecutionListener extends BaseListener {
+export abstract class AutoModerationActionExecutionListener extends BaseListener<
+	typeof ListenerEvent.AutoModerationActionExecution
+> {
 	readonly type = ListenerEvent.AutoModerationActionExecution
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -166,7 +180,9 @@ export abstract class AutoModerationActionExecutionListener extends BaseListener
 	}
 }
 
-export abstract class AutoModerationRuleCreateListener extends BaseListener {
+export abstract class AutoModerationRuleCreateListener extends BaseListener<
+	typeof ListenerEvent.AutoModerationRuleCreate
+> {
 	readonly type = ListenerEvent.AutoModerationRuleCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -183,7 +199,9 @@ export abstract class AutoModerationRuleCreateListener extends BaseListener {
 	}
 }
 
-export abstract class AutoModerationRuleDeleteListener extends BaseListener {
+export abstract class AutoModerationRuleDeleteListener extends BaseListener<
+	typeof ListenerEvent.AutoModerationRuleDelete
+> {
 	readonly type = ListenerEvent.AutoModerationRuleDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -200,7 +218,9 @@ export abstract class AutoModerationRuleDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class AutoModerationRuleUpdateListener extends BaseListener {
+export abstract class AutoModerationRuleUpdateListener extends BaseListener<
+	typeof ListenerEvent.AutoModerationRuleUpdate
+> {
 	readonly type = ListenerEvent.AutoModerationRuleUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -217,7 +237,9 @@ export abstract class AutoModerationRuleUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ChannelCreateListener extends BaseListener {
+export abstract class ChannelCreateListener extends BaseListener<
+	typeof ListenerEvent.ChannelCreate
+> {
 	readonly type = ListenerEvent.ChannelCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -239,7 +261,9 @@ export abstract class ChannelCreateListener extends BaseListener {
 	}
 }
 
-export abstract class ChannelDeleteListener extends BaseListener {
+export abstract class ChannelDeleteListener extends BaseListener<
+	typeof ListenerEvent.ChannelDelete
+> {
 	readonly type = ListenerEvent.ChannelDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -261,7 +285,9 @@ export abstract class ChannelDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class ChannelPinsUpdateListener extends BaseListener {
+export abstract class ChannelPinsUpdateListener extends BaseListener<
+	typeof ListenerEvent.ChannelPinsUpdate
+> {
 	readonly type = ListenerEvent.ChannelPinsUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -287,7 +313,9 @@ export abstract class ChannelPinsUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ChannelUpdateListener extends BaseListener {
+export abstract class ChannelUpdateListener extends BaseListener<
+	typeof ListenerEvent.ChannelUpdate
+> {
 	readonly type = ListenerEvent.ChannelUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -309,7 +337,9 @@ export abstract class ChannelUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class EntitlementDeleteListener extends BaseListener {
+export abstract class EntitlementDeleteListener extends BaseListener<
+	typeof ListenerEvent.EntitlementDelete
+> {
 	readonly type = ListenerEvent.EntitlementDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -332,7 +362,9 @@ export abstract class EntitlementDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class EntitlementUpdateListener extends BaseListener {
+export abstract class EntitlementUpdateListener extends BaseListener<
+	typeof ListenerEvent.EntitlementUpdate
+> {
 	readonly type = ListenerEvent.EntitlementUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -355,7 +387,9 @@ export abstract class EntitlementUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildAuditLogEntryCreateListener extends BaseListener {
+export abstract class GuildAuditLogEntryCreateListener extends BaseListener<
+	typeof ListenerEvent.GuildAuditLogEntryCreate
+> {
 	readonly type = ListenerEvent.GuildAuditLogEntryCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -380,7 +414,9 @@ export abstract class GuildAuditLogEntryCreateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildBanAddListener extends BaseListener {
+export abstract class GuildBanAddListener extends BaseListener<
+	typeof ListenerEvent.GuildBanAdd
+> {
 	readonly type = ListenerEvent.GuildBanAdd
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -402,7 +438,9 @@ export abstract class GuildBanAddListener extends BaseListener {
 	}
 }
 
-export abstract class GuildBanRemoveListener extends BaseListener {
+export abstract class GuildBanRemoveListener extends BaseListener<
+	typeof ListenerEvent.GuildBanRemove
+> {
 	readonly type = ListenerEvent.GuildBanRemove
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -424,7 +462,9 @@ export abstract class GuildBanRemoveListener extends BaseListener {
 	}
 }
 
-export abstract class GuildCreateListener extends BaseListener {
+export abstract class GuildCreateListener extends BaseListener<
+	typeof ListenerEvent.GuildCreate
+> {
 	readonly type = ListenerEvent.GuildCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -443,7 +483,9 @@ export abstract class GuildCreateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildDeleteListener extends BaseListener {
+export abstract class GuildDeleteListener extends BaseListener<
+	typeof ListenerEvent.GuildDelete
+> {
 	readonly type = ListenerEvent.GuildDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -462,7 +504,9 @@ export abstract class GuildDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class GuildEmojisUpdateListener extends BaseListener {
+export abstract class GuildEmojisUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildEmojisUpdate
+> {
 	readonly type = ListenerEvent.GuildEmojisUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -481,7 +525,9 @@ export abstract class GuildEmojisUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildIntegrationsUpdateListener extends BaseListener {
+export abstract class GuildIntegrationsUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildIntegrationsUpdate
+> {
 	readonly type = ListenerEvent.GuildIntegrationsUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -500,7 +546,9 @@ export abstract class GuildIntegrationsUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildMemberAddListener extends BaseListener {
+export abstract class GuildMemberAddListener extends BaseListener<
+	typeof ListenerEvent.GuildMemberAdd
+> {
 	readonly type = ListenerEvent.GuildMemberAdd
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -521,7 +569,9 @@ export abstract class GuildMemberAddListener extends BaseListener {
 	}
 }
 
-export abstract class GuildMemberRemoveListener extends BaseListener {
+export abstract class GuildMemberRemoveListener extends BaseListener<
+	typeof ListenerEvent.GuildMemberRemove
+> {
 	readonly type = ListenerEvent.GuildMemberRemove
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -543,7 +593,9 @@ export abstract class GuildMemberRemoveListener extends BaseListener {
 	}
 }
 
-export abstract class GuildMemberUpdateListener extends BaseListener {
+export abstract class GuildMemberUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildMemberUpdate
+> {
 	readonly type = ListenerEvent.GuildMemberUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -576,7 +628,9 @@ export abstract class GuildMemberUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildMembersChunkListener extends BaseListener {
+export abstract class GuildMembersChunkListener extends BaseListener<
+	typeof ListenerEvent.GuildMembersChunk
+> {
 	readonly type = ListenerEvent.GuildMembersChunk
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -600,7 +654,9 @@ export abstract class GuildMembersChunkListener extends BaseListener {
 	}
 }
 
-export abstract class GuildRoleCreateListener extends BaseListener {
+export abstract class GuildRoleCreateListener extends BaseListener<
+	typeof ListenerEvent.GuildRoleCreate
+> {
 	readonly type = ListenerEvent.GuildRoleCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -622,7 +678,9 @@ export abstract class GuildRoleCreateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildRoleDeleteListener extends BaseListener {
+export abstract class GuildRoleDeleteListener extends BaseListener<
+	typeof ListenerEvent.GuildRoleDelete
+> {
 	readonly type = ListenerEvent.GuildRoleDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -643,7 +701,9 @@ export abstract class GuildRoleDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class GuildRoleUpdateListener extends BaseListener {
+export abstract class GuildRoleUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildRoleUpdate
+> {
 	readonly type = ListenerEvent.GuildRoleUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -665,7 +725,9 @@ export abstract class GuildRoleUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildScheduledEventCreateListener extends BaseListener {
+export abstract class GuildScheduledEventCreateListener extends BaseListener<
+	typeof ListenerEvent.GuildScheduledEventCreate
+> {
 	readonly type = ListenerEvent.GuildScheduledEventCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -687,7 +749,9 @@ export abstract class GuildScheduledEventCreateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildScheduledEventDeleteListener extends BaseListener {
+export abstract class GuildScheduledEventDeleteListener extends BaseListener<
+	typeof ListenerEvent.GuildScheduledEventDelete
+> {
 	readonly type = ListenerEvent.GuildScheduledEventDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -706,7 +770,9 @@ export abstract class GuildScheduledEventDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class GuildScheduledEventUpdateListener extends BaseListener {
+export abstract class GuildScheduledEventUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildScheduledEventUpdate
+> {
 	readonly type = ListenerEvent.GuildScheduledEventUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -725,7 +791,9 @@ export abstract class GuildScheduledEventUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildScheduledEventUserAddListener extends BaseListener {
+export abstract class GuildScheduledEventUserAddListener extends BaseListener<
+	typeof ListenerEvent.GuildScheduledEventUserAdd
+> {
 	readonly type = ListenerEvent.GuildScheduledEventUserAdd
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -746,7 +814,9 @@ export abstract class GuildScheduledEventUserAddListener extends BaseListener {
 	}
 }
 
-export abstract class GuildScheduledEventUserRemoveListener extends BaseListener {
+export abstract class GuildScheduledEventUserRemoveListener extends BaseListener<
+	typeof ListenerEvent.GuildScheduledEventUserRemove
+> {
 	readonly type = ListenerEvent.GuildScheduledEventUserRemove
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -767,7 +837,9 @@ export abstract class GuildScheduledEventUserRemoveListener extends BaseListener
 	}
 }
 
-export abstract class GuildSoundboardSoundCreateListener extends BaseListener {
+export abstract class GuildSoundboardSoundCreateListener extends BaseListener<
+	typeof ListenerEvent.GuildSoundboardSoundCreate
+> {
 	readonly type = ListenerEvent.GuildSoundboardSoundCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -788,7 +860,9 @@ export abstract class GuildSoundboardSoundCreateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildSoundboardSoundDeleteListener extends BaseListener {
+export abstract class GuildSoundboardSoundDeleteListener extends BaseListener<
+	typeof ListenerEvent.GuildSoundboardSoundDelete
+> {
 	readonly type = ListenerEvent.GuildSoundboardSoundDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -807,7 +881,9 @@ export abstract class GuildSoundboardSoundDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class GuildSoundboardSoundUpdateListener extends BaseListener {
+export abstract class GuildSoundboardSoundUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildSoundboardSoundUpdate
+> {
 	readonly type = ListenerEvent.GuildSoundboardSoundUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -828,7 +904,9 @@ export abstract class GuildSoundboardSoundUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildSoundboardSoundsUpdateListener extends BaseListener {
+export abstract class GuildSoundboardSoundsUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildSoundboardSoundsUpdate
+> {
 	readonly type = ListenerEvent.GuildSoundboardSoundsUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -847,7 +925,9 @@ export abstract class GuildSoundboardSoundsUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildStickersUpdateListener extends BaseListener {
+export abstract class GuildStickersUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildStickersUpdate
+> {
 	readonly type = ListenerEvent.GuildStickersUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -866,7 +946,9 @@ export abstract class GuildStickersUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class GuildUpdateListener extends BaseListener {
+export abstract class GuildUpdateListener extends BaseListener<
+	typeof ListenerEvent.GuildUpdate
+> {
 	readonly type = ListenerEvent.GuildUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -885,7 +967,9 @@ export abstract class GuildUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class IntegrationCreateListener extends BaseListener {
+export abstract class IntegrationCreateListener extends BaseListener<
+	typeof ListenerEvent.IntegrationCreate
+> {
 	readonly type = ListenerEvent.IntegrationCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -907,7 +991,9 @@ export abstract class IntegrationCreateListener extends BaseListener {
 	}
 }
 
-export abstract class IntegrationDeleteListener extends BaseListener {
+export abstract class IntegrationDeleteListener extends BaseListener<
+	typeof ListenerEvent.IntegrationDelete
+> {
 	readonly type = ListenerEvent.IntegrationDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -930,7 +1016,9 @@ export abstract class IntegrationDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class IntegrationUpdateListener extends BaseListener {
+export abstract class IntegrationUpdateListener extends BaseListener<
+	typeof ListenerEvent.IntegrationUpdate
+> {
 	readonly type = ListenerEvent.IntegrationUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -949,7 +1037,9 @@ export abstract class IntegrationUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class InteractionCreateListener extends BaseListener {
+export abstract class InteractionCreateListener extends BaseListener<
+	typeof ListenerEvent.InteractionCreate
+> {
 	readonly type = ListenerEvent.InteractionCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -973,7 +1063,9 @@ export abstract class InteractionCreateListener extends BaseListener {
 	}
 }
 
-export abstract class InviteCreateListener extends BaseListener {
+export abstract class InviteCreateListener extends BaseListener<
+	typeof ListenerEvent.InviteCreate
+> {
 	readonly type = ListenerEvent.InviteCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1002,7 +1094,9 @@ export abstract class InviteCreateListener extends BaseListener {
 	}
 }
 
-export abstract class InviteDeleteListener extends BaseListener {
+export abstract class InviteDeleteListener extends BaseListener<
+	typeof ListenerEvent.InviteDelete
+> {
 	readonly type = ListenerEvent.InviteDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1026,7 +1120,9 @@ export abstract class InviteDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class MessageCreateListener extends BaseListener {
+export abstract class MessageCreateListener extends BaseListener<
+	typeof ListenerEvent.MessageCreate
+> {
 	readonly type = ListenerEvent.MessageCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1066,7 +1162,9 @@ export abstract class MessageCreateListener extends BaseListener {
 	}
 }
 
-export abstract class MessageDeleteListener extends BaseListener {
+export abstract class MessageDeleteListener extends BaseListener<
+	typeof ListenerEvent.MessageDelete
+> {
 	readonly type = ListenerEvent.MessageDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1092,7 +1190,9 @@ export abstract class MessageDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class MessageDeleteBulkListener extends BaseListener {
+export abstract class MessageDeleteBulkListener extends BaseListener<
+	typeof ListenerEvent.MessageDeleteBulk
+> {
 	readonly type = ListenerEvent.MessageDeleteBulk
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1121,7 +1221,9 @@ export abstract class MessageDeleteBulkListener extends BaseListener {
 	}
 }
 
-export abstract class MessageReactionAddListener extends BaseListener {
+export abstract class MessageReactionAddListener extends BaseListener<
+	typeof ListenerEvent.MessageReactionAdd
+> {
 	readonly type = ListenerEvent.MessageReactionAdd
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1156,7 +1258,9 @@ export abstract class MessageReactionAddListener extends BaseListener {
 	}
 }
 
-export abstract class MessageReactionRemoveListener extends BaseListener {
+export abstract class MessageReactionRemoveListener extends BaseListener<
+	typeof ListenerEvent.MessageReactionRemove
+> {
 	readonly type = ListenerEvent.MessageReactionRemove
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1185,7 +1289,9 @@ export abstract class MessageReactionRemoveListener extends BaseListener {
 	}
 }
 
-export abstract class MessageReactionRemoveAllListener extends BaseListener {
+export abstract class MessageReactionRemoveAllListener extends BaseListener<
+	typeof ListenerEvent.MessageReactionRemoveAll
+> {
 	readonly type = ListenerEvent.MessageReactionRemoveAll
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1211,7 +1317,9 @@ export abstract class MessageReactionRemoveAllListener extends BaseListener {
 	}
 }
 
-export abstract class MessageReactionRemoveEmojiListener extends BaseListener {
+export abstract class MessageReactionRemoveEmojiListener extends BaseListener<
+	typeof ListenerEvent.MessageReactionRemoveEmoji
+> {
 	readonly type = ListenerEvent.MessageReactionRemoveEmoji
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1237,7 +1345,9 @@ export abstract class MessageReactionRemoveEmojiListener extends BaseListener {
 	}
 }
 
-export abstract class MessageUpdateListener extends BaseListener {
+export abstract class MessageUpdateListener extends BaseListener<
+	typeof ListenerEvent.MessageUpdate
+> {
 	readonly type = ListenerEvent.MessageUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1260,7 +1370,9 @@ export abstract class MessageUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class PresenceUpdateListener extends BaseListener {
+export abstract class PresenceUpdateListener extends BaseListener<
+	typeof ListenerEvent.PresenceUpdate
+> {
 	readonly type = ListenerEvent.PresenceUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1281,7 +1393,9 @@ export abstract class PresenceUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ReadyListener extends BaseListener {
+export abstract class ReadyListener extends BaseListener<
+	typeof ListenerEvent.Ready
+> {
 	readonly type = ListenerEvent.Ready
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1301,7 +1415,9 @@ export abstract class ReadyListener extends BaseListener {
 	}
 }
 
-export abstract class ResumedListener extends BaseListener {
+export abstract class ResumedListener extends BaseListener<
+	typeof ListenerEvent.Resumed
+> {
 	readonly type = ListenerEvent.Resumed
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1315,7 +1431,9 @@ export abstract class ResumedListener extends BaseListener {
 	}
 }
 
-export abstract class StageInstanceCreateListener extends BaseListener {
+export abstract class StageInstanceCreateListener extends BaseListener<
+	typeof ListenerEvent.StageInstanceCreate
+> {
 	readonly type = ListenerEvent.StageInstanceCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1334,7 +1452,9 @@ export abstract class StageInstanceCreateListener extends BaseListener {
 	}
 }
 
-export abstract class StageInstanceDeleteListener extends BaseListener {
+export abstract class StageInstanceDeleteListener extends BaseListener<
+	typeof ListenerEvent.StageInstanceDelete
+> {
 	readonly type = ListenerEvent.StageInstanceDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1353,7 +1473,9 @@ export abstract class StageInstanceDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class StageInstanceUpdateListener extends BaseListener {
+export abstract class StageInstanceUpdateListener extends BaseListener<
+	typeof ListenerEvent.StageInstanceUpdate
+> {
 	readonly type = ListenerEvent.StageInstanceUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1372,7 +1494,9 @@ export abstract class StageInstanceUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class SubscriptionCreateListener extends BaseListener {
+export abstract class SubscriptionCreateListener extends BaseListener<
+	typeof ListenerEvent.SubscriptionCreate
+> {
 	readonly type = ListenerEvent.SubscriptionCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1391,7 +1515,9 @@ export abstract class SubscriptionCreateListener extends BaseListener {
 	}
 }
 
-export abstract class SubscriptionDeleteListener extends BaseListener {
+export abstract class SubscriptionDeleteListener extends BaseListener<
+	typeof ListenerEvent.SubscriptionDelete
+> {
 	readonly type = ListenerEvent.SubscriptionDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1410,7 +1536,9 @@ export abstract class SubscriptionDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class SubscriptionUpdateListener extends BaseListener {
+export abstract class SubscriptionUpdateListener extends BaseListener<
+	typeof ListenerEvent.SubscriptionUpdate
+> {
 	readonly type = ListenerEvent.SubscriptionUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1429,7 +1557,9 @@ export abstract class SubscriptionUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadCreateListener extends BaseListener {
+export abstract class ThreadCreateListener extends BaseListener<
+	typeof ListenerEvent.ThreadCreate
+> {
 	readonly type = ListenerEvent.ThreadCreate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1452,7 +1582,9 @@ export abstract class ThreadCreateListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadDeleteListener extends BaseListener {
+export abstract class ThreadDeleteListener extends BaseListener<
+	typeof ListenerEvent.ThreadDelete
+> {
 	readonly type = ListenerEvent.ThreadDelete
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1471,7 +1603,9 @@ export abstract class ThreadDeleteListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadListSyncListener extends BaseListener {
+export abstract class ThreadListSyncListener extends BaseListener<
+	typeof ListenerEvent.ThreadListSync
+> {
 	readonly type = ListenerEvent.ThreadListSync
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1500,7 +1634,9 @@ export abstract class ThreadListSyncListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadMemberUpdateListener extends BaseListener {
+export abstract class ThreadMemberUpdateListener extends BaseListener<
+	typeof ListenerEvent.ThreadMemberUpdate
+> {
 	readonly type = ListenerEvent.ThreadMemberUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1532,7 +1668,9 @@ export abstract class ThreadMemberUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadMembersUpdateListener extends BaseListener {
+export abstract class ThreadMembersUpdateListener extends BaseListener<
+	typeof ListenerEvent.ThreadMembersUpdate
+> {
 	readonly type = ListenerEvent.ThreadMembersUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1568,7 +1706,9 @@ export abstract class ThreadMembersUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class ThreadUpdateListener extends BaseListener {
+export abstract class ThreadUpdateListener extends BaseListener<
+	typeof ListenerEvent.ThreadUpdate
+> {
 	readonly type = ListenerEvent.ThreadUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1598,7 +1738,9 @@ export abstract class ThreadUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class TypingStartListener extends BaseListener {
+export abstract class TypingStartListener extends BaseListener<
+	typeof ListenerEvent.TypingStart
+> {
 	readonly type = ListenerEvent.TypingStart
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1627,7 +1769,9 @@ export abstract class TypingStartListener extends BaseListener {
 	}
 }
 
-export abstract class UserUpdateListener extends BaseListener {
+export abstract class UserUpdateListener extends BaseListener<
+	typeof ListenerEvent.UserUpdate
+> {
 	readonly type = ListenerEvent.UserUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1646,7 +1790,9 @@ export abstract class UserUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class VoiceServerUpdateListener extends BaseListener {
+export abstract class VoiceServerUpdateListener extends BaseListener<
+	typeof ListenerEvent.VoiceServerUpdate
+> {
 	readonly type = ListenerEvent.VoiceServerUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1665,7 +1811,9 @@ export abstract class VoiceServerUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class VoiceStateUpdateListener extends BaseListener {
+export abstract class VoiceStateUpdateListener extends BaseListener<
+	typeof ListenerEvent.VoiceStateUpdate
+> {
 	readonly type = ListenerEvent.VoiceStateUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1693,7 +1841,9 @@ export abstract class VoiceStateUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class WebhooksUpdateListener extends BaseListener {
+export abstract class WebhooksUpdateListener extends BaseListener<
+	typeof ListenerEvent.WebhooksUpdate
+> {
 	readonly type = ListenerEvent.WebhooksUpdate
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1712,7 +1862,9 @@ export abstract class WebhooksUpdateListener extends BaseListener {
 	}
 }
 
-export abstract class MessagePollVoteAddListener extends BaseListener {
+export abstract class MessagePollVoteAddListener extends BaseListener<
+	typeof ListenerEvent.MessagePollVoteAdd
+> {
 	readonly type = ListenerEvent.MessagePollVoteAdd
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1740,7 +1892,9 @@ export abstract class MessagePollVoteAddListener extends BaseListener {
 	}
 }
 
-export abstract class MessagePollVoteRemoveListener extends BaseListener {
+export abstract class MessagePollVoteRemoveListener extends BaseListener<
+	typeof ListenerEvent.MessagePollVoteRemove
+> {
 	readonly type = ListenerEvent.MessagePollVoteRemove
 	abstract handle(
 		data: ListenerEventData[this["type"]],
@@ -1768,7 +1922,9 @@ export abstract class MessagePollVoteRemoveListener extends BaseListener {
 	}
 }
 
-export abstract class VoiceChannelEffectSendListener extends BaseListener {
+export abstract class VoiceChannelEffectSendListener extends BaseListener<
+	typeof ListenerEvent.VoiceChannelEffectSend
+> {
 	readonly type = ListenerEvent.VoiceChannelEffectSend
 	abstract handle(
 		data: ListenerEventData[this["type"]],

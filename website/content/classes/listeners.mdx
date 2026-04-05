@@ -40,10 +40,10 @@ If you want to learn more about setting up Gateway connections, check out our [G
 Carbon makes it super easy to handle both types of events using the same pattern. All listeners extend from the `BaseListener` class that provides type safety and consistent interfaces:
 
 ```typescript
-abstract class BaseListener {
-	abstract readonly type: ListenerEventType
+abstract class BaseListener<TEvent extends ListenerEventType> {
+	abstract readonly type: TEvent
 	abstract handle(
-		data: ListenerEventData[this["type"]],
+		data: ListenerEventData[TEvent],
 		client: Client
 	): Promise<void>
 }
@@ -56,7 +56,7 @@ Let's look at some examples:
 Want to do something when someone adds your bot to their server? Here's how:
 
 ```typescript title="src/events/authorized.ts"
-import { 
+import {
 	ListenerEvent,
 	type Client,
 	ApplicationAuthorizedListener,
@@ -90,11 +90,11 @@ Gateway events are where the fun stuff happens. Here are a couple of common exam
 #### When Your Bot Starts Up
 
 ```typescript title="src/events/ready.ts"
-import { 
+import {
 	ListenerEvent,
 	type Client,
 	ReadyListener,
-	type ListenerEventData 
+	type ListenerEventData
 } from "@buape/carbon"
 
 export class Ready extends ReadyListener {
@@ -117,11 +117,11 @@ export class Ready extends ReadyListener {
 Want to do something when people send messages? Here's how:
 
 ```typescript title="src/events/messageCreate.ts"
-import { 
+import {
 	ListenerEvent,
 	type Client,
 	MessageCreateListener,
-	type ListenerEventData 
+	type ListenerEventData
 } from "@buape/carbon"
 
 export class MessageCreate extends MessageCreateListener {

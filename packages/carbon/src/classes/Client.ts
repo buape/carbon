@@ -15,7 +15,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { BaseCommand } from "../abstracts/BaseCommand.js"
-import type { BaseListener } from "../abstracts/BaseListener.js"
+import type { AnyListener } from "../abstracts/BaseListener.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
 import { channelFactory } from "../functions/channelFactory.js"
@@ -140,7 +140,7 @@ export class Client {
 	/**
 	 * The event listeners that the client has registered
 	 */
-	listeners: BaseListener[] = []
+	listeners: AnyListener[] = []
 	/**
 	 * The rest client used to interact with the Discord API
 	 */
@@ -194,7 +194,7 @@ export class Client {
 		options: ClientOptions,
 		handlers: {
 			commands?: BaseCommand[]
-			listeners?: BaseListener[]
+			listeners?: AnyListener[]
 			components?: BaseMessageInteractiveComponent[]
 			modals?: Modal[]
 		},
@@ -559,8 +559,8 @@ export class Client {
 	 * manual type casting at the call site.
 	 * @param listener The listener to register
 	 */
-	registerListener<T extends BaseListener>(listener: T): void {
-		this.listeners.push(listener as BaseListener)
+	registerListener<T extends AnyListener>(listener: T): void {
+		this.listeners.push(listener)
 	}
 
 	// ======================== Begin Fetchers ================================================

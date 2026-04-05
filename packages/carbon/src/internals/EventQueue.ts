@@ -310,7 +310,9 @@ export class EventQueue {
 			return
 		}
 
-		const listeners = this.client.listeners.filter((x) => x.type === event.type)
+		const listeners = this.client.listeners.filter(
+			(listener) => listener.type === event.type
+		)
 		const concurrency = Math.max(
 			1,
 			Math.min(laneConfig.listenerConcurrency, listeners.length || 1)
@@ -319,7 +321,7 @@ export class EventQueue {
 		let index = 0
 		const runNext = async (): Promise<void> => {
 			while (index < listeners.length) {
-				const listener = listeners[index++]
+				const listener = listeners[index++] as BaseListener<T> | undefined
 				if (!listener) continue
 				await this.maybeYield()
 				await this.processListener(listener, event, laneConfig.listenerTimeout)
@@ -331,7 +333,7 @@ export class EventQueue {
 	}
 
 	private async processListener<T extends keyof ListenerEventRawData>(
-		listener: BaseListener,
+		listener: BaseListener<T>,
 		event: QueuedEvent<T>,
 		listenerTimeout: number
 	): Promise<void> {
