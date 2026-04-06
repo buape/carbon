@@ -15,5 +15,19 @@ path: wrangler.jsonc
 	"compatibility_flags": [
 		"nodejs_compat",
 		"nodejs_compat_populate_process_env"
-	]
+	]{{#if plugins.gateway}},
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "CARBON_GATEWAY",
+				"class_name": "CloudflareGatewayDurableObject"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["CloudflareGatewayDurableObject"]
+		}
+	]{{/if}}
 }

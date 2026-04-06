@@ -2,7 +2,7 @@
 
 import * as p from "@clack/prompts"
 import yoctoSpinner from "yocto-spinner"
-import { type Runtime, runtimes, serverRuntimes } from "./runtimes.js"
+import { type Runtime, runtimes } from "./runtimes.js"
 import { doesDirectoryExist } from "./tools/fileSystem.js"
 import {
 	getPackageManager,
@@ -39,18 +39,37 @@ if (p.isCancel(runtime)) {
 	process.exit(1)
 }
 
-const gateway =
-	serverRuntimes.includes(runtime) && runtime !== "forwarder"
-		? await p.confirm({
-				message:
-					"Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
-				initialValue: false
-			})
-		: false
-if (p.isCancel(gateway)) {
+const gatewayCapableRuntimes: Runtime[] = ["node", "bun", "cloudflare"]
+const wantsGateway = gatewayCapableRuntimes.includes(runtime)
+	? await p.confirm({
+			message:
+				runtime === "cloudflare"
+					? "Would you like to add gateway events (non-HTTP interaction events) to your app?"
+					: "Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
+			initialValue: false
+		})
+	: false
+if (p.isCancel(wantsGateway)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+
+const wantsCloudflareGatewayDurableObject =
+	runtime === "cloudflare" && wantsGateway
+		? await p.confirm({
+				message:
+					"Would you like to use Durable Objects for gateway support on Cloudflare Workers?",
+				initialValue: true
+			})
+		: false
+if (p.isCancel(wantsCloudflareGatewayDurableObject)) {
+	p.outro("Cancelled")
+	process.exit(1)
+}
+
+const gateway =
+	wantsGateway &&
+	(runtime !== "cloudflare" || wantsCloudflareGatewayDurableObject)
 
 const linkedRoles =
 	runtime !== "forwarder"

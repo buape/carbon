@@ -82,6 +82,9 @@ DISCORD_BOT_TOKEN="your-bot-token"
 {{#if plugins.gateway}}
 ## Gateway Events
 
+{{#if (eq runtime "cloudflare")}}
+Gateway support is powered by `CloudflareGatewayPlugin` + `CloudflareGatewayDurableObject` so the WebSocket can stay alive on Workers.
+{{/if}}
 The bot listens for the following Gateway events:
 - Message Create - Logs when a message is sent
 {{/if}}

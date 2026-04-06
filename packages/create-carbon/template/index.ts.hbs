@@ -14,7 +14,15 @@ import { Client } from "@buape/carbon"
 import { LinkedRoles, ApplicationRoleConnectionMetadataType } from "@buape/carbon/linked-roles"
 {{/if}}
 {{#if plugins.gateway}}
+{{#if (eq runtime "cloudflare")}}
+import { GatewayIntents } from "@buape/carbon/gateway"
+import {
+	CloudflareGatewayDurableObject,
+	CloudflareGatewayPlugin
+} from "@buape/carbon/cloudflare-gateway"
+{{else}}
 import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway"
+{{/if}}
 {{/if}}
 {{#if (eq runtime "node")}}
 import { createServer } from "@buape/carbon/adapters/node"
@@ -26,9 +34,9 @@ import { createHandler } from "@buape/carbon/adapters/fetch"
 {{#if (eq runtime "next")}}
 import PingCommand from "~/commands/ping"
 import ButtonCommand from "~/commands/button"
-import AuthorizedEvent from "~/events/authorized"
+import ApplicationAuthorized from "~/events/authorized"
 {{#if plugins.gateway}}
-import MessageCreateListener from "~/events/messageCreate"
+import MessageCreate from "~/events/messageCreate"
 {{/if}}
 {{else}}
 import PingCommand from "./commands/ping.js"
@@ -60,9 +68,16 @@ const linkedRoles = new LinkedRoles({
 {{/if}}
 
 {{#if plugins.gateway}}
-const gateway = new GatewayPlugin({
-	intents: GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
+const gatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent
+{{#if (eq runtime "cloudflare")}}
+const gateway = new CloudflareGatewayPlugin({
+	intents: gatewayIntents
 })
+{{else}}
+const gateway = new GatewayPlugin({
+	intents: gatewayIntents
+})
+{{/if}}
 {{/if}}
 
 const client = new Client(
@@ -87,16 +102,21 @@ const client = new Client(
 			new MessageCreate(){{/if}}
 		],
 	}{{#if (or plugins.linkedRoles plugins.gateway)}},
-	[{{#if plugins.linkedRoles}}linkedRoles{{/if}}{{#if (and plugins.linkedRoles plugins.gateway)}}, {{/if}}{{#if plugins.gateway}}gateway{{/if}}]{{/if}}
+	[{{#if plugins.linkedRoles}}linkedRoles{{/if}}{{#if plugins.gateway}}{{#if plugins.linkedRoles}}, {{/if}}gateway{{/if}}]{{/if}}
 )
 
 {{#if (or (eq runtime "node") (eq runtime "bun"))}}
 createServer(client, { port: 3000 })
 {{else if (eq runtime "cloudflare")}}
 const handler = createHandler(client)
+
+{{#if plugins.gateway}}
+export { CloudflareGatewayDurableObject }
+{{/if}}
+
 export default {
-	fetch(request: Request, _env: Env, ctx: ExecutionContext) {
-		return handler(request, ctx)
+	fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		return handler(request, { waitUntil: ctx.waitUntil.bind(ctx), env })
 	}
 } satisfies ExportedHandler<Env>
 {{else if (eq runtime "next")}}

@@ -7,6 +7,21 @@ import {
 } from "discord-api-types/v10"
 import { ListenerEvent, type ListenerEventType } from "../../types/listeners.js"
 
+export type GatewayWebSocketLike = {
+	readyState: number
+	send(data: string): void
+	close(code?: number, reason?: string): void
+	terminate?: () => void
+	on?: (
+		event: "open" | "message" | "close" | "error",
+		listener: (...args: unknown[]) => void
+	) => void
+	addEventListener?: (
+		event: "open" | "message" | "close" | "error",
+		listener: (event: unknown) => void
+	) => void
+}
+
 export interface GatewayPluginOptions {
 	/**
 	 * The intents to use for the client
@@ -48,6 +63,11 @@ export interface GatewayPluginOptions {
 	 * @default false
 	 */
 	autoInteractions?: boolean
+	/**
+	 * Optional WebSocket constructor/factory for runtimes without Node's `ws` package.
+	 * If omitted, Carbon will use `globalThis.WebSocket`.
+	 */
+	webSocketFactory?: (url: string) => GatewayWebSocketLike
 }
 
 /**

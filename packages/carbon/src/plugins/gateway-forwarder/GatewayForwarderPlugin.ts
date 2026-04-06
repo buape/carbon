@@ -163,9 +163,13 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 
 		if (!this.ws) return
 
-		this.ws.on("message", async (data: Buffer) => {
+		this.onSocketEvent(this.ws, "message", async (incoming) => {
 			try {
-				const payload = JSON.parse(data.toString()) as GatewayPayload
+				const payloadText = this.getMessageText(incoming)
+				if (!payloadText) {
+					return
+				}
+				const payload = JSON.parse(payloadText) as GatewayPayload
 
 				if (payload.t && payload.d) {
 					const gatewayType = payload.t as ListenerEventType

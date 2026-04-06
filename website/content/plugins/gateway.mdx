@@ -56,6 +56,104 @@ Once you've got the Gateway plugin set up, you'll need to create listeners to ha
 
 Carbon also supports automatically handling interactions via the Gateway through Carbon. This is useful if you want to handle interactions in the same process as the Gateway plugin, without the HTTP interactions route. Just set the `autoInteractions` option to `true` in the Gateway plugin options.
 
+## Cloudflare Workers (Durable Objects)
+
+If you're running on Cloudflare Workers and still want Gateway events, use Carbon's Cloudflare Gateway plugin + Durable Object class.
+
+```ts title="src/index.ts"
+import { Client } from "@buape/carbon"
+import { GatewayIntents } from "@buape/carbon/gateway"
+import {
+	CloudflareGatewayPlugin,
+	CloudflareGatewayDurableObject
+} from "@buape/carbon/cloudflare-gateway"
+import { createHandler } from "@buape/carbon/adapters/fetch"
+
+const client = new Client(
+	{
+		baseUrl: process.env.BASE_URL,
+		deploySecret: process.env.DEPLOY_SECRET,
+		clientId: process.env.DISCORD_CLIENT_ID,
+		publicKey: process.env.DISCORD_PUBLIC_KEY,
+		token: process.env.DISCORD_BOT_TOKEN
+	},
+	{},
+	[
+		new CloudflareGatewayPlugin({
+			intents:
+				GatewayIntents.Guilds |
+				GatewayIntents.GuildMessages |
+				GatewayIntents.MessageContent
+		})
+	]
+)
+
+const handler = createHandler(client)
+export { CloudflareGatewayDurableObject }
+
+export default {
+	fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		return handler(request, { waitUntil: ctx.waitUntil.bind(ctx), env })
+	}
+} satisfies ExportedHandler<Env>
+```
+
+Wrangler binding + migration:
+
+```json title="wrangler.jsonc"
+{
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "CARBON_GATEWAY",
+				"class_name": "CloudflareGatewayDurableObject"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["CloudflareGatewayDurableObject"]
+		}
+	]
+}
+```
+
+## Cloudflare Scaling and Pricing Notes
+
+Cloudflare Workers are serverless, but this setup is not infinite-scale by default.
+
+- `CloudflareGatewayPlugin` targets one Durable Object instance by default (`durableObjectName: "default"`).
+- A Durable Object instance is single-threaded, so one instance is one coordination bottleneck.
+- Every forwarded Gateway event performs a DO -> Worker HTTP call (`forwardPath`), so Worker request volume grows linearly with event volume.
+
+If you need higher throughput, you can subclass/extend the plugin and Durable Object classes to partition by multiple object names and coordinate sharding. That scaling logic is app/lib architecture, not automatic platform scaling.
+
+### Durable Object Cost Model (Current Defaults)
+
+These numbers come from Carbon's default Cloudflare gateway settings in this repo:
+
+- Alarm interval: 60s (`setAlarm` every minute)
+- Connect debounce: 10s (`connectDebounceMs: 10000`)
+- Single Durable Object instance
+
+Upper-bound monthly baseline (30-day month):
+
+- DO requests: `43,200` (alarms only) up to `302,400` (alarms + max debounced connect calls)
+- SQLite row writes: `43,200` up to `561,600`
+- Duration (always-active single instance): about `324,000 GB-s/month`
+
+At 10 events/sec, continuous:
+
+- Incoming events/day: `864,000`
+- Incoming events/month: `25,920,000`
+- With Cloudflare's 20:1 incoming WebSocket request billing ratio, that is `1,296,000` request-equivalents/month
+- Add Carbon baseline above: total DO requests/month is about `1,339,200` to `1,598,400`
+
+Using Cloudflare Durable Objects paid-plan request overage (`$0.15 / million` over included 1M/month), that is roughly `$0.05` to `$0.09`/month in DO request overage for this 10 events/sec scenario. Duration and SQLite writes remain inside included tiers for one always-on instance.
+
+Pricing can change. Always verify with Cloudflare's official page: https://developers.cloudflare.com/durable-objects/platform/pricing/
+
 ## Runtime Error Handling
 
 The `GatewayPlugin` emits internal `"error"` events when websocket/protocol issues happen. In Node, `EventEmitter` treats `"error"` as special. If nothing is listening for it, your app can crash with `Unhandled error`.

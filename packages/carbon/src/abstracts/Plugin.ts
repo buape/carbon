@@ -19,6 +19,15 @@ export abstract class Plugin {
 	 * @param client The client to register the routes with
 	 */
 	registerRoutes?(client: Client): Promise<void> | void
+
+	/**
+	 * Optional per-request hook for runtime-specific middleware behavior.
+	 * Return a Response to short-circuit normal route handling.
+	 */
+	onRequest?(
+		req: Request,
+		ctx: Context
+	): Promise<Response | undefined> | Response | undefined
 }
 
 export interface Route {
@@ -54,4 +63,5 @@ export interface Route {
 export interface Context {
 	// biome-ignore lint/suspicious/noExplicitAny: true any
 	waitUntil?(promise: Promise<any>): void
+	env?: unknown
 }

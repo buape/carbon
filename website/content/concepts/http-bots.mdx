@@ -6,7 +6,7 @@ icon: Waypoints
 
 If you've been active on Discord, you've likely encountered bots in various servers. These bots have been around almost since the beginning of Discord, and for the most part, they all rely on Discord's API Gateway (which runs over a WebSocket) for receiving events and interactions with the bot.
 
-However, there are some downsides to this approach for some applications, mainly that the API Gateway is, by nature, not compatible with serverless applications, as it requires a constant connection to be established. This makes it incompatible with serverless platforms like Vercel or Cloudflare Workers.
+However, there are some downsides to this approach for some applications, mainly that the API Gateway requires a constant connection. Pure stateless serverless runtimes can't hold this connection directly. On platforms like Vercel (or Workers without Durable Objects), this is a problem.
 
 This is where HTTP bots come into play. Instead of relying on a WebSocket connection, you can configure Discord to send interactions via HTTP. By adding an 'Interactions Endpoint URL' to your app's settings, you can opt-in to HTTP-based interactions, enabling compatibility with serverless environments.
 

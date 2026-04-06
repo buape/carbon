@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events"
+import { createRequire } from "node:module"
 import type { GatewayDispatchPayload } from "discord-api-types/v10"
-import WebSocket from "ws"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import type {
@@ -17,6 +17,7 @@ import {
 	type GatewayPayload,
 	type GatewayPluginOptions,
 	type GatewayState,
+	type GatewayWebSocketLike,
 	type HelloData,
 	listenerEvents,
 	nonResumableGatewayCloseCodes,
@@ -39,12 +40,19 @@ import {
 } from "./utils/payload.js"
 import { GatewayRateLimit } from "./utils/rateLimit.js"
 
+const textDecoder = new TextDecoder()
+const socketOpenState = 1
+const nodeRequire =
+	typeof process !== "undefined" && process.versions?.node
+		? createRequire(import.meta.url)
+		: null
+
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
 	protected client?: Client
 	readonly options: GatewayPluginOptions
 	protected state: GatewayState
-	protected ws: WebSocket | null = null
+	protected ws: GatewayWebSocketLike | null = null
 	protected monitor: ConnectionMonitor
 	protected rateLimit: GatewayRateLimit
 	public heartbeatInterval?: NodeJS.Timeout
@@ -64,7 +72,7 @@ export class GatewayPlugin extends Plugin {
 	private socketGeneration = 0
 	private shouldReconnect = false
 	private nextConnectionShouldResume = false
-	private silentSocketClosures = new WeakSet<WebSocket>()
+	private silentSocketClosures = new WeakSet<GatewayWebSocketLike>()
 	private consecutiveResumeFailures = 0
 
 	constructor(options: GatewayPluginOptions, gatewayInfo?: APIGatewayBotInfo) {
@@ -151,7 +159,7 @@ export class GatewayPlugin extends Plugin {
 		const oldSocket = this.ws
 		if (oldSocket) {
 			this.silentSocketClosures.add(oldSocket)
-			oldSocket.terminate()
+			this.closeSocketImmediately(oldSocket)
 		}
 
 		const baseUrl =
@@ -195,11 +203,56 @@ export class GatewayPlugin extends Plugin {
 	/**
 	 * Creates the websocket instance for a gateway URL. Override in tests if needed.
 	 */
-	protected createWebSocket(url: string): WebSocket {
+	protected createWebSocket(url: string): GatewayWebSocketLike {
 		if (!url) {
 			throw new Error("Gateway URL is required")
 		}
-		return new WebSocket(url)
+
+		const socket = this.options.webSocketFactory
+			? this.options.webSocketFactory(url)
+			: typeof globalThis.WebSocket === "function"
+				? (new globalThis.WebSocket(url) as unknown as GatewayWebSocketLike)
+				: (() => {
+						if (!nodeRequire) {
+							return null
+						}
+
+						try {
+							const wsModule = nodeRequire("ws") as {
+								default?: unknown
+								WebSocket?: unknown
+							}
+							const nodeWebSocket =
+								typeof wsModule.WebSocket === "function"
+									? (wsModule.WebSocket as new (
+											url: string
+										) => GatewayWebSocketLike)
+									: typeof wsModule.default === "function"
+										? (wsModule.default as new (
+												url: string
+											) => GatewayWebSocketLike)
+										: null
+							return nodeWebSocket ? new nodeWebSocket(url) : null
+						} catch {
+							return null
+						}
+					})()
+
+		if (!socket) {
+			throw new Error(
+				"No WebSocket implementation available. Provide GatewayPluginOptions.webSocketFactory or install 'ws'."
+			)
+		}
+
+		if ("binaryType" in socket) {
+			try {
+				;(socket as { binaryType?: string }).binaryType = "arraybuffer"
+			} catch {
+				// Ignore runtimes that expose a readonly binaryType.
+			}
+		}
+
+		return socket
 	}
 
 	/**
@@ -213,7 +266,7 @@ export class GatewayPlugin extends Plugin {
 		const socket = this.ws
 		const generation = this.socketGeneration
 
-		socket.on("open", () => {
+		this.onSocketEvent(socket, "open", () => {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
@@ -221,13 +274,14 @@ export class GatewayPlugin extends Plugin {
 			this.emitter.emit("debug", "Gateway websocket opened")
 		})
 
-		socket.on("message", (data: WebSocket.Data) => {
+		this.onSocketEvent(socket, "message", (incoming) => {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
 
 			this.monitor.recordMessageReceived()
-			const payload = validatePayload(data.toString())
+			const payloadText = this.getMessageText(incoming)
+			const payload = payloadText ? validatePayload(payloadText) : null
 			if (!payload) {
 				this.monitor.recordError()
 				this.emitter.emit("error", new Error("Invalid gateway payload"))
@@ -261,7 +315,7 @@ export class GatewayPlugin extends Plugin {
 			}
 		})
 
-		socket.on("close", (code: number) => {
+		this.onSocketEvent(socket, "close", (incoming) => {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
@@ -277,18 +331,19 @@ export class GatewayPlugin extends Plugin {
 				return
 			}
 
+			const code = this.getCloseCode(incoming)
 			this.monitor.recordReconnect()
 			this.emitter.emit("debug", `Gateway websocket closed: ${code}`)
 			this.handleClose(code)
 		})
 
-		socket.on("error", (error: Error) => {
+		this.onSocketEvent(socket, "error", (incoming) => {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
 			this.isConnecting = false
 			this.monitor.recordError()
-			this.emitter.emit("error", error)
+			this.emitter.emit("error", this.getSocketError(incoming))
 		})
 	}
 
@@ -363,7 +418,7 @@ export class GatewayPlugin extends Plugin {
 	 * Sends a gateway payload with size and rate-limit safeguards.
 	 */
 	public send(payload: GatewayPayload, skipRateLimit = false): void {
-		if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+		if (!this.ws || this.ws.readyState !== socketOpenState) {
 			throw new Error("Gateway websocket is not open")
 		}
 
@@ -379,7 +434,11 @@ export class GatewayPlugin extends Plugin {
 		}
 
 		const encodedPayload = JSON.stringify(payload)
-		if (Buffer.byteLength(encodedPayload, "utf8") > 4096) {
+		const payloadSize =
+			typeof Buffer !== "undefined"
+				? Buffer.byteLength(encodedPayload, "utf8")
+				: new TextEncoder().encode(encodedPayload).byteLength
+		if (payloadSize > 4096) {
 			throw new Error("Gateway payload exceeds 4096-byte Discord limit")
 		}
 
@@ -406,7 +465,10 @@ export class GatewayPlugin extends Plugin {
 			token: this.client.options.token,
 			intents: this.options.intents,
 			properties: {
-				os: process.platform,
+				os:
+					typeof process !== "undefined" && process?.platform
+						? process.platform
+						: "unknown",
 				browser: "@buape/carbon - https://carbon.buape.com",
 				device: "@buape/carbon - https://carbon.buape.com"
 			},
@@ -509,8 +571,109 @@ export class GatewayPlugin extends Plugin {
 	/**
 	 * Guards handlers from acting on stale websocket instances.
 	 */
-	private isCurrentSocket(socket: WebSocket, generation: number): boolean {
+	private isCurrentSocket(
+		socket: GatewayWebSocketLike,
+		generation: number
+	): boolean {
 		return this.ws === socket && this.socketGeneration === generation
+	}
+
+	protected onSocketEvent(
+		socket: GatewayWebSocketLike,
+		event: "open" | "message" | "close" | "error",
+		handler: (incoming: unknown) => void
+	) {
+		if (typeof socket.on === "function") {
+			socket.on(event, (...args) => {
+				if (args.length === 0) {
+					handler(undefined)
+					return
+				}
+				handler(args.length === 1 ? args[0] : args)
+			})
+			return
+		}
+
+		if (typeof socket.addEventListener === "function") {
+			socket.addEventListener(event, (incoming) => {
+				handler(incoming)
+			})
+			return
+		}
+
+		throw new Error("WebSocket implementation does not support event listeners")
+	}
+
+	protected getMessageText(incoming: unknown): string | null {
+		const payload = this.extractSocketPayload(incoming)
+		if (typeof payload === "string") {
+			return payload
+		}
+		if (payload instanceof ArrayBuffer) {
+			return textDecoder.decode(new Uint8Array(payload))
+		}
+		if (ArrayBuffer.isView(payload)) {
+			return textDecoder.decode(
+				new Uint8Array(payload.buffer, payload.byteOffset, payload.byteLength)
+			)
+		}
+		if (payload && typeof payload === "object" && "toString" in payload) {
+			const text = String(payload)
+			return text === "[object Object]" ? null : text
+		}
+		return null
+	}
+
+	private extractSocketPayload(incoming: unknown) {
+		if (Array.isArray(incoming)) {
+			return incoming[0]
+		}
+		if (incoming && typeof incoming === "object" && "data" in incoming) {
+			return (incoming as { data: unknown }).data
+		}
+		return incoming
+	}
+
+	private getCloseCode(incoming: unknown) {
+		if (Array.isArray(incoming)) {
+			const [code] = incoming
+			if (typeof code === "number") {
+				return code
+			}
+		}
+		if (incoming && typeof incoming === "object" && "code" in incoming) {
+			const code = (incoming as { code?: unknown }).code
+			if (typeof code === "number") {
+				return code
+			}
+		}
+		return 1000
+	}
+
+	private getSocketError(incoming: unknown) {
+		const payload = this.extractSocketPayload(incoming)
+		if (payload instanceof Error) {
+			return payload
+		}
+		if (payload && typeof payload === "object" && "error" in payload) {
+			const nested = (payload as { error?: unknown }).error
+			if (nested instanceof Error) {
+				return nested
+			}
+		}
+		return new Error(
+			typeof payload === "string"
+				? payload
+				: "Gateway socket emitted an unknown error"
+		)
+	}
+
+	private closeSocketImmediately(socket: GatewayWebSocketLike) {
+		if (typeof socket.terminate === "function") {
+			socket.terminate()
+			return
+		}
+		socket.close(1000, "Gateway reconnect")
 	}
 
 	/**
@@ -707,7 +870,7 @@ export class GatewayPlugin extends Plugin {
 			return
 		}
 		this.silentSocketClosures.add(this.ws)
-		this.ws.terminate()
+		this.closeSocketImmediately(this.ws)
 	}
 
 	/**

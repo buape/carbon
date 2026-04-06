@@ -81,6 +81,39 @@ compatibility_date = " ... "
 </Step>
 </Steps>
 
+## Gateway Events on Workers
+
+Need Gateway events (like `MESSAGE_CREATE`) on Workers? Use `CloudflareGatewayPlugin` with `CloudflareGatewayDurableObject`.
+
+`create-carbon` can scaffold this automatically when you choose Cloudflare + Gateway + Durable Objects.
+
+At a high level:
+
+1. Add `CloudflareGatewayPlugin` to `Client` plugins.
+2. Export `CloudflareGatewayDurableObject` from your Worker entry module.
+3. Add `CARBON_GATEWAY` Durable Object binding + migration in `wrangler.jsonc`.
+4. Pass `{ env }` through the fetch adapter context:
+
+```ts title="src/index.ts"
+const handler = createHandler(client)
+
+export default {
+	fetch(request: Request, env: Env, ctx: ExecutionContext) {
+		return handler(request, { waitUntil: ctx.waitUntil.bind(ctx), env })
+	}
+} satisfies ExportedHandler<Env>
+```
+
+### Scaling and Pricing
+
+Workers + Durable Objects are elastic, but this setup is not infinite-scale by default:
+
+- Carbon's default Cloudflare gateway setup targets one Durable Object instance.
+- That instance is single-threaded.
+- Gateway events are forwarded from the Durable Object back to your Worker over HTTP.
+
+For detailed throughput and pricing math (including the 10 events/sec example), see [Gateway plugin docs](/plugins/gateway#cloudflare-scaling-and-pricing-notes).
+
 ## Running in Development
 
 <Steps>

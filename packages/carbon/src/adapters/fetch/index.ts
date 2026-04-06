@@ -17,6 +17,13 @@ export function createHandler(client: Client | ClientManager): Handler {
 		}
 
 		// Otherwise, handle as a regular Client
+		for (const { plugin } of client.plugins) {
+			const response = await plugin.onRequest?.(req, ctx)
+			if (response) {
+				return response
+			}
+		}
+
 		const method = req.method
 		const url = new URL(req.url, "http://localhost")
 		const pathname = //

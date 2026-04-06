@@ -22,6 +22,8 @@ pnpm create carbon my-project
 
 This will create a new directory called `my-project` with a basic Carbon project inside it. You can then navigate to the directory and run `pnpm install` to install the dependencies.
 
+When using Cloudflare Workers, the CLI can also scaffold Gateway support through Durable Objects.
+
 ## Contributing
 
 We welcome contributions to `create-carbon`! If you're interested in contributing, please check out the [Contributing Guide](https://carbon.buape.com/carbon/helpful-guides/contributing) for more information, and join our [Discord](https://go.buape.com/carbon) to get involved!
