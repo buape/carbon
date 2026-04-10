@@ -2,4 +2,4 @@
 "@buape/carbon": patch
 ---
 
-feat: Add reconcile mode for Discord command deployment
+feat: add reconcile mode for Discord command deployment
