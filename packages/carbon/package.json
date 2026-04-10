@@ -29,7 +29,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"@types/node": "^25.5.2",
-		"discord-api-types": "0.38.44"
+		"discord-api-types": "0.38.45"
 	},
 	"optionalDependencies": {
 		"@cloudflare/workers-types": "4.20260405.1",
