@@ -1,26 +1,34 @@
 export const runtimes = [
 	{
-		label: "Gateway Forwarder",
-		value: "forwarder"
+		label: "Bun",
+		value: "bun"
 	},
 	{
 		label: "Cloudflare Workers",
 		value: "cloudflare"
 	},
 	{
-		label: "Next.js",
-		value: "next"
+		label: "Deno",
+		value: "deno"
+	},
+	{
+		label: "Fetch (Platform Agnostic)",
+		value: "fetch"
 	},
 	{
 		label: "Node.js",
 		value: "node"
 	},
 	{
-		label: "Bun",
-		value: "bun"
+		label: "Next.js",
+		value: "next"
+	},
+	{
+		label: "Gateway Forwarder",
+		value: "forwarder"
 	}
 ] as const satisfies { label: string; value: string }[]
 
-export const serverRuntimes: Runtime[] = ["node", "bun", "forwarder"]
+export const serverRuntimes: Runtime[] = ["node", "bun", "deno", "forwarder"]
 
 export type Runtime = (typeof runtimes)[number]["value"]

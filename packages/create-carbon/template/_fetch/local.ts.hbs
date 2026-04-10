@@ -1,0 +1,13 @@
+---
+{{#if (eq runtime "fetch")}}
+path: src/local.ts
+{{/if}}
+---
+
+{{#if (eq runtime "fetch")}}
+import "dotenv/config"
+import { createServer } from "@buape/carbon/adapters/node"
+import { client } from "./index.js"
+
+createServer(client, { port: 3000 })
+{{/if}}

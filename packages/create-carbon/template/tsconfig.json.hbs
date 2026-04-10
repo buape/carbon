@@ -1,5 +1,8 @@
 ---
+{{#if (eq runtime "deno")}}
+{{else}}
 path: tsconfig.json
+{{/if}}
 ---
 
 {
@@ -25,11 +28,13 @@ path: tsconfig.json
 		"jsx": "preserve",
 		"incremental": true,
 		"paths": { "~/*": ["src/*"] },
+		"baseUrl": "."
 		{{else}}
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		{{/if}}
-		"baseUrl": ".",
+		"types": [{{#if (eq runtime "bun")}}"bun"{{else}}"node"{{/if}}],
+		"rootDir": "src",
 		"outDir": "dist"
+		{{/if}}
 	}
 }

@@ -101,10 +101,13 @@ spinner.stop()
 
 // ================================================ Install Dependencies ================================================
 
-const doInstall = await p.confirm({
-	message: `Would you like to automatically install dependencies with ${packageManager}?`,
-	initialValue: true
-})
+const doInstall =
+	runtime === "deno"
+		? false
+		: await p.confirm({
+				message: `Would you like to automatically install dependencies with ${packageManager}?`,
+				initialValue: true
+			})
 if (p.isCancel(doInstall)) {
 	p.outro("Cancelled")
 	process.exit(1)

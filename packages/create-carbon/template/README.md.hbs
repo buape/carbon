@@ -19,7 +19,7 @@ DISCORD_BOT_TOKEN="your-bot-token"
 FORWARDER_PRIVATE_KEY="your-private-key"
 ```
 
-2. Generate your Ed25519 key pair:
+1. Generate your Ed25519 key pair:
 ```bash
 # Generate key pair and store in variables
 KEYPAIR=$(openssl genpkey -algorithm ED25519)
@@ -37,12 +37,12 @@ echo "$KEYPAIR" | awk '{printf "%s\\n", $0}' >> .env
 echo "\"" >> .env
 ```
 
-3. Install dependencies:
+1. Install dependencies:
 ```bash
 {{packageManager}} install
 ```
 
-4. Build and start the forwarder:
+1. Build and start the forwarder:
 ```bash
 {{packageManager}} run build
 {{packageManager}} start
@@ -64,20 +64,34 @@ DISCORD_PUBLIC_KEY="discord-public-key"
 DISCORD_BOT_TOKEN="your-bot-token"
 ```
 
-2. Install dependencies:
+{{#if (eq runtime "deno")}}
+1. Run the development server:
+```bash
+deno task dev
+```
+{{else}}
+1. Install dependencies:
 ```bash
 {{packageManager}} install
 ```
 
-3. Start the development server:
+1. Start the development server:
 ```bash
 {{packageManager}} run dev
 ```
+{{/if}}
 
 ## Commands
 
 - `/ping` - Basic ping command
 - `/button` - Example button command
+
+{{#if (eq runtime "fetch")}}
+## Fetch Runtime Notes
+
+- `src/index.ts` exports a fetch-compatible handler (`fetchHandler`) and a default `{ fetch }` object for platform adapters.
+- `{{packageManager}} run dev` uses a local Node adapter wrapper from `src/local.ts`.
+{{/if}}
 
 {{#if plugins.gateway}}
 ## Gateway Events

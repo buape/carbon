@@ -12,6 +12,8 @@ This package is part of [the Carbon framework](https://github.com/buape/carbon),
 
 `create-carbon` is a CLI tool that helps you create a new Carbon project.
 
+Supported runtimes include Node.js, Bun, Cloudflare Workers, Deno, Next.js, a platform-agnostic Fetch handler scaffold, and Gateway Forwarder.
+
 ## Usage
 
 To use `create-carbon`, you can use the following command:

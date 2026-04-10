@@ -53,6 +53,32 @@ path: package.json
 		"typescript": "{{get versions "typescript"}}",
 		"wrangler": "{{get versions "wrangler"}}"
 	}
+	{{else if (eq runtime "deno")}}
+	"main": "./src/index.ts",
+	"scripts": {
+		"build": "deno task check",
+		"dev": "deno task dev",
+		"start": "deno task start"
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}"
+	}
+	{{else if (eq runtime "fetch")}}
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsx watch src/local.ts",
+		"start": "node dist/local.js"
+	},
+	"dependencies": {
+		"@buape/carbon": "{{get versions "@buape/carbon"}}",
+		"dotenv": "{{get versions "dotenv"}}"
+	},
+	"devDependencies": {
+		"@types/node": "{{get versions "@types/node"}}",
+		"tsx": "{{get versions "tsx"}}",
+		"typescript": "{{get versions "typescript"}}"
+	}
 	{{else if (eq runtime "next")}}
 	"main": "./src/app/api/discord/[...slug]/route.ts",
 	"scripts": {

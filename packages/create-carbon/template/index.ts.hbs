@@ -28,7 +28,7 @@ import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway"
 import { createServer } from "@buape/carbon/adapters/node"
 {{else if (eq runtime "bun")}}
 import { createServer } from "@buape/carbon/adapters/bun"
-{{else if (or (eq runtime "cloudflare") (eq runtime "next"))}}
+{{else if (or (eq runtime "cloudflare") (eq runtime "next") (eq runtime "deno") (eq runtime "fetch"))}}
 import { createHandler } from "@buape/carbon/adapters/fetch"
 {{/if}}
 {{#if (eq runtime "next")}}
@@ -37,6 +37,13 @@ import ButtonCommand from "~/commands/button"
 import ApplicationAuthorized from "~/events/authorized"
 {{#if plugins.gateway}}
 import MessageCreate from "~/events/messageCreate"
+{{/if}}
+{{else if (eq runtime "deno")}}
+import PingCommand from "./commands/ping.ts"
+import ButtonCommand from "./commands/button.ts"
+import ApplicationAuthorized from "./events/authorized.ts"
+{{#if plugins.gateway}}
+import MessageCreate from "./events/messageCreate.ts"
 {{/if}}
 {{else}}
 import PingCommand from "./commands/ping.js"
@@ -80,17 +87,17 @@ const gateway = new GatewayPlugin({
 {{/if}}
 {{/if}}
 
-const client = new Client(
+export const client = new Client(
 	{
-		baseUrl: process.env.BASE_URL,
-		deploySecret: process.env.DEPLOY_SECRET,
-		clientId: process.env.DISCORD_CLIENT_ID,
+		baseUrl: {{#if (eq runtime "deno")}}Deno.env.get("BASE_URL"){{else}}process.env.BASE_URL{{/if}},
+		deploySecret: {{#if (eq runtime "deno")}}Deno.env.get("DEPLOY_SECRET"){{else}}process.env.DEPLOY_SECRET{{/if}},
+		clientId: {{#if (eq runtime "deno")}}Deno.env.get("DISCORD_CLIENT_ID"){{else}}process.env.DISCORD_CLIENT_ID{{/if}},
 		{{#if plugins.linkedRoles}}
-		clientSecret: process.env.DISCORD_CLIENT_SECRET,
+		clientSecret: {{#if (eq runtime "deno")}}Deno.env.get("DISCORD_CLIENT_SECRET"){{else}}process.env.DISCORD_CLIENT_SECRET{{/if}},
 		{{/if}}
-		publicKey: process.env.DISCORD_PUBLIC_KEY,
-		token: process.env.DISCORD_BOT_TOKEN,
-		devGuilds: process.env.DISCORD_DEV_GUILDS?.split(","), // Optional: comma-separated list of dev guild IDs
+		publicKey: {{#if (eq runtime "deno")}}Deno.env.get("DISCORD_PUBLIC_KEY"){{else}}process.env.DISCORD_PUBLIC_KEY{{/if}},
+		token: {{#if (eq runtime "deno")}}Deno.env.get("DISCORD_BOT_TOKEN"){{else}}process.env.DISCORD_BOT_TOKEN{{/if}},
+		devGuilds: {{#if (eq runtime "deno")}}Deno.env.get("DISCORD_DEV_GUILDS")?.split(","){{else}}process.env.DISCORD_DEV_GUILDS?.split(","){{/if}}, // Optional: comma-separated list of dev guild IDs
 	},
 	{
 		commands: [
@@ -123,8 +130,19 @@ export default {
 const handler = createHandler(client)
 export const GET = (req: Request) => handler(req, {})
 export const POST = (req: Request) => handler(req, {})
+{{else if (eq runtime "deno")}}
+const handler = createHandler(client)
+Deno.serve((request) => handler(request, {}))
+{{else if (eq runtime "fetch")}}
+const handler = createHandler(client)
+export const fetchHandler = (request: Request) => handler(request, {})
+export default {
+	fetch: fetchHandler
+}
 {{/if}}
 
+{{#if (eq runtime "deno")}}
+{{else}}
 declare global {
 	namespace NodeJS {
 		interface ProcessEnv {
@@ -139,3 +157,4 @@ declare global {
 		}
 	}
 }
+{{/if}}

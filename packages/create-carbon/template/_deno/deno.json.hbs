@@ -1,0 +1,15 @@
+---
+{{#if (eq runtime "deno")}}
+path: deno.json
+{{/if}}
+---
+
+{{#if (eq runtime "deno")}}
+{
+	"tasks": {
+		"check": "deno check src/index.ts",
+		"dev": "deno run --allow-env --allow-net --env-file=.env --watch src/index.ts",
+		"start": "deno run --allow-env --allow-net --env-file=.env src/index.ts"
+	}
+}
+{{/if}}

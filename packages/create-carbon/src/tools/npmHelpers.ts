@@ -49,6 +49,7 @@ const dependencies = {
 	"@types/node": undefined,
 	dotenv: undefined,
 	"tsc-watch": undefined,
+	tsx: undefined,
 	// Bun
 	"@types/bun": undefined,
 	// Cloudflare

@@ -9,6 +9,8 @@ node_modules/
 {{else if (eq runtime "next")}}
 .next/
 .env.local
+{{else if (eq runtime "deno")}}
+.env
 {{else}}
 dist/
 .env
