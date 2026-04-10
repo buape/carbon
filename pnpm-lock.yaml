@@ -198,7 +198,7 @@ importers:
         version: 0.7.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.8.1)(@noble/hashes@1.8.0)(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.6.1)(rollup@4.60.1)(terser@5.16.9)(typescript@6.0.2)(yaml@2.8.3)
       '@tomehq/theme':
         specifier: 0.7.0
-        version: 0.7.0(patch_hash=071afd45020c156f617d36f83e9b66672d935dd1cf0b160d198f561c0260b21d)(@noble/hashes@1.8.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))
+        version: 0.7.0(patch_hash=071afd45020c156f617d36f83e9b66672d935dd1cf0b160d198f561c0260b21d)(@noble/hashes@1.8.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))
       prismjs:
         specifier: ^1.30.0
         version: 1.30.0
@@ -209,8 +209,8 @@ importers:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
       vite:
-        specifier: 6.4.1
-        version: 6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3)
+        specifier: 6.4.2
+        version: 6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3)
       wrangler:
         specifier: 4.81.1
         version: 4.81.1(@cloudflare/workers-types@4.20260410.1)
@@ -2875,10 +2875,6 @@ packages:
     resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
-    engines: {node: '>=12'}
-
   picomatch@4.0.4:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
@@ -2890,10 +2886,6 @@ packages:
   pkce-challenge@5.0.1:
     resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
     engines: {node: '>=16.20.0'}
-
-  postcss@8.5.6:
-    resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
-    engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.8:
     resolution: {integrity: sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg==}
@@ -3391,8 +3383,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  vite@6.4.1:
-    resolution: {integrity: sha512-+Oxm7q9hDoLMyJOYfUYBuHQo+dkAloi33apOPP56pzj+vsdJDzr+j1NISE5pyaAuKL4A3UD34qd0lx5+kfKp2g==}
+  vite@6.4.2:
+    resolution: {integrity: sha512-2N/55r4JDJ4gdrCvGgINMy+HH3iRpNIz8K6SFwVsA+JbQScLiC+clmAxBgwiSPgcG9U15QmvqCGWzMbqda5zGQ==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
     peerDependencies:
@@ -4761,7 +4753,7 @@ snapshots:
     dependencies:
       react: 19.2.5
 
-  '@tomehq/core@0.7.0(patch_hash=7d033a244d43d39ad98870d053271227503ec1d4f5eadf4175424ee1b7b0b781)(@noble/hashes@1.8.0)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))':
+  '@tomehq/core@0.7.0(patch_hash=7d033a244d43d39ad98870d053271227503ec1d4f5eadf4175424ee1b7b0b781)(@noble/hashes@1.8.0)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))':
     dependencies:
       '@apidevtools/swagger-parser': 12.1.0(openapi-types@12.1.3)
       '@mdx-js/rollup': 3.1.1(rollup@4.60.1)
@@ -4784,7 +4776,7 @@ snapshots:
       shiki: 4.0.2
       unified: 11.0.5
       unist-util-visit: 5.1.0
-      vite: 6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3)
+      vite: 6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3)
       yaml: 2.8.3
       zod: 4.3.6
     transitivePeerDependencies:
@@ -4829,10 +4821,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tomehq/theme@0.7.0(patch_hash=071afd45020c156f617d36f83e9b66672d935dd1cf0b160d198f561c0260b21d)(@noble/hashes@1.8.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))':
+  '@tomehq/theme@0.7.0(patch_hash=071afd45020c156f617d36f83e9b66672d935dd1cf0b160d198f561c0260b21d)(@noble/hashes@1.8.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))':
     dependencies:
       '@tomehq/components': 0.7.0(react@19.2.5)
-      '@tomehq/core': 0.7.0(patch_hash=7d033a244d43d39ad98870d053271227503ec1d4f5eadf4175424ee1b7b0b781)(@noble/hashes@1.8.0)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))
+      '@tomehq/core': 0.7.0(patch_hash=7d033a244d43d39ad98870d053271227503ec1d4f5eadf4175424ee1b7b0b781)(@noble/hashes@1.8.0)(rollup@4.60.1)(typescript@6.0.2)(vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3))
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
     transitivePeerDependencies:
@@ -5439,10 +5431,6 @@ snapshots:
   fault@2.0.1:
     dependencies:
       format: 0.2.2
-
-  fdir@6.5.0(picomatch@4.0.3):
-    optionalDependencies:
-      picomatch: 4.0.3
 
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
@@ -6525,19 +6513,11 @@ snapshots:
 
   picomatch@2.3.2: {}
 
-  picomatch@4.0.3: {}
-
   picomatch@4.0.4: {}
 
   pify@4.0.1: {}
 
   pkce-challenge@5.0.1: {}
-
-  postcss@8.5.6:
-    dependencies:
-      nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
 
   postcss@8.5.8:
     dependencies:
@@ -7171,12 +7151,12 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@6.4.1(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3):
+  vite@6.4.2(@types/node@25.6.0)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.16.9)(yaml@2.8.3):
     dependencies:
       esbuild: 0.25.4
-      fdir: 6.5.0(picomatch@4.0.3)
-      picomatch: 4.0.3
-      postcss: 8.5.6
+      fdir: 6.5.0(picomatch@4.0.4)
+      picomatch: 4.0.4
+      postcss: 8.5.8
       rollup: 4.60.1
       tinyglobby: 0.2.15
     optionalDependencies:
