@@ -5,6 +5,8 @@ description: Learn how to use prechecks to add additional validation and checks 
 
 Prechecks are a powerful feature in Carbon that allow you to add additional validation and checks before a command is executed. This can be useful for implementing features like cooldowns, permission checks, or any other validation that needs to happen before the main command logic runs.
 
+If you need shared logic across many commands (analytics, logging, tracing), use [command middlewares](/concepts/command-middlewares). Prechecks are command-local guards.
+
 ## How Prechecks Work
 
 Prechecks are implemented by overriding the `preCheck` method in your command class. This method is called before the main `run` method of your command. If the precheck returns anything other than `true`, the command will not execute.

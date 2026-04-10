@@ -184,6 +184,15 @@ The `components` property is used to set the components of the command. You need
 
 [See this page for more information about components.](/classes/components)
 
+### Command Middlewares
+
+The `middlewares` property lets you attach per-command middleware hooks:
+
+- `before(context)` runs before command execution.
+- `after(context)` runs after execution with status and timing details.
+
+For global middleware shared across all commands, use `ClientOptions.commandMiddlewares`.
+
 ### Automatic Defer
 
 The `defer` property is used to set whether the command should be deferred automatically. When a command is deferred, it will show a Loading state to the user, and you have 15 minutes to reply after that.

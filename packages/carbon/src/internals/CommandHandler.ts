@@ -10,6 +10,10 @@ import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageIn
 import { Command } from "../classes/Command.js"
 import { CommandWithSubcommandGroups } from "../classes/CommandWithSubcommandGroups.js"
 import { CommandWithSubcommands } from "../classes/CommandWithSubcommands.js"
+import type {
+	CommandExecutionStatus,
+	CommandMiddleware
+} from "../types/commandMiddleware.js"
 import { AutocompleteInteraction } from "./AutocompleteInteraction.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
@@ -121,12 +125,34 @@ export class CommandHandler extends Base {
 			processingCommand: command
 		})
 
-		try {
-			const command = this.getCommand(rawInteraction)
+		const middlewares: CommandMiddleware[] = [
+			...this.client.commandMiddlewares,
+			...(command.middlewares ?? [])
+		]
+		const startedAt = Date.now()
+		let status: CommandExecutionStatus = "success"
+		let error: unknown
 
+		try {
 			// Resolve ephemeral setting if it's a function
 			if (typeof command.ephemeral === "function") {
 				interaction.setDefaultEphemeral(command.ephemeral(interaction))
+			}
+
+			for (const middleware of middlewares) {
+				const middlewareResult = await middleware.before?.({
+					client: this.client,
+					command,
+					interaction,
+					startedAt,
+					phase: "before",
+					status: "running"
+				})
+
+				if (middlewareResult === false) {
+					status = "middleware-blocked"
+					return false
+				}
 			}
 
 			// Resolve defer setting if it's a function
@@ -138,14 +164,41 @@ export class CommandHandler extends Base {
 			if (shouldDefer) {
 				await interaction.defer()
 			}
-			if (command.preCheck) {
-				const result = await command.preCheck(interaction)
-				if (!result) return false
+			const preCheckResult = await command.preCheck(interaction)
+			if (preCheckResult !== true) {
+				status = "precheck-failed"
+				return false
 			}
-			return await command.run(interaction)
+
+			const result = await command.run(interaction)
+			status = "success"
+			return result
 		} catch (e: unknown) {
+			status = "error"
+			error = e
 			if (e instanceof Error) console.error(e.message)
 			console.error(e)
+		} finally {
+			const endedAt = Date.now()
+			for (const middleware of middlewares) {
+				try {
+					await middleware.after?.({
+						client: this.client,
+						command,
+						interaction,
+						startedAt,
+						endedAt,
+						durationMs: endedAt - startedAt,
+						phase: "after",
+						status,
+						error
+					})
+				} catch (middlewareError: unknown) {
+					if (middlewareError instanceof Error)
+						console.error(middlewareError.message)
+					console.error(middlewareError)
+				}
+			}
 		}
 	}
 	async handleAutocompleteInteraction(

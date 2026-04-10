@@ -9,6 +9,7 @@ import {
 	ApplicationIntegrationType,
 	type ArrayOrSingle,
 	type BaseMessageInteractiveComponent,
+	type CommandMiddleware,
 	type ConditionalCommandOption,
 	InteractionContextType,
 	type Permission
@@ -78,6 +79,14 @@ export abstract class BaseCommand {
 	 * These will be registered with the client when the command is initialized.
 	 */
 	components?: BaseMessageInteractiveComponent[]
+
+	/**
+	 * Middleware hooks that run around this command's lifecycle.
+	 *
+	 * - `before` runs before `defer`, `preCheck`, and `run`
+	 * - `after` runs in a `finally` block with status and timing metadata
+	 */
+	middlewares?: CommandMiddleware[]
 
 	/**
 	 * The guild IDs this command should be deployed to (guild-specific deployment).

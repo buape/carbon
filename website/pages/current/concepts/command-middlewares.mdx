@@ -1,0 +1,78 @@
+---
+title: Command Middlewares
+description: Run typed middleware hooks before and after command execution.
+---
+
+Command middlewares let you run shared logic around command execution.
+
+They support two hooks:
+
+- `before(context)` runs before defer/precheck/run.
+- `after(context)` runs in a `finally` block with execution timing and status.
+
+You can register middlewares globally on the client, or locally on a command.
+
+## Global middleware
+
+```ts
+import { Client, type CommandMiddleware } from "@buape/carbon"
+
+const analyticsMiddleware: CommandMiddleware = {
+	before(context) {
+		console.log("starting", context.command.name, context.interaction.userId)
+	},
+	after(context) {
+		console.log("finished", context.command.name, {
+			status: context.status,
+			durationMs: context.durationMs
+		})
+	}
+}
+
+const client = new Client(
+	{
+		baseUrl: process.env.BASE_URL!,
+		clientId: process.env.CLIENT_ID!,
+		publicKey: process.env.PUBLIC_KEY!,
+		token: process.env.BOT_TOKEN!,
+		deploySecret: process.env.DEPLOY_SECRET!,
+		commandMiddlewares: [analyticsMiddleware]
+	},
+	{
+		commands: []
+	}
+)
+```
+
+## Per-command middleware
+
+```ts
+import { Command, type CommandInteraction, type CommandMiddleware } from "@buape/carbon"
+
+const commandLogger: CommandMiddleware = {
+	after(context) {
+		console.log(`/${context.command.name}`, context.status)
+	}
+}
+
+export class PingCommand extends Command {
+	name = "ping"
+	description = "pong"
+	middlewares = [commandLogger]
+
+	async run(interaction: CommandInteraction) {
+		await interaction.reply("Pong!")
+	}
+}
+```
+
+## Execution status
+
+`after` receives one of these statuses:
+
+- `success`
+- `middleware-blocked`
+- `precheck-failed`
+- `error`
+
+If a `before` hook returns `false`, command execution is blocked.

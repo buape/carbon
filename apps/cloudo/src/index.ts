@@ -1,4 +1,4 @@
-import { Client } from "@buape/carbon"
+import { Client, type CommandMiddleware } from "@buape/carbon"
 import { createHandler } from "@buape/carbon/adapters/fetch"
 import {
 	ApplicationRoleConnectionMetadataType,
@@ -11,6 +11,7 @@ import EmojiCommand from "./commands/testing/emoji.js"
 import EphemeralCommand from "./commands/testing/ephemeral.js"
 import EverySelectCommand from "./commands/testing/every_select.js"
 import MessageCommand from "./commands/testing/message_command.js"
+import MiddlewareCommand from "./commands/testing/middleware.js"
 import ModalCommand from "./commands/testing/modal.js"
 import Modal2Command from "./commands/testing/modal2.js"
 import Modal3Command from "./commands/testing/modal3.js"
@@ -40,6 +41,19 @@ const linkedRoles = new LinkedRoles({
 	}
 })
 
+const globalCommandMiddleware = {
+	before(context) {
+		console.log(
+			`[cloudo/global-before] /${context.command.name} user=${context.interaction.userId ?? "unknown"}`
+		)
+	},
+	after(context) {
+		console.log(
+			`[cloudo/global-after] /${context.command.name} status=${context.status} duration=${context.durationMs}ms`
+		)
+	}
+} satisfies CommandMiddleware
+
 const client = new Client(
 	{
 		baseUrl: process.env.BASE_URL,
@@ -47,7 +61,8 @@ const client = new Client(
 		clientId: process.env.DISCORD_CLIENT_ID,
 		clientSecret: process.env.DISCORD_CLIENT_SECRET,
 		publicKey: process.env.DISCORD_PUBLIC_KEY,
-		token: process.env.DISCORD_BOT_TOKEN
+		token: process.env.DISCORD_BOT_TOKEN,
+		commandMiddlewares: [globalCommandMiddleware]
 	},
 	{
 		commands: [
@@ -58,6 +73,7 @@ const client = new Client(
 			new EphemeralCommand(),
 			new EverySelectCommand(),
 			new MessageCommand(),
+			new MiddlewareCommand(),
 			new ModalCommand(),
 			new Modal2Command(),
 			new Modal3Command(),

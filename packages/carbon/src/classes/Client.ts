@@ -32,6 +32,7 @@ import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { Webhook, type WebhookInput } from "../structures/Webhook.js"
+import type { CommandMiddleware } from "../types/commandMiddleware.js"
 import {
 	concatUint8Arrays,
 	subtleCrypto,
@@ -115,6 +116,12 @@ export interface ClientOptions {
 	 * Configuration for the event queue worker pool
 	 */
 	eventQueue?: EventQueueOptions
+	/**
+	 * Middleware hooks that run around every command execution.
+	 *
+	 * These run before per-command middlewares.
+	 */
+	commandMiddlewares?: CommandMiddleware[]
 }
 
 /**
@@ -137,6 +144,10 @@ export class Client {
 	 * The commands that the client has registered
 	 */
 	commands: BaseCommand[]
+	/**
+	 * Registered global middleware hooks for command execution.
+	 */
+	commandMiddlewares: CommandMiddleware[]
 	/**
 	 * The event listeners that the client has registered
 	 */
@@ -216,6 +227,7 @@ export class Client {
 			}
 		}
 		this.commands = handlers.commands ?? []
+		this.commandMiddlewares = options.commandMiddlewares ?? []
 		this.listeners = handlers.listeners ?? []
 
 		// Remove trailing slashes from the base URL

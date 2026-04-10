@@ -1,13 +1,27 @@
 import "dotenv/config"
-import { Client } from "@buape/carbon"
+import { Client, type CommandMiddleware } from "@buape/carbon"
 import { createServer } from "@buape/carbon/adapters/node"
 import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"
 import { VoicePlugin } from "@buape/carbon/voice"
 import GatewayTestCommand from "./commands/gateway-test.js"
+import MiddlewareCommand from "./commands/middleware.js"
 import PingCommand from "./commands/ping.js"
 import VoiceConnectCommand from "./commands/voice-connect.js"
 // import { MessageCreate } from "./events/messageCreate.js"
 import { Ready } from "./events/ready.js"
+
+const globalCommandMiddleware = {
+	before(context) {
+		console.log(
+			`[socketo/global-before] /${context.command.name} user=${context.interaction.userId ?? "unknown"}`
+		)
+	},
+	after(context) {
+		console.log(
+			`[socketo/global-after] /${context.command.name} status=${context.status} duration=${context.durationMs}ms`
+		)
+	}
+} satisfies CommandMiddleware
 
 const client = new Client(
 	{
@@ -15,14 +29,16 @@ const client = new Client(
 		deploySecret: process.env.DEPLOY_SECRET,
 		clientId: process.env.DISCORD_CLIENT_ID,
 		publicKey: process.env.DISCORD_PUBLIC_KEY,
-		token: process.env.DISCORD_BOT_TOKEN
+		token: process.env.DISCORD_BOT_TOKEN,
+		commandMiddlewares: [globalCommandMiddleware]
 	},
 	{
 		commands: [
 			// commands/*
 			new PingCommand(),
 			new GatewayTestCommand(),
-			new VoiceConnectCommand()
+			new VoiceConnectCommand(),
+			new MiddlewareCommand()
 		],
 		listeners: [
 			new Ready()
