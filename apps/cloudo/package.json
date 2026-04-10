@@ -12,8 +12,8 @@
 		"@buape/carbon": "workspace:*"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "4.20260405.1",
+		"@cloudflare/workers-types": "4.20260410.1",
 		"typescript": "6.0.2",
-		"wrangler": "4.80.0"
+		"wrangler": "4.81.1"
 	}
 }
