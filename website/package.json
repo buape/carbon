@@ -13,8 +13,8 @@
 		"@tomehq/cli": "0.7.0",
 		"@tomehq/theme": "0.7.0",
 		"prismjs": "^1.30.0",
-		"react": "19.2.3",
-		"react-dom": "19.2.3",
+		"react": "19.2.5",
+		"react-dom": "19.2.5",
 		"vite": "6.4.1",
 		"wrangler": "4.81.1"
 	}
