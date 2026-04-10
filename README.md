@@ -8,20 +8,19 @@
 <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/@buape/carbon?style=for-the-badge">
 </div>
 
-Carbon is a fully-featured framework for building HTTP Discord bots, built in TypeScript and designed to be easy to use and understand.
+Carbon is a fully typed Discord bot framework for TypeScript that helps you ship quickly with HTTP interactions first, then scale into richer features through plugins, reusable classes, and optional Gateway support without rewriting your architecture later.
 
 ## Features
 
-- Fully up to date with the Discord API
-- Build to be both flexible and powerful
-- Easy to use class-based system for reusability
-- Built in pagination support (Soon!)
-- Integration with Discord's Monetization (Soon!)
-
-## Why Carbon?
-
-Carbon is designed to be easy to use and understand, while still providing the flexibility and power needed to build complex bots.
-With Carbon, you can deploy it to many platforms, both physical and serverless, and it's easy to integrate with other frameworks and libraries.
+- Build every common interaction type in one place: slash commands, user/message commands, buttons, select menus, and modals.
+- Start with simple HTTP interactions, then add Gateway or Gateway Forwarder only when your bot needs non-interaction events.
+- Run the same bot across Node.js, Bun, and Fetch-style runtimes like Cloudflare Workers or Next.js.
+- Components can register themselves automatically, and you can still register them globally or per command when you need persistence.
+- For quick flows, you can parse custom IDs cleanly and wait for a single component click with `replyAndWaitForComponent`.
+- Use prechecks and wildcard handlers to add safety rules and fallback behavior without turning command code into a mess.
+- Host multiple Discord applications from one deployment with `ClientManager`.
+- Grow through plugins like Linked Roles, Command Data, Paginator, Sharding, and Voice.
+- Tune request/event processing with queue lanes, concurrency controls, and runtime metrics when traffic grows.
 
 ## Installation
 
