@@ -7,7 +7,7 @@
 		"docs:api": "node scripts/generate-typedoc.mjs",
 		"dev": "pnpm run docs:api && tome dev",
 		"build": "pnpm run docs:api && tome build",
-		"deploy": "pnpm run build && tome deploy"
+		"deploy": "wrangler deploy --config wrangler.jsonc"
 	},
 	"devDependencies": {
 		"@tomehq/cli": "0.7.0",
@@ -15,6 +15,7 @@
 		"prismjs": "^1.30.0",
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
-		"vite": "6.4.1"
+		"vite": "6.4.1",
+		"wrangler": "4.81.1"
 	}
 }

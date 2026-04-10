@@ -21,8 +21,7 @@
 		"test": "vitest",
 		"web": "pnpm run web:dev",
 		"web:dev": "pnpm --filter website run dev",
-		"web:build": "pnpm --filter website run build",
-		"web:deploy": "pnpm --filter website run deploy"
+		"web:deploy": "pnpm --filter website run build && pnpm --filter website run deploy"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.10",

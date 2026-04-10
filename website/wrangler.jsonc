@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "carbon-buape-com",
+	"account_id": "cb8680c9bbcf0c359fccbb5e634df935",
+	"compatibility_date": "2025-07-02",
+	"assets": {
+		"directory": "out",
+		"not_found_handling": "single-page-application"
+	},
+	"routes": [
+		{
+			"pattern": "carbon.buape.com",
+			"custom_domain": true
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+}
