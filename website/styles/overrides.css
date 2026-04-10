@@ -1,0 +1,132 @@
+html,
+body,
+#tome-root {
+	margin: 0;
+	padding: 0;
+	min-height: 100%;
+}
+
+.theme-light-only {
+	display: block;
+}
+
+.theme-dark-only {
+	display: none;
+}
+
+html.dark .theme-light-only {
+	display: none;
+}
+
+html.dark .theme-dark-only {
+	display: block;
+}
+
+@media (max-width: 768px) {
+	main {
+		padding-bottom: calc(132px + env(safe-area-inset-bottom)) !important;
+	}
+}
+
+/* Sidebar brand: replace text with Carbon wordmark */
+aside > a[href="/"] {
+	position: relative;
+	font-size: 0;
+	line-height: 0;
+	color: transparent;
+	text-indent: -9999px;
+	overflow: hidden;
+	gap: 0;
+	padding: 12px 16px;
+	min-height: 64px;
+	align-items: center;
+}
+
+aside > a[href="/"] span {
+	display: none !important;
+}
+
+aside > a[href="/"]::before {
+	content: "";
+	display: block;
+	width: 100%;
+	height: 44px;
+	background-image: url("https://cdn-raw.buape.com/carbon/wordmark_transparent.png");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 100% auto;
+	text-indent: 0;
+}
+
+:root {
+	--code-comment: #6b7280;
+	--code-punctuation: #94a3b8;
+	--code-keyword: #6366f1;
+	--code-function: #0ea5e9;
+	--code-string: #16a34a;
+	--code-number: #c026d3;
+	--code-operator: #475569;
+	--code-class: #7c3aed;
+}
+
+html.dark {
+	--code-comment: #7c8799;
+	--code-punctuation: #9aa4b2;
+	--code-keyword: #8ea2ff;
+	--code-function: #67b7ff;
+	--code-string: #6fd3a0;
+	--code-number: #d69cff;
+	--code-operator: #bac6d5;
+	--code-class: #b5a7ff;
+}
+
+pre code .token.comment,
+pre code .token.prolog,
+pre code .token.doctype,
+pre code .token.cdata {
+	color: var(--code-comment);
+}
+
+pre code .token.punctuation {
+	color: var(--code-punctuation);
+}
+
+pre code .token.keyword,
+pre code .token.atrule,
+pre code .token.attr-name,
+pre code .token.selector {
+	color: var(--code-keyword);
+}
+
+pre code .token.function,
+pre code .token.method,
+pre code .token.property,
+pre code .token.tag {
+	color: var(--code-function);
+}
+
+pre code .token.string,
+pre code .token.attr-value,
+pre code .token.regex,
+pre code .token.url {
+	color: var(--code-string);
+}
+
+pre code .token.number,
+pre code .token.boolean,
+pre code .token.constant,
+pre code .token.symbol {
+	color: var(--code-number);
+}
+
+pre code .token.operator,
+pre code .token.entity,
+pre code .token.variable {
+	color: var(--code-operator);
+}
+
+pre code .token.class-name,
+pre code .token.builtin,
+pre code .token.important {
+	color: var(--code-class);
+}

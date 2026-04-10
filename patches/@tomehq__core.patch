@@ -1,0 +1,253 @@
+diff --git a/dist/chunk-FLOJHYI4.js b/dist/chunk-FLOJHYI4.js
+index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a7936a85d7d 100644
+--- a/dist/chunk-FLOJHYI4.js
++++ b/dist/chunk-FLOJHYI4.js
+@@ -483,6 +483,59 @@ function collectHeadTags(plugins) {
+   }
+   return tags;
+ }
++function escapeMetaContent(value) {
++  return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
++}
++function toAbsoluteMetaUrl(pathOrUrl, config2) {
++  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
++  const baseUrl2 = (config2.baseUrl || "").replace(/\/$/, "");
++  const basePath2 = (config2.basePath || "").replace(/\/$/, "");
++  const normalizedPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
++  return `${baseUrl2}${basePath2}${normalizedPath}`;
++}
++function buildSocialMetaTags(route, config2, rootDir) {
++  const title = route.frontmatter.title || config2.name;
++  const description = route.frontmatter.description || "";
++  const pageUrl = toAbsoluteMetaUrl(route.urlPath || "/", config2);
++  const fm = route.frontmatter;
++  const imageCandidates = [
++    typeof fm.ogImage === "string" ? fm.ogImage : "",
++    config2.logo || "",
++    "/favicon.ico"
++  ].filter((value) => value.trim().length > 0);
++  let selectedImage = "/favicon.ico";
++  for (const candidate of imageCandidates) {
++    if (/^https?:\/\//i.test(candidate)) {
++      selectedImage = candidate;
++      break;
++    }
++    if (!rootDir) {
++      selectedImage = candidate;
++      break;
++    }
++    const normalized = candidate.replace(/^\//, "");
++    if (existsSync2(resolve2(rootDir, "public", normalized)) || existsSync2(resolve2(rootDir, normalized))) {
++      selectedImage = candidate;
++      break;
++    }
++  }
++  const imageUrl = toAbsoluteMetaUrl(selectedImage, config2);
++  const tags = [
++    `<meta property="og:title" content="${escapeMetaContent(title)}">`,
++    `<meta property="og:type" content="article">`,
++    `<meta property="og:site_name" content="${escapeMetaContent(config2.name)}">`,
++    `<meta property="og:url" content="${escapeMetaContent(pageUrl)}">`,
++    `<meta property="og:image" content="${escapeMetaContent(imageUrl)}">`,
++    `<meta name="twitter:card" content="summary_large_image">`,
++    `<meta name="twitter:title" content="${escapeMetaContent(title)}">`,
++    `<meta name="twitter:image" content="${escapeMetaContent(imageUrl)}">`
++  ];
++  if (description) {
++    tags.push(`<meta property="og:description" content="${escapeMetaContent(description)}">`);
++    tags.push(`<meta name="twitter:description" content="${escapeMetaContent(description)}">`);
++  }
++  return tags.join("\n");
++}
+ function tomePlugin(options = {}) {
+   const root = options.root || process.cwd();
+   const pagesDir = resolve2(root, options.pagesDir || "pages");
+@@ -723,7 +776,7 @@ function tomePlugin(options = {}) {
+       await loadAll();
+     },
+     // Sandbox CSP: inject Content-Security-Policy meta tag when sandbox is enabled
+-    transformIndexHtml(html) {
++    transformIndexHtml(html, ctx) {
+       let result = html;
+       if (config.analytics?.provider && config.analytics?.key) {
+         const endpoint = "https://api.tome.center/api/analytics/event";
+@@ -741,6 +794,18 @@ function tomePlugin(options = {}) {
+       const llmsLink = `<link rel="alternate" type="text/markdown" href="/llms.txt" title="LLM-optimized documentation" />`;
+       result = result.replace("</head>", `${llmsLink}
+ </head>`);
++      const rawRequestPath = typeof ctx?.originalUrl === "string" ? ctx.originalUrl : ctx?.path;
++      const requestPath = typeof rawRequestPath === "string" ? rawRequestPath.split("?")[0]?.replace(/\/$/, "") || "/" : "/";
++      const routeForRequest = routes.find(
++        (r) => (r.urlPath.replace(/\/$/, "") || "/") === requestPath
++      );
++      const rootRedirect = config.redirects?.find((r) => r.from === "/")?.to;
++      const redirectRoute = rootRedirect ? routes.find((r) => (r.urlPath.replace(/\/$/, "") || "/") === (rootRedirect.replace(/\/$/, "") || "/")) : void 0;
++      const socialRoute = routeForRequest || redirectRoute || routes.find((r) => r.urlPath === "/") || routes[0];
++      if (socialRoute) {
++        result = result.replace("</head>", `${buildSocialMetaTags(socialRoute, config, root)}
++</head>`);
++      }
+       const siteUrlForJsonLd = (config.baseUrl || "").replace(/\/$/, "");
+       const websiteSchema = {
+         "@context": "https://schema.org",
+@@ -1150,6 +1215,7 @@ ${page.raw.trim()}
+         const title = route.frontmatter.title || "Untitled";
+         const description = route.frontmatter.description || "";
+         const canonical = `${bp}${route.urlPath}`;
++        const socialTags = buildSocialMetaTags(route, config, root);
+         let textContent = "";
+         if (!route.isMdx) {
+           try {
+@@ -1168,6 +1234,7 @@ ${page.raw.trim()}
+           `<meta name="viewport" content="width=device-width, initial-scale=1.0">`,
+           `<title>${title} | ${config.name}</title>`,
+           description ? `<meta name="description" content="${description.replace(/"/g, "&quot;")}">` : "",
++          socialTags,
+           `<link rel="canonical" href="${canonical}">`,
+           entryCss ? `<link rel="stylesheet" href="${bp}/${entryCss}">` : "",
+           entryJs ? `<script type="module" src="${bp}/${entryJs}"></script>` : "",
+diff --git a/src/vite-plugin.ts b/src/vite-plugin.ts
+index 0c5a8ec55a201cd080ac1e7c7df214c710a2356e..a34f396e98a6cf3e116ce78af3aad3a651a62027 100644
+--- a/src/vite-plugin.ts
++++ b/src/vite-plugin.ts
+@@ -67,6 +67,79 @@ function collectHeadTags(plugins: TomePlugin[]): string[] {
+   return tags;
+ }
+ 
++function escapeMetaContent(value: string): string {
++  return value
++    .replace(/&/g, "&amp;")
++    .replace(/"/g, "&quot;")
++    .replace(/</g, "&lt;")
++    .replace(/>/g, "&gt;");
++}
++
++function toAbsoluteMetaUrl(pathOrUrl: string, config: TomeConfig): string {
++  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
++
++  const baseUrl = (config.baseUrl || "").replace(/\/$/, "");
++  const basePath = (config.basePath || "").replace(/\/$/, "");
++  const normalizedPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
++
++  return `${baseUrl}${basePath}${normalizedPath}`;
++}
++
++function buildSocialMetaTags(route: PageRoute, config: TomeConfig, rootDir?: string): string {
++  const title = route.frontmatter.title || config.name;
++  const description = route.frontmatter.description || "";
++  const pageUrl = toAbsoluteMetaUrl(route.urlPath || "/", config);
++
++  const fm = route.frontmatter as Record<string, unknown>;
++  const imageCandidates = [
++    typeof fm.ogImage === "string" ? fm.ogImage : "",
++    config.logo || "",
++    "/favicon.ico",
++  ].filter((value) => value.trim().length > 0);
++
++  let selectedImage = "/favicon.ico";
++  for (const candidate of imageCandidates) {
++    if (/^https?:\/\//i.test(candidate)) {
++      selectedImage = candidate;
++      break;
++    }
++
++    if (!rootDir) {
++      selectedImage = candidate;
++      break;
++    }
++
++    const normalized = candidate.replace(/^\//, "");
++    if (
++      existsSync(resolve(rootDir, "public", normalized)) ||
++      existsSync(resolve(rootDir, normalized))
++    ) {
++      selectedImage = candidate;
++      break;
++    }
++  }
++
++  const imageUrl = toAbsoluteMetaUrl(selectedImage, config);
++
++  const tags = [
++    `<meta property="og:title" content="${escapeMetaContent(title)}">`,
++    `<meta property="og:type" content="article">`,
++    `<meta property="og:site_name" content="${escapeMetaContent(config.name)}">`,
++    `<meta property="og:url" content="${escapeMetaContent(pageUrl)}">`,
++    `<meta property="og:image" content="${escapeMetaContent(imageUrl)}">`,
++    `<meta name="twitter:card" content="summary_large_image">`,
++    `<meta name="twitter:title" content="${escapeMetaContent(title)}">`,
++    `<meta name="twitter:image" content="${escapeMetaContent(imageUrl)}">`,
++  ];
++
++  if (description) {
++    tags.push(`<meta property="og:description" content="${escapeMetaContent(description)}">`);
++    tags.push(`<meta name="twitter:description" content="${escapeMetaContent(description)}">`);
++  }
++
++  return tags.join("\n");
++}
++
+ // ── PLUGIN ───────────────────────────────────────────────
+ export interface TomePluginOptions {
+   /** Root directory of the Tome project (default: process.cwd()) */
+@@ -393,7 +466,7 @@ export default function tomePlugin(options: TomePluginOptions = {}): Plugin[] {
+     },
+ 
+     // Sandbox CSP: inject Content-Security-Policy meta tag when sandbox is enabled
+-    transformIndexHtml(html) {
++    transformIndexHtml(html, ctx) {
+       let result = html;
+ 
+       // TOM-24: Inject analytics script
+@@ -416,6 +489,35 @@ export default function tomePlugin(options: TomePluginOptions = {}): Plugin[] {
+       const llmsLink = `<link rel="alternate" type="text/markdown" href="/llms.txt" title="LLM-optimized documentation" />`;
+       result = result.replace('</head>', `${llmsLink}\n</head>`);
+ 
++      // Inject social tags for the currently requested route
++      const rawRequestPath =
++        typeof (ctx as { originalUrl?: string } | undefined)?.originalUrl === "string"
++          ? (ctx as { originalUrl?: string }).originalUrl
++          : ctx?.path;
++
++      const requestPath = typeof rawRequestPath === "string"
++        ? (rawRequestPath.split("?")[0]?.replace(/\/$/, "") || "/")
++        : "/";
++
++      const routeForRequest = routes.find(
++        (r) => (r.urlPath.replace(/\/$/, "") || "/") === requestPath
++      );
++
++      const rootRedirect = config.redirects?.find((r) => r.from === "/")?.to;
++      const redirectRoute = rootRedirect
++        ? routes.find((r) => (r.urlPath.replace(/\/$/, "") || "/") === (rootRedirect.replace(/\/$/, "") || "/"))
++        : undefined;
++
++      const socialRoute =
++        routeForRequest ||
++        redirectRoute ||
++        routes.find((r) => r.urlPath === "/") ||
++        routes[0];
++
++      if (socialRoute) {
++        result = result.replace('</head>', `${buildSocialMetaTags(socialRoute, config, root)}\n</head>`);
++      }
++
+       // Inject WebSite JSON-LD schema into the main index.html
+       const siteUrlForJsonLd = (config.baseUrl || "").replace(/\/$/, "");
+       const websiteSchema = {
+@@ -940,6 +1042,7 @@ export default { ${exportNames.join(", ")} };
+         const title = route.frontmatter.title || "Untitled";
+         const description = route.frontmatter.description || "";
+         const canonical = `${bp}${route.urlPath}`;
++        const socialTags = buildSocialMetaTags(route, config, root);
+ 
+         // Get page text content for Pagefind indexing
+         let textContent = "";
+@@ -962,6 +1065,7 @@ export default { ${exportNames.join(", ")} };
+           `<meta name="viewport" content="width=device-width, initial-scale=1.0">`,
+           `<title>${title} | ${config.name}</title>`,
+           description ? `<meta name="description" content="${description.replace(/"/g, "&quot;")}">` : "",
++          socialTags,
+           `<link rel="canonical" href="${canonical}">`,
+           entryCss ? `<link rel="stylesheet" href="${bp}/${entryCss}">` : "",
+           entryJs ? `<script type="module" src="${bp}/${entryJs}"></script>` : "",
