@@ -64,7 +64,6 @@ jobs:
     release:
         name: Release
         runs-on: ubuntu-latest
-        if: github.event_name == 'workflow_dispatch'
         permissions:
             id-token: write
             contents: write
