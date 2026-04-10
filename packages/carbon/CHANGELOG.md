@@ -1,5 +1,34 @@
 # @buape/carbon
 
+## 0.15.0
+
+### Minor Changes
+
+- 17203ef: feat: add support for Entry Point Commands (used in Activities)
+- 5c08a35: feat(breaking): change listener registration method to Client#registerListener
+- 472e576: feat: include original request on RateLimitError with method and url metadata
+- 52690dc: feat(runtime): add lane-based request/event queues, resilient forwarder delivery, and startup/runtime metrics
+- 31147dc: feat: add a CloudflareGatewayPlugin to allow long-lasting gateway connections on Cloudflare Workers
+- 67d403b: feat: rewrite GatewayPlugin for better Discord lifecycle handling and extending
+- 3ab417b: feat: add command middleware hooks (before/after) on client and command levels
+
+### Patch Changes
+
+- 51ffa8f: fix: reset gateway heartbeat ack state on reconnects
+- ec9a41c: fix: change component registration to allow multiple handlers sharing a custom ID across component types.
+- 4f425f8: feat: add parseRawData to GuildAvailable and GuildUnavailable listeners
+- 5c08a35: fix: add voice event forwarding
+- c4cf6f0: fix: reset reconnect backoff counter on READY/RESUMED instead of WebSocket open to prevent connection storms
+- 1b10265: fix: invalidate stale resume session after consecutive failures
+- 897a98a: fix: prevent TS2322 errors in listener data types
+- 11439f3: feat: add custom fetch injection to RequestClient
+- e7efbe0: feat: add support for sending voice messages
+- 3aae58c: fix: resolve Bun adapter type error for port-based server options
+- 6eed6eb: fix: avoid crashing when reconnect is requested after socket is already closed
+- db2cd1d: fix: Add GuildAvailabilityCache to GatewayForwarder to prevent GUILD_CREATE events from sending on startup
+- 521aa10: feat: add reconcile mode for Discord command deployment
+- be84aee: fix: change webhook query handling to avoid duplicating thread_id and other params
+
 ## 0.14.0
 
 ### Minor Changes

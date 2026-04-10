@@ -1,5 +1,17 @@
 # create-carbon
 
+## 0.6.0
+
+### Minor Changes
+
+- 31147dc: feat: add a CloudflareGatewayPlugin to allow long-lasting gateway connections on Cloudflare Workers
+
+### Patch Changes
+
+- 918a603: fix: refresh the Cloudflare worker template with native entrypoints and wrangler type generation.
+- 1d585cf: fix: skip gateway-only event templates unless the gateway plugin is selected.
+- 897a98a: fix: prevent TS2322 errors in listener data types
+
 ## 0.5.2
 
 ### Patch Changes
