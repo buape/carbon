@@ -117,11 +117,19 @@ export class GatewayPlugin extends Plugin {
 		this.client = client
 
 		if (!this.gatewayInfo) {
-			const response = await fetch("https://discord.com/api/v10/gateway/bot", {
-				headers: {
-					Authorization: `Bot ${client.options.token}`
-				}
-			})
+			let response: Response
+			try {
+				response = await fetch("https://discord.com/api/v10/gateway/bot", {
+					headers: {
+						Authorization: `Bot ${client.options.token}`
+					}
+				})
+			} catch (error) {
+				throw new Error(
+					`Failed to get gateway information from Discord: ${error instanceof Error ? error.message : String(error)}`,
+					{ cause: error }
+				)
+			}
 			if (!response.ok) {
 				throw new Error(
 					`Failed to get gateway information from Discord: ${response.status} ${response.statusText}`
