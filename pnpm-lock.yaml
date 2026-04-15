@@ -106,6 +106,9 @@ importers:
       '@buape/carbon':
         specifier: workspace:*
         version: link:../../packages/carbon
+      '@hono/node-server':
+        specifier: 1.19.13
+        version: 1.19.13(hono@4.12.10)
       dotenv:
         specifier: 17.4.1
         version: 17.4.1
@@ -128,6 +131,9 @@ importers:
       '@discordjs/voice':
         specifier: ^0.19.2
         version: 0.19.2(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
+      '@hono/node-server':
+        specifier: 1.19.13
+        version: 1.19.13(hono@4.12.10)
       dotenv:
         specifier: 17.4.1
         version: 17.4.1

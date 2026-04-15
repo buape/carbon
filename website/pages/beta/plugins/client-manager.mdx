@@ -165,7 +165,8 @@ export class DatabaseClientManager extends ClientManager {
 ### Using the Database-Backed Manager
 
 ```typescript title="src/index.ts"
-import { serve } from "@buape/carbon/adapters/node"
+import { createHandler } from "@buape/carbon/adapters/fetch"
+import { serve } from "@hono/node-server"
 import { DatabaseClientManager } from "./DatabaseClientManager"
 import { db } from "./database"
 
@@ -178,7 +179,12 @@ const manager = new DatabaseClientManager(
 	db
 )
 
-serve(manager, 3000)
+const handler = createHandler(manager)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 ```
 
 ### Adding clients in realtime
@@ -219,7 +225,8 @@ The ClientManager works with any Carbon adapter. Here's an example with the Node
 
 ```typescript title="src/index.ts"
 import { ClientManager } from "@buape/carbon"
-import { serve } from "@buape/carbon/adapters/node"
+import { createHandler } from "@buape/carbon/adapters/fetch"
+import { serve } from "@hono/node-server"
 
 const manager = new ClientManager({
 	baseUrl: "https://example.com",
@@ -239,7 +246,12 @@ const manager = new ClientManager({
 	]
 })
 
-serve(manager, 3000)
+const handler = createHandler(manager)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 ```
 
 ## Shared vs. Per-App Configuration

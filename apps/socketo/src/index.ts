@@ -1,8 +1,9 @@
 import "dotenv/config"
 import { Client, type CommandMiddleware } from "@buape/carbon"
-import { createServer } from "@buape/carbon/adapters/node"
+import { createHandler } from "@buape/carbon/adapters/fetch"
 import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"
 import { VoicePlugin } from "@buape/carbon/voice"
+import { serve } from "@hono/node-server"
 import GatewayTestCommand from "./commands/gateway-test.js"
 import MiddlewareCommand from "./commands/middleware.js"
 import PingCommand from "./commands/ping.js"
@@ -68,7 +69,12 @@ console.log(
 	})}`
 )
 
-createServer(client, { port: 3000 })
+const handler = createHandler(client)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 
 declare global {
 	namespace NodeJS {

@@ -1,11 +1,12 @@
 import "dotenv/config"
 import { Client } from "@buape/carbon"
-import { createServer } from "@buape/carbon/adapters/node"
+import { createHandler } from "@buape/carbon/adapters/fetch"
 import { CommandDataPlugin } from "@buape/carbon/command-data"
 import {
 	ApplicationRoleConnectionMetadataType,
 	LinkedRoles
 } from "@buape/carbon/linked-roles"
+import { serve } from "@hono/node-server"
 import PingCommand from "./commands/ping.js"
 import MentionsCommand from "./commands/testing/allow_mentions.js"
 import AskCommand from "./commands/testing/ask.js"
@@ -107,7 +108,12 @@ console.log(
 		})}`
 )
 
-createServer(client, { port: 3000 })
+const handler = createHandler(client)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 
 declare global {
 	namespace NodeJS {

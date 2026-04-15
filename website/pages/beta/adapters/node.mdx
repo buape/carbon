@@ -29,14 +29,19 @@ This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide.
 
 <Step title="Create a Server">
 
-Using the `@buape/carbon/adapters/node` package, you can create a server to host your bot. This server will handle incoming interactions and route them to your bot.
+Using `@hono/node-server` together with Carbon's fetch adapter, you can create a server to host your bot. This server will handle incoming interactions and route them to your bot.
 
 ```ts
-import { createServer } from '@buape/carbon/adapters/node'
+import { createHandler } from '@buape/carbon/adapters/fetch'
+import { serve } from '@hono/node-server'
 
 const client = new Client( ... )
+const handler = createHandler(client)
 
-createServer(client, { port: 3000 })
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 ```
 
 </Step>
