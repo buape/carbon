@@ -19,14 +19,12 @@
 		"publish:snapshot": "changeset version --snapshot beta && pnpm run build && changeset publish --tag beta --no-git-tag ",
 		"start": "turbo run start --filter !demo-cloudo",
 		"test": "vitest",
-		"version": "changeset version",
 		"web": "pnpm run web:dev",
 		"web:dev": "pnpm --filter website run dev",
 		"web:deploy": "pnpm --filter website run build && pnpm --filter website run deploy"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.11",
-		"@changesets/changelog-github": "0.6.0",
 		"@changesets/cli": "2.30.0",
 		"@net-tech-/env-cmd": "1.0.3",
 		"lefthook": "2.1.5",
@@ -51,5 +49,9 @@
 		"patchedDependencies": {
 			"@tomehq/core@0.8.0": "patches/@tomehq__core@0.8.0.patch"
 		}
+	},
+	"dependencies": {
+		"@changesets/get-github-info": "^0.8.0",
+		"@changesets/types": "^6.1.0"
 	}
 }

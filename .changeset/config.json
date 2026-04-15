@@ -7,5 +7,5 @@
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
 	"ignore": ["website", "demo-*"],
-	"changelog": ["@changesets/changelog-github", { "repo": "buape/carbon" }]
+	"changelog": ["./generator.ts", { "repo": "buape/carbon" }]
 }
