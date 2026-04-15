@@ -71,6 +71,8 @@ jobs:
         steps:
             - name: Check out code
               uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.BUAPEBOT_SECRET }}
 
             - name: Setup
               uses: ./.github/actions/setup
@@ -84,3 +86,76 @@ jobs:
                   commit: "chore: update changelog and release"
               env:
                   GITHUB_TOKEN: ${{ secrets.BUAPEBOT_SECRET }}
+
+            - name: Generate and commit versioned API docs
+              if: steps.changesets.outputs.published == 'true'
+              env:
+                  PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+              run: |
+                  VERSION=$(node -e 'const pkgs = JSON.parse(process.env.PUBLISHED_PACKAGES || "[]"); const carbon = pkgs.find((pkg) => pkg.name === "@buape/carbon"); if (carbon?.version) process.stdout.write(`v${carbon.version}`)')
+
+                  if [ -z "$VERSION" ]; then
+                      VERSION="v$(node -p "require('./packages/carbon/package.json').version")"
+                  fi
+
+                  pnpm --dir website docs:api
+                  rm -rf "website/pages/${VERSION}"
+                  cp -R website/pages/current "website/pages/${VERSION}"
+
+                  VERSION="$VERSION" node <<'NODE'
+                  const fs = require("node:fs")
+
+                  const path = "website/tome.config.mjs"
+                  const version = process.env.VERSION
+                  const source = fs.readFileSync(path, "utf8")
+
+                  const withCurrent = source.replace(
+                      /current:\s*"[^"]*"/,
+                      `current: "${version}"`
+                  )
+
+                  const match = withCurrent.match(/versions:\s*\[([^\]]*)\]/)
+                  if (!match) {
+                      fs.writeFileSync(path, withCurrent)
+                      process.exit(0)
+                  }
+
+                  const values = match[1]
+                      .split(",")
+                      .map((part) => part.trim())
+                      .filter(Boolean)
+                      .map((part) => part.replace(/^"|"$/g, ""))
+
+                  const keep = []
+                  for (const value of values) {
+                      if (value === version) continue
+                      if (value === "current") continue
+                      if (keep.includes(value)) continue
+                      keep.push(value)
+                  }
+
+                  const hasBeta = keep.includes("beta")
+                  const rest = keep.filter((value) => value !== "beta")
+                  const next = hasBeta ? ["beta", version, ...rest] : [version, ...rest]
+
+                  const replacement = `versions: [${next
+                      .map((value) => `"${value}"`)
+                      .join(", ")}]`
+
+                  fs.writeFileSync(
+                      path,
+                      withCurrent.replace(/versions:\s*\[[^\]]*\]/, replacement)
+                  )
+                  NODE
+
+                  git config user.name "buapebot"
+                  git config user.email "119761697+buapebot@users.noreply.github.com"
+                  git add "website/pages/${VERSION}" "website/tome.config.mjs"
+
+                  if git diff --cached --quiet; then
+                      echo "No versioned docs changes to commit"
+                      exit 0
+                  fi
+
+                  git commit -m "docs: add ${VERSION} docs snapshot"
+                  git push

@@ -3,22 +3,16 @@ dist
 .turbo
 .pnpm-store
 .env
-.map.ts
-.contentlayer
-.content-collections
 out/
 build/
 .next/
 .DS_Store
 packages/*/docs/
-website/.source
 .open-next/
 website/public/*.txt
 .idea/
-website/pages/api/**
-!website/pages/api/index.mdx
-website/pages/current/api/**
-!website/pages/current/api/index.mdx
+website/pages/beta/api/**
+!website/pages/beta/api/index.mdx
 
 # Tome generated/runtime artifacts
 website/.generated/
