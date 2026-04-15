@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process"
 import { readdir, readFile, rm, writeFile } from "node:fs/promises"
 import { join, relative } from "node:path"
 
-const pagesRoot = "pages/current"
+const pagesRoot = "pages/beta"
 
 const targets = [
 	{

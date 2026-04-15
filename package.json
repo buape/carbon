@@ -48,8 +48,7 @@
 			"lru-cache": "11.2.7"
 		},
 		"patchedDependencies": {
-			"@tomehq/theme@0.7.0": "patches/@tomehq__theme@0.7.0.patch",
-			"@tomehq/core": "patches/@tomehq__core.patch"
+			"@tomehq/core@0.8.0": "patches/@tomehq__core@0.8.0.patch"
 		}
 	}
 }

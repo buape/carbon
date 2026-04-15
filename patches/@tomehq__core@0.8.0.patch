@@ -1,8 +1,8 @@
-diff --git a/dist/chunk-FLOJHYI4.js b/dist/chunk-FLOJHYI4.js
-index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a7936a85d7d 100644
---- a/dist/chunk-FLOJHYI4.js
-+++ b/dist/chunk-FLOJHYI4.js
-@@ -483,6 +483,59 @@ function collectHeadTags(plugins) {
+diff --git a/dist/chunk-QLUSH2XS.js b/dist/chunk-QLUSH2XS.js
+index ab693527bf7d1d12aafa0dd2f2cd61c4e3f9ff15..5a02f5de56dce2775ca869175933f470d252552e 100644
+--- a/dist/chunk-QLUSH2XS.js
++++ b/dist/chunk-QLUSH2XS.js
+@@ -520,6 +520,59 @@ function collectHeadTags(plugins) {
    }
    return tags;
  }
@@ -62,7 +62,7 @@ index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a79
  function tomePlugin(options = {}) {
    const root = options.root || process.cwd();
    const pagesDir = resolve2(root, options.pagesDir || "pages");
-@@ -723,7 +776,7 @@ function tomePlugin(options = {}) {
+@@ -760,7 +813,7 @@ function tomePlugin(options = {}) {
        await loadAll();
      },
      // Sandbox CSP: inject Content-Security-Policy meta tag when sandbox is enabled
@@ -71,7 +71,7 @@ index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a79
        let result = html;
        if (config.analytics?.provider && config.analytics?.key) {
          const endpoint = "https://api.tome.center/api/analytics/event";
-@@ -741,6 +794,18 @@ function tomePlugin(options = {}) {
+@@ -778,6 +831,18 @@ function tomePlugin(options = {}) {
        const llmsLink = `<link rel="alternate" type="text/markdown" href="/llms.txt" title="LLM-optimized documentation" />`;
        result = result.replace("</head>", `${llmsLink}
  </head>`);
@@ -90,7 +90,7 @@ index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a79
        const siteUrlForJsonLd = (config.baseUrl || "").replace(/\/$/, "");
        const websiteSchema = {
          "@context": "https://schema.org",
-@@ -1150,6 +1215,7 @@ ${page.raw.trim()}
+@@ -1187,6 +1252,7 @@ ${page.raw.trim()}
          const title = route.frontmatter.title || "Untitled";
          const description = route.frontmatter.description || "";
          const canonical = `${bp}${route.urlPath}`;
@@ -98,7 +98,7 @@ index db1b3cc1892db80122100602436a699a95017fb0..d4a0d2f40ad23ce6e20bd6e6831c6a79
          let textContent = "";
          if (!route.isMdx) {
            try {
-@@ -1168,6 +1234,7 @@ ${page.raw.trim()}
+@@ -1205,6 +1271,7 @@ ${page.raw.trim()}
            `<meta name="viewport" content="width=device-width, initial-scale=1.0">`,
            `<title>${title} | ${config.name}</title>`,
            description ? `<meta name="description" content="${description.replace(/"/g, "&quot;")}">` : "",
