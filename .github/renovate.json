@@ -35,5 +35,6 @@
 	],
 	"labels": ["dependencies"],
 	"schedule": ["* 0 */7 * *"],
+	"minimumReleaseAge": "14 days",
 	"gitIgnoredAuthors": ["119761697+buapebot@users.noreply.github.com"]
 }
