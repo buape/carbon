@@ -8,6 +8,7 @@ import {
 	type APIIncidentsData,
 	type APIRole,
 	type APISticker,
+	type ChannelType,
 	type GuildDefaultMessageNotifications,
 	type GuildExplicitContentFilter,
 	type GuildFeature,
@@ -17,6 +18,7 @@ import {
 	type GuildPremiumTier,
 	type GuildSystemChannelFlags,
 	type GuildVerificationLevel,
+	type RESTPostAPIGuildChannelJSONBody,
 	type RESTPostAPIGuildRoleJSONBody,
 	Routes
 } from "discord-api-types/v10"
@@ -24,7 +26,7 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
-import type { AnyChannel } from "../types/channels.js"
+import type { AnyChannel, ChannelTypeMap } from "../types/channels.js"
 import type { IfPartial } from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import { GuildEmoji } from "./Emoji.js"
@@ -557,6 +559,33 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async leave() {
 		await this.client.rest.delete(Routes.guild(this.id))
+	}
+
+	/**
+	 * Create a channel in the guild
+	 */
+	async createChannel<
+		T extends Exclude<RESTPostAPIGuildChannelJSONBody["type"], undefined> &
+			keyof ChannelTypeMap
+	>(
+		data: Omit<RESTPostAPIGuildChannelJSONBody, "type"> & { type: T }
+	): Promise<ChannelTypeMap[T]>
+	async createChannel(
+		data: Omit<RESTPostAPIGuildChannelJSONBody, "type"> & { type?: undefined }
+	): Promise<ChannelTypeMap[ChannelType.GuildText]>
+	async createChannel(
+		data: RESTPostAPIGuildChannelJSONBody
+	): Promise<AnyChannel> {
+		const channel = (await this.client.rest.post(
+			Routes.guildChannels(this.id),
+			{
+				body: {
+					...data
+				}
+			}
+		)) as APIChannel
+
+		return channelFactory(this.client, channel)
 	}
 
 	/**
