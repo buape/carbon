@@ -50,6 +50,7 @@ const dependencies = {
 	dotenv: undefined,
 	"tsc-watch": undefined,
 	tsx: undefined,
+	"@hono/node-server": undefined,
 	// Bun
 	"@types/bun": undefined,
 	// Cloudflare

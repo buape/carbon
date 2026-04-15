@@ -25,7 +25,8 @@ import { GatewayIntents, GatewayPlugin } from "@buape/carbon/gateway"
 {{/if}}
 {{/if}}
 {{#if (eq runtime "node")}}
-import { createServer } from "@buape/carbon/adapters/node"
+import { serve } from "@hono/node-server"
+import { createHandler } from "@buape/carbon/adapters/fetch"
 {{else if (eq runtime "bun")}}
 import { createServer } from "@buape/carbon/adapters/bun"
 {{else if (or (eq runtime "cloudflare") (eq runtime "next") (eq runtime "deno") (eq runtime "fetch"))}}
@@ -112,7 +113,14 @@ export const client = new Client(
 	[{{#if plugins.linkedRoles}}linkedRoles{{/if}}{{#if plugins.gateway}}{{#if plugins.linkedRoles}}, {{/if}}gateway{{/if}}]{{/if}}
 )
 
-{{#if (or (eq runtime "node") (eq runtime "bun"))}}
+{{#if (eq runtime "node")}}
+const handler = createHandler(client)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
+{{else if (eq runtime "bun")}}
 createServer(client, { port: 3000 })
 {{else if (eq runtime "cloudflare")}}
 const handler = createHandler(client)

@@ -6,8 +6,14 @@ path: src/local.ts
 
 {{#if (eq runtime "fetch")}}
 import "dotenv/config"
-import { createServer } from "@buape/carbon/adapters/node"
+import { serve } from "@hono/node-server"
+import { createHandler } from "@buape/carbon/adapters/fetch"
 import { client } from "./index.js"
 
-createServer(client, { port: 3000 })
+const handler = createHandler(client)
+
+serve({
+	port: 3000,
+	fetch: (request) => handler(request, {})
+})
 {{/if}}
