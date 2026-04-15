@@ -11,7 +11,6 @@ import MentionsCommand from "./commands/testing/allow_mentions.js"
 import AskCommand from "./commands/testing/ask.js"
 import AttachmentCommand from "./commands/testing/attachment.js"
 import ButtonCommand from "./commands/testing/button.js"
-import ChannelTypingCommand from "./commands/testing/channel_typing.js"
 import ComponentsV2 from "./commands/testing/components_v2.js"
 import ConfirmCommand from "./commands/testing/confirm.js"
 import EmojiCommand from "./commands/testing/emoji.js"
@@ -72,7 +71,6 @@ const client = new Client(
 			// commands/testing/*
 			new AttachmentCommand(),
 			new ButtonCommand(),
-			new ChannelTypingCommand(),
 			new EphemeralCommand(),
 			new EverySelectCommand(),
 			new MessageCommand(),
