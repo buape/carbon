@@ -1,7 +1,15 @@
-import { type ChannelType, Routes } from "discord-api-types/v10"
+import {
+	type APIMessage,
+	type ChannelType,
+	Routes
+} from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import type { IfPartial } from "../types/index.js"
-import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
+import type { IfPartial, MessagePayload } from "../types/index.js"
+import {
+	buildCDNUrl,
+	type CDNUrlOptions,
+	serializePayload
+} from "../utils/index.js"
 import { Message } from "./Message.js"
 import { User } from "./User.js"
 
@@ -131,6 +139,16 @@ export class GroupDmChannel<
 			}
 		})
 		this.setField("name", name)
+	}
+
+	/**
+	 * Send a message to the channel
+	 */
+	async send(message: MessagePayload) {
+		const data = (await this.client.rest.post(Routes.channelMessages(this.id), {
+			body: serializePayload(message)
+		})) as APIMessage
+		return new Message(this.client, data)
 	}
 
 	/**

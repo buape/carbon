@@ -80,7 +80,6 @@ import {
 	type GatewayWebhooksUpdateDispatchData,
 	type ThreadChannelType
 } from "discord-api-types/v10"
-import type { AnyChannel } from "../functions/channelFactory.js"
 import type { Guild } from "../structures/Guild.js"
 import type { GuildMember } from "../structures/GuildMember.js"
 import type { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
@@ -88,6 +87,7 @@ import type { Message } from "../structures/Message.js"
 import type { Role } from "../structures/Role.js"
 import type { ThreadMember } from "../structures/ThreadMember.js"
 import type { User } from "../structures/User.js"
+import type { AnyChannel } from "../types/channels.js"
 
 export const WebhookEvent = {
 	...ApplicationWebhookEventType
@@ -287,7 +287,7 @@ export type ListenerEventData = {
 		"guild" | "channel"
 	> & {
 		guild?: Guild<true>
-		channel?: AnyChannel
+		channel?: AnyChannel<true>
 	}
 	[ListenerEvent.ChannelUpdate]: Omit<
 		GatewayChannelUpdateDispatchData,

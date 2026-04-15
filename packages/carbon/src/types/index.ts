@@ -214,6 +214,7 @@ export type BaseMessageInteractiveComponentConstructor = new (
 export type ArrayOrSingle<T> = T | T[]
 export type IfPartial<T, U, V = U | undefined> = T extends true ? V : U
 
+export * from "./channels.js"
 export * from "./commandMiddleware.js"
 export * from "./listeners.js"
 

@@ -1,5 +1,4 @@
 import {
-	type APIChannel,
 	type APIGuildMember,
 	ChannelType,
 	type ThreadChannelType
@@ -251,8 +250,7 @@ export abstract class ChannelCreateListener extends BaseListener<
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
-		const channel = channelFactory(client, rawChannel)!
+		const channel = channelFactory(client, rawChannel)
 		return {
 			channel,
 			rawChannel,
@@ -275,8 +273,7 @@ export abstract class ChannelDeleteListener extends BaseListener<
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
-		const channel = channelFactory(client, rawChannel)!
+		const channel = channelFactory(client, rawChannel)
 		return {
 			channel,
 			rawChannel,
@@ -301,10 +298,14 @@ export abstract class ChannelPinsUpdateListener extends BaseListener<
 		const guild = data.guild_id
 			? new Guild<true>(client, data.guild_id)
 			: undefined
-		const channel = channelFactory(client, {
-			id: data.channel_id,
-			type: ChannelType.GuildText
-		} as APIChannel)
+		const channel = channelFactory(
+			client,
+			{
+				id: data.channel_id,
+				type: ChannelType.GuildText
+			},
+			true
+		)
 		return {
 			guild,
 			channel,
@@ -327,8 +328,7 @@ export abstract class ChannelUpdateListener extends BaseListener<
 		client: Client
 	): ListenerEventData[this["type"]] {
 		const rawChannel = data
-		// biome-ignore lint/style/noNonNullAssertion: channelFactory will always return a channel
-		const channel = channelFactory(client, rawChannel)!
+		const channel = channelFactory(client, rawChannel)
 		return {
 			rawChannel,
 			channel,

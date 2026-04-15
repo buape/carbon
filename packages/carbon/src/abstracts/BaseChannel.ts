@@ -1,10 +1,17 @@
 import {
 	type APIChannel,
 	type ChannelFlags,
-	type ChannelType,
+	ChannelType,
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
+import type {
+	DMBasedChannel,
+	GuildBasedChannel,
+	SendableChannel,
+	ThreadChannel,
+	ThreadOnlyChannel
+} from "../types/channels.js"
 import type { IfPartial } from "../types/index.js"
 import { Base } from "./Base.js"
 
@@ -16,11 +23,13 @@ export abstract class BaseChannel<
 		client: Client,
 		rawDataOrId: IsPartial extends true
 			? string
-			: Extract<APIChannel, { type: Type }>
+			: Extract<APIChannel, { type: Type }>,
+		type?: Type
 	) {
 		super(client)
 		if (typeof rawDataOrId === "string") {
 			this.id = rawDataOrId
+			this._type = type ?? null
 		} else {
 			this._rawData = rawDataOrId as never
 			this.id = rawDataOrId.id
@@ -32,9 +41,12 @@ export abstract class BaseChannel<
 	 * The raw data of the channel.
 	 */
 	protected _rawData: Extract<APIChannel, { type: Type }> | null = null
+	private _type: Type | null = null
+
 	protected setData(data: Extract<APIChannel, { type: Type }>) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		this._type = data.type
 	}
 	protected setField(
 		field: keyof Extract<APIChannel, { type: Type }>,
@@ -73,8 +85,56 @@ export abstract class BaseChannel<
 	 * The type of the channel.
 	 */
 	get type(): IfPartial<IsPartial, Type> {
-		if (!this._rawData) return undefined as never
-		return this._rawData.type
+		if (this._rawData) return this._rawData.type
+		if (this._type === null) return undefined as never
+		return this._type as never
+	}
+
+	/**
+	 * Whether this is a DM-based channel.
+	 */
+	isDMBased(): this is Extract<this, DMBasedChannel<IsPartial>> {
+		return this.type === ChannelType.DM || this.type === ChannelType.GroupDM
+	}
+
+	/**
+	 * Whether this is a guild channel.
+	 */
+	isGuildBased(): this is Extract<this, GuildBasedChannel<IsPartial>> {
+		return this.type !== undefined && !this.isDMBased()
+	}
+
+	/**
+	 * Whether this channel is a thread.
+	 */
+	isThread(): this is Extract<this, ThreadChannel<IsPartial>> {
+		return (
+			this.type === ChannelType.AnnouncementThread ||
+			this.type === ChannelType.PublicThread ||
+			this.type === ChannelType.PrivateThread
+		)
+	}
+
+	/**
+	 * Whether this channel is thread-only (forum/media).
+	 */
+	isThreadOnly(): this is Extract<this, ThreadOnlyChannel<IsPartial>> {
+		return (
+			this.type === ChannelType.GuildForum ||
+			this.type === ChannelType.GuildMedia
+		)
+	}
+
+	/**
+	 * Whether this channel can be sent to directly.
+	 */
+	isSendable(): this is Extract<this, SendableChannel<IsPartial>> {
+		return (
+			this.type !== undefined &&
+			this.type !== ChannelType.GuildCategory &&
+			this.type !== ChannelType.GuildForum &&
+			this.type !== ChannelType.GuildMedia
+		)
 	}
 
 	/**

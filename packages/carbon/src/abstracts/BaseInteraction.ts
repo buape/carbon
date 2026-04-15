@@ -1,5 +1,4 @@
 import {
-	type APIChannel,
 	type APIInteraction,
 	type APIMessageComponentInteractionData,
 	InteractionResponseType,
@@ -102,7 +101,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 
 	get channel() {
 		if (!this._rawData.channel) return null
-		return channelFactory(this.client, this._rawData.channel as APIChannel)
+		return channelFactory(this.client, this._rawData.channel, true)
 	}
 
 	get member() {

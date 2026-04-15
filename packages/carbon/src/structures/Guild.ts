@@ -24,6 +24,7 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
+import type { AnyChannel } from "../types/channels.js"
 import type { IfPartial } from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import { GuildEmoji } from "./Emoji.js"
@@ -669,7 +670,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Fetch all channels in the guild
 	 * @returns A Promise that resolves to an array of channel objects
 	 */
-	async fetchChannels(): Promise<ReturnType<typeof channelFactory>[]> {
+	async fetchChannels(): Promise<AnyChannel[]> {
 		const channels = (await this.client.rest.get(
 			Routes.guildChannels(this.id)
 		)) as APIChannel[]
