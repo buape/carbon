@@ -1,6 +1,5 @@
 import {
 	ApplicationCommandOptionType,
-	type AutocompleteInteraction,
 	Command,
 	type CommandInteraction,
 	type CommandOptions
