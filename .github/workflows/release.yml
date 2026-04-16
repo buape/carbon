@@ -100,7 +100,7 @@ jobs:
 
                   pnpm --dir website docs:api
                   rm -rf "website/pages/${VERSION}"
-                  cp -R website/pages/current "website/pages/${VERSION}"
+                  cp -R website/pages/beta "website/pages/${VERSION}"
 
                   VERSION="$VERSION" node <<'NODE'
                   const fs = require("node:fs")
