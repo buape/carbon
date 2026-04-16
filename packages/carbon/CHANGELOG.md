@@ -1,5 +1,15 @@
 # @buape/carbon
 
+## 0.16.0
+
+### Minor Changes
+
+- [`df39f86`](https://github.com/buape/carbon/commit/df39f86c0e2f1762efdebc24e1693ea5e1ff5277) - feat: add Guild#createChannel
+
+- [`0eee2e0`](https://github.com/buape/carbon/commit/0eee2e0de55f7b5507f771678b0c754c8c76ca09) - feat: remove node/hono adapter from being built in to carbon, add it to create-carbon instead
+
+- [`bc9000b`](https://github.com/buape/carbon/commit/bc9000bbd9d56bb70b665965308d71ec82416db8) - feat: make channels nicer to use
+
 ## 0.15.0
 
 ### Minor Changes

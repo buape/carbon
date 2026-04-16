@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.8.0
+
+### Minor Changes
+
+- [`0eee2e0`](https://github.com/buape/carbon/commit/0eee2e0de55f7b5507f771678b0c754c8c76ca09) - feat: remove node/hono adapter from being built in to carbon, add it to create-carbon instead
+
 ## 0.7.0
 
 ### Minor Changes
