@@ -15,8 +15,8 @@ export default {
 		}
 	},
 	versioning: {
-		current: "v0.15.0",
-		versions: ["beta", "v0.15.0"]
+		current: "v0.16.0",
+		versions: ["beta", "v0.16.0", "v0.15.0"]
 	},
 	topNav: [
 		{ label: "Showcase", href: "/even-more/powered-by-carbon" },
