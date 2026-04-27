@@ -50,6 +50,7 @@ jobs:
         if: needs.snapshot_filter.outputs.publish == 'true'
         permissions:
             contents: read
+            pull-requests: read
             id-token: write
         steps:
             - name: Check out code
@@ -60,6 +61,8 @@ jobs:
 
             - name: Publish Beta
               run: pnpm run publish:snapshot
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
 
     release:
         name: Release
