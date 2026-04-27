@@ -42,10 +42,19 @@ import { GatewayRateLimit } from "./utils/rateLimit.js"
 
 const textDecoder = new TextDecoder()
 const socketOpenState = 1
-const nodeRequire =
-	typeof process !== "undefined" && process.versions?.node
-		? createRequire(import.meta.url)
-		: null
+let nodeRequire: NodeJS.Require | null = null
+
+try {
+	if (
+		typeof process !== "undefined" &&
+		process.versions?.node &&
+		typeof import.meta.url === "string"
+	) {
+		nodeRequire = createRequire(import.meta.url)
+	}
+} catch {
+	nodeRequire = null
+}
 
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
