@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.16.1
+
+### Patch Changes
+
+- [`74d6b4d`](https://github.com/buape/carbon/commit/74d6b4dc8906cf4f6f62bec5124d8dfb25804e4e) - Guard gateway `createRequire(import.meta.url)` initialization so Cloudflare Worker deploy validation does not crash when `import.meta.url` is unavailable.
+
 ## 0.16.0
 
 ### Minor Changes
