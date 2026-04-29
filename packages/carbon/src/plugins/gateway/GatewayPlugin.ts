@@ -228,6 +228,12 @@ export class GatewayPlugin extends Plugin {
 		const socket = this.options.webSocketFactory
 			? this.options.webSocketFactory(url)
 			: (() => {
+					if (typeof globalThis.WebSocket === "function") {
+						return new globalThis.WebSocket(
+							url
+						) as unknown as GatewayWebSocketLike
+					}
+
 					if (nodeRequire) {
 						try {
 							const wsModule = nodeRequire("ws") as {
@@ -248,14 +254,8 @@ export class GatewayPlugin extends Plugin {
 								return new nodeWebSocket(url)
 							}
 						} catch {
-							// fall through to global WebSocket
+							// fall through when ws is unavailable
 						}
-					}
-
-					if (typeof globalThis.WebSocket === "function") {
-						return new globalThis.WebSocket(
-							url
-						) as unknown as GatewayWebSocketLike
 					}
 
 					return null
