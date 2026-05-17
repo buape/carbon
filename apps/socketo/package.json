@@ -11,8 +11,8 @@
 	"dependencies": {
 		"@buape/carbon": "workspace:*",
 		"@discordjs/voice": "^0.19.2",
-		"@hono/node-server": "1.19.13",
-		"dotenv": "17.4.1",
+		"@hono/node-server": "1.19.14",
+		"dotenv": "17.4.2",
 		"ws": "8.20.0"
 	},
 	"devDependencies": {
