@@ -47,6 +47,7 @@ export abstract class BaseChannel<
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
 		this._type = data.type
+		void this.client.cache.channels.set(this.id, data)
 	}
 	protected setField(
 		field: keyof Extract<APIChannel, { type: Type }>,
@@ -157,6 +158,7 @@ export abstract class BaseChannel<
 		if (!newData) throw new Error(`Channel ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.channels.set(this.id, newData)
 
 		return this as BaseChannel<Type, false>
 	}
@@ -166,6 +168,7 @@ export abstract class BaseChannel<
 	 */
 	async delete() {
 		await this.client.rest.delete(Routes.channel(this.id))
+		await this.client.cache.channels.delete(this.id)
 	}
 
 	/**

@@ -26,6 +26,36 @@ Carbon is a fully typed Discord bot framework for TypeScript that helps you ship
 
 To get started with Carbon, you can check out the [Getting Started](https://carbon.buape.com/carbon/getting-started) guides for your preferred platform.
 
+## Caching
+
+Carbon is serverless-first, so entity caching is off by default. Opt in with the cache plugin:
+
+```ts
+import { MemoryCachePlugin } from "@buape/carbon/cache"
+
+const client = new Client(options, handlers, [
+	new MemoryCachePlugin({
+		default: { maxSize: 5000, ttl: 60_000 },
+		types: {
+			users: { maxSize: 20_000, ttl: 300_000 },
+			messages: { maxSize: 1000, ttl: 30_000 }
+		}
+	})
+])
+```
+
+Redis-compatible clients are supported without adding Redis to Carbon's core bundle:
+
+```ts
+import { RedisCachePlugin } from "@buape/carbon/cache"
+
+const client = new Client(options, handlers, [
+	new RedisCachePlugin({ client: redis, prefix: "my-bot" })
+])
+```
+
+Custom stores only need small `get`, `set`, and `delete` style methods and can be configured globally or per cache type.
+
 ## Useful Links
 
 - [Documentation](https://carbon.buape.com/carbon)

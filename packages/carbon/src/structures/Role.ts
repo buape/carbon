@@ -33,6 +33,12 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		if (this._guildId) {
+			void this.client.cache.roles.set(
+				this.client.cache.roleKey(this._guildId, this.id),
+				data
+			)
+		}
 	}
 	private setField(key: keyof APIRole, value: unknown) {
 		if (!this._rawData)
@@ -206,12 +212,24 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to a non-partial Role
 	 */
 	async fetch(): Promise<Role<false>> {
+		const cached = await this.client.cache.roles.get(
+			this.client.cache.roleKey(this.guildId, this.id)
+		)
+		if (cached) {
+			this.setData(cached)
+			return this as Role<false>
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guildRole(this.guildId, this.id)
 		)) as APIRole
 		if (!newData) throw new Error(`Role ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.roles.set(
+			this.client.cache.roleKey(this.guildId, this.id),
+			newData
+		)
 
 		return this as Role<false>
 	}
@@ -316,6 +334,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(Routes.guildRole(this.guildId, this.id), {
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
+		await this.client.cache.roles.delete(
+			this.client.cache.roleKey(this.guildId, this.id)
+		)
 	}
 
 	/**

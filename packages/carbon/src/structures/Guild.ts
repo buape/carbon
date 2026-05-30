@@ -56,6 +56,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.guilds.set(this.id, data)
 	}
 
 	private setField(key: keyof APIGuild, value: unknown) {
@@ -550,6 +551,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		if (!newData) throw new Error(`Guild ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.guilds.set(this.id, newData)
 
 		return this as Guild<false>
 	}
@@ -559,6 +561,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async leave() {
 		await this.client.rest.delete(Routes.guild(this.id))
+		await this.client.cache.guilds.delete(this.id)
 	}
 
 	/**
@@ -584,6 +587,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				}
 			}
 		)) as APIChannel
+		await this.client.cache.channels.set(channel.id, channel)
 
 		return channelFactory(this.client, channel)
 	}
@@ -597,6 +601,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				...data
 			}
 		})) as APIRole
+		await this.client.cache.roles.set(
+			this.client.cache.roleKey(this.id, role.id),
+			role
+		)
 		const roleClass = new Role(this.client, role, this.id)
 		this.setField(
 			"roles",
@@ -614,17 +622,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		memberId: string
 	): Promise<GuildMember<false, true> | null> {
 		try {
-			const partialGuild = new Guild<true>(this.client, this.id)
-			const member = (await this.client.rest.get(
-				Routes.guildMember(this.id, memberId)
-			)) as APIGuildMember
-			const memberObject = new GuildMember<false, true>(
-				this.client,
-				member,
-				partialGuild
-			)
-
-			return memberObject
+			return await this.client.fetchMember(this.id, memberId)
 		} catch (e) {
 			if (e instanceof DiscordError) {
 				if (e.status === 404) return null
@@ -683,10 +681,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async fetchChannel(channelId: string) {
 		try {
-			const channel = (await this.client.rest.get(
-				Routes.channel(channelId)
-			)) as APIChannel
-			return channelFactory(this.client, channel)
+			return await this.client.fetchChannel(channelId)
 		} catch (e) {
 			if (e instanceof DiscordError) {
 				if (e.status === 404) return null
@@ -703,6 +698,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const channels = (await this.client.rest.get(
 			Routes.guildChannels(this.id)
 		)) as APIChannel[]
+		await Promise.all(
+			channels.map((channel) =>
+				this.client.cache.channels.set(channel.id, channel)
+			)
+		)
 		const channelObjects = channels.map((channel) =>
 			channelFactory(this.client, channel)
 		)
@@ -714,10 +714,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Fetch a role from the guild by ID
 	 */
 	async fetchRole(roleId: string) {
-		const role = (await this.client.rest.get(
-			Routes.guildRole(this.id, roleId)
-		)) as APIRole
-		return new Role(this.client, role, this.id)
+		return this.client.fetchRole(this.id, roleId)
 	}
 
 	/**
@@ -728,6 +725,14 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const roles = (await this.client.rest.get(
 			Routes.guildRoles(this.id)
 		)) as APIRole[]
+		await Promise.all(
+			roles.map((role) =>
+				this.client.cache.roles.set(
+					this.client.cache.roleKey(this.id, role.id),
+					role
+				)
+			)
+		)
 		const roleObjects = roles.map(
 			(role) => new Role(this.client, role, this.id)
 		)
@@ -736,9 +741,13 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	public async getEmoji(id: string): Promise<GuildEmoji> {
+		const key = this.client.cache.emojiKey(this.id, id)
+		const cached = await this.client.cache.emojis.get(key)
+		if (cached) return new GuildEmoji(this.client, cached, this.id)
 		const emoji = (await this.client.rest.get(
 			Routes.guildEmoji(this.id, id)
 		)) as APIEmoji
+		await this.client.cache.emojis.set(key, emoji)
 		return new GuildEmoji(this.client, emoji, this.id)
 	}
 
@@ -757,11 +766,20 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const emoji = (await this.client.rest.post(Routes.guildEmojis(this.id), {
 			body: { name, image }
 		})) as APIEmoji
+		if (emoji.id) {
+			await this.client.cache.emojis.set(
+				this.client.cache.emojiKey(this.id, emoji.id),
+				emoji
+			)
+		}
 		return new GuildEmoji(this.client, emoji, this.id)
 	}
 
 	public async deleteEmoji(id: string) {
 		await this.client.rest.delete(Routes.guildEmoji(this.id, id))
+		await this.client.cache.emojis.delete(
+			this.client.cache.emojiKey(this.id, id)
+		)
 	}
 
 	/**
@@ -776,6 +794,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			Routes.guildScheduledEvents(this.id),
 			withUserCount ? { with_user_count: "true" } : undefined
 		)) as APIGuildScheduledEvent[]
+
+		await Promise.all(
+			scheduledEvents.map((event) =>
+				this.client.cache.scheduledEvents.set(
+					this.client.cache.scheduledEventKey(this.id, event.id),
+					event
+				)
+			)
+		)
 
 		return scheduledEvents.map(
 			(event) => new GuildScheduledEvent(this.client, event, this.id)
@@ -793,10 +820,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		withUserCount = false
 	): Promise<GuildScheduledEvent<false> | null> {
 		try {
+			const key = this.client.cache.scheduledEventKey(this.id, eventId)
+			const cached = await this.client.cache.scheduledEvents.get(key)
+			if (cached && !withUserCount)
+				return new GuildScheduledEvent(this.client, cached, this.id)
 			const scheduledEvent = (await this.client.rest.get(
 				Routes.guildScheduledEvent(this.id, eventId),
 				withUserCount ? { with_user_count: "true" } : undefined
 			)) as APIGuildScheduledEvent
+			await this.client.cache.scheduledEvents.set(key, scheduledEvent)
 
 			return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
 		} catch (e) {
@@ -831,6 +863,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				}
 			}
 		)) as APIGuildScheduledEvent
+		await this.client.cache.scheduledEvents.set(
+			this.client.cache.scheduledEventKey(this.id, scheduledEvent.id),
+			scheduledEvent
+		)
 
 		return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
 	}
@@ -863,6 +899,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			Routes.guildScheduledEvent(this.id, eventId),
 			{ body }
 		)) as APIGuildScheduledEvent
+		await this.client.cache.scheduledEvents.set(
+			this.client.cache.scheduledEventKey(this.id, scheduledEvent.id),
+			scheduledEvent
+		)
 
 		return new GuildScheduledEvent(this.client, scheduledEvent, this.id)
 	}
@@ -873,6 +913,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async deleteScheduledEvent(eventId: string): Promise<void> {
 		await this.client.rest.delete(Routes.guildScheduledEvent(this.id, eventId))
+		await this.client.cache.scheduledEvents.delete(
+			this.client.cache.scheduledEventKey(this.id, eventId)
+		)
 	}
 
 	/**

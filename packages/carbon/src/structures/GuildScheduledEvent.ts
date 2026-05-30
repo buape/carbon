@@ -51,6 +51,10 @@ export class GuildScheduledEvent<
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.scheduledEvents.set(
+			this.client.cache.scheduledEventKey(this.guildId, this.id),
+			data
+		)
 	}
 
 	/**
@@ -199,12 +203,24 @@ export class GuildScheduledEvent<
 	 * @returns A Promise that resolves to a non-partial GuildScheduledEvent
 	 */
 	async fetch(): Promise<GuildScheduledEvent<false>> {
+		const cached = await this.client.cache.scheduledEvents.get(
+			this.client.cache.scheduledEventKey(this.guildId, this.id)
+		)
+		if (cached) {
+			this.setData(cached)
+			return this as GuildScheduledEvent<false>
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guildScheduledEvent(this.guildId, this.id)
 		)) as APIGuildScheduledEvent
 		if (!newData) throw new Error(`Scheduled event ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.scheduledEvents.set(
+			this.client.cache.scheduledEventKey(this.guildId, this.id),
+			newData
+		)
 
 		return this as GuildScheduledEvent<false>
 	}
@@ -246,6 +262,9 @@ export class GuildScheduledEvent<
 	async delete(): Promise<void> {
 		await this.client.rest.delete(
 			Routes.guildScheduledEvent(this.guildId, this.id)
+		)
+		await this.client.cache.scheduledEvents.delete(
+			this.client.cache.scheduledEventKey(this.guildId, this.id)
 		)
 	}
 

@@ -18,6 +18,7 @@ import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { AnyListener } from "../abstracts/BaseListener.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
+import { type CacheManager, createCacheManager } from "../cache/index.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
@@ -157,6 +158,10 @@ export class Client {
 	 */
 	rest: RequestClient
 	/**
+	 * Opt-in entity cache manager.
+	 */
+	cache: CacheManager
+	/**
 	 * The handler for the component interactions sent from Discord
 	 * @internal
 	 */
@@ -229,6 +234,7 @@ export class Client {
 		this.commands = handlers.commands ?? []
 		this.commandMiddlewares = options.commandMiddlewares ?? []
 		this.listeners = handlers.listeners ?? []
+		this.cache = createCacheManager()
 
 		// Remove trailing slashes from the base URL
 		this.options.baseUrl = this.options.baseUrl.replace(/\/+$/, "")
@@ -271,6 +277,10 @@ export class Client {
 
 	public getPlugin<T extends Plugin>(id: string): T | undefined {
 		return this.plugins.find((p) => p.id === id)?.plugin as T | undefined
+	}
+
+	public setCache(cache: CacheManager): void {
+		this.cache = cache
 	}
 
 	public getRuntimeMetrics() {
@@ -583,7 +593,10 @@ export class Client {
 	 * @returns The user data
 	 */
 	async fetchUser(id: string) {
+		const cached = await this.cache.users.get(id)
+		if (cached) return new User(this, cached)
 		const user = (await this.rest.get(Routes.user(id))) as APIUser
+		await this.cache.users.set(id, user)
 		return new User(this, user)
 	}
 
@@ -593,7 +606,10 @@ export class Client {
 	 * @returns The guild data
 	 */
 	async fetchGuild(id: string) {
+		const cached = await this.cache.guilds.get(id)
+		if (cached) return new Guild(this, cached)
 		const guild = (await this.rest.get(Routes.guild(id))) as APIGuild
+		await this.cache.guilds.set(id, guild)
 		return new Guild(this, guild)
 	}
 
@@ -603,7 +619,10 @@ export class Client {
 	 * @returns The channel data
 	 */
 	async fetchChannel(id: string) {
+		const cached = await this.cache.channels.get(id)
+		if (cached) return channelFactory(this, cached)
 		const channel = (await this.rest.get(Routes.channel(id))) as APIChannel
+		await this.cache.channels.set(id, channel)
 		return channelFactory(this, channel)
 	}
 
@@ -614,7 +633,11 @@ export class Client {
 	 * @returns The role data
 	 */
 	async fetchRole(guildId: string, id: string) {
+		const key = this.cache.roleKey(guildId, id)
+		const cached = await this.cache.roles.get(key)
+		if (cached) return new Role(this, cached, guildId)
 		const role = (await this.rest.get(Routes.guildRole(guildId, id))) as APIRole
+		await this.cache.roles.set(key, role)
 		return new Role(this, role, guildId)
 	}
 
@@ -625,9 +648,15 @@ export class Client {
 	 * @returns The member data
 	 */
 	async fetchMember(guildId: string, id: string) {
+		const key = this.cache.memberKey(guildId, id)
+		const cached = await this.cache.members.get(key)
+		if (cached)
+			return new GuildMember(this, cached, new Guild<true>(this, guildId))
 		const member = (await this.rest.get(
 			Routes.guildMember(guildId, id)
 		)) as APIGuildMember
+		await this.cache.members.set(key, member)
+		await this.cache.users.set(member.user.id, member.user)
 		return new GuildMember(this, member, new Guild<true>(this, guildId))
 	}
 
@@ -638,9 +667,14 @@ export class Client {
 	 * @returns The message data
 	 */
 	async fetchMessage(channelId: string, messageId: string) {
+		const key = this.cache.messageKey(channelId, messageId)
+		const cached = await this.cache.messages.get(key)
+		if (cached) return new Message(this, cached)
 		const message = (await this.rest.get(
 			Routes.channelMessage(channelId, messageId)
 		)) as APIMessage
+		await this.cache.messages.set(key, message)
+		await this.cache.users.set(message.author.id, message.author)
 		return new Message(this, message)
 	}
 

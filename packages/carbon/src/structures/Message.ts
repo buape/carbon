@@ -1,6 +1,5 @@
 import {
 	type APIAttachment,
-	type APIChannel,
 	type APIComponentInContainer,
 	type APIMessage,
 	type APIMessageInteractionMetadata,
@@ -56,6 +55,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		this._rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")
+		void this.client.cache.messages.set(
+			this.client.cache.messageKey(data.channel_id, data.id),
+			data
+		)
+		void this.client.cache.users.set(data.author.id, data.author)
 	}
 
 	/**
@@ -310,12 +314,24 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot fetch message without channel ID")
 
+		const cached = await this.client.cache.messages.get(
+			this.client.cache.messageKey(this.channelId, this.id)
+		)
+		if (cached) {
+			this.setData(cached)
+			return this as Message<false>
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.channelMessage(this.channelId, this.id)
 		)) as APIMessage
 		if (!newData) throw new Error(`Message ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.messages.set(
+			this.client.cache.messageKey(this.channelId, this.id),
+			newData
+		)
 
 		return this as Message<false>
 	}
@@ -329,6 +345,9 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
+		await this.client.cache.messages.delete(
+			this.client.cache.messageKey(this.channelId, this.id)
+		)
 	}
 
 	/**
@@ -338,12 +357,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
 
-		const data = (await this.client.rest.get(
-			Routes.channel(this.channelId)
-		)) as APIChannel
-		const channel = channelFactory(this.client, data)
-
-		return channel
+		return this.client.fetchChannel(this.channelId)
 	}
 
 	/**
@@ -429,6 +443,10 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				} satisfies RESTPostAPIChannelMessageJSONBody
 			}
 		)) as APIMessage
+		await this.client.cache.messages.set(
+			this.client.cache.messageKey(channelId, message.id),
+			message
+		)
 		return new Message(this.client, message)
 	}
 
@@ -453,6 +471,10 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				} satisfies RESTPostAPIChannelMessageJSONBody
 			}
 		)) as APIMessage
+		await this.client.cache.messages.set(
+			this.client.cache.messageKey(this.channelId, message.id),
+			message
+		)
 		return new Message(this.client, message)
 	}
 

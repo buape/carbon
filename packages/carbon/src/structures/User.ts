@@ -27,6 +27,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 			this._rawData = rawDataOrId
 			this.id = rawDataOrId.id
 			this.setData(rawDataOrId)
+			void this.client.cache.users.set(this.id, rawDataOrId)
 		}
 	}
 
@@ -211,6 +212,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 		if (!newData) throw new Error(`User ${this.id} not found`)
 
 		this.setData(newData)
+		await this.client.cache.users.set(this.id, newData)
 
 		return this as User<false>
 	}
@@ -238,6 +240,10 @@ export class User<IsPartial extends boolean = false> extends Base {
 				body: serializePayload(data)
 			}
 		)) as APIMessage
+		await this.client.cache.messages.set(
+			this.client.cache.messageKey(dmChannel.id, message.id),
+			message
+		)
 		return new Message(this.client, message)
 	}
 }
