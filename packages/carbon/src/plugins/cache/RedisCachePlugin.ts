@@ -13,22 +13,20 @@ export type RedisCachePluginOptions = Omit<CacheManagerOptions, "store"> & {
 }
 
 export class RedisCachePlugin extends CachePlugin {
-	constructor(options: RedisCachePluginOptions) {
+	constructor({
+		client,
+		prefix = "carbon",
+		...options
+	}: RedisCachePluginOptions) {
 		const store: CacheStoreFactory = <T>(
 			type: CacheType,
 			typeOptions: Required<CacheTypeOptions>
 		) =>
-			new RedisCacheStore<T>(options.client, {
-				prefix: [options.prefix ?? "carbon", type].join(":"),
+			new RedisCacheStore<T>(client, {
+				prefix: `${prefix}:${type}`,
 				maxSize: typeOptions.maxSize,
 				ttl: typeOptions.ttl
 			})
-		const cacheOptions: CacheManagerOptions = {
-			...options,
-			store
-		}
-		delete (cacheOptions as { client?: RedisCacheClient }).client
-		delete (cacheOptions as { prefix?: string }).prefix
-		super(cacheOptions)
+		super({ ...options, store })
 	}
 }

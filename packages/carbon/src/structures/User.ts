@@ -27,7 +27,6 @@ export class User<IsPartial extends boolean = false> extends Base {
 			this._rawData = rawDataOrId
 			this.id = rawDataOrId.id
 			this.setData(rawDataOrId)
-			void this.client.cache.users.set(this.id, rawDataOrId)
 		}
 	}
 
@@ -35,6 +34,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.users.set(this.id, data)
 	}
 	// private setField(key: keyof APIUser, value: unknown) {
 	// 	if (!this.rawData) throw new Error("Cannot set field without having data... smh")
@@ -212,7 +212,6 @@ export class User<IsPartial extends boolean = false> extends Base {
 		if (!newData) throw new Error(`User ${this.id} not found`)
 
 		this.setData(newData)
-		await this.client.cache.users.set(this.id, newData)
 
 		return this as User<false>
 	}
@@ -240,10 +239,6 @@ export class User<IsPartial extends boolean = false> extends Base {
 				body: serializePayload(data)
 			}
 		)) as APIMessage
-		await this.client.cache.messages.set(
-			this.client.cache.messageKey(dmChannel.id, message.id),
-			message
-		)
 		return new Message(this.client, message)
 	}
 }

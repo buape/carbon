@@ -102,7 +102,7 @@ const client = new Client(
 )
 ```
 
-The Redis client must provide `get`, `set`, and either `del` or `delete`. For max-size enforcement, the client should also support raw commands through `sendCommand` or `call`.
+The Redis client must provide `get`, `set`, and either `del` or `delete`. Because Redis cache buckets enforce `maxSize` by default, the client must also support raw commands through `sendCommand` or `call` unless `maxSize` is set to `0`.
 
 ## Custom Stores
 
@@ -158,14 +158,14 @@ new MemoryCachePlugin({
 
 When caching is enabled, Carbon checks the cache before making REST requests for these methods:
 
-- `client.fetchUser(id)`
-- `client.fetchGuild(id)`
-- `client.fetchChannel(id)`
-- `client.fetchRole(guildId, id)`
-- `client.fetchMember(guildId, id)`
-- `client.fetchMessage(channelId, messageId)`
+- `client.fetchUser(id, force)`
+- `client.fetchGuild(id, force)`
+- `client.fetchChannel(id, force)`
+- `client.fetchRole(guildId, id, force)`
+- `client.fetchMember(guildId, id, force)`
+- `client.fetchMessage(channelId, messageId, force)`
 
-Structure methods that receive fresh data from Discord may also populate or invalidate cache entries.
+Pass `true` for `force` to bypass the cache and request fresh data from Discord. Structure methods that receive fresh data from Discord may also populate or invalidate cache entries.
 
 ## Gateway Updates
 

@@ -30,6 +30,10 @@ export class RedisCacheStore<T> implements CacheStore<T> {
 		this.prefix = options.prefix ?? "carbon"
 		this.ttl = options.ttl ?? 0
 		this.maxSize = options.maxSize ?? 0
+		if (this.maxSize > 0 && !this.client.sendCommand && !this.client.call)
+			throw new Error(
+				"Redis cache maxSize requires a client with sendCommand or call support"
+			)
 	}
 
 	async get(key: string): Promise<T | undefined> {

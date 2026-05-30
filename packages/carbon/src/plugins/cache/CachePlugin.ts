@@ -1,5 +1,5 @@
 import { Plugin } from "../../abstracts/Plugin.js"
-import { createCacheManager } from "../../cache/CacheManager.js"
+import { CacheManager } from "../../cache/CacheManager.js"
 import type { CacheManagerOptions } from "../../cache/types.js"
 import type { Client } from "../../classes/Client.js"
 
@@ -13,7 +13,7 @@ export class CachePlugin extends Plugin {
 	}
 
 	registerClient(client: Client): void {
-		client.setCache(createCacheManager({ enabled: true, ...this.options }))
+		client.setCache(new CacheManager({ enabled: true, ...this.options }))
 	}
 }
 

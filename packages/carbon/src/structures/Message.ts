@@ -55,10 +55,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		this._rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")
-		void this.client.cache.messages.set(
-			this.client.cache.messageKey(data.channel_id, data.id),
-			data
-		)
+		void this.client.cache.messages.set(`${data.channel_id}:${data.id}`, data)
 		void this.client.cache.users.set(data.author.id, data.author)
 	}
 
@@ -306,17 +303,17 @@ export class Message<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch updated data for this message.
-	 * If the message is partial, this will fetch all the data for the message and populate the fields.
-	 * If the message is not partial, all fields will be updated with new values from Discord.
+	 * If cached data exists, this uses it unless force is true.
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a non-partial Message
 	 */
-	async fetch(): Promise<Message<false>> {
+	async fetch(force: boolean = false): Promise<Message<false>> {
 		if (!this.channelId)
 			throw new Error("Cannot fetch message without channel ID")
 
-		const cached = await this.client.cache.messages.get(
-			this.client.cache.messageKey(this.channelId, this.id)
-		)
+		const cached = force
+			? undefined
+			: await this.client.cache.messages.get(`${this.channelId}:${this.id}`)
 		if (cached) {
 			this.setData(cached)
 			return this as Message<false>
@@ -328,10 +325,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		if (!newData) throw new Error(`Message ${this.id} not found`)
 
 		this.setData(newData)
-		await this.client.cache.messages.set(
-			this.client.cache.messageKey(this.channelId, this.id),
-			newData
-		)
 
 		return this as Message<false>
 	}
@@ -345,19 +338,18 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
-		await this.client.cache.messages.delete(
-			this.client.cache.messageKey(this.channelId, this.id)
-		)
+		await this.client.cache.messages.delete(`${this.channelId}:${this.id}`)
 	}
 
 	/**
 	 * Get the channel the message was sent in
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchChannel() {
+	async fetchChannel(force: boolean = false) {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
 
-		return this.client.fetchChannel(this.channelId)
+		return this.client.fetchChannel(this.channelId, force)
 	}
 
 	/**
@@ -443,10 +435,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				} satisfies RESTPostAPIChannelMessageJSONBody
 			}
 		)) as APIMessage
-		await this.client.cache.messages.set(
-			this.client.cache.messageKey(channelId, message.id),
-			message
-		)
 		return new Message(this.client, message)
 	}
 
@@ -471,10 +459,6 @@ export class Message<IsPartial extends boolean = false> extends Base {
 				} satisfies RESTPostAPIChannelMessageJSONBody
 			}
 		)) as APIMessage
-		await this.client.cache.messages.set(
-			this.client.cache.messageKey(this.channelId, message.id),
-			message
-		)
 		return new Message(this.client, message)
 	}
 

@@ -40,7 +40,7 @@ export class GuildMember<
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
 		void this.client.cache.members.set(
-			this.client.cache.memberKey(this.guild.id, data.user.id),
+			`${this.guild.id}:${data.user.id}`,
 			data as APIGuildMember
 		)
 		void this.client.cache.users.set(data.user.id, data.user)
@@ -412,10 +412,10 @@ export class GuildMember<
 		this.setField("communication_disabled_until", communicationDisabledUntil)
 	}
 
-	async fetch(): Promise<GuildMember<false, true>> {
-		const cached = await this.client.cache.members.get(
-			this.client.cache.memberKey(this.guild.id, this.user.id)
-		)
+	async fetch(force: boolean = false): Promise<GuildMember<false, true>> {
+		const cached = force
+			? undefined
+			: await this.client.cache.members.get(`${this.guild.id}:${this.user.id}`)
 		if (cached) {
 			this.setData(cached)
 			return this as GuildMember<false, true>
@@ -427,10 +427,6 @@ export class GuildMember<
 		if (!newData) throw new Error(`Member ${this.user.id} not found`)
 
 		this.setData(newData)
-		await this.client.cache.members.set(
-			this.client.cache.memberKey(this.guild.id, this.user.id),
-			newData
-		)
 
 		return this as GuildMember<false, true>
 	}

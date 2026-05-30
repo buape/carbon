@@ -83,6 +83,7 @@ export class CacheManager {
 	readonly messages!: CacheNamespace<CachePayloadMap["messages"]>
 	readonly emojis!: CacheNamespace<CachePayloadMap["emojis"]>
 	readonly scheduledEvents!: CacheNamespace<CachePayloadMap["scheduledEvents"]>
+	private readonly emojiIdsByGuild = new Map<string, Set<string>>()
 
 	constructor(options: CacheManagerOptions = {}) {
 		this.enabled = options.enabled ?? true
@@ -101,24 +102,20 @@ export class CacheManager {
 		return new CacheManager({ enabled: false })
 	}
 
-	roleKey(guildId: string, roleId: string) {
-		return `${guildId}:${roleId}`
+	async setEmoji(
+		guildId: string,
+		emoji: CachePayloadMap["emojis"]
+	): Promise<void> {
+		if (!emoji.id) return
+		this.trackEmoji(guildId, emoji.id)
+		await this.emojis.set(`${guildId}:${emoji.id}`, emoji)
 	}
 
-	memberKey(guildId: string, userId: string) {
-		return `${guildId}:${userId}`
-	}
-
-	messageKey(channelId: string, messageId: string) {
-		return `${channelId}:${messageId}`
-	}
-
-	emojiKey(guildId: string, emojiId: string) {
-		return `${guildId}:${emojiId}`
-	}
-
-	scheduledEventKey(guildId: string, eventId: string) {
-		return `${guildId}:${eventId}`
+	async deleteEmoji(guildId: string, emojiId: string): Promise<void> {
+		const emojiIds = this.emojiIdsByGuild.get(guildId)
+		emojiIds?.delete(emojiId)
+		if (emojiIds?.size === 0) this.emojiIdsByGuild.delete(guildId)
+		await this.emojis.delete(`${guildId}:${emojiId}`)
 	}
 
 	handleGatewayEvent<T extends ListenerEventType>(
@@ -217,7 +214,7 @@ export class CacheManager {
 		if (!user || typeof data.guild_id !== "string") return
 		await this.users.set(user.id, user)
 		await this.members.set(
-			this.memberKey(data.guild_id, user.id),
+			`${data.guild_id}:${user.id}`,
 			data as unknown as CachePayloadMap["members"]
 		)
 	}
@@ -226,7 +223,7 @@ export class CacheManager {
 		const user = data.user as CachePayloadMap["users"] | undefined
 		if (!user || typeof data.guild_id !== "string") return
 		await this.users.set(user.id, user)
-		await this.members.delete(this.memberKey(data.guild_id, user.id))
+		await this.members.delete(`${data.guild_id}:${user.id}`)
 	}
 
 	private async setMemberChunk(data: Record<string, unknown>) {
@@ -235,10 +232,7 @@ export class CacheManager {
 		await Promise.all(
 			members.map(async (member) => {
 				await this.users.set(member.user.id, member.user)
-				await this.members.set(
-					this.memberKey(data.guild_id as string, member.user.id),
-					member
-				)
+				await this.members.set(`${data.guild_id}:${member.user.id}`, member)
 			})
 		)
 	}
@@ -246,50 +240,60 @@ export class CacheManager {
 	private async setRole(data: Record<string, unknown>) {
 		const role = data.role as CachePayloadMap["roles"] | undefined
 		if (!role || typeof data.guild_id !== "string") return
-		await this.roles.set(this.roleKey(data.guild_id, role.id), role)
+		await this.roles.set(`${data.guild_id}:${role.id}`, role)
 	}
 
 	private async deleteRole(data: Record<string, unknown>) {
 		if (typeof data.guild_id !== "string" || typeof data.role_id !== "string")
 			return
-		await this.roles.delete(this.roleKey(data.guild_id, data.role_id))
+		await this.roles.delete(`${data.guild_id}:${data.role_id}`)
 	}
 
 	private async setEmojiList(data: Record<string, unknown>) {
 		const emojis = data.emojis as CachePayloadMap["emojis"][] | undefined
-		if (!emojis || typeof data.guild_id !== "string") return
-		await Promise.all(
-			emojis.map((emoji) =>
-				emoji.id
-					? this.emojis.set(
-							this.emojiKey(data.guild_id as string, emoji.id),
-							emoji
-						)
-					: undefined
-			)
+		const guildId = data.guild_id
+		if (!emojis || typeof guildId !== "string") return
+
+		const nextIds = new Set(
+			emojis.flatMap((emoji) => (emoji.id ? [emoji.id] : []))
 		)
+		const staleDeletes = [...(this.emojiIdsByGuild.get(guildId) ?? [])]
+			.filter((emojiId) => !nextIds.has(emojiId))
+			.map((emojiId) => this.emojis.delete(`${guildId}:${emojiId}`))
+
+		this.emojiIdsByGuild.set(guildId, nextIds)
+		await Promise.all([
+			...staleDeletes,
+			...emojis.map((emoji) =>
+				emoji.id ? this.emojis.set(`${guildId}:${emoji.id}`, emoji) : undefined
+			)
+		])
+	}
+
+	private trackEmoji(guildId: string, emojiId: string) {
+		const emojiIds = this.emojiIdsByGuild.get(guildId) ?? new Set<string>()
+		emojiIds.add(emojiId)
+		this.emojiIdsByGuild.set(guildId, emojiIds)
 	}
 
 	private async setScheduledEvent(data: Record<string, unknown>) {
 		if (typeof data.guild_id !== "string" || typeof data.id !== "string") return
 		await this.scheduledEvents.set(
-			this.scheduledEventKey(data.guild_id, data.id),
+			`${data.guild_id}:${data.id}`,
 			data as unknown as CachePayloadMap["scheduledEvents"]
 		)
 	}
 
 	private async deleteScheduledEvent(data: Record<string, unknown>) {
 		if (typeof data.guild_id !== "string" || typeof data.id !== "string") return
-		await this.scheduledEvents.delete(
-			this.scheduledEventKey(data.guild_id, data.id)
-		)
+		await this.scheduledEvents.delete(`${data.guild_id}:${data.id}`)
 	}
 
 	private async setMessage(data: Record<string, unknown>) {
 		if (typeof data.channel_id !== "string" || typeof data.id !== "string")
 			return
 		await this.messages.set(
-			this.messageKey(data.channel_id, data.id),
+			`${data.channel_id}:${data.id}`,
 			data as unknown as CachePayloadMap["messages"]
 		)
 		const author = data.author as CachePayloadMap["users"] | undefined
@@ -299,7 +303,7 @@ export class CacheManager {
 	private async updateMessage(data: Record<string, unknown>) {
 		if (typeof data.channel_id !== "string" || typeof data.id !== "string")
 			return
-		const key = this.messageKey(data.channel_id, data.id)
+		const key = `${data.channel_id}:${data.id}`
 		const existing = await this.messages.get(key)
 		if (!existing) return
 		await this.messages.set(key, {
@@ -313,16 +317,14 @@ export class CacheManager {
 	private async deleteMessage(data: Record<string, unknown>) {
 		if (typeof data.channel_id !== "string" || typeof data.id !== "string")
 			return
-		await this.messages.delete(this.messageKey(data.channel_id, data.id))
+		await this.messages.delete(`${data.channel_id}:${data.id}`)
 	}
 
 	private async deleteMessageBulk(data: Record<string, unknown>) {
 		const ids = data.ids as string[] | undefined
 		if (!ids || typeof data.channel_id !== "string") return
 		await Promise.all(
-			ids.map((id) =>
-				this.messages.delete(this.messageKey(data.channel_id as string, id))
-			)
+			ids.map((id) => this.messages.delete(`${data.channel_id}:${id}`))
 		)
 	}
 
@@ -345,9 +347,4 @@ export class CacheManager {
 		if (options.store) return options.store<T>(type, typeOptions)
 		return new MemoryCacheStore<T>(typeOptions)
 	}
-}
-
-export function createCacheManager(options?: CacheManagerOptions) {
-	if (!options) return CacheManager.disabled()
-	return new CacheManager(options)
 }
