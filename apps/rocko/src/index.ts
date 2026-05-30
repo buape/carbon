@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { Client } from "@buape/carbon"
 import { createHandler } from "@buape/carbon/adapters/fetch"
+import { MemoryCachePlugin } from "@buape/carbon/cache"
 import { CommandDataPlugin } from "@buape/carbon/command-data"
 import {
 	ApplicationRoleConnectionMetadataType,
@@ -97,7 +98,23 @@ const client = new Client(
 		],
 		listeners: [new ApplicationAuthorized(), new MessageCreate()]
 	},
-	[linkedRoles, new CommandDataPlugin()]
+	[
+		linkedRoles,
+		new MemoryCachePlugin({
+			default: { maxSize: 5000, ttl: 5 * 60 * 1000 },
+			types: {
+				users: { maxSize: 20_000, ttl: 30 * 60 * 1000 },
+				guilds: { maxSize: 2500, ttl: 30 * 60 * 1000 },
+				channels: { maxSize: 10_000, ttl: 30 * 60 * 1000 },
+				roles: { maxSize: 25_000, ttl: 30 * 60 * 1000 },
+				members: { maxSize: 25_000, ttl: 10 * 60 * 1000 },
+				messages: { maxSize: 2500, ttl: 2 * 60 * 1000 },
+				emojis: { maxSize: 10_000, ttl: 60 * 60 * 1000 },
+				scheduledEvents: { maxSize: 2500, ttl: 15 * 60 * 1000 }
+			}
+		}),
+		new CommandDataPlugin()
+	]
 )
 
 console.log(

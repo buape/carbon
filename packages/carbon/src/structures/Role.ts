@@ -33,6 +33,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		if (this._guildId) {
+			void this.client.cache.roles.set(`${this._guildId}:${this.id}`, data)
+		}
 	}
 	private setField(key: keyof APIRole, value: unknown) {
 		if (!this._rawData)
@@ -201,11 +204,19 @@ export class Role<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch updated data for this role.
-	 * If the role is partial, this will fetch all the data for the role and populate the fields.
-	 * If the role is not partial, all fields will be updated with new values from Discord.
+	 * If cached data exists, this uses it unless force is true.
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a non-partial Role
 	 */
-	async fetch(): Promise<Role<false>> {
+	async fetch(force: boolean = false): Promise<Role<false>> {
+		const cached = force
+			? undefined
+			: await this.client.cache.roles.get(`${this.guildId}:${this.id}`)
+		if (cached) {
+			this.setData(cached)
+			return this as Role<false>
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guildRole(this.guildId, this.id)
 		)) as APIRole
@@ -316,6 +327,7 @@ export class Role<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(Routes.guildRole(this.guildId, this.id), {
 			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
 		})
+		await this.client.cache.roles.delete(`${this.guildId}:${this.id}`)
 	}
 
 	/**

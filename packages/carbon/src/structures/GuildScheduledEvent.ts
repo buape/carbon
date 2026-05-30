@@ -51,6 +51,10 @@ export class GuildScheduledEvent<
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.scheduledEvents.set(
+			`${this.guildId}:${this.id}`,
+			data
+		)
 	}
 
 	/**
@@ -194,11 +198,21 @@ export class GuildScheduledEvent<
 
 	/**
 	 * Fetch updated data for this scheduled event.
-	 * If the scheduled event is partial, this will fetch all the data for the scheduled event and populate the fields.
-	 * If the scheduled event is not partial, all fields will be updated with new values from Discord.
+	 * If cached data exists, this uses it unless force is true.
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a non-partial GuildScheduledEvent
 	 */
-	async fetch(): Promise<GuildScheduledEvent<false>> {
+	async fetch(force: boolean = false): Promise<GuildScheduledEvent<false>> {
+		const cached = force
+			? undefined
+			: await this.client.cache.scheduledEvents.get(
+					`${this.guildId}:${this.id}`
+				)
+		if (cached) {
+			this.setData(cached)
+			return this as GuildScheduledEvent<false>
+		}
+
 		const newData = (await this.client.rest.get(
 			Routes.guildScheduledEvent(this.guildId, this.id)
 		)) as APIGuildScheduledEvent
@@ -247,6 +261,7 @@ export class GuildScheduledEvent<
 		await this.client.rest.delete(
 			Routes.guildScheduledEvent(this.guildId, this.id)
 		)
+		await this.client.cache.scheduledEvents.delete(`${this.guildId}:${this.id}`)
 	}
 
 	/**

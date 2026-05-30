@@ -18,6 +18,7 @@ import type { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { AnyListener } from "../abstracts/BaseListener.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import type { Context, Plugin, Route } from "../abstracts/Plugin.js"
+import { CacheManager } from "../cache/index.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import { CommandHandler } from "../internals/CommandHandler.js"
 import { ComponentHandler } from "../internals/ComponentHandler.js"
@@ -157,6 +158,10 @@ export class Client {
 	 */
 	rest: RequestClient
 	/**
+	 * Opt-in entity cache manager.
+	 */
+	cache: CacheManager
+	/**
 	 * The handler for the component interactions sent from Discord
 	 * @internal
 	 */
@@ -229,6 +234,7 @@ export class Client {
 		this.commands = handlers.commands ?? []
 		this.commandMiddlewares = options.commandMiddlewares ?? []
 		this.listeners = handlers.listeners ?? []
+		this.cache = CacheManager.disabled()
 
 		// Remove trailing slashes from the base URL
 		this.options.baseUrl = this.options.baseUrl.replace(/\/+$/, "")
@@ -271,6 +277,10 @@ export class Client {
 
 	public getPlugin<T extends Plugin>(id: string): T | undefined {
 		return this.plugins.find((p) => p.id === id)?.plugin as T | undefined
+	}
+
+	public setCache(cache: CacheManager): void {
+		this.cache = cache
 	}
 
 	public getRuntimeMetrics() {
@@ -580,9 +590,12 @@ export class Client {
 	/**
 	 * Fetch a user from the Discord API
 	 * @param id The ID of the user to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The user data
 	 */
-	async fetchUser(id: string) {
+	async fetchUser(id: string, force: boolean = false) {
+		const cached = force ? undefined : await this.cache.users.get(id)
+		if (cached) return new User(this, cached)
 		const user = (await this.rest.get(Routes.user(id))) as APIUser
 		return new User(this, user)
 	}
@@ -590,9 +603,12 @@ export class Client {
 	/**
 	 * Fetch a guild from the Discord API
 	 * @param id The ID of the guild to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The guild data
 	 */
-	async fetchGuild(id: string) {
+	async fetchGuild(id: string, force: boolean = false) {
+		const cached = force ? undefined : await this.cache.guilds.get(id)
+		if (cached) return new Guild(this, cached)
 		const guild = (await this.rest.get(Routes.guild(id))) as APIGuild
 		return new Guild(this, guild)
 	}
@@ -600,10 +616,14 @@ export class Client {
 	/**
 	 * Fetch a channel from the Discord API
 	 * @param id The ID of the channel to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The channel data
 	 */
-	async fetchChannel(id: string) {
+	async fetchChannel(id: string, force: boolean = false) {
+		const cached = force ? undefined : await this.cache.channels.get(id)
+		if (cached) return channelFactory(this, cached)
 		const channel = (await this.rest.get(Routes.channel(id))) as APIChannel
+		await this.cache.channels.set(id, channel)
 		return channelFactory(this, channel)
 	}
 
@@ -611,9 +631,13 @@ export class Client {
 	 * Fetch a role from the Discord API
 	 * @param guildId The ID of the guild the role is in
 	 * @param id The ID of the role to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The role data
 	 */
-	async fetchRole(guildId: string, id: string) {
+	async fetchRole(guildId: string, id: string, force: boolean = false) {
+		const key = `${guildId}:${id}`
+		const cached = force ? undefined : await this.cache.roles.get(key)
+		if (cached) return new Role(this, cached, guildId)
 		const role = (await this.rest.get(Routes.guildRole(guildId, id))) as APIRole
 		return new Role(this, role, guildId)
 	}
@@ -622,9 +646,14 @@ export class Client {
 	 * Fetch a member from the Discord API
 	 * @param guildId The ID of the guild the member is in
 	 * @param id The ID of the member to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The member data
 	 */
-	async fetchMember(guildId: string, id: string) {
+	async fetchMember(guildId: string, id: string, force: boolean = false) {
+		const key = `${guildId}:${id}`
+		const cached = force ? undefined : await this.cache.members.get(key)
+		if (cached)
+			return new GuildMember(this, cached, new Guild<true>(this, guildId))
 		const member = (await this.rest.get(
 			Routes.guildMember(guildId, id)
 		)) as APIGuildMember
@@ -635,9 +664,17 @@ export class Client {
 	 * Fetch a message from the Discord API
 	 * @param channelId The ID of the channel the message is in
 	 * @param messageId The ID of the message to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The message data
 	 */
-	async fetchMessage(channelId: string, messageId: string) {
+	async fetchMessage(
+		channelId: string,
+		messageId: string,
+		force: boolean = false
+	) {
+		const key = `${channelId}:${messageId}`
+		const cached = force ? undefined : await this.cache.messages.get(key)
+		if (cached) return new Message(this, cached)
 		const message = (await this.rest.get(
 			Routes.channelMessage(channelId, messageId)
 		)) as APIMessage

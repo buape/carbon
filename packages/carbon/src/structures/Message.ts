@@ -1,6 +1,5 @@
 import {
 	type APIAttachment,
-	type APIChannel,
 	type APIComponentInContainer,
 	type APIMessage,
 	type APIMessageInteractionMetadata,
@@ -56,6 +55,8 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		this._rawData = data
 		if (!data) throw new Error("Cannot set data without having data... smh")
+		void this.client.cache.messages.set(`${data.channel_id}:${data.id}`, data)
+		void this.client.cache.users.set(data.author.id, data.author)
 	}
 
 	/**
@@ -302,13 +303,21 @@ export class Message<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch updated data for this message.
-	 * If the message is partial, this will fetch all the data for the message and populate the fields.
-	 * If the message is not partial, all fields will be updated with new values from Discord.
+	 * If cached data exists, this uses it unless force is true.
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a non-partial Message
 	 */
-	async fetch(): Promise<Message<false>> {
+	async fetch(force: boolean = false): Promise<Message<false>> {
 		if (!this.channelId)
 			throw new Error("Cannot fetch message without channel ID")
+
+		const cached = force
+			? undefined
+			: await this.client.cache.messages.get(`${this.channelId}:${this.id}`)
+		if (cached) {
+			this.setData(cached)
+			return this as Message<false>
+		}
 
 		const newData = (await this.client.rest.get(
 			Routes.channelMessage(this.channelId, this.id)
@@ -329,21 +338,18 @@ export class Message<IsPartial extends boolean = false> extends Base {
 		await this.client.rest.delete(
 			Routes.channelMessage(this.channelId, this.id)
 		)
+		await this.client.cache.messages.delete(`${this.channelId}:${this.id}`)
 	}
 
 	/**
 	 * Get the channel the message was sent in
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchChannel() {
+	async fetchChannel(force: boolean = false) {
 		if (!this.channelId)
 			throw new Error("Cannot fetch channel without channel ID")
 
-		const data = (await this.client.rest.get(
-			Routes.channel(this.channelId)
-		)) as APIChannel
-		const channel = channelFactory(this.client, data)
-
-		return channel
+		return this.client.fetchChannel(this.channelId, force)
 	}
 
 	/**

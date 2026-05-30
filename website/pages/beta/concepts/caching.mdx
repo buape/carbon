@@ -1,0 +1,199 @@
+---
+title: Caching
+description: Learn how to use Carbon's opt-in entity cache with memory, Redis, and custom stores.
+---
+
+Carbon includes an opt-in entity cache for Discord resources. It is disabled by default because Carbon is serverless-first, and many serverless runtimes should not rely on long-lived process memory or persistent external connections.
+
+Caching is configured with plugins. The client still owns the cache internally, but applications enable and configure it through `MemoryCachePlugin`, `RedisCachePlugin`, or a custom cache plugin.
+
+## Cached Entities
+
+Carbon keeps separate cache buckets for different Discord entities:
+
+- `users`
+- `guilds`
+- `channels`
+- `roles`
+- `members`
+- `messages`
+- `emojis`
+- `scheduledEvents`
+
+Each bucket can have its own max size and TTL.
+
+## Enable the Memory Cache
+
+Use `MemoryCachePlugin` to enable the built-in in-memory cache.
+
+```ts title="src/index.ts"
+import { Client } from "@buape/carbon"
+import { MemoryCachePlugin } from "@buape/carbon/cache"
+
+const client = new Client(
+	options,
+	handlers,
+	[
+		new MemoryCachePlugin()
+	]
+)
+```
+
+For most persistent bots, configure explicit limits.
+
+```ts title="src/index.ts"
+const client = new Client(
+	options,
+	handlers,
+	[
+		new MemoryCachePlugin({
+			default: { maxSize: 5000, ttl: 5 * 60 * 1000 },
+			types: {
+				users: { maxSize: 20_000, ttl: 30 * 60 * 1000 },
+				members: { maxSize: 25_000, ttl: 10 * 60 * 1000 },
+				messages: { maxSize: 2500, ttl: 2 * 60 * 1000 }
+			}
+		})
+	]
+)
+```
+
+`ttl` is in milliseconds. A `ttl` of `0` disables time-based expiration for that bucket.
+
+## Per-Type Limits
+
+Use the `types` option to tune individual cache buckets.
+
+```ts title="src/index.ts"
+new MemoryCachePlugin({
+	default: { maxSize: 5000, ttl: 5 * 60 * 1000 },
+	types: {
+		users: { maxSize: 20_000, ttl: 30 * 60 * 1000 },
+		guilds: { maxSize: 2500, ttl: 30 * 60 * 1000 },
+		channels: { maxSize: 10_000, ttl: 30 * 60 * 1000 },
+		roles: { maxSize: 25_000, ttl: 30 * 60 * 1000 },
+		members: { maxSize: 25_000, ttl: 10 * 60 * 1000 },
+		messages: { maxSize: 2500, ttl: 2 * 60 * 1000 }
+	}
+})
+```
+
+## Redis Cache
+
+Redis support is exposed through `@buape/carbon/cache`. It is not required by the core package.
+
+```ts title="src/index.ts"
+import { RedisCachePlugin } from "@buape/carbon/cache"
+
+const client = new Client(
+	options,
+	handlers,
+	[
+		new RedisCachePlugin({
+			client: redis,
+			prefix: "my-bot",
+			default: { maxSize: 10_000, ttl: 10 * 60 * 1000 },
+			types: {
+				members: { maxSize: 50_000, ttl: 15 * 60 * 1000 },
+				messages: { maxSize: 1000, ttl: 60 * 1000 }
+			}
+		})
+	]
+)
+```
+
+The Redis client must provide `get`, `set`, and either `del` or `delete`. Because Redis cache buckets enforce `maxSize` by default, the client must also support raw commands through `sendCommand` or `call` unless `maxSize` is set to `0`.
+
+## Custom Stores
+
+A custom cache store only needs `get`, `set`, and `delete`. `has` and `clear` are optional.
+
+```ts title="src/index.ts"
+import { CachePlugin } from "@buape/carbon/cache"
+
+const client = new Client(
+	options,
+	handlers,
+	[
+		new CachePlugin({
+			store: (type, options) => ({
+				get: async (key) => storage.get(`${type}:${key}`),
+				set: async (key, value) => {
+					await storage.set(`${type}:${key}`, value, {
+						ttl: options.ttl
+					})
+				},
+				delete: async (key) => storage.delete(`${type}:${key}`)
+			})
+		})
+	]
+)
+```
+
+Use `stores` to provide a different store for a specific cache bucket.
+
+```ts title="src/index.ts"
+new CachePlugin({
+	stores: {
+		users: userStore,
+		messages: messageStore
+	}
+})
+```
+
+## Disable a Cache Bucket
+
+Set a cache type to `false` to disable caching for that entity.
+
+```ts title="src/index.ts"
+new MemoryCachePlugin({
+	default: { maxSize: 5000, ttl: 5 * 60 * 1000 },
+	types: {
+		messages: false
+	}
+})
+```
+
+## Fetch Behavior
+
+When caching is enabled, Carbon checks the cache before making REST requests for these methods:
+
+- `client.fetchUser(id, force)`
+- `client.fetchGuild(id, force)`
+- `client.fetchChannel(id, force)`
+- `client.fetchRole(guildId, id, force)`
+- `client.fetchMember(guildId, id, force)`
+- `client.fetchMessage(channelId, messageId, force)`
+
+Pass `true` for `force` to bypass the cache and request fresh data from Discord. Structure methods that receive fresh data from Discord may also populate or invalidate cache entries.
+
+## Gateway Updates
+
+When Gateway events are enabled, Carbon updates cache entries from relevant event payloads, including:
+
+- channel create/update/delete and thread create/update/delete
+- guild create/update/delete and availability changes
+- member add/update/remove and member chunks
+- role create/update/delete
+- emoji updates
+- scheduled event create/update/delete
+- message create/update/delete/bulk delete
+- user update
+
+Gateway payloads are not always complete. Use TTLs or explicit fetches when data freshness matters.
+
+## Runtime Guidance
+
+Use caching when:
+
+- the bot runs in a persistent process
+- the bot receives Gateway events
+- the same entities are fetched repeatedly
+- slightly stale data is acceptable
+
+Avoid caching, or keep limits small, when:
+
+- the app is deployed as stateless serverless functions
+- memory is constrained
+- stale data is worse than extra REST calls
+- multiple instances need shared state but no external store is configured

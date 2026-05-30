@@ -21,6 +21,7 @@ export class EventHandler extends Base {
 		payload: ListenerEventRawData[T] & ListenerEventAdditionalData,
 		type: T
 	): boolean {
+		this.client.cache.handleGatewayEvent(type, payload)
 		return this.eventQueue.enqueue(payload, type)
 	}
 

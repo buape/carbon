@@ -56,6 +56,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.guilds.set(this.id, data)
 	}
 
 	private setField(key: keyof APIGuild, value: unknown) {
@@ -559,6 +560,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async leave() {
 		await this.client.rest.delete(Routes.guild(this.id))
+		await this.client.cache.guilds.delete(this.id)
 	}
 
 	/**
@@ -584,6 +586,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				}
 			}
 		)) as APIChannel
+		await this.client.cache.channels.set(channel.id, channel)
 
 		return channelFactory(this.client, channel)
 	}
@@ -608,23 +611,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Get a member in the guild by ID
 	 * @param memberId The ID of the member to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a GuildMember or null if not found
 	 */
 	async fetchMember(
-		memberId: string
+		memberId: string,
+		force: boolean = false
 	): Promise<GuildMember<false, true> | null> {
 		try {
-			const partialGuild = new Guild<true>(this.client, this.id)
-			const member = (await this.client.rest.get(
-				Routes.guildMember(this.id, memberId)
-			)) as APIGuildMember
-			const memberObject = new GuildMember<false, true>(
-				this.client,
-				member,
-				partialGuild
-			)
-
-			return memberObject
+			return await this.client.fetchMember(this.id, memberId, force)
 		} catch (e) {
 			if (e instanceof DiscordError) {
 				if (e.status === 404) return null
@@ -680,13 +675,12 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch a channel from the guild by ID
+	 * @param channelId The ID of the channel to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchChannel(channelId: string) {
+	async fetchChannel(channelId: string, force: boolean = false) {
 		try {
-			const channel = (await this.client.rest.get(
-				Routes.channel(channelId)
-			)) as APIChannel
-			return channelFactory(this.client, channel)
+			return await this.client.fetchChannel(channelId, force)
 		} catch (e) {
 			if (e instanceof DiscordError) {
 				if (e.status === 404) return null
@@ -703,6 +697,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		const channels = (await this.client.rest.get(
 			Routes.guildChannels(this.id)
 		)) as APIChannel[]
+		await Promise.all(
+			channels.map((channel) =>
+				this.client.cache.channels.set(channel.id, channel)
+			)
+		)
 		const channelObjects = channels.map((channel) =>
 			channelFactory(this.client, channel)
 		)
@@ -712,12 +711,11 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	/**
 	 * Fetch a role from the guild by ID
+	 * @param roleId The ID of the role to fetch
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchRole(roleId: string) {
-		const role = (await this.client.rest.get(
-			Routes.guildRole(this.id, roleId)
-		)) as APIRole
-		return new Role(this.client, role, this.id)
+	async fetchRole(roleId: string, force: boolean = false) {
+		return this.client.fetchRole(this.id, roleId, force)
 	}
 
 	/**
@@ -735,7 +733,13 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		return roleObjects
 	}
 
-	public async getEmoji(id: string): Promise<GuildEmoji> {
+	public async getEmoji(
+		id: string,
+		force: boolean = false
+	): Promise<GuildEmoji> {
+		const key = `${this.id}:${id}`
+		const cached = force ? undefined : await this.client.cache.emojis.get(key)
+		if (cached) return new GuildEmoji(this.client, cached, this.id)
 		const emoji = (await this.client.rest.get(
 			Routes.guildEmoji(this.id, id)
 		)) as APIEmoji
@@ -762,6 +766,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 
 	public async deleteEmoji(id: string) {
 		await this.client.rest.delete(Routes.guildEmoji(this.id, id))
+		await this.client.cache.deleteEmoji(this.id, id)
 	}
 
 	/**
@@ -786,13 +791,21 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Fetch a specific scheduled event by ID
 	 * @param eventId The ID of the scheduled event to fetch
 	 * @param withUserCount Whether to include the user count in the response
+	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns A Promise that resolves to a GuildScheduledEvent or null if not found
 	 */
 	async fetchScheduledEvent(
 		eventId: string,
-		withUserCount = false
+		withUserCount = false,
+		force: boolean = false
 	): Promise<GuildScheduledEvent<false> | null> {
 		try {
+			const key = `${this.id}:${eventId}`
+			const cached = force
+				? undefined
+				: await this.client.cache.scheduledEvents.get(key)
+			if (cached && !withUserCount)
+				return new GuildScheduledEvent(this.client, cached, this.id)
 			const scheduledEvent = (await this.client.rest.get(
 				Routes.guildScheduledEvent(this.id, eventId),
 				withUserCount ? { with_user_count: "true" } : undefined
@@ -873,6 +886,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 */
 	async deleteScheduledEvent(eventId: string): Promise<void> {
 		await this.client.rest.delete(Routes.guildScheduledEvent(this.id, eventId))
+		await this.client.cache.scheduledEvents.delete(`${this.id}:${eventId}`)
 	}
 
 	/**

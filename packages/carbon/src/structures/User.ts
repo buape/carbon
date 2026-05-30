@@ -34,6 +34,7 @@ export class User<IsPartial extends boolean = false> extends Base {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		void this.client.cache.users.set(this.id, data)
 	}
 	// private setField(key: keyof APIUser, value: unknown) {
 	// 	if (!this.rawData) throw new Error("Cannot set field without having data... smh")

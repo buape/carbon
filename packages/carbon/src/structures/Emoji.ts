@@ -137,6 +137,7 @@ export class GuildEmoji extends BaseEmoji {
 	constructor(client: Client, rawData: APIEmoji, guildId: string) {
 		super(client, rawData)
 		this.guildId = guildId
+		this.setData(rawData)
 	}
 
 	get rawData(): APIEmoji {
@@ -146,6 +147,7 @@ export class GuildEmoji extends BaseEmoji {
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
 		this._rawData = data
+		if (this.id) void this.client.cache.setEmoji(this.guildId, data)
 	}
 
 	async setName(name: string) {
@@ -182,5 +184,6 @@ export class GuildEmoji extends BaseEmoji {
 		if (!this.id) throw new Error("Emoji ID is required")
 		if (!this.guildId) throw new Error("Guild ID is required")
 		await this.client.rest.delete(Routes.guildEmoji(this.guildId, this.id))
+		await this.client.cache.deleteEmoji(this.guildId, this.id)
 	}
 }
