@@ -143,6 +143,11 @@ export class CacheManager {
 				break
 			case "GUILD_CREATE":
 			case "GUILD_AVAILABLE":
+				await Promise.all([
+					this.setById(this.guilds, data),
+					this.setGuildChildren(data)
+				])
+				break
 			case "GUILD_UPDATE":
 				await this.setById(this.guilds, data)
 				break
@@ -200,6 +205,47 @@ export class CacheManager {
 		data: Record<string, unknown>
 	) {
 		if (typeof data.id === "string") await namespace.set(data.id, data as T)
+	}
+
+	private async setGuildChildren(data: Record<string, unknown>) {
+		if (typeof data.id !== "string") return
+		const guildId = data.id
+		const channels = data.channels as CachePayloadMap["channels"][] | undefined
+		const threads = data.threads as CachePayloadMap["channels"][] | undefined
+		const roles = data.roles as CachePayloadMap["roles"][] | undefined
+		const members = data.members as CachePayloadMap["members"][] | undefined
+		const emojis = data.emojis as CachePayloadMap["emojis"][] | undefined
+		const scheduledEvents = data.guild_scheduled_events as
+			| CachePayloadMap["scheduledEvents"][]
+			| undefined
+
+		await Promise.all([
+			...(channels ?? []).map((channel) =>
+				this.channels.set(channel.id, {
+					...channel,
+					guild_id: guildId
+				} as CachePayloadMap["channels"])
+			),
+			...(threads ?? []).map((thread) =>
+				this.channels.set(thread.id, {
+					...thread,
+					guild_id: guildId
+				} as CachePayloadMap["channels"])
+			),
+			...(roles ?? []).map((role) =>
+				this.roles.set(`${guildId}:${role.id}`, role)
+			),
+			...(members ?? []).map(async (member) => {
+				await this.users.set(member.user.id, member.user)
+				await this.members.set(`${guildId}:${member.user.id}`, member)
+			}),
+			...(emojis ?? []).map((emoji) =>
+				emoji.id ? this.setEmoji(guildId, emoji) : undefined
+			),
+			...(scheduledEvents ?? []).map((event) =>
+				this.scheduledEvents.set(`${guildId}:${event.id}`, event)
+			)
+		])
 	}
 
 	private async deleteById<T>(
