@@ -12,7 +12,7 @@ export type RedisCacheClient = {
 	del?(key: string): Promise<unknown> | unknown
 	delete?(key: string): Promise<unknown> | unknown
 	expire?(key: string, seconds: number): Promise<unknown> | unknown
-	sendCommand?(args: string[]): Promise<unknown> | unknown
+	sendCommand?: unknown
 	call?(command: string, ...args: string[]): Promise<unknown> | unknown
 }
 
@@ -30,7 +30,11 @@ export class RedisCacheStore<T> implements CacheStore<T> {
 		this.prefix = options.prefix ?? "carbon"
 		this.ttl = options.ttl ?? 0
 		this.maxSize = options.maxSize ?? 0
-		if (this.maxSize > 0 && !this.client.sendCommand && !this.client.call)
+		if (
+			this.maxSize > 0 &&
+			typeof this.client.sendCommand !== "function" &&
+			!this.client.call
+		)
 			throw new Error(
 				"Redis cache maxSize requires a client with sendCommand or call support"
 			)
@@ -92,9 +96,12 @@ export class RedisCacheStore<T> implements CacheStore<T> {
 	}
 
 	private async command(command: string, ...args: string[]) {
-		if (this.client.sendCommand)
-			return this.client.sendCommand([command, ...args])
-		return this.client.call?.(command, ...args)
+		if (this.client.call) return this.client.call(command, ...args)
+		if (typeof this.client.sendCommand !== "function") return undefined
+		return (this.client.sendCommand as (args: string[]) => unknown)([
+			command,
+			...args
+		])
 	}
 
 	private async deleteKey(key: string) {
