@@ -34,6 +34,11 @@ import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
 import { Webhook, type WebhookInput } from "../structures/Webhook.js"
 import type { CommandMiddleware } from "../types/commandMiddleware.js"
+import type {
+	CarbonFetch,
+	CarbonTestHookDisposer,
+	CarbonTestHooks
+} from "../types/testHooks.js"
 import {
 	concatUint8Arrays,
 	subtleCrypto,
@@ -123,6 +128,10 @@ export interface ClientOptions {
 	 * These run before per-command middlewares.
 	 */
 	commandMiddlewares?: CommandMiddleware[]
+	/**
+	 * Hooks used by Carbon testing utilities to observe handler behavior.
+	 */
+	testHooks?: CarbonTestHooks
 }
 
 /**
@@ -260,6 +269,7 @@ export class Client {
 
 		this.rest = new RequestClient(this.options.token, {
 			runtimeProfile,
+			testHooks: this.options.testHooks,
 			...this.options.requestOptions
 		})
 
@@ -281,6 +291,20 @@ export class Client {
 
 	public setCache(cache: CacheManager): void {
 		this.cache = cache
+	}
+
+	public useTestHooks(hooks: CarbonTestHooks): CarbonTestHookDisposer {
+		const previousHooks = this.options.testHooks
+		this.options.testHooks = hooks
+		const disposeRestHooks = this.rest.useTestHooks(hooks)
+		return () => {
+			this.options.testHooks = previousHooks
+			disposeRestHooks()
+		}
+	}
+
+	public useDiscordFetch(fetch: CarbonFetch): CarbonTestHookDisposer {
+		return this.rest.useFetch(fetch)
 	}
 
 	public getRuntimeMetrics() {

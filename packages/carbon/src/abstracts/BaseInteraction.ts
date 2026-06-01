@@ -174,6 +174,12 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		if (!overrideAutoRegister) this._internalAutoRegisterComponentsOnSend(data)
 
 		if (this._deferred) {
+			this.client.options?.testHooks?.emit?.({
+				type: "interaction:response",
+				kind: "edit-original",
+				interactionId: this._rawData.id,
+				body: serialized
+			})
 			const message = (await this.client.rest.patch(
 				Routes.webhookMessage(
 					this.client.options.clientId,
@@ -186,13 +192,20 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			)) as RESTPatchAPIWebhookWithTokenMessageResult
 			return new Message(this.client, message)
 		}
+		const body = {
+			type: InteractionResponseType.ChannelMessageWithSource,
+			data: serialized
+		} satisfies RESTPostAPIInteractionCallbackJSONBody
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "reply",
+			interactionId: this._rawData.id,
+			body
+		})
 		const done = (await this.client.rest.post(
 			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.ChannelMessageWithSource,
-					data: serialized
-				} satisfies RESTPostAPIInteractionCallbackJSONBody
+				body
 			},
 			{
 				with_response: true
@@ -221,18 +234,25 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	async defer({ ephemeral = false } = {}) {
 		if (this._deferred) return
 		this._deferred = true
+		const body = {
+			type: InteractionResponseType.DeferredChannelMessageWithSource,
+			data: {
+				flags:
+					ephemeral || this.defaultEphemeral
+						? MessageFlags.Ephemeral
+						: undefined
+			}
+		} satisfies RESTPostAPIInteractionCallbackJSONBody
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "defer",
+			interactionId: this._rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.DeferredChannelMessageWithSource,
-					data: {
-						flags:
-							ephemeral || this.defaultEphemeral
-								? MessageFlags.Ephemeral
-								: undefined
-					}
-				} satisfies RESTPostAPIInteractionCallbackJSONBody
+				body
 			}
 		)
 	}
@@ -253,18 +273,25 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			this.client.modalHandler.registerModal(modal)
 		}
 
+		const body = {
+			type: InteractionResponseType.Modal,
+			data: modal.serialize()
+		} satisfies
+			| RESTPostAPIInteractionCallbackJSONBody
+			| {
+					type: InteractionResponseType.Modal
+					data: APIModalInteractionResponseCallbackData2
+			  }
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "modal",
+			interactionId: this._rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.interactionCallback(this._rawData.id, this._rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.Modal,
-					data: modal.serialize()
-				} satisfies
-					| RESTPostAPIInteractionCallbackJSONBody
-					| {
-							type: InteractionResponseType.Modal
-							data: APIModalInteractionResponseCallbackData2
-					  }
+				body
 			}
 		)
 	}
@@ -278,12 +305,19 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		// Auto-register any components in the message
 		this._internalAutoRegisterComponentsOnSend(reply)
 
+		const body = {
+			...serialized
+		} satisfies RESTPostAPIInteractionFollowupJSONBody
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "followup",
+			interactionId: this._rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.webhook(this.client.options.clientId, this._rawData.token),
 			{
-				body: {
-					...serialized
-				} satisfies RESTPostAPIInteractionFollowupJSONBody
+				body
 			}
 		)
 	}

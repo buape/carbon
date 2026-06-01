@@ -11,6 +11,7 @@ packages/*/docs/
 .open-next/
 website/public/*.txt
 .idea/
+.pi/
 website/pages/beta/api/**
 !website/pages/beta/api/index.mdx
 

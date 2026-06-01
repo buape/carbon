@@ -1,0 +1,46 @@
+{
+	"name": "@buape/carbon-testing",
+	"version": "0.0.0",
+	"type": "module",
+	"main": "./dist/src/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/buape/carbon"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/src/index.d.ts",
+			"import": "./dist/src/index.js"
+		},
+		"./vitest": {
+			"types": "./dist/src/vitest.d.ts",
+			"import": "./dist/src/vitest.js"
+		},
+		"./bun": {
+			"types": "./dist/src/bun.d.ts",
+			"import": "./dist/src/bun.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc -w"
+	},
+	"license": "MIT",
+	"files": [
+		"dist",
+		"LICENSE",
+		"README.md"
+	],
+	"peerDependencies": {
+		"@buape/carbon": ">=0.16.0",
+		"vitest": ">=4.0.0"
+	},
+	"peerDependenciesMeta": {
+		"vitest": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@buape/carbon": "workspace:*"
+	}
+}

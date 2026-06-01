@@ -12,6 +12,10 @@ export class ModalHandler extends Base {
 	registerModal(modal: Modal) {
 		if (!this.modals.find((x) => x.customId === modal.customId)) {
 			this.modals.push(modal)
+			this.client.options?.testHooks?.emit?.({
+				type: "modal:registered",
+				customId: modal.customId
+			})
 		}
 	}
 	/**
@@ -19,24 +23,38 @@ export class ModalHandler extends Base {
 	 * @internal
 	 */
 	async handleInteraction(data: APIModalSubmitInteraction) {
-		let modal = this.modals.find((x) => {
-			const modalKey = x.customIdParser(x.customId).key
-			const interactionKey = x.customIdParser(data.data.custom_id).key
-			return modalKey === interactionKey
-		})
-
-		if (!modal) {
-			modal = this.modals.find((x) => {
+		try {
+			let modal = this.modals.find((x) => {
 				const modalKey = x.customIdParser(x.customId).key
-				return modalKey === "*"
+				const interactionKey = x.customIdParser(data.data.custom_id).key
+				return modalKey === interactionKey
 			})
+
+			if (!modal) {
+				modal = this.modals.find((x) => {
+					const modalKey = x.customIdParser(x.customId).key
+					return modalKey === "*"
+				})
+			}
+
+			if (!modal) return false
+
+			return await modal.run(
+				new ModalInteraction(this.client, data, {}),
+				modal.customIdParser(data.data.custom_id).data
+			)
+		} catch (error: unknown) {
+			this.client.options?.testHooks?.emit?.({
+				type: "handler:error",
+				handler: "modal",
+				error
+			})
+			if (this.client.options?.testHooks?.throwHandlerErrors === false) {
+				if (error instanceof Error) console.error(error.message)
+				console.error(error)
+				return
+			}
+			throw error
 		}
-
-		if (!modal) return false
-
-		return await modal.run(
-			new ModalInteraction(this.client, data, {}),
-			modal.customIdParser(data.data.custom_id).data
-		)
 	}
 }
