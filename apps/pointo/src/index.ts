@@ -1,4 +1,3 @@
-import "dotenv/config"
 import { Client } from "@buape/carbon"
 import {
 	GatewayForwarderPlugin,

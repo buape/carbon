@@ -65,8 +65,7 @@ export interface GatewayPluginOptions {
 	autoInteractions?: boolean
 	/**
 	 * Optional WebSocket constructor/factory override.
-	 * If omitted, Carbon will prefer Node's `ws` package when running on Node.js,
-	 * and fall back to `globalThis.WebSocket` in browser-compatible runtimes.
+	 * If omitted, Carbon uses the runtime's `globalThis.WebSocket` implementation.
 	 */
 	webSocketFactory?: (url: string) => GatewayWebSocketLike
 }

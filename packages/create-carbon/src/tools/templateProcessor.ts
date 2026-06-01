@@ -6,7 +6,6 @@ import {
 	writeFileSync
 } from "node:fs"
 import { dirname, resolve } from "node:path"
-import matter from "gray-matter"
 import Handlebars from "handlebars"
 import type { Runtime } from "../runtimes.js"
 import { debug } from "./consoleDebug.js"
@@ -115,11 +114,28 @@ const compileHbsFile = (path: string, context: TemplateContext) => {
 	const source = readFileSync(path, "utf-8")
 	const template = Handlebars.compile(source)
 	const body = template(context)
-	const { content, data } = matter(body)
+	const { content, meta } = parseTemplateMetadata(body)
 	return {
 		body: content.trim().replace(/\n{3,}/g, "\n\n"),
-		meta: data as FrontMatter
+		meta
 	}
+}
+
+const parseTemplateMetadata = (body: string) => {
+	if (!body.startsWith("---")) return { content: body, meta: {} }
+
+	const end = body.indexOf("\n---", 3)
+	if (end === -1) return { content: body, meta: {} }
+
+	const meta: FrontMatter = {}
+	for (const line of body.slice(3, end).trim().split("\n")) {
+		const separator = line.indexOf(":")
+		if (separator === -1) continue
+		const key = line.slice(0, separator).trim()
+		if (key) meta[key] = line.slice(separator + 1).trim()
+	}
+
+	return { content: body.slice(end + 4), meta }
 }
 
 const compileJsonFile = (path: string, context: TemplateContext) => {

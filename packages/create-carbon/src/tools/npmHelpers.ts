@@ -47,9 +47,6 @@ const dependencies = {
 	typescript: undefined,
 	// Node
 	"@types/node": undefined,
-	dotenv: undefined,
-	"tsc-watch": undefined,
-	tsx: undefined,
 	"@hono/node-server": undefined,
 	// Bun
 	"@types/bun": undefined,

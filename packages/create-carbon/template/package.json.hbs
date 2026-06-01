@@ -11,17 +11,15 @@ path: package.json
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsc-watch --onSuccess \"node .\"",
-		"start": "node ."
+		"dev": "{{packageManager}} run build && node --watch --env-file-if-exists=.env .",
+		"start": "node --env-file-if-exists=.env ."
 	},
 	"dependencies": {
 		"@buape/carbon": "{{get versions "@buape/carbon"}}",
-		"dotenv": "{{get versions "dotenv"}}",
 		"@hono/node-server": "{{get versions "@hono/node-server"}}"
 	},
 	"devDependencies": {
 		"@types/node": "{{get versions "@types/node"}}",
-		"tsc-watch": "{{get versions "tsc-watch"}}",
 		"typescript": "{{get versions "typescript"}}"
 	}
 	{{else if (eq runtime "bun")}}
@@ -68,17 +66,15 @@ path: package.json
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
-		"dev": "tsx watch src/local.ts",
-		"start": "node dist/local.js"
+		"dev": "{{packageManager}} run build && node --watch --env-file-if-exists=.env dist/local.js",
+		"start": "node --env-file-if-exists=.env dist/local.js"
 	},
 	"dependencies": {
 		"@buape/carbon": "{{get versions "@buape/carbon"}}",
-		"dotenv": "{{get versions "dotenv"}}",
 		"@hono/node-server": "{{get versions "@hono/node-server"}}"
 	},
 	"devDependencies": {
 		"@types/node": "{{get versions "@types/node"}}",
-		"tsx": "{{get versions "tsx"}}",
 		"typescript": "{{get versions "typescript"}}"
 	}
 	{{else if (eq runtime "next")}}
@@ -104,19 +100,13 @@ path: package.json
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
-		"start": "node dist/index.js",
-		"dev": "tsx watch src/index.ts"
+		"start": "node --env-file-if-exists=.env dist/index.js",
+		"dev": "{{packageManager}} run build && node --watch --env-file-if-exists=.env dist/index.js"
 	},
 	"dependencies": {
-		"@buape/carbon": "{{get versions "@buape/carbon"}}",
-		{{#if (eq runtime "forwarder")}}
-		"dotenv": "{{get versions "dotenv"}}"
-		{{else}}
-		"dotenv": "{{get versions "dotenv"}}"
-		{{/if}}
+		"@buape/carbon": "{{get versions "@buape/carbon"}}"
 	},
 	"devDependencies": {
-		"tsx": "{{get versions "tsx"}}",
 		"typescript": "{{get versions "typescript"}}"
 	},
 	"keywords": [

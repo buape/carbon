@@ -5,7 +5,6 @@ path: src/local.ts
 ---
 
 {{#if (eq runtime "fetch")}}
-import "dotenv/config"
 import { serve } from "@hono/node-server"
 import { createHandler } from "@buape/carbon/adapters/fetch"
 import { client } from "./index.js"

@@ -1,4 +1,3 @@
-import "dotenv/config"
 import { Client, type CommandMiddleware } from "@buape/carbon"
 import { createHandler } from "@buape/carbon/adapters/fetch"
 import { GatewayIntents, ShardingPlugin } from "@buape/carbon/sharding"

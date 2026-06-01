@@ -1,7 +1,6 @@
 #! /usr/bin/env node
 
 import * as p from "@clack/prompts"
-import yoctoSpinner from "yocto-spinner"
 import { type Runtime, runtimes } from "./runtimes.js"
 import { doesDirectoryExist } from "./tools/fileSystem.js"
 import {
@@ -85,9 +84,7 @@ if (p.isCancel(linkedRoles)) {
 
 // ================================================ Create Project ================================================
 
-const spinner = yoctoSpinner({ text: "Creating project..." })
-spinner.start()
-
+p.log.step("Creating project...")
 const packageManager = getPackageManager()
 await processTemplate({
 	name,
@@ -96,8 +93,7 @@ await processTemplate({
 	todaysDate: new Date().toISOString().split("T")[0] ?? "",
 	plugins: { linkedRoles, gateway }
 })
-
-spinner.stop()
+p.log.success("Project created")
 
 // ================================================ Install Dependencies ================================================
 
@@ -114,10 +110,9 @@ if (p.isCancel(doInstall)) {
 }
 
 if (doInstall === true) {
-	const depsSpinner = yoctoSpinner({ text: "Installing dependencies..." })
-	depsSpinner.start()
+	p.log.step("Installing dependencies...")
 	await runPackageManagerCommand("install", name)
-	depsSpinner.stop()
+	p.log.success("Dependencies installed")
 }
 
 // ================================================ Done ================================================

@@ -1,5 +1,4 @@
 import { EventEmitter } from "node:events"
-import { createRequire } from "node:module"
 import type { GatewayDispatchPayload } from "discord-api-types/v10"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
@@ -42,19 +41,6 @@ import { GatewayRateLimit } from "./utils/rateLimit.js"
 
 const textDecoder = new TextDecoder()
 const socketOpenState = 1
-let nodeRequire: NodeJS.Require | null = null
-
-try {
-	if (
-		typeof process !== "undefined" &&
-		process.versions?.node &&
-		typeof import.meta.url === "string"
-	) {
-		nodeRequire = createRequire(import.meta.url)
-	}
-} catch {
-	nodeRequire = null
-}
 
 export class GatewayPlugin extends Plugin {
 	readonly id = "gateway"
@@ -227,43 +213,13 @@ export class GatewayPlugin extends Plugin {
 
 		const socket = this.options.webSocketFactory
 			? this.options.webSocketFactory(url)
-			: (() => {
-					if (nodeRequire) {
-						try {
-							const wsModule = nodeRequire("ws") as {
-								default?: unknown
-								WebSocket?: unknown
-							}
-							const nodeWebSocket =
-								typeof wsModule.WebSocket === "function"
-									? (wsModule.WebSocket as new (
-											url: string
-										) => GatewayWebSocketLike)
-									: typeof wsModule.default === "function"
-										? (wsModule.default as new (
-												url: string
-											) => GatewayWebSocketLike)
-										: null
-							if (nodeWebSocket) {
-								return new nodeWebSocket(url)
-							}
-						} catch {
-							// fall through to global WebSocket
-						}
-					}
-
-					if (typeof globalThis.WebSocket === "function") {
-						return new globalThis.WebSocket(
-							url
-						) as unknown as GatewayWebSocketLike
-					}
-
-					return null
-				})()
+			: typeof globalThis.WebSocket === "function"
+				? (new globalThis.WebSocket(url) as unknown as GatewayWebSocketLike)
+				: null
 
 		if (!socket) {
 			throw new Error(
-				"No WebSocket implementation available. Provide GatewayPluginOptions.webSocketFactory or install 'ws'."
+				"No WebSocket implementation available. Use Node.js 24+ or provide GatewayPluginOptions.webSocketFactory."
 			)
 		}
 

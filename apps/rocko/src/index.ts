@@ -1,4 +1,3 @@
-import "dotenv/config"
 import { Client } from "@buape/carbon"
 import { createHandler } from "@buape/carbon/adapters/fetch"
 import { MemoryCachePlugin } from "@buape/carbon/cache"

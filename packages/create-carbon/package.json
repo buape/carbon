@@ -20,12 +20,7 @@
 	],
 	"dependencies": {
 		"@clack/prompts": "1.2.0",
-		"gray-matter": "4.0.3",
-		"handlebars": "4.7.9",
-		"yocto-spinner": "1.1.0"
-	},
-	"devDependencies": {
-		"@types/node": "^25.6.0"
+		"handlebars": "4.7.9"
 	},
 	"bin": "./dist/src/index.js"
 }
