@@ -28,12 +28,19 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 	 * This can only be used for component interactions
 	 */
 	async acknowledge() {
+		const body = {
+			type: InteractionResponseType.DeferredMessageUpdate
+		} as RESTPostAPIInteractionCallbackJSONBody
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "acknowledge",
+			interactionId: this.rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.DeferredMessageUpdate
-				} as RESTPostAPIInteractionCallbackJSONBody
+				body
 			}
 		)
 		this._deferred = true
@@ -48,15 +55,22 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 		// Auto-register any components in the message
 		this._internalAutoRegisterComponentsOnSend(data)
 
+		const body = {
+			type: InteractionResponseType.UpdateMessage,
+			data: {
+				...serialized
+			}
+		} as RESTPostAPIInteractionCallbackJSONBody
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "update",
+			interactionId: this.rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.UpdateMessage,
-					data: {
-						...serialized
-					}
-				} as RESTPostAPIInteractionCallbackJSONBody
+				body
 			}
 		)
 	}

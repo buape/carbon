@@ -109,6 +109,16 @@ importers:
         specifier: 0.38.45
         version: 0.38.45
 
+  packages/carbon-testing:
+    dependencies:
+      vitest:
+        specifier: '>=4.0.0'
+        version: 4.1.4(@types/node@25.6.0)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.0.8(@types/node@25.6.0)(esbuild@0.28.0)(jiti@2.6.1)(terser@5.16.9)(tsx@4.22.4)(yaml@2.8.3))
+    devDependencies:
+      '@buape/carbon':
+        specifier: workspace:*
+        version: link:../carbon
+
   packages/create-carbon:
     dependencies:
       '@clack/prompts':

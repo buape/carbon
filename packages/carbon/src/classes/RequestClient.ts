@@ -7,6 +7,11 @@ import {
 	type RequestLane,
 	RequestScheduler
 } from "../internals/RequestScheduler.js"
+import type {
+	CarbonFetch,
+	CarbonTestHookDisposer,
+	CarbonTestHooks
+} from "../types/testHooks.js"
 
 export type RuntimeProfile = "serverless" | "persistent"
 export type RequestPriority = RequestLane
@@ -73,14 +78,16 @@ export type RequestClientOptions = {
 	 * This allows you to inject your own fetch implementation for proxy support,
 	 * testing, mocking, or custom transport layers.
 	 */
-	fetch?: (
-		input: string | URL | Request,
-		init?: RequestInit
-	) => Promise<Response>
+	fetch?: CarbonFetch
+	/**
+	 * Test hooks used by first-party testing utilities.
+	 * @internal
+	 */
+	testHooks?: CarbonTestHooks
 }
 
 const defaultOptions: Required<
-	Omit<RequestClientOptions, "fetch" | "scheduler">
+	Omit<RequestClientOptions, "fetch" | "scheduler" | "testHooks">
 > = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
@@ -125,9 +132,7 @@ export class RequestClient {
 	 */
 	readonly options: RequestClientOptions
 	protected token: string
-	protected customFetch:
-		| ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
-		| undefined
+	protected customFetch: CarbonFetch | undefined
 
 	protected nextRequestId = 0
 	protected wakeupTimer: ReturnType<typeof setTimeout> | null = null
@@ -187,6 +192,22 @@ export class RequestClient {
 		query?: QueuedRequest["query"]
 	) {
 		return await this.request("DELETE", path, { data, query })
+	}
+
+	useFetch(fetch: CarbonFetch): CarbonTestHookDisposer {
+		const previousFetch = this.customFetch
+		this.customFetch = fetch
+		return () => {
+			this.customFetch = previousFetch
+		}
+	}
+
+	useTestHooks(hooks?: CarbonTestHooks): CarbonTestHookDisposer {
+		const previousHooks = this.options.testHooks
+		this.options.testHooks = hooks
+		return () => {
+			this.options.testHooks = previousHooks
+		}
 	}
 
 	protected configureScheduler() {
@@ -440,6 +461,14 @@ export class RequestClient {
 				? this.options.timeout
 				: undefined
 		const body = serializeRequestBody(data, headers)
+		this.options.testHooks?.emit?.({
+			type: "rest:request",
+			method,
+			path,
+			url,
+			body: data?.body,
+			query
+		})
 
 		let timeoutId: ReturnType<typeof setTimeout> | undefined
 		if (timeoutMs !== undefined) {

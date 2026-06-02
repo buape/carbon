@@ -176,6 +176,12 @@ export class CommandHandler extends Base {
 		} catch (e: unknown) {
 			status = "error"
 			error = e
+			this.client.options?.testHooks?.emit?.({
+				type: "handler:error",
+				handler: "command",
+				error: e
+			})
+			if (this.client.options?.testHooks?.throwHandlerErrors) throw e
 			if (e instanceof Error) console.error(e.message)
 			console.error(e)
 		} finally {
@@ -240,6 +246,12 @@ export class CommandHandler extends Base {
 			// Fall back to command-level autocomplete
 			return await command.autocomplete(interaction)
 		} catch (e: unknown) {
+			this.client.options?.testHooks?.emit?.({
+				type: "handler:error",
+				handler: "autocomplete",
+				error: e
+			})
+			if (this.client.options?.testHooks?.throwHandlerErrors) throw e
 			if (e instanceof Error) console.error(e.message)
 			console.error(e)
 		}

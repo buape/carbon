@@ -105,6 +105,7 @@ export * from "./plugins/paginator/index.js"
 // ----- Misc -----
 export * from "discord-api-types/v10"
 export * from "./types/index.js"
+export * from "./types/testHooks.js"
 export * from "./permissions.js"
 export type { ImageFormat, ImageSize } from "./utils/cdn.js"
 export * from "./utils/index.js"

@@ -76,15 +76,22 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 			)
 			safeChoices = choices.slice(0, 25)
 		}
+		const body = {
+			type: InteractionResponseType.ApplicationCommandAutocompleteResult,
+			data: {
+				choices: safeChoices
+			}
+		}
+		this.client.options?.testHooks?.emit?.({
+			type: "interaction:response",
+			kind: "autocomplete",
+			interactionId: this.rawData.id,
+			body
+		})
 		await this.client.rest.post(
 			Routes.interactionCallback(this.rawData.id, this.rawData.token),
 			{
-				body: {
-					type: InteractionResponseType.ApplicationCommandAutocompleteResult,
-					data: {
-						choices: safeChoices
-					}
-				}
+				body
 			}
 		)
 	}
