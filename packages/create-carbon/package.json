@@ -19,7 +19,7 @@
 		"LICENSE"
 	],
 	"dependencies": {
-		"@clack/prompts": "1.2.0",
+		"@clack/prompts": "1.5.1",
 		"handlebars": "4.7.9"
 	},
 	"bin": "./dist/src/index.js"

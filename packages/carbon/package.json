@@ -28,7 +28,7 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"discord-api-types": "0.38.49"
+		"discord-api-types": "0.38.48"
 	},
 	"files": [
 		"dist",
