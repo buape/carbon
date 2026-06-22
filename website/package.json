@@ -10,12 +10,12 @@
 		"deploy": "wrangler deploy --config wrangler.jsonc"
 	},
 	"devDependencies": {
-		"@tomehq/cli": "0.8.0",
-		"@tomehq/theme": "0.8.0",
+		"@tomehq/cli": "0.8.1",
+		"@tomehq/theme": "0.8.1",
 		"prismjs": "1.30.0",
-		"react": "19.2.5",
-		"react-dom": "19.2.5",
+		"react": "19.2.7",
+		"react-dom": "19.2.7",
 		"vite": "8.0.8",
-		"wrangler": "4.81.1"
+		"wrangler": "4.98.0"
 	}
 }

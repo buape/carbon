@@ -24,16 +24,16 @@
 		"web:deploy": "pnpm --filter website run build && pnpm --filter website run deploy"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.11",
-		"@changesets/cli": "2.30.0",
-		"@types/bun": "1.3.11",
-		"@types/node": "25.6.0",
-		"lefthook": "2.1.5",
+		"@biomejs/biome": "2.4.16",
+		"@changesets/cli": "2.31.0",
+		"@types/bun": "1.3.14",
+		"@types/node": "25.9.2",
+		"lefthook": "2.1.9",
 		"turbo": "2.9.5",
-		"typedoc": "0.28.18",
+		"typedoc": "0.28.19",
 		"typedoc-plugin-mdn-links": "5.1.1",
-		"typescript": "6.0.2",
-		"vitest": "4.1.4"
+		"typescript": "6.0.3",
+		"vitest": "4.1.8"
 	},
 	"packageManager": "pnpm@10.24.0",
 	"engines": {
