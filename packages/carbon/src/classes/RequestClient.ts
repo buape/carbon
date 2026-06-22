@@ -103,7 +103,10 @@ export type QueuedRequest = {
 	method: string
 	path: string
 	data?: RequestData
-	query?: Record<string, string | number | boolean>
+	query?: Record<
+		string,
+		string | number | boolean | readonly (string | number | boolean)[]
+	>
 	resolve: (value?: unknown) => void
 	reject: (reason?: unknown) => void
 	routeKey: string
@@ -431,14 +434,16 @@ export class RequestClient {
 		const { method, path, data, query, routeKey } = request
 		await this.waitForBucket(routeKey)
 
-		const queryString = query
-			? `?${Object.entries(query)
-					.map(
-						([key, value]) =>
-							`${encodeURIComponent(key)}=${encodeURIComponent(value)}`
+		const serializedQuery = query
+			? Object.entries(query)
+					.flatMap(([key, value]) =>
+						(Array.isArray(value) ? value : [value]).map(
+							(item) => `${encodeURIComponent(key)}=${encodeURIComponent(item)}`
+						)
 					)
-					.join("&")}`
+					.join("&")
 			: ""
+		const queryString = serializedQuery ? `?${serializedQuery}` : ""
 		const url = `${this.options.baseUrl}${path}${queryString}`
 		const originalRequest = new Request(url, { method })
 		const headers =

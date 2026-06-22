@@ -18,9 +18,12 @@ import {
 	type GuildPremiumTier,
 	type GuildSystemChannelFlags,
 	type GuildVerificationLevel,
+	type RESTGetAPIGuildMessagesSearchQuery,
+	type RESTGetAPIGuildMessagesSearchResult,
 	type RESTPostAPIGuildChannelJSONBody,
 	type RESTPostAPIGuildRoleJSONBody,
-	Routes
+	Routes,
+	type ThreadChannelType
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
@@ -35,7 +38,10 @@ import {
 	GuildScheduledEvent,
 	type GuildScheduledEventCreateData
 } from "./GuildScheduledEvent.js"
+import { GuildThreadChannel } from "./GuildThreadChannel.js"
+import { Message } from "./Message.js"
 import { Role } from "./Role.js"
+import { ThreadMember } from "./ThreadMember.js"
 
 export class Guild<IsPartial extends boolean = false> extends Base {
 	constructor(
@@ -707,6 +713,109 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		)
 
 		return channelObjects
+	}
+
+	/**
+	 * Search for messages in the guild.
+	 *
+	 * @remarks
+	 * The Search Guild Messages endpoint is restricted according to whether the MESSAGE_CONTENT Privileged Intent is enabled for your application.
+	 *
+	 * If the entity you are searching is not yet indexed, the endpoint will return a 202 accepted response. The response body will not contain any search results, and will look similar to an error response:
+	 * ```json
+	 * {
+	 *   "message": "Index not yet available. Try again later",
+	 *   "code": 110000,
+	 *   "documents_indexed": 0,
+	 *   "retry_after": 2
+	 * }
+	 * ```
+	 *
+	 * @param options Search filters and pagination options
+	 */
+	async searchMessages(options?: RESTGetAPIGuildMessagesSearchQuery): Promise<
+		| Extract<RESTGetAPIGuildMessagesSearchResult, { message: string }>
+		| (Omit<
+				Extract<RESTGetAPIGuildMessagesSearchResult, { messages: unknown }>,
+				"messages" | "threads" | "members"
+		  > & {
+				messages: Message<false>[][]
+				threads?: GuildThreadChannel<ThreadChannelType>[]
+				members?: ThreadMember[]
+				raw: Pick<
+					Extract<RESTGetAPIGuildMessagesSearchResult, { messages: unknown }>,
+					"threads" | "members"
+				>
+		  })
+	> {
+		const queryParams: Record<
+			string,
+			string | number | boolean | readonly string[]
+		> = {}
+		if (options?.limit !== undefined) queryParams.limit = options.limit
+		if (options?.offset !== undefined) queryParams.offset = options.offset
+		if (options?.max_id !== undefined) queryParams.max_id = options.max_id
+		if (options?.min_id !== undefined) queryParams.min_id = options.min_id
+		if (options?.slop !== undefined) queryParams.slop = options.slop
+		if (options?.content !== undefined) queryParams.content = options.content
+		if (options?.channel_id !== undefined)
+			queryParams.channel_id = options.channel_id
+		if (options?.author_type !== undefined)
+			queryParams.author_type = options.author_type
+		if (options?.author_id !== undefined)
+			queryParams.author_id = options.author_id
+		if (options?.mentions !== undefined) queryParams.mentions = options.mentions
+		if (options?.mentions_role_id !== undefined)
+			queryParams.mentions_role_id = options.mentions_role_id
+		if (options?.mention_everyone !== undefined)
+			queryParams.mention_everyone = options.mention_everyone
+		if (options?.replied_to_user_id !== undefined)
+			queryParams.replied_to_user_id = options.replied_to_user_id
+		if (options?.replied_to_message_id !== undefined)
+			queryParams.replied_to_message_id = options.replied_to_message_id
+		if (options?.pinned !== undefined) queryParams.pinned = options.pinned
+		if (options?.has !== undefined) queryParams.has = options.has
+		if (options?.embed_type !== undefined)
+			queryParams.embed_type = options.embed_type
+		if (options?.embed_provider !== undefined)
+			queryParams.embed_provider = options.embed_provider
+		if (options?.link_hostname !== undefined)
+			queryParams.link_hostname = options.link_hostname
+		if (options?.attachment_filename !== undefined)
+			queryParams.attachment_filename = options.attachment_filename
+		if (options?.attachment_extension !== undefined)
+			queryParams.attachment_extension = options.attachment_extension
+		if (options?.sort_by !== undefined) queryParams.sort_by = options.sort_by
+		if (options?.sort_order !== undefined)
+			queryParams.sort_order = options.sort_order
+		if (options?.include_nsfw !== undefined)
+			queryParams.include_nsfw = options.include_nsfw
+
+		const result = (await this.client.rest.get(
+			Routes.guildMessagesSearch(this.id),
+			Object.keys(queryParams).length > 0 ? queryParams : undefined
+		)) as RESTGetAPIGuildMessagesSearchResult
+
+		if ("messages" in result) {
+			return {
+				...result,
+				messages: result.messages.map((messages) =>
+					messages.map((message) => new Message(this.client, message))
+				),
+				threads: result.threads?.map(
+					(thread) => new GuildThreadChannel(this.client, thread)
+				),
+				members: result.members?.map(
+					(member) => new ThreadMember(this.client, member, this.id)
+				),
+				raw: {
+					threads: result.threads,
+					members: result.members
+				}
+			}
+		}
+
+		return result
 	}
 
 	/**

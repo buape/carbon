@@ -1,3 +1,5 @@
+import type { QueuedRequest } from "../classes/RequestClient.js"
+
 export type CarbonFetch = (
 	input: string | URL | Request,
 	init?: RequestInit
@@ -10,7 +12,7 @@ export type CarbonTestEvent =
 			path: string
 			url: string
 			body?: unknown
-			query?: Record<string, string | number | boolean>
+			query?: QueuedRequest["query"]
 	  }
 	| {
 			type: "interaction:response"
