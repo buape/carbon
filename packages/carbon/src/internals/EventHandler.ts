@@ -17,6 +17,11 @@ export class EventHandler extends Base {
 		this.eventQueue = new EventQueue(client, client.options.eventQueue)
 	}
 
+	handleEvent(
+		payload: ListenerEventRawData[keyof ListenerEventRawData] &
+			ListenerEventAdditionalData,
+		type: keyof ListenerEventRawData
+	): boolean
 	handleEvent<T extends keyof ListenerEventRawData>(
 		payload: ListenerEventRawData[T] & ListenerEventAdditionalData,
 		type: T

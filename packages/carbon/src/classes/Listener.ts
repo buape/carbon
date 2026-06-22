@@ -282,6 +282,27 @@ export abstract class ChannelDeleteListener extends BaseListener<
 	}
 }
 
+export abstract class ChannelInfoListener extends BaseListener<
+	typeof ListenerEvent.ChannelInfo
+> {
+	readonly type = ListenerEvent.ChannelInfo
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = new Guild<true>(client, data.guild_id)
+		return {
+			...data,
+			guild
+		}
+	}
+}
+
 export abstract class ChannelPinsUpdateListener extends BaseListener<
 	typeof ListenerEvent.ChannelPinsUpdate
 > {
@@ -1786,6 +1807,66 @@ export abstract class UserUpdateListener extends BaseListener<
 		return {
 			user,
 			...data
+		}
+	}
+}
+
+export abstract class VoiceChannelStartTimeUpdateListener extends BaseListener<
+	typeof ListenerEvent.VoiceChannelStartTimeUpdate
+> {
+	readonly type = ListenerEvent.VoiceChannelStartTimeUpdate
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = new Guild<true>(client, data.guild_id)
+		const channel = channelFactory(
+			client,
+			{
+				id: data.id,
+				type: ChannelType.GuildVoice
+			},
+			true
+		)
+		return {
+			...data,
+			guild,
+			channel
+		}
+	}
+}
+
+export abstract class VoiceChannelStatusUpdateListener extends BaseListener<
+	typeof ListenerEvent.VoiceChannelStatusUpdate
+> {
+	readonly type = ListenerEvent.VoiceChannelStatusUpdate
+	abstract handle(
+		data: ListenerEventData[this["type"]],
+		client: Client
+	): Promise<void>
+
+	parseRawData(
+		data: ListenerEventRawData[this["type"]],
+		client: Client
+	): ListenerEventData[this["type"]] {
+		const guild = new Guild<true>(client, data.guild_id)
+		const channel = channelFactory(
+			client,
+			{
+				id: data.id,
+				type: ChannelType.GuildVoice
+			},
+			true
+		)
+		return {
+			...data,
+			guild,
+			channel
 		}
 	}
 }

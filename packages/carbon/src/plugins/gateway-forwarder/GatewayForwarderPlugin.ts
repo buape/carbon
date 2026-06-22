@@ -226,7 +226,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 							type: forwardedType,
 							timestamp: new Date().toISOString(),
 							data: payload.d
-						} as APIWebhookEvent["event"]
+						} as NonNullable<APIWebhookEvent["event"]>
 					}
 
 					const body = JSON.stringify(webhookEvent)

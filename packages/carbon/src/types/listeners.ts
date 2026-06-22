@@ -2,7 +2,6 @@ import {
 	type APIWebhookEventApplicationAuthorizedData,
 	type APIWebhookEventApplicationDeauthorizedData,
 	type APIWebhookEventEntitlementCreateData,
-	type APIWebhookEventQuestUserEnrollmentData,
 	ApplicationWebhookEventType,
 	type GatewayApplicationCommandPermissionsUpdateDispatchData,
 	type GatewayAutoModerationActionExecutionDispatchData,
@@ -11,6 +10,7 @@ import {
 	type GatewayAutoModerationRuleUpdateDispatchData,
 	type GatewayChannelCreateDispatchData,
 	type GatewayChannelDeleteDispatchData,
+	type GatewayChannelInfoDispatchData,
 	type GatewayChannelPinsUpdateDispatchData,
 	type GatewayChannelUpdateDispatchData,
 	GatewayDispatchEvents,
@@ -59,7 +59,6 @@ import {
 	type GatewayPresenceUpdateDispatchData,
 	type GatewayRateLimitedDispatchData,
 	type GatewayReadyDispatchData,
-	type GatewayResumedDispatch,
 	type GatewayStageInstanceCreateDispatchData,
 	type GatewayStageInstanceDeleteDispatchData,
 	type GatewayStageInstanceUpdateDispatchData,
@@ -75,6 +74,8 @@ import {
 	type GatewayTypingStartDispatchData,
 	type GatewayUserUpdateDispatchData,
 	type GatewayVoiceChannelEffectSendDispatchData,
+	type GatewayVoiceChannelStartTimeUpdateDispatchData,
+	type GatewayVoiceChannelStatusUpdateDispatchData,
 	type GatewayVoiceServerUpdateDispatchData,
 	type GatewayVoiceStateUpdateDispatchData,
 	type GatewayWebhooksUpdateDispatchData,
@@ -118,7 +119,7 @@ export type ListenerEventRawData = {
 	[ListenerEvent.ApplicationAuthorized]: APIWebhookEventApplicationAuthorizedData
 	[ListenerEvent.ApplicationDeauthorized]: APIWebhookEventApplicationDeauthorizedData
 	[ListenerEvent.EntitlementCreate]: APIWebhookEventEntitlementCreateData
-	[ListenerEvent.QuestUserEnrollment]: APIWebhookEventQuestUserEnrollmentData
+	[ListenerEvent.QuestUserEnrollment]: Record<string, unknown>
 	[ListenerEvent.ApplicationCommandPermissionsUpdate]: GatewayApplicationCommandPermissionsUpdateDispatchData
 	[ListenerEvent.AutoModerationActionExecution]: GatewayAutoModerationActionExecutionDispatchData
 	[ListenerEvent.AutoModerationRuleCreate]: GatewayAutoModerationRuleCreateDispatchData
@@ -126,6 +127,7 @@ export type ListenerEventRawData = {
 	[ListenerEvent.AutoModerationRuleUpdate]: GatewayAutoModerationRuleUpdateDispatchData
 	[ListenerEvent.ChannelCreate]: GatewayChannelCreateDispatchData
 	[ListenerEvent.ChannelDelete]: GatewayChannelDeleteDispatchData
+	[ListenerEvent.ChannelInfo]: GatewayChannelInfoDispatchData
 	[ListenerEvent.ChannelPinsUpdate]: GatewayChannelPinsUpdateDispatchData
 	[ListenerEvent.ChannelUpdate]: GatewayChannelUpdateDispatchData
 	[ListenerEvent.EntitlementDelete]: GatewayEntitlementDeleteDispatchData
@@ -175,7 +177,7 @@ export type ListenerEventRawData = {
 	[ListenerEvent.PresenceUpdate]: GatewayPresenceUpdateDispatchData
 	[ListenerEvent.RateLimited]: GatewayRateLimitedDispatchData
 	[ListenerEvent.Ready]: GatewayReadyDispatchData
-	[ListenerEvent.Resumed]: GatewayResumedDispatch["d"]
+	[ListenerEvent.Resumed]: Record<string, unknown>
 	[ListenerEvent.StageInstanceCreate]: GatewayStageInstanceCreateDispatchData
 	[ListenerEvent.StageInstanceDelete]: GatewayStageInstanceDeleteDispatchData
 	[ListenerEvent.StageInstanceUpdate]: GatewayStageInstanceUpdateDispatchData
@@ -191,6 +193,8 @@ export type ListenerEventRawData = {
 	[ListenerEvent.TypingStart]: GatewayTypingStartDispatchData
 	[ListenerEvent.UserUpdate]: GatewayUserUpdateDispatchData
 	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData
+	[ListenerEvent.VoiceChannelStartTimeUpdate]: GatewayVoiceChannelStartTimeUpdateDispatchData
+	[ListenerEvent.VoiceChannelStatusUpdate]: GatewayVoiceChannelStatusUpdateDispatchData
 	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData
 	[ListenerEvent.VoiceStateUpdate]: GatewayVoiceStateUpdateDispatchData
 	[ListenerEvent.WebhooksUpdate]: GatewayWebhooksUpdateDispatchData
@@ -232,7 +236,7 @@ export type ListenerEventData = {
 		guild?: Guild<true>
 		user?: User<true>
 	}
-	[ListenerEvent.QuestUserEnrollment]: APIWebhookEventQuestUserEnrollmentData
+	[ListenerEvent.QuestUserEnrollment]: Record<string, unknown>
 	[ListenerEvent.ApplicationCommandPermissionsUpdate]: Omit<
 		GatewayApplicationCommandPermissionsUpdateDispatchData,
 		"guild"
@@ -281,6 +285,9 @@ export type ListenerEventData = {
 	> & {
 		channel?: AnyChannel
 		rawChannel: GatewayChannelDeleteDispatchData
+	}
+	[ListenerEvent.ChannelInfo]: GatewayChannelInfoDispatchData & {
+		guild: Guild<true>
 	}
 	[ListenerEvent.ChannelPinsUpdate]: Omit<
 		GatewayChannelPinsUpdateDispatchData,
@@ -522,7 +529,7 @@ export type ListenerEventData = {
 		user: User
 		rawUser: GatewayReadyDispatchData["user"]
 	}
-	[ListenerEvent.Resumed]: GatewayResumedDispatch["d"]
+	[ListenerEvent.Resumed]: Record<string, unknown>
 	[ListenerEvent.StageInstanceCreate]: GatewayStageInstanceCreateDispatchData & {
 		guild: Guild<true>
 	}
@@ -597,6 +604,14 @@ export type ListenerEventData = {
 	[ListenerEvent.VoiceChannelEffectSend]: GatewayVoiceChannelEffectSendDispatchData & {
 		guild: Guild<true>
 		user: User<true>
+	}
+	[ListenerEvent.VoiceChannelStartTimeUpdate]: GatewayVoiceChannelStartTimeUpdateDispatchData & {
+		guild: Guild<true>
+		channel: AnyChannel<true>
+	}
+	[ListenerEvent.VoiceChannelStatusUpdate]: GatewayVoiceChannelStatusUpdateDispatchData & {
+		guild: Guild<true>
+		channel: AnyChannel<true>
 	}
 	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData & {
 		guild: Guild<true>

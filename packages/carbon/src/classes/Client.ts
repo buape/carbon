@@ -471,7 +471,7 @@ export class Client {
 			return new Response(null, { status: 204 })
 
 		const enqueued = this.eventHandler.handleEvent(
-			{ ...payload.event.data, clientId: this.options.clientId },
+			{ ...(payload.event.data ?? {}), clientId: this.options.clientId },
 			payload.event.type
 		)
 
