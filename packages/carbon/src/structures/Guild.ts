@@ -21,6 +21,8 @@ import {
 	type RESTGetAPIGuildMessagesSearchQuery,
 	type RESTGetAPIGuildMessagesSearchResult,
 	type RESTPostAPIGuildChannelJSONBody,
+	type RESTPostAPIGuildPruneJSONBody,
+	type RESTPostAPIGuildPruneResult,
 	type RESTPostAPIGuildRoleJSONBody,
 	Routes,
 	type ThreadChannelType
@@ -677,6 +679,41 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		)
 
 		return memberObjects
+	}
+
+	/**
+	 * Begin a guild prune operation.
+	 *
+	 * @remarks
+	 * By default, Discord does not prune members with roles. Use `includeRoles` to include inactive members whose roles are a subset of the provided roles.
+	 *
+	 * @param options Prune options
+	 * @returns The number of pruned members, or `null` when `computePruneCount` is `false`
+	 */
+	async pruneMembers(
+		options: {
+			/** Number of days of inactivity to prune for (1-30). Defaults to 7. */
+			days?: RESTPostAPIGuildPruneJSONBody["days"]
+			/** Whether Discord should return the prune count. Defaults to true. */
+			computePruneCount?: RESTPostAPIGuildPruneJSONBody["compute_prune_count"]
+			/** Role IDs to include in the prune. */
+			includeRoles?: RESTPostAPIGuildPruneJSONBody["include_roles"]
+			/** Reason shown in the guild audit log. */
+			reason?: string
+		} = {}
+	): Promise<RESTPostAPIGuildPruneResult["pruned"]> {
+		const result = (await this.client.rest.post(Routes.guildPrune(this.id), {
+			body: {
+				days: options.days,
+				compute_prune_count: options.computePruneCount,
+				include_roles: options.includeRoles
+			},
+			headers: options.reason
+				? { "X-Audit-Log-Reason": options.reason }
+				: undefined
+		})) as RESTPostAPIGuildPruneResult
+
+		return result.pruned
 	}
 
 	/**
