@@ -43,7 +43,7 @@ export const serializePayload = (
 			)
 		}
 
-		if (!payload.files || payload.files.length !== 1) {
+		if (payload.files?.length !== 1) {
 			throw new Error(
 				"Voice messages must include exactly one audio file attachment."
 			)
