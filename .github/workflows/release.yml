@@ -19,7 +19,7 @@ jobs:
             publish: ${{ steps.snapshot_changes.outputs.publish }}
         steps:
             - name: Check out code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
@@ -54,7 +54,7 @@ jobs:
             id-token: write
         steps:
             - name: Check out code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Setup
               uses: ./.github/actions/setup
@@ -73,7 +73,7 @@ jobs:
             pull-requests: write
         steps:
             - name: Check out code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   token: ${{ secrets.BUAPEBOT_SECRET }}
 
