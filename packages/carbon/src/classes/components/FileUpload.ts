@@ -3,6 +3,7 @@ import {
 	ComponentType
 } from "discord-api-types/v10"
 import { BaseModalComponent } from "../../abstracts/BaseModalComponent.js"
+import type { FileTypeFilter } from "../../types/index.js"
 
 export abstract class FileUpload extends BaseModalComponent {
 	readonly type = ComponentType.FileUpload
@@ -23,6 +24,11 @@ export abstract class FileUpload extends BaseModalComponent {
 	 * Defaults to true
 	 */
 	required?: boolean
+	/**
+	 * Supported file types for uploaded files.
+	 * Use image, video, audio, or dot-prefixed extensions like .pdf.
+	 */
+	fileTypes?: FileTypeFilter[]
 
 	serialize = (): APIFileUploadComponent => {
 		const data: APIFileUploadComponent = {
@@ -33,6 +39,7 @@ export abstract class FileUpload extends BaseModalComponent {
 		if (this.minValues !== undefined) data.min_values = this.minValues
 		if (this.maxValues !== undefined) data.max_values = this.maxValues
 		if (this.required !== undefined) data.required = this.required
+		if (this.fileTypes !== undefined) data.file_types = this.fileTypes
 		return data
 	}
 }

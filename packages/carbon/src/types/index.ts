@@ -7,7 +7,8 @@ import type {
 	APILabelComponent,
 	APIModalComponent,
 	APIModalInteractionResponseCallbackData,
-	APITextDisplayComponent
+	APITextDisplayComponent,
+	ApplicationCommandOptionType
 } from "discord-api-types/v10"
 import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
@@ -206,6 +207,14 @@ export type VoiceState = {
 
 export type ResolvedFile = APIAttachment
 
+/**
+ * image includes '.png', '.gif', '.jpg', '.jpeg', '.jfif', '.webp', '.avif'
+ * video includes '.mp4', '.mov', '.qt', '.webm'
+ * audio includes '.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac'
+ */
+export type FileTypeFilter = "image" | "video" | "audio" | `.${string}`
+// internally at Discord, that regex is ^(image|video|audio|\.[\w\-\.]+)$
+
 export type BaseMessageInteractiveComponentConstructor = new (
 	// biome-ignore lint/suspicious/noExplicitAny: This is a constructor
 	...args: any[]
@@ -225,6 +234,18 @@ declare module "discord-api-types/v10" {
 		| APICheckboxActionComponent
 		| APICheckboxGroupActionComponent
 		| APIRadioGroupActionComponent
+
+	export interface APIFileUploadComponent {
+		file_types?: FileTypeFilter[]
+	}
+
+	export interface APIApplicationCommandOptionBase<
+		Type extends ApplicationCommandOptionType
+	> {
+		file_types?: Type extends ApplicationCommandOptionType.Attachment
+			? FileTypeFilter[]
+			: never
+	}
 
 	export interface APIRadioGroupActionComponent {
 		type: 21 //ComponentType.RadioGroup
