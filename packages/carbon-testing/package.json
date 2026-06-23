@@ -1,6 +1,6 @@
 {
 	"name": "@buape/carbon-testing",
-	"version": "0.0.0",
+	"version": "1.0.0",
 	"type": "module",
 	"main": "./dist/src/index.js",
 	"repository": {
@@ -32,7 +32,7 @@
 		"README.md"
 	],
 	"peerDependencies": {
-		"@buape/carbon": ">=0.16.0",
+		"@buape/carbon": ">=0.17.0",
 		"vitest": ">=4.0.0"
 	},
 	"peerDependenciesMeta": {

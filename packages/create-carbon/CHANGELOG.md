@@ -1,5 +1,11 @@
 # create-carbon
 
+## 0.8.1
+
+### Patch Changes
+
+- [`d3e5858`](https://github.com/buape/carbon/commit/d3e58583f7c59f9a681c5a97d6dee60746567d1c) - chore: Use the runtime-native WebSocket implementation on Node 24+, make voice/runtime type packages optional peers, and remove tsc-watch from generated Node projects.
+
 ## 0.8.0
 
 ### Minor Changes
