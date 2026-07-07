@@ -7,19 +7,13 @@ import type { Cluster, Redis, RedisValue } from "ioredis"
 export type RedisStreamClient = Redis | Cluster
 
 /**
- * ioredis's stream command overloads (`xadd`/`xgroup`/`xack`/`xautoclaim`/
- * `xreadgroup`) are heavily variadic and tuple-typed per-overload, which
- * fights back hard against argument lists built up at runtime. We only ever
- * call these with flat argument lists, so both plugins bind through this
- * simpler signature instead of wrestling the full overload set. `RedisValue`
- * (`string | Buffer | number`) is ioredis's own exported type for a single
- * command argument, so this stays honest about what ioredis actually accepts.
+ * ioredis's stream command overloads are very variadic so both plugins bind through this
+ * simpler signature instead.
  */
 export type VariadicRedisCommand = (...args: RedisValue[]) => Promise<unknown>
 
 /**
- * Derives the Redis Stream key for a client's gateway events. Exported so the
- * sender and receiver plugins can never disagree on the naming convention.
+ * Derives the Redis Stream key for a client's gateway events.
  */
 export function deriveStreamKey(
 	clientId: string,
