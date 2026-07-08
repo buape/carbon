@@ -117,6 +117,8 @@ Listeners extend specific event listener classes:
 
 ## Important Implementation Notes
 
+- For Discord API types that are not yet available in `discord-api-types`, prefer existing overrides/module augmentations in `packages/carbon/src/types/index.ts` instead of creating separate type files; for enum flags, hardcode the value locally with a TODO until `discord-api-types` supports it.
+- Changeset summaries should use conventional commits format and match the commit title.
 - The framework auto-discovers and registers components used in responses
 - Plugin architecture allows extending functionality without modifying core
 - Multi-runtime support requires adapter-specific testing

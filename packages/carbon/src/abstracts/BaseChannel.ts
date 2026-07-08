@@ -148,6 +148,21 @@ export abstract class BaseChannel<
 	}
 
 	/**
+	 * Whether this channel's metadata has been obfuscated because the current app
+	 * cannot view it.
+	 *
+	 * Obfuscated channels are sent over the Gateway with redacted metadata. Check
+	 * this before displaying channel metadata such as the name or topic.
+	 *
+	 * @see https://discord.com/developers/docs/resources/channel#channel-object-obfuscated-channels
+	 */
+	get obfuscated(): IfPartial<IsPartial, boolean> {
+		if (!this._rawData) return undefined as never
+		// TODO: Use ChannelFlags.Obfuscated once it is available in discord-api-types.
+		return Boolean((this._rawData.flags ?? 0) & (1 << 17)) as never
+	}
+
+	/**
 	 * Fetches the channel from the API.
 	 * @returns A Promise that resolves to a non-partial channel
 	 */
