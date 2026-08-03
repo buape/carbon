@@ -96,9 +96,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.String
 		)?.value
 		if (required) {
-			if (!value || typeof value !== "string")
+			if (typeof value !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!value || typeof value !== "string") return undefined
+		} else if (typeof value !== "string") return undefined
 		this.checkAgainstDefinition(key, value)
 		return value
 	}
@@ -116,13 +116,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Integer
 		)?.value
 		if (required) {
-			if (!value || typeof value !== "number" || !Number.isSafeInteger(value))
+			if (typeof value !== "number" || !Number.isSafeInteger(value))
 				throw new Error(`Missing required option: ${key}`)
-		} else if (
-			!value ||
-			typeof value !== "number" ||
-			!Number.isSafeInteger(value)
-		)
+		} else if (typeof value !== "number" || !Number.isSafeInteger(value))
 			return undefined
 		this.checkAgainstDefinition(key, value)
 		return value
@@ -141,9 +137,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Number
 		)?.value
 		if (required) {
-			if (!value || typeof value !== "number")
+			if (typeof value !== "number")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!value || typeof value !== "number") return undefined
+		} else if (typeof value !== "number") return undefined
 		this.checkAgainstDefinition(key, value)
 		return value
 	}
@@ -161,9 +157,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Boolean
 		)?.value
 		if (required) {
-			if (!value || typeof value !== "boolean")
+			if (typeof value !== "boolean")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!value || typeof value !== "boolean") return undefined
+		} else if (typeof value !== "boolean") return undefined
 		return value
 	}
 
@@ -180,9 +176,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 
 		const user = this.resolved.users?.[id]
 		if (!user) {
@@ -212,9 +208,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.User
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 
 		const user = this.resolved.users?.[id]
 		if (!user) {
@@ -244,9 +240,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 		return id
 	}
 
@@ -269,9 +265,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 		return (await this.client.fetchChannel(id)) ?? undefined
 	}
 
@@ -288,9 +284,9 @@ export class OptionsHandler extends Base {
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Role
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 
 		const role = this.resolved.roles?.[id]
 		if (!role) {
@@ -321,9 +317,9 @@ export class OptionsHandler extends Base {
 				x.name === key && x.type === ApplicationCommandOptionType.Mentionable
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 
 		// Check if it's a user first
 		const user = this.resolved.users?.[id]
@@ -360,9 +356,9 @@ export class OptionsHandler extends Base {
 				x.name === key && x.type === ApplicationCommandOptionType.Attachment
 		)?.value
 		if (required) {
-			if (!id || typeof id !== "string")
+			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
-		} else if (!id || typeof id !== "string") return undefined
+		} else if (typeof id !== "string") return undefined
 		const attachment = this.interactionData.resolved?.attachments?.[id]
 		if (!attachment) {
 			if (required) throw new Error(`Missing required option: ${key}`)
@@ -383,7 +379,7 @@ export class OptionsHandler extends Base {
 		) {
 			if (
 				"max_length" in definition &&
-				definition.max_length &&
+				definition.max_length !== undefined &&
 				value.length > definition.max_length
 			)
 				throw new Error(
@@ -391,7 +387,7 @@ export class OptionsHandler extends Base {
 				)
 			if (
 				"min_length" in definition &&
-				definition.min_length &&
+				definition.min_length !== undefined &&
 				value.length < definition.min_length
 			)
 				throw new Error(
@@ -405,7 +401,7 @@ export class OptionsHandler extends Base {
 		) {
 			if (
 				"min_value" in definition &&
-				definition.min_value &&
+				definition.min_value !== undefined &&
 				value < definition.min_value
 			)
 				throw new Error(
@@ -413,7 +409,7 @@ export class OptionsHandler extends Base {
 				)
 			if (
 				"max_value" in definition &&
-				definition.max_value &&
+				definition.max_value !== undefined &&
 				value > definition.max_value
 			)
 				throw new Error(
