@@ -7,5 +7,9 @@
 	"baseBranch": "main",
 	"updateInternalDependencies": "patch",
 	"ignore": ["website", "demo-*"],
+	"snapshot": {
+		"useCalculatedVersion": true,
+		"prereleaseTemplate": "{tag}-{datetime}"
+	},
 	"changelog": ["./generator.ts", { "repo": "buape/carbon" }]
 }
