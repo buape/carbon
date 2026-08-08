@@ -7,7 +7,6 @@ import {
 } from "../../src/plugins/gateway/types.js"
 import { RedisStreamGatewayForwarderPlugin } from "../../src/plugins/redis-gateway-forwarder/RedisStreamGatewayForwarderPlugin.js"
 import { RedisStreamGatewayReceiverPlugin } from "../../src/plugins/redis-gateway-forwarder/RedisStreamGatewayReceiverPlugin.js"
-import { parseStreamEntryFields } from "../../src/plugins/redis-gateway-forwarder/types.js"
 
 class MockWebSocket extends EventEmitter {
 	readyState = 1
@@ -43,7 +42,28 @@ function getForwardedEvents(xadd: ReturnType<typeof vi.fn>) {
 		// call shape is [streamKey, ...maybeMaxlenTriple, id, "type", <type>, "data", <json>, "ts", <ts>]
 		const typeIndex = call.indexOf("type")
 		const fields = call.slice(typeIndex).map(String)
-		return parseStreamEntryFields(fields)
+		let type = "unknown"
+		let data: unknown = null
+		let enqueuedAt: number | undefined
+		for (let i = 0; i < fields.length; i += 2) {
+			const field = fields[i]
+			const value = fields[i + 1]
+			if (field === "type" && typeof value === "string") {
+				type = value
+			}
+			if (field === "data" && typeof value === "string") {
+				try {
+					data = JSON.parse(value)
+				} catch {
+					data = null
+				}
+			}
+			if (field === "ts" && typeof value === "string") {
+				const parsed = Number(value)
+				if (Number.isFinite(parsed)) enqueuedAt = parsed
+			}
+		}
+		return { type, data, enqueuedAt }
 	})
 }
 

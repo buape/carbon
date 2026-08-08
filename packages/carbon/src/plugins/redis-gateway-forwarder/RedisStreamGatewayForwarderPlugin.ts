@@ -1,15 +1,10 @@
 import type { Client } from "../../classes/Client.js"
+import type { RuntimeProfile } from "../../classes/RequestClient.js"
 import { createBoundedExecutor } from "../../internals/BoundedExecutor.js"
 import type { ListenerEventType } from "../../types/index.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type { GatewayPayload, GatewayPluginOptions } from "../gateway/types.js"
-import {
-	deriveStreamKey,
-	type RedisStreamClient,
-	type VariadicRedisCommand
-} from "./types.js"
-
-type RuntimeProfile = "serverless" | "persistent"
+import type { RedisStreamClient } from "./types.js"
 
 export interface RedisStreamDeliveryOptions {
 	timeoutMs?: number
@@ -130,10 +125,14 @@ export class RedisStreamGatewayForwarderPlugin extends GatewayPlugin {
 			...defaults,
 			...options.delivery
 		}
-		assertPositiveInteger(
-			"delivery.maxInFlight",
-			this.deliveryPolicy.maxInFlight
-		)
+		if (
+			!Number.isInteger(this.deliveryPolicy.maxInFlight) ||
+			this.deliveryPolicy.maxInFlight < 1
+		) {
+			throw new Error(
+				"delivery.maxInFlight must be an integer greater than or equal to 1"
+			)
+		}
 		this.deliveryExecutor = createBoundedExecutor<DeliveryTask>({
 			concurrency: this.deliveryPolicy.maxInFlight,
 			run: async (task) => {
@@ -148,10 +147,7 @@ export class RedisStreamGatewayForwarderPlugin extends GatewayPlugin {
 	}
 
 	override async registerClient(client: Client): Promise<void> {
-		this.streamKey = deriveStreamKey(
-			client.clientId,
-			this.options.streamKeyPrefix
-		)
+		this.streamKey = `${this.options.streamKeyPrefix ?? "carbon:events"}:${client.clientId}`
 		return super.registerClient(client)
 	}
 
@@ -289,7 +285,9 @@ export class RedisStreamGatewayForwarderPlugin extends GatewayPlugin {
 			}
 
 			this.deliveryMetrics.retried += 1
-			await sleep(this.getRetryDelay(attempt))
+			await new Promise((resolve) => {
+				setTimeout(resolve, Math.max(0, this.getRetryDelay(attempt)))
+			})
 		}
 	}
 
@@ -309,9 +307,11 @@ export class RedisStreamGatewayForwarderPlugin extends GatewayPlugin {
 				]
 			: [this.streamKey, "*", ...task.fields]
 
-		const xadd = this.options.redis.xadd.bind(
-			this.options.redis
-		) as unknown as VariadicRedisCommand
+		const xadd = (
+			this.options.redis.xadd as unknown as (
+				...args: (string | number)[]
+			) => Promise<unknown>
+		).bind(this.options.redis)
 
 		let timeoutHandle: ReturnType<typeof setTimeout> | undefined
 		try {
@@ -354,12 +354,3 @@ export class RedisStreamGatewayForwarderPlugin extends GatewayPlugin {
 		this.failureReasons.set(reason, (this.failureReasons.get(reason) ?? 0) + 1)
 	}
 }
-
-function assertPositiveInteger(name: string, value: number) {
-	if (!Number.isInteger(value) || value < 1) {
-		throw new Error(`${name} must be an integer greater than or equal to 1`)
-	}
-}
-
-const sleep = (ms: number) =>
-	new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)))

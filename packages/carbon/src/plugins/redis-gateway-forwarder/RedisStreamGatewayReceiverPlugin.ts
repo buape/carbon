@@ -1,17 +1,7 @@
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
 import type { ListenerEventType } from "../../types/index.js"
-import {
-	deriveStreamKey,
-	parseStreamEntryFields,
-	type RedisStreamClient,
-	type VariadicRedisCommand
-} from "./types.js"
-
-type RawStreamEntry = [id: string, fields: string[] | null]
-type RawStreamReadResult =
-	| [streamKey: string, entries: RawStreamEntry[]][]
-	| null
+import type { RedisStreamClient } from "./types.js"
 
 export interface RedisStreamGatewayReceiverPluginOptions {
 	/** Non-blocking connection used for XGROUP/XACK/XAUTOCLAIM admin commands. */
@@ -91,11 +81,6 @@ export interface RedisStreamGatewayReceiverPluginOptions {
 	) => void
 }
 
-interface WatchedStream {
-	client: Client
-	streamKey: string
-}
-
 // Only used when there is nothing to wait on yet (no client has registered a
 // stream at all) — there's no backoff timer or blocking read to compute a
 // precise wake time from, so this is a genuine, if rare, poll.
@@ -104,9 +89,6 @@ const minBackoffWaitMs = 25
 const baseBackoffMs = 200
 const maxBackoffMs = 10_000
 const autoclaimMaxPages = 10
-
-const sleep = (ms: number) =>
-	new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)))
 
 /**
  * Receives gateway events from Redis Streams (one stream per client),
@@ -150,7 +132,10 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 			| "onDeliveryLatency"
 		>
 
-	private watchedStreams = new Map<string, WatchedStream>()
+	private watchedStreams = new Map<
+		string,
+		{ client: Client; streamKey: string }
+	>()
 	private backoffUntil = new Map<string, number>()
 	private backoffAttempt = new Map<string, number>()
 	private loopRunning = false
@@ -177,10 +162,7 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 	}
 
 	async registerClient(client: Client): Promise<void> {
-		const streamKey = deriveStreamKey(
-			client.clientId,
-			this.options.streamKeyPrefix
-		)
+		const streamKey = `${this.options.streamKeyPrefix}:${client.clientId}`
 		this.watchedStreams.set(client.clientId, { client, streamKey })
 
 		const xgroup = this.bindCommand(this.options.redis, "xgroup")
@@ -193,7 +175,7 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 				"MKSTREAM"
 			)
 		} catch (error) {
-			if (!this.isBusyGroupError(error)) {
+			if (!(error instanceof Error && error.message.includes("BUSYGROUP"))) {
 				this.options.onRegisterError?.(client.clientId, error)
 			}
 		}
@@ -234,14 +216,12 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 	private bindCommand(
 		client: RedisStreamClient,
 		name: "xgroup" | "xack" | "xautoclaim" | "xreadgroup"
-	): VariadicRedisCommand {
+	): (...args: (string | number)[]) => Promise<unknown> {
 		return (
-			client[name] as unknown as (...args: unknown[]) => Promise<unknown>
-		).bind(client) as VariadicRedisCommand
-	}
-
-	private isBusyGroupError(error: unknown): boolean {
-		return error instanceof Error && error.message.includes("BUSYGROUP")
+			client[name] as unknown as (
+				...args: (string | number)[]
+			) => Promise<unknown>
+		).bind(client)
 	}
 
 	private isBackedOff(streamKey: string): boolean {
@@ -266,7 +246,7 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 	 * fully-backed-off loop iteration can sleep exactly that long instead of
 	 * polling on a fixed interval.
 	 */
-	private getBackoffWaitMs(streams: WatchedStream[]): number {
+	private getBackoffWaitMs(streams: Array<{ streamKey: string }>): number {
 		const now = Date.now()
 		let soonest = Number.POSITIVE_INFINITY
 		for (const { streamKey } of streams) {
@@ -284,7 +264,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 			while (!this.stopRequested) {
 				const watched = [...this.watchedStreams.values()]
 				if (watched.length === 0) {
-					await sleep(idlePollMs)
+					await new Promise((resolve) => {
+						setTimeout(resolve, idlePollMs)
+					})
 					continue
 				}
 
@@ -300,7 +282,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 					(entry) => !this.isBackedOff(entry.streamKey)
 				)
 				if (activeStreams.length === 0) {
-					await sleep(this.getBackoffWaitMs(watched))
+					await new Promise((resolve) => {
+						setTimeout(resolve, this.getBackoffWaitMs(watched))
+					})
 					continue
 				}
 
@@ -315,7 +299,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 					(entry) => !this.isBackedOff(entry.streamKey)
 				)
 				if (stillActive.length === 0) {
-					await sleep(this.getBackoffWaitMs(activeStreams))
+					await new Promise((resolve) => {
+						setTimeout(resolve, this.getBackoffWaitMs(activeStreams))
+					})
 					continue
 				}
 
@@ -326,7 +312,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 		}
 	}
 
-	private async drainPending(watched: WatchedStream[]): Promise<void> {
+	private async drainPending(
+		watched: Array<{ streamKey: string }>
+	): Promise<void> {
 		const xreadgroup = this.bindCommand(
 			this.options.blockingRedis,
 			"xreadgroup"
@@ -341,12 +329,16 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 			"STREAMS",
 			...streamKeys,
 			...streamKeys.map(() => "0")
-		)) as RawStreamReadResult
+		)) as
+			| [streamKey: string, entries: [id: string, fields: string[] | null][]][]
+			| null
 		if (!result) return
 		await this.processResult(result, { isReplay: true })
 	}
 
-	private async readNewEntries(watched: WatchedStream[]): Promise<void> {
+	private async readNewEntries(
+		watched: Array<{ streamKey: string }>
+	): Promise<void> {
 		const xreadgroup = this.bindCommand(
 			this.options.blockingRedis,
 			"xreadgroup"
@@ -363,13 +355,18 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 			"STREAMS",
 			...streamKeys,
 			...streamKeys.map(() => ">")
-		)) as RawStreamReadResult
+		)) as
+			| [streamKey: string, entries: [id: string, fields: string[] | null][]][]
+			| null
 		if (!result) return
 		await this.processResult(result, { isReplay: false })
 	}
 
 	private async processResult(
-		result: NonNullable<RawStreamReadResult>,
+		result: [
+			streamKey: string,
+			entries: [id: string, fields: string[] | null][]
+		][],
 		{ isReplay }: { isReplay: boolean }
 	): Promise<void> {
 		for (const [streamKey, entries] of result) {
@@ -386,7 +383,27 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 					continue
 				}
 
-				const { type, data, enqueuedAt } = parseStreamEntryFields(fields)
+				let type = "unknown"
+				let data: unknown = null
+				let enqueuedAt: number | undefined
+				for (let i = 0; i < fields.length; i += 2) {
+					const field = fields[i]
+					const value = fields[i + 1]
+					if (field === "type" && typeof value === "string") {
+						type = value
+					}
+					if (field === "data" && typeof value === "string") {
+						try {
+							data = JSON.parse(value)
+						} catch {
+							data = null
+						}
+					}
+					if (field === "ts" && typeof value === "string") {
+						const parsed = Number(value)
+						if (Number.isFinite(parsed)) enqueuedAt = parsed
+					}
+				}
 				let enqueued: boolean
 				try {
 					enqueued = watched.client.eventHandler.handleEvent(
@@ -422,7 +439,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 		}
 	}
 
-	private async runAutoclaimSweep(watched: WatchedStream[]): Promise<void> {
+	private async runAutoclaimSweep(
+		watched: Array<{ streamKey: string }>
+	): Promise<void> {
 		const xautoclaim = this.bindCommand(this.options.redis, "xautoclaim")
 		for (const { streamKey } of watched) {
 			let cursor = "0-0"
@@ -435,7 +454,9 @@ export class RedisStreamGatewayReceiverPlugin extends Plugin {
 					cursor,
 					"COUNT",
 					this.options.batchCount
-				).catch(() => null)) as [string, RawStreamEntry[], string[]?] | null
+				).catch(() => null)) as
+					| [string, [id: string, fields: string[] | null][], string[]?]
+					| null
 				if (!result) break
 
 				const [nextCursor, claimed] = result
