@@ -5,6 +5,7 @@ import {
 	type ClientOptions,
 	type LegacyPublicKey
 } from "../../classes/Client.js"
+import type { ApplicationId, ApplicationIdLike } from "../../types/index.js"
 import { deriveClientIdFromBotToken } from "../../utils/index.js"
 
 /**
@@ -15,7 +16,7 @@ export interface ApplicationCredentials {
 	 * The client ID of the application - must be a valid Discord snowflake
 	 * @deprecated Will be removed in the next major version.
 	 */
-	clientId?: string
+	clientId?: ApplicationIdLike
 	/**
 	 * The public key of the app, used for interaction verification
 	 * Can be a single key or an array of keys
@@ -59,7 +60,7 @@ export interface ClientManagerStartupResult {
 	failures: number
 	completedAt: number
 	results: Array<{
-		clientId: string
+		clientId: ApplicationId | "unknown"
 		status: "success" | "error"
 		error?: string
 	}>
@@ -203,7 +204,9 @@ export class ClientManager {
 					nextIndex += 1
 					if (!application) return
 
-					const clientId = application.clientId ?? "unknown"
+					const clientId = application.clientId
+						? (application.clientId as ApplicationId)
+						: "unknown"
 					try {
 						const client = await this.setupClient(
 							application,
@@ -361,7 +364,7 @@ export class ClientManager {
 			}
 		}
 
-		const results: { clientId: string; status: string }[] = []
+		const results: { clientId: ApplicationId; status: string }[] = []
 		const clientIds = this.getClientIds()
 
 		for (const clientId of clientIds) {
@@ -460,7 +463,7 @@ export class ClientManager {
 	 * Get a client by its client ID
 	 * @param clientId The client ID to look up
 	 */
-	getClient(clientId: string): Client | undefined {
+	getClient(clientId: ApplicationIdLike): Client | undefined {
 		return this.clients.get(clientId)
 	}
 
@@ -474,8 +477,8 @@ export class ClientManager {
 	/**
 	 * Get all client IDs that the manager is managing
 	 */
-	getClientIds(): string[] {
-		return Array.from(this.clients.keys())
+	getClientIds(): ApplicationId[] {
+		return Array.from(this.clients.keys()) as ApplicationId[]
 	}
 
 	/**
@@ -491,7 +494,7 @@ export class ClientManager {
 	 * You can override this in an extended class to return dynamic applications
 	 */
 	async getApplication(
-		clientId: string
+		clientId: ApplicationIdLike
 	): Promise<ApplicationCredentials | undefined> {
 		for (const application of this.staticApplications) {
 			const applicationClientId =

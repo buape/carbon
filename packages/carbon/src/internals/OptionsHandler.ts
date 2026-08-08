@@ -17,6 +17,7 @@ import {
 	Role,
 	User
 } from "../index.js"
+import type { ChannelId, GuildId, GuildIdLike } from "../types/index.js"
 export type RawOptions = {
 	[key: string]:
 		| APIApplicationCommandInteractionDataBasicOption["value"]
@@ -36,7 +37,7 @@ export class OptionsHandler extends Base {
 	 * The resolved data from the interaction.
 	 */
 	readonly resolved: Partial<APIInteractionDataResolved>
-	readonly guildId?: string
+	readonly guildId?: GuildId
 
 	private interactionData?:
 		| APIChatInputApplicationCommandInteractionData
@@ -56,14 +57,14 @@ export class OptionsHandler extends Base {
 			| APIChatInputApplicationCommandInteractionData
 			| APIAutocompleteApplicationCommandInteractionData
 		definitions: CommandOptions
-		guildId?: string
+		guildId?: GuildIdLike
 	}) {
 		super(client)
 		this.raw = []
 		this.interactionData = interactionData
 		this.definitions = definitions
 		this.resolved = interactionData.resolved ?? {}
-		this.guildId = guildId
+		this.guildId = guildId as GuildId | undefined
 		for (const option of options) {
 			if (option.type === ApplicationCommandOptionType.Subcommand) {
 				for (const subOption of option.options ?? []) {
@@ -233,8 +234,8 @@ export class OptionsHandler extends Base {
 	public async getChannelId(
 		key: string,
 		required?: false
-	): Promise<string | undefined>
-	public async getChannelId(key: string, required: true): Promise<string>
+	): Promise<ChannelId | undefined>
+	public async getChannelId(key: string, required: true): Promise<ChannelId>
 	public async getChannelId(key: string, required = false) {
 		const id = this.raw.find(
 			(x) => x.name === key && x.type === ApplicationCommandOptionType.Channel
@@ -243,7 +244,7 @@ export class OptionsHandler extends Base {
 			if (typeof id !== "string")
 				throw new Error(`Missing required option: ${key}`)
 		} else if (typeof id !== "string") return undefined
-		return id
+		return id as ChannelId
 	}
 
 	/**
@@ -364,7 +365,7 @@ export class OptionsHandler extends Base {
 			if (required) throw new Error(`Missing required option: ${key}`)
 			return undefined
 		}
-		return attachment
+		return attachment as ResolvedFile
 	}
 
 	private checkAgainstDefinition(

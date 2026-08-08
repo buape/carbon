@@ -5,7 +5,12 @@ import { Row } from "../../classes/components/Row.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
 import type { CommandInteraction } from "../../internals/CommandInteraction.js"
 import type { ModalInteraction } from "../../internals/ModalInteraction.js"
-import type { ComponentData, MessagePayloadObject } from "../../types/index.js"
+import type {
+	ComponentData,
+	MessagePayloadObject,
+	UserId,
+	UserIdLike
+} from "../../types/index.js"
 import { GoToPageModal } from "./GoToPageModal.js"
 
 export class Paginator {
@@ -18,7 +23,7 @@ export class Paginator {
 	/**
 	 * The user ID who is allowed to interact with the paginator
 	 */
-	readonly userId?: string
+	readonly userId?: UserId
 
 	constructor(
 		/**
@@ -39,14 +44,14 @@ export class Paginator {
 			 * The user ID who is allowed to interact with the paginator
 			 */
 			userId
-		}: { client: Client; timeoutDuration?: number; userId?: string }
+		}: { client: Client; timeoutDuration?: number; userId?: UserIdLike }
 	) {
 		if (pages.length === 0) {
 			throw new Error("Paginator must have at least one page")
 		}
 		this.pages = pages
 		this.timeoutDuration = timeoutDuration
-		this.userId = userId
+		this.userId = userId as UserId | undefined
 		const timestamp = Date.now().toString(36)
 		const random = Math.random().toString(36).slice(2, 5)
 		this.id = `${timestamp}-${random}`

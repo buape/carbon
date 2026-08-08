@@ -6,14 +6,17 @@ import {
 	VideoQualityMode
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
-import type { IfPartial } from "../types/index.js"
+import type { BrandedDiscordIds, ChannelId, IfPartial } from "../types/index.js"
 
 export abstract class GuildStageOrVoiceChannel<
 	Type extends ChannelType.GuildStageVoice | ChannelType.GuildVoice,
 	IsPartial extends boolean = false
 > extends BaseGuildChannel<Type, IsPartial> {
 	// @ts-expect-error
-	declare rawData: APIGuildStageVoiceChannel | APIGuildVoiceChannel | null
+	declare rawData:
+		| BrandedDiscordIds<APIGuildStageVoiceChannel, ChannelId>
+		| BrandedDiscordIds<APIGuildVoiceChannel, ChannelId>
+		| null
 
 	/**
 	 * The position of the channel in the channel list.
@@ -74,10 +77,13 @@ export abstract class GuildStageOrVoiceChannel<
 export class GuildStageChannel<
 	IsPartial extends boolean = false
 > extends GuildStageOrVoiceChannel<ChannelType.GuildStageVoice, IsPartial> {
-	declare rawData: APIGuildStageVoiceChannel | null
+	declare rawData: BrandedDiscordIds<
+		APIGuildStageVoiceChannel,
+		ChannelId
+	> | null
 }
 export class GuildVoiceChannel<
 	IsPartial extends boolean = false
 > extends GuildStageOrVoiceChannel<ChannelType.GuildVoice, IsPartial> {
-	declare rawData: APIGuildVoiceChannel | null
+	declare rawData: BrandedDiscordIds<APIGuildVoiceChannel, ChannelId> | null
 }

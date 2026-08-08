@@ -1,3 +1,4 @@
+import type { EmojiIdLike, GuildIdLike } from "../types/index.js"
 import type {
 	ListenerEventRawData,
 	ListenerEventType
@@ -103,7 +104,7 @@ export class CacheManager {
 	}
 
 	async setEmoji(
-		guildId: string,
+		guildId: GuildIdLike,
 		emoji: CachePayloadMap["emojis"]
 	): Promise<void> {
 		if (!emoji.id) return
@@ -111,7 +112,7 @@ export class CacheManager {
 		await this.emojis.set(`${guildId}:${emoji.id}`, emoji)
 	}
 
-	async deleteEmoji(guildId: string, emojiId: string): Promise<void> {
+	async deleteEmoji(guildId: GuildIdLike, emojiId: EmojiIdLike): Promise<void> {
 		const emojiIds = this.emojiIdsByGuild.get(guildId)
 		emojiIds?.delete(emojiId)
 		if (emojiIds?.size === 0) this.emojiIdsByGuild.delete(guildId)

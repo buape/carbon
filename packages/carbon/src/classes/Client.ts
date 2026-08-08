@@ -35,6 +35,16 @@ import { User } from "../structures/User.js"
 import { Webhook, type WebhookInput } from "../structures/Webhook.js"
 import type { CommandMiddleware } from "../types/commandMiddleware.js"
 import type {
+	ApplicationId,
+	ApplicationIdLike,
+	BrandedAPIApplicationCommand,
+	ChannelIdLike,
+	GuildIdLike,
+	MessageIdLike,
+	RoleIdLike,
+	UserIdLike
+} from "../types/index.js"
+import type {
 	CarbonFetch,
 	CarbonTestHookDisposer,
 	CarbonTestHooks
@@ -69,7 +79,7 @@ export interface ClientOptions {
 	 * The client ID of the app.
 	 * @deprecated Will be removed in the next major version.
 	 */
-	clientId?: string
+	clientId?: ApplicationIdLike
 	/**
 	 * The deploy secret of the app, used for protecting the deploy route
 	 */
@@ -125,7 +135,7 @@ export interface ClientOptions {
 	 * A list of guild IDs to deploy all commands to during development (guild command deployment is instant and rate-limited higher).
 	 * If set, all commands will be deployed to these guilds instead of globally.
 	 */
-	devGuilds?: string[]
+	devGuilds?: GuildIdLike[]
 	/**
 	 * Configuration for the event queue worker pool
 	 */
@@ -161,7 +171,7 @@ export class Client {
 	/**
 	 * The resolved client ID for this application.
 	 */
-	clientId: string
+	clientId: ApplicationId
 	/**
 	 * The resolved public key configuration for this application.
 	 */
@@ -218,7 +228,7 @@ export class Client {
 	 * The handler for application emojis for this application
 	 */
 	emoji: EmojiHandler
-	private cachedGlobalCommands: APIApplicationCommand[] | null = null
+	private cachedGlobalCommands: BrandedAPIApplicationCommand[] | null = null
 
 	/**
 	 * The ID of the shard this client is running on, if sharding is enabled
@@ -252,7 +262,7 @@ export class Client {
 		const clientId =
 			options.clientId ?? deriveClientIdFromBotToken(options.token)
 		const runtimeProfile = options.runtimeProfile ?? "serverless"
-		this.clientId = clientId
+		this.clientId = clientId as ApplicationId
 		this.publicKey = options.publicKey
 		this.options = {
 			...options,
@@ -474,7 +484,7 @@ export class Client {
 					}
 				)) as APIApplicationCommand[]
 				this.updateCommandIdsFromDeployment(deployed)
-				this.cachedGlobalCommands = deployed
+				this.cachedGlobalCommands = deployed as BrandedAPIApplicationCommand[]
 			}
 
 			return {
@@ -503,7 +513,7 @@ export class Client {
 				}
 			)) as APIApplicationCommand[]
 			this.updateCommandIdsFromDeployment(deployed)
-			this.cachedGlobalCommands = deployed
+			this.cachedGlobalCommands = deployed as BrandedAPIApplicationCommand[]
 		}
 
 		return {
@@ -678,7 +688,7 @@ export class Client {
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The user data
 	 */
-	async fetchUser(id: string, force: boolean = false) {
+	async fetchUser(id: UserIdLike, force: boolean = false) {
 		const cached = force ? undefined : await this.cache.users.get(id)
 		if (cached) return new User(this, cached)
 		const user = (await this.rest.get(Routes.user(id))) as APIUser
@@ -691,7 +701,7 @@ export class Client {
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The guild data
 	 */
-	async fetchGuild(id: string, force: boolean = false) {
+	async fetchGuild(id: GuildIdLike, force: boolean = false) {
 		const cached = force ? undefined : await this.cache.guilds.get(id)
 		if (cached) return new Guild(this, cached)
 		const guild = (await this.rest.get(Routes.guild(id))) as APIGuild
@@ -704,7 +714,7 @@ export class Client {
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The channel data
 	 */
-	async fetchChannel(id: string, force: boolean = false) {
+	async fetchChannel(id: ChannelIdLike, force: boolean = false) {
 		const cached = force ? undefined : await this.cache.channels.get(id)
 		if (cached) return channelFactory(this, cached)
 		const channel = (await this.rest.get(Routes.channel(id))) as APIChannel
@@ -719,7 +729,11 @@ export class Client {
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The role data
 	 */
-	async fetchRole(guildId: string, id: string, force: boolean = false) {
+	async fetchRole(
+		guildId: GuildIdLike,
+		id: RoleIdLike,
+		force: boolean = false
+	) {
 		const key = `${guildId}:${id}`
 		const cached = force ? undefined : await this.cache.roles.get(key)
 		if (cached) return new Role(this, cached, guildId)
@@ -734,7 +748,11 @@ export class Client {
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 * @returns The member data
 	 */
-	async fetchMember(guildId: string, id: string, force: boolean = false) {
+	async fetchMember(
+		guildId: GuildIdLike,
+		id: UserIdLike,
+		force: boolean = false
+	) {
 		const key = `${guildId}:${id}`
 		const cached = force ? undefined : await this.cache.members.get(key)
 		if (cached)
@@ -753,8 +771,8 @@ export class Client {
 	 * @returns The message data
 	 */
 	async fetchMessage(
-		channelId: string,
-		messageId: string,
+		channelId: ChannelIdLike,
+		messageId: MessageIdLike,
 		force: boolean = false
 	) {
 		const key = `${channelId}:${messageId}`
@@ -783,9 +801,10 @@ export class Client {
 		const commands = (await this.rest.get(
 			Routes.applicationCommands(this.clientId)
 		)) as APIApplicationCommand[]
-		this.cachedGlobalCommands = commands
+		const brandedCommands = commands as BrandedAPIApplicationCommand[]
+		this.cachedGlobalCommands = brandedCommands
 		this.updateCommandIdsFromDeployment(commands)
-		return commands
+		return brandedCommands
 	}
 
 	private updateCommandIdsFromDeployment(commands: APIApplicationCommand[]) {
@@ -795,13 +814,13 @@ export class Client {
 				if (command.type !== deployed.type) return false
 				if (deployed.guild_id) {
 					if (!command.guildIds || command.guildIds.length === 0) return true
-					return command.guildIds.includes(deployed.guild_id)
+					return command.guildIds.includes(deployed.guild_id as GuildIdLike)
 				}
 				return !command.guildIds || command.guildIds.length === 0
 			})
 
 			if (match) {
-				match.id = deployed.id
+				match.id = deployed.id as BrandedAPIApplicationCommand["id"]
 			}
 		}
 	}
@@ -952,7 +971,7 @@ export class Client {
 		const deployed = desiredCommands
 			.map((desired) => liveByKey.get(desired.key))
 			.filter((command): command is APIApplicationCommand => Boolean(command))
-		this.cachedGlobalCommands = deployed
+		this.cachedGlobalCommands = deployed as BrandedAPIApplicationCommand[]
 		this.updateCommandIdsFromDeployment(deployed)
 	}
 

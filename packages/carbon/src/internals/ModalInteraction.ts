@@ -6,7 +6,7 @@ import {
 } from "discord-api-types/v10"
 import { BaseInteraction } from "../abstracts/BaseInteraction.js"
 import type { Client, InteractionDefaults } from "../index.js"
-import type { MessagePayload } from "../types/index.js"
+import type { InteractionId, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { FieldsHandler } from "./FieldsHandler.js"
 
@@ -36,7 +36,7 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "acknowledge",
-			interactionId: this.rawData.id,
+			interactionId: this.rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(
@@ -63,7 +63,7 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "update",
-			interactionId: this.rawData.id,
+			interactionId: this.rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(

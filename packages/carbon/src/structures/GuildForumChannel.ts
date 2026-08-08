@@ -4,7 +4,7 @@ import type {
 	ForumLayoutType
 } from "discord-api-types/v10"
 import { GuildThreadOnlyChannel } from "../abstracts/GuildThreadOnlyChannel.js"
-import type { IfPartial } from "../types/index.js"
+import type { BrandedDiscordIds, ChannelId, IfPartial } from "../types/index.js"
 
 /**
  * Represents a guild forum channel.
@@ -12,7 +12,7 @@ import type { IfPartial } from "../types/index.js"
 export class GuildForumChannel<
 	IsPartial extends boolean = false
 > extends GuildThreadOnlyChannel<ChannelType.GuildForum, IsPartial> {
-	declare rawData: APIGuildForumChannel | null
+	declare rawData: BrandedDiscordIds<APIGuildForumChannel, ChannelId> | null
 
 	/**
 	 * The default forum layout of the channel.

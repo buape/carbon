@@ -9,7 +9,16 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	GuildId,
+	GuildIdLike,
+	GuildScheduledEventId,
+	GuildScheduledEventIdLike,
+	IfPartial
+} from "../types/index.js"
 import { Guild } from "./Guild.js"
 import { User } from "./User.js"
 
@@ -20,7 +29,7 @@ export type GuildScheduledEventCreateData = {
 	scheduledEndTime?: string | null
 	privacyLevel: GuildScheduledEventPrivacyLevel
 	entityType: GuildScheduledEventEntityType
-	channelId?: string | null
+	channelId?: ChannelIdLike | null
 	entityMetadata?: {
 		location?: string | null | undefined
 	} | null
@@ -32,17 +41,19 @@ export class GuildScheduledEvent<
 > extends Base {
 	constructor(
 		client: Client,
-		rawDataOrId: IsPartial extends true ? string : APIGuildScheduledEvent,
-		guildId: string
+		rawDataOrId: IsPartial extends true
+			? GuildScheduledEventIdLike
+			: APIGuildScheduledEvent,
+		guildId: GuildIdLike
 	) {
 		super(client)
 		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
-			this.guildId = guildId
+			this.id = rawDataOrId as GuildScheduledEventId
+			this.guildId = guildId as GuildId
 		} else {
 			this._rawData = rawDataOrId
-			this.id = rawDataOrId.id
-			this.guildId = rawDataOrId.guild_id
+			this.id = rawDataOrId.id as GuildScheduledEventId
+			this.guildId = rawDataOrId.guild_id as GuildId
 			this.setData(rawDataOrId)
 		}
 	}
@@ -60,23 +71,28 @@ export class GuildScheduledEvent<
 	/**
 	 * The raw Discord API data for this scheduled event
 	 */
-	get rawData(): Readonly<APIGuildScheduledEvent> {
+	get rawData(): Readonly<
+		BrandedDiscordIds<APIGuildScheduledEvent, GuildScheduledEventId>
+	> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial GuildScheduledEvent. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<
+			APIGuildScheduledEvent,
+			GuildScheduledEventId
+		>
 	}
 
 	/**
 	 * The ID of the scheduled event
 	 */
-	readonly id: string
+	readonly id: GuildScheduledEventId
 
 	/**
 	 * The ID of the guild this scheduled event belongs to
 	 */
-	readonly guildId: string
+	readonly guildId: GuildId
 
 	/**
 	 * Whether the scheduled event is a partial scheduled event (meaning it does not have all the data).
@@ -145,9 +161,9 @@ export class GuildScheduledEvent<
 	/**
 	 * The ID of the channel where the scheduled event will be hosted, or null if entity_type is EXTERNAL
 	 */
-	get channelId(): IfPartial<IsPartial, string | null> {
+	get channelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.channel_id
+		return this._rawData.channel_id as never
 	}
 
 	/**

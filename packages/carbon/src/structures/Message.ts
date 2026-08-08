@@ -1,11 +1,7 @@
 import {
-	type APIAttachment,
 	type APIComponentInContainer,
 	type APIMessage,
-	type APIMessageInteractionMetadata,
-	type APIMessageReference,
 	type APIReaction,
-	type APIStickerItem,
 	type APIThreadChannel,
 	type ChannelType,
 	ComponentType,
@@ -21,7 +17,22 @@ import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Embed } from "../classes/Embed.js"
 import { channelFactory } from "../functions/channelFactory.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	ApplicationId,
+	BrandedAPIAttachment,
+	BrandedAPIMessage,
+	BrandedAPIMessageInteractionMetadata,
+	BrandedAPIMessageReference,
+	BrandedAPIStickerItem,
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	EmojiId,
+	IfPartial,
+	MessageId,
+	MessageIdLike,
+	MessagePayload
+} from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { GuildThreadChannel } from "./GuildThreadChannel.js"
 import { Poll } from "./Poll.js"
@@ -32,7 +43,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
 		rawDataOrIds: IsPartial extends true
-			? { id: string; channelId?: string }
+			? { id: MessageIdLike; channelId?: ChannelIdLike }
 			: APIMessage
 	) {
 		super(client)
@@ -41,12 +52,12 @@ export class Message<IsPartial extends boolean = false> extends Base {
 			"id" in rawDataOrIds &&
 			"channelId" in rawDataOrIds
 		) {
-			this.id = rawDataOrIds.id
-			this.channelId = rawDataOrIds.channelId || ""
+			this.id = rawDataOrIds.id as MessageId
+			this.channelId = (rawDataOrIds.channelId || "") as ChannelId
 		} else {
 			const data = rawDataOrIds as APIMessage
-			this.id = data.id
-			this.channelId = data.channel_id
+			this.id = data.id as MessageId
+			this.channelId = data.channel_id as ChannelId
 			this.setData(data)
 		}
 	}
@@ -62,23 +73,23 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The raw Discord API data for this message
 	 */
-	get rawData(): Readonly<APIMessage> {
+	get rawData(): Readonly<BrandedAPIMessage> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial Message. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedAPIMessage
 	}
 
 	/**
 	 * The ID of the message
 	 */
-	readonly id: string
+	readonly id: MessageId
 
 	/**
 	 * The ID of the channel the message is in
 	 */
-	readonly channelId: string
+	readonly channelId: ChannelId
 
 	/**
 	 * Whether the message is a partial message (meaning it does not have all the data).
@@ -91,17 +102,17 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * If this message is a response to an interaction, this is the ID of the interaction's application
 	 */
-	get applicationId(): IfPartial<IsPartial, string | undefined> {
+	get applicationId(): IfPartial<IsPartial, ApplicationId | undefined> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.application_id
+		return this._rawData.application_id as never
 	}
 
 	/**
 	 * The attachments of the message
 	 */
-	get attachments(): IfPartial<IsPartial, APIAttachment[]> {
+	get attachments(): IfPartial<IsPartial, BrandedAPIAttachment[]> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.attachments ?? []
+		return (this._rawData.attachments ?? []) as BrandedAPIAttachment[]
 	}
 
 	/**
@@ -150,10 +161,11 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get interactionMetadata(): IfPartial<
 		IsPartial,
-		APIMessageInteractionMetadata | undefined
+		BrandedAPIMessageInteractionMetadata | undefined
 	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.interaction_metadata
+		return this._rawData
+			.interaction_metadata as BrandedAPIMessageInteractionMetadata
 	}
 
 	/**
@@ -191,10 +203,10 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 */
 	get messageReference(): IfPartial<
 		IsPartial,
-		APIMessageReference | undefined
+		BrandedAPIMessageReference | undefined
 	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.message_reference
+		return this._rawData.message_reference as BrandedAPIMessageReference
 	}
 
 	/**
@@ -236,17 +248,23 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The reactions on the message
 	 */
-	get reactions(): IfPartial<IsPartial, APIReaction[]> {
+	get reactions(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APIReaction, EmojiId>[]
+	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.reactions ?? []
+		return (this._rawData.reactions ?? []) as BrandedDiscordIds<
+			APIReaction,
+			EmojiId
+		>[]
 	}
 
 	/**
 	 * The stickers in the message
 	 */
-	get stickers(): IfPartial<IsPartial, APIStickerItem[]> {
+	get stickers(): IfPartial<IsPartial, BrandedAPIStickerItem[]> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.sticker_items ?? []
+		return (this._rawData.sticker_items ?? []) as BrandedAPIStickerItem[]
 	}
 
 	/**
@@ -416,7 +434,7 @@ export class Message<IsPartial extends boolean = false> extends Base {
 	 * @param channelId - The ID of the channel to forward the message to
 	 * @returns A Promise that resolves to the forwarded message
 	 */
-	async forward(channelId: string): Promise<Message> {
+	async forward(channelId: ChannelIdLike): Promise<Message> {
 		if (!this.channelId)
 			throw new Error("Cannot forward message without channel ID")
 		const channel = await this.client.fetchChannel(channelId)

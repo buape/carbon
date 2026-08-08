@@ -89,6 +89,7 @@ import type { Role } from "../structures/Role.js"
 import type { ThreadMember } from "../structures/ThreadMember.js"
 import type { User } from "../structures/User.js"
 import type { AnyChannel } from "../types/channels.js"
+import type { ApplicationId } from "../types/index.js"
 
 export const WebhookEvent = {
 	...ApplicationWebhookEventType
@@ -109,7 +110,7 @@ export type ListenerEventType =
 	(typeof ListenerEvent)[keyof typeof ListenerEvent]
 
 export type ListenerEventAdditionalData = {
-	clientId: string
+	clientId: ApplicationId
 	abortSignal?: AbortSignal
 }
 

@@ -9,14 +9,22 @@ import {
 } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import { Message } from "../structures/Message.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	IfPartial,
+	MessageId
+} from "../types/index.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 
 export abstract class BaseGuildTextChannel<
 	Type extends GuildTextChannelType,
 	IsPartial extends boolean = false
 > extends BaseGuildChannel<Type, IsPartial> {
-	declare rawData: APIGuildTextChannel<Type> | null
+	declare rawData: BrandedDiscordIds<
+		APIGuildTextChannel<Type>,
+		ChannelId
+	> | null
 
 	/**
 	 * The topic of the channel.
@@ -32,9 +40,9 @@ export abstract class BaseGuildTextChannel<
 	 * @remarks
 	 * This might not always resolve to a message. The ID still stays a part of the channel's data, even if the message is deleted.
 	 */
-	get lastMessageId(): IfPartial<IsPartial, string | null> {
+	get lastMessageId(): IfPartial<IsPartial, MessageId | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.last_message_id ?? null
+		return (this.rawData.last_message_id ?? null) as never
 	}
 	/**
 	 * The timestamp of the last pin in the channel.

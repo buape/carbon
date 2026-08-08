@@ -6,6 +6,7 @@ import {
 import { AnySelectMenuInteraction } from "../abstracts/AnySelectMenuInteraction.js"
 import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
+import type { RoleId } from "../types/index.js"
 
 export class RoleSelectMenuInteraction extends AnySelectMenuInteraction {
 	constructor(
@@ -19,7 +20,8 @@ export class RoleSelectMenuInteraction extends AnySelectMenuInteraction {
 		}
 	}
 
-	get values(): string[] {
-		return (this.rawData.data as APIMessageRoleSelectInteractionData).values
+	get values(): RoleId[] {
+		return (this.rawData.data as APIMessageRoleSelectInteractionData)
+			.values as RoleId[]
 	}
 }

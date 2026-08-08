@@ -4,7 +4,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseGuildTextChannel } from "../abstracts/BaseGuildTextChannel.js"
-import type { IfPartial } from "../types/index.js"
+import type { BrandedDiscordIds, ChannelId, IfPartial } from "../types/index.js"
 import type { GuildTextChannel } from "./GuildTextChannel.js"
 
 /**
@@ -13,7 +13,10 @@ import type { GuildTextChannel } from "./GuildTextChannel.js"
 export class GuildAnnouncementChannel<
 	IsPartial extends boolean = false
 > extends BaseGuildTextChannel<ChannelType.GuildAnnouncement, IsPartial> {
-	declare rawData: APIGuildTextChannel<ChannelType.GuildAnnouncement> | null
+	declare rawData: BrandedDiscordIds<
+		APIGuildTextChannel<ChannelType.GuildAnnouncement>,
+		ChannelId
+	> | null
 
 	/**
 	 * The position of the channel in the channel list.

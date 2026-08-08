@@ -32,7 +32,22 @@ import type { Client } from "../classes/Client.js"
 import { DiscordError } from "../errors/DiscordError.js"
 import { channelFactory } from "../functions/channelFactory.js"
 import type { AnyChannel, ChannelTypeMap } from "../types/channels.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	ApplicationId,
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	EmojiIdLike,
+	GuildId,
+	GuildIdLike,
+	GuildScheduledEventIdLike,
+	IfPartial,
+	RoleId,
+	RoleIdLike,
+	StickerId,
+	UserId,
+	UserIdLike
+} from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import { GuildEmoji } from "./Emoji.js"
 import { GuildMember } from "./GuildMember.js"
@@ -48,14 +63,14 @@ import { ThreadMember } from "./ThreadMember.js"
 export class Guild<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
-		rawDataOrId: IsPartial extends true ? string : APIGuild
+		rawDataOrId: IsPartial extends true ? GuildIdLike : APIGuild
 	) {
 		super(client)
 		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
+			this.id = rawDataOrId as GuildId
 		} else {
 			this._rawData = rawDataOrId
-			this.id = rawDataOrId.id
+			this.id = rawDataOrId.id as GuildId
 			this.setData(rawDataOrId)
 		}
 	}
@@ -76,18 +91,18 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The raw Discord API data for this guild
 	 */
-	get rawData(): Readonly<APIGuild> {
+	get rawData(): Readonly<BrandedDiscordIds<APIGuild, GuildId>> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial Guild. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<APIGuild, GuildId>
 	}
 
 	/**
 	 * The ID of the guild
 	 */
-	readonly id: string
+	readonly id: GuildId
 
 	/**
 	 * Whether the guild is a partial guild (meaning it does not have all the data).
@@ -181,9 +196,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The ID of the owner of the guild.
 	 */
-	get ownerId(): IfPartial<IsPartial, string> {
+	get ownerId(): IfPartial<IsPartial, UserId> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.owner_id
+		return this._rawData.owner_id as never
 	}
 
 	/**
@@ -259,9 +274,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * ID of afk channel
 	 */
-	get afkChannelId(): IfPartial<IsPartial, string | null> {
+	get afkChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.afk_channel_id
+		return this._rawData.afk_channel_id as never
 	}
 
 	/**
@@ -283,9 +298,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The channel id that the widget will generate an invite to, or `null` if set to no invite
 	 */
-	get widgetChannelId(): IfPartial<IsPartial, string | null> {
+	get widgetChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.widget_channel_id ?? null
+		return (this._rawData.widget_channel_id ?? null) as never
 	}
 
 	/**
@@ -347,17 +362,17 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Application id of the guild creator if it is bot-created
 	 */
-	get applicationId(): IfPartial<IsPartial, string | null> {
+	get applicationId(): IfPartial<IsPartial, ApplicationId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.application_id
+		return this._rawData.application_id as never
 	}
 
 	/**
 	 * The id of the channel where guild notices such as welcome messages and boost events are posted
 	 */
-	get systemChannelId(): IfPartial<IsPartial, string | null> {
+	get systemChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.system_channel_id
+		return this._rawData.system_channel_id as never
 	}
 
 	/**
@@ -371,9 +386,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The id of the channel where Community guilds can display rules and/or guidelines
 	 */
-	get rulesChannelId(): IfPartial<IsPartial, string | null> {
+	get rulesChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.rules_channel_id
+		return this._rawData.rules_channel_id as never
 	}
 
 	/**
@@ -453,9 +468,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The id of the channel where admins and moderators of Community guilds receive notices from Discord
 	 */
-	get publicUpdatesChannelId(): IfPartial<IsPartial, string | null> {
+	get publicUpdatesChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.public_updates_channel_id
+		return this._rawData.public_updates_channel_id as never
 	}
 
 	/**
@@ -493,9 +508,13 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The welcome screen of a Community guild, shown to new members
 	 */
-	get welcomeScreen(): IfPartial<IsPartial, APIGuildWelcomeScreen | undefined> {
+	get welcomeScreen(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APIGuildWelcomeScreen> | undefined
+	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.welcome_screen
+		return this._rawData
+			.welcome_screen as BrandedDiscordIds<APIGuildWelcomeScreen>
 	}
 
 	/**
@@ -509,9 +528,15 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * Custom guild stickers
 	 */
-	get stickers(): IfPartial<IsPartial, APISticker[]> {
+	get stickers(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APISticker, StickerId>[]
+	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.stickers ?? []
+		return (this._rawData.stickers ?? []) as BrandedDiscordIds<
+			APISticker,
+			StickerId
+		>[]
 	}
 
 	/**
@@ -533,17 +558,20 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The id of the channel where admins and moderators of Community guilds receive safety alerts from Discord
 	 */
-	get safetyAlertsChannelId(): IfPartial<IsPartial, string | null> {
+	get safetyAlertsChannelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.safety_alerts_channel_id
+		return this._rawData.safety_alerts_channel_id as never
 	}
 
 	/**
 	 * The incidents data for this guild
 	 */
-	get incidentsData(): IfPartial<IsPartial, APIIncidentsData | null> {
+	get incidentsData(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APIIncidentsData> | null
+	> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.incidents_data
+		return this._rawData.incidents_data as BrandedDiscordIds<APIIncidentsData>
 	}
 
 	/**
@@ -623,7 +651,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to a GuildMember or null if not found
 	 */
 	async fetchMember(
-		memberId: string,
+		memberId: UserIdLike,
 		force: boolean = false
 	): Promise<GuildMember<false, true> | null> {
 		try {
@@ -721,7 +749,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @param channelId The ID of the channel to fetch
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchChannel(channelId: string, force: boolean = false) {
+	async fetchChannel(channelId: ChannelIdLike, force: boolean = false) {
 		try {
 			return await this.client.fetchChannel(channelId, force)
 		} catch (e) {
@@ -860,7 +888,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @param roleId The ID of the role to fetch
 	 * @param force Whether to bypass cache and request fresh data from Discord
 	 */
-	async fetchRole(roleId: string, force: boolean = false) {
+	async fetchRole(roleId: RoleIdLike, force: boolean = false) {
 		return this.client.fetchRole(this.id, roleId, force)
 	}
 
@@ -880,7 +908,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	public async getEmoji(
-		id: string,
+		id: EmojiIdLike,
 		force: boolean = false
 	): Promise<GuildEmoji> {
 		const key = `${this.id}:${id}`
@@ -910,7 +938,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 		return new GuildEmoji(this.client, emoji, this.id)
 	}
 
-	public async deleteEmoji(id: string) {
+	public async deleteEmoji(id: EmojiIdLike) {
 		await this.client.rest.delete(Routes.guildEmoji(this.id, id))
 		await this.client.cache.deleteEmoji(this.id, id)
 	}
@@ -941,7 +969,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to a GuildScheduledEvent or null if not found
 	 */
 	async fetchScheduledEvent(
-		eventId: string,
+		eventId: GuildScheduledEventIdLike,
 		withUserCount = false,
 		force: boolean = false
 	): Promise<GuildScheduledEvent<false> | null> {
@@ -1001,7 +1029,7 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to the updated GuildScheduledEvent
 	 */
 	async editScheduledEvent(
-		eventId: string,
+		eventId: GuildScheduledEventIdLike,
 		data: Partial<GuildScheduledEventCreateData>
 	): Promise<GuildScheduledEvent<false>> {
 		const body: Record<string, unknown> = {}
@@ -1030,7 +1058,9 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * Delete a scheduled event
 	 * @param eventId The ID of the scheduled event to delete
 	 */
-	async deleteScheduledEvent(eventId: string): Promise<void> {
+	async deleteScheduledEvent(
+		eventId: GuildScheduledEventIdLike
+	): Promise<void> {
 		await this.client.rest.delete(Routes.guildScheduledEvent(this.id, eventId))
 		await this.client.cache.scheduledEvents.delete(`${this.id}:${eventId}`)
 	}
@@ -1040,14 +1070,14 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	 * @returns A Promise that resolves to an array of objects containing role ID, partial Role, and member count
 	 */
 	async fetchRoleMemberCounts(): Promise<
-		Array<{ id: string; role: Role<true>; count: number }>
+		Array<{ id: RoleId; role: Role<true>; count: number }>
 	> {
 		const memberCounts = (await this.client.rest.get(
 			`/guilds/${this.id}/roles/member-counts`
 		)) as Record<string, number>
 
 		return Object.entries(memberCounts).map(([roleId, count]) => ({
-			id: roleId,
+			id: roleId as RoleId,
 			role: new Role<true>(this.client, roleId, this.id),
 			count
 		}))

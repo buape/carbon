@@ -4,7 +4,13 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseChannel } from "../abstracts/BaseChannel.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	ApplicationId,
+	IfPartial,
+	MessageId,
+	MessagePayload,
+	UserId
+} from "../types/index.js"
 import {
 	buildCDNUrl,
 	type CDNUrlOptions,
@@ -39,9 +45,9 @@ export class GroupDmChannel<
 	/**
 	 * The ID of the application that created the channel, if it was created by a bot.
 	 */
-	get applicationId(): IfPartial<IsPartial, string | null> {
+	get applicationId(): IfPartial<IsPartial, ApplicationId | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.application_id ?? null
+		return (this.rawData.application_id ?? null) as never
 	}
 
 	/**
@@ -80,9 +86,9 @@ export class GroupDmChannel<
 	/**
 	 * The ID of the user who created the channel.
 	 */
-	get ownerId(): IfPartial<IsPartial, string | null> {
+	get ownerId(): IfPartial<IsPartial, UserId | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.owner_id ?? null
+		return (this.rawData.owner_id ?? null) as never
 	}
 
 	/**
@@ -91,9 +97,9 @@ export class GroupDmChannel<
 	 * @remarks
 	 * This might not always resolve to a message. The ID still stays a part of the channel's data, even if the message is deleted.
 	 */
-	get lastMessageId(): IfPartial<IsPartial, string | null> {
+	get lastMessageId(): IfPartial<IsPartial, MessageId | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.last_message_id ?? null
+		return (this.rawData.last_message_id ?? null) as never
 	}
 
 	/**

@@ -12,7 +12,12 @@ import type {
 	ThreadChannel,
 	ThreadOnlyChannel
 } from "../types/channels.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	IfPartial
+} from "../types/index.js"
 import { Base } from "./Base.js"
 
 export abstract class BaseChannel<
@@ -22,17 +27,17 @@ export abstract class BaseChannel<
 	constructor(
 		client: Client,
 		rawDataOrId: IsPartial extends true
-			? string
+			? ChannelIdLike
 			: Extract<APIChannel, { type: Type }>,
 		type?: Type
 	) {
 		super(client)
 		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
+			this.id = rawDataOrId as ChannelId
 			this._type = type ?? null
 		} else {
 			this._rawData = rawDataOrId as never
-			this.id = rawDataOrId.id
+			this.id = rawDataOrId.id as ChannelId
 			this.setData(rawDataOrId as never)
 		}
 	}
@@ -61,18 +66,23 @@ export abstract class BaseChannel<
 	/**
 	 * The raw Discord API data for this channel
 	 */
-	get rawData(): Readonly<Extract<APIChannel, { type: Type }>> {
+	get rawData(): Readonly<
+		BrandedDiscordIds<Extract<APIChannel, { type: Type }>, ChannelId>
+	> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial Channel. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<
+			Extract<APIChannel, { type: Type }>,
+			ChannelId
+		>
 	}
 
 	/**
 	 * The id of the channel.
 	 */
-	readonly id: string
+	readonly id: ChannelId
 
 	/**
 	 * Whether the channel is a partial channel (meaning it does not have all the data).

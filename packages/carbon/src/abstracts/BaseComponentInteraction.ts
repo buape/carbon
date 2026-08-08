@@ -6,7 +6,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import type { MessagePayload } from "../types/index.js"
+import type { InteractionId, MessagePayload } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { BaseInteraction, type InteractionDefaults } from "./BaseInteraction.js"
 
@@ -34,7 +34,7 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "acknowledge",
-			interactionId: this.rawData.id,
+			interactionId: this.rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(
@@ -64,7 +64,7 @@ export class BaseComponentInteraction extends BaseInteraction<APIMessageComponen
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "update",
-			interactionId: this.rawData.id,
+			interactionId: this.rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(

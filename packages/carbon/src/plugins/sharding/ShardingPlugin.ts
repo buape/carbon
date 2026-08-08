@@ -1,6 +1,7 @@
 import type { APIGatewayBotInfo } from "discord-api-types/v10"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
+import type { GuildIdLike } from "../../types/index.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type { GatewayPluginOptions } from "../gateway/types.js"
 
@@ -147,7 +148,7 @@ export class ShardingPlugin extends Plugin {
 	/**
 	 * Calculate which shard a guild belongs to
 	 */
-	public getShardForGuild(guildId: string): GatewayPlugin | undefined {
+	public getShardForGuild(guildId: GuildIdLike): GatewayPlugin | undefined {
 		const totalShards = this.config.totalShards
 		if (!totalShards) {
 			return undefined
@@ -160,7 +161,7 @@ export class ShardingPlugin extends Plugin {
 	/**
 	 * Discord's sharding formula
 	 */
-	public calculateShardId(guildId: string, totalShards: number): number {
+	public calculateShardId(guildId: GuildIdLike, totalShards: number): number {
 		if (!/^\d+$/.test(guildId)) {
 			throw new Error("Invalid guild ID")
 		}

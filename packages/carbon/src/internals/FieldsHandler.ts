@@ -9,6 +9,7 @@ import {
 	Role,
 	User
 } from "../index.js"
+import type { ChannelId, GuildId } from "../types/index.js"
 
 /**
  * This class is used to parse the fields of a modal submit interaction.
@@ -23,12 +24,12 @@ export class FieldsHandler extends Base {
 	 * The resolved data from the interaction.
 	 */
 	readonly resolved: APIInteractionDataResolved
-	readonly guildId?: string
+	readonly guildId?: GuildId
 
 	constructor(client: Client, interaction: APIModalSubmitInteraction) {
 		super(client)
 		this.resolved = interaction.data.resolved ?? {}
-		this.guildId = interaction.guild_id
+		this.guildId = interaction.guild_id as GuildId | undefined
 		interaction.data.components.forEach((component) => {
 			if (component.type === ComponentType.Label) {
 				const subComponent = component.component
@@ -87,15 +88,15 @@ export class FieldsHandler extends Base {
 	public getChannelSelectIds(
 		key: string,
 		required?: false
-	): string[] | undefined
-	public getChannelSelectIds(key: string, required: true): string[]
+	): ChannelId[] | undefined
+	public getChannelSelectIds(key: string, required: true): ChannelId[]
 	public getChannelSelectIds(key: string, required = false) {
 		const value = this.rawData[key]
 		if (!value || !Array.isArray(value)) {
 			if (required) throw new Error(`Missing required field: ${key}`)
 			return undefined
 		}
-		return value
+		return value as ChannelId[]
 	}
 
 	/**
@@ -221,6 +222,8 @@ export class FieldsHandler extends Base {
 				`Discord failed to resolve all attachments for ${key}, this is a bug.`
 			)
 		}
-		return resolved.filter((attachment) => attachment !== undefined)
+		return resolved.filter(
+			(attachment) => attachment !== undefined
+		) as ResolvedFile[]
 	}
 }
