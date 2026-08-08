@@ -41,7 +41,7 @@
 	},
 	"pnpm": {
 		"overrides": {
-			"lru-cache": "11.5.1"
+			"lru-cache": "11.5.2"
 		},
 		"patchedDependencies": {
 			"@tomehq/core@0.8.1": "patches/@tomehq__core@0.8.1.patch"
