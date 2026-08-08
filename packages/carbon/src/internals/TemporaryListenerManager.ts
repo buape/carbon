@@ -25,8 +25,8 @@ export class TemporaryListenerManager {
 
 		const timeoutHandle = setTimeout(() => {
 			this.unregister(id)
-			console.warn(
-				`[TemporaryListenerManager] Listener ${listener.constructor.name} (${id}) timed out after ${timeout}ms and was automatically removed`
+			this.client.logger.warn(
+				`Temporary listener ${listener.constructor.name} (${id}) timed out after ${timeout}ms and was automatically removed`
 			)
 		}, timeout)
 

@@ -72,8 +72,8 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 	) {
 		let safeChoices = choices
 		if (choices.length > 25) {
-			console.warn(
-				`[Carbon] Autocomplete only supports up to 25 choices. Received ${choices.length}. Only the first 25 will be sent.`
+			this.client.logger.warn(
+				`Autocomplete only supports up to 25 choices. Received ${choices.length}. Only the first 25 will be sent.`
 			)
 			safeChoices = choices.slice(0, 25)
 		}

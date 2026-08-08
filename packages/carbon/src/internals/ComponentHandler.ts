@@ -17,6 +17,7 @@ import { RoleSelectMenu } from "../classes/components/RoleSelectMenu.js"
 import { StringSelectMenu } from "../classes/components/StringSelectMenu.js"
 import { UserSelectMenu } from "../classes/components/UserSelectMenu.js"
 import { LRUCache } from "../utils/LRUCache.js"
+import { defaultLogger } from "../utils/logger.js"
 import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
 import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
@@ -109,7 +110,7 @@ export class ComponentHandler extends Base {
 						} as RESTPostAPIInteractionCallbackJSONBody
 					})
 					.catch(() => {
-						console.warn(
+						this.client.logger.warn(
 							`Failed to acknowledge one-off component interaction for message ${data.message.id}`
 						)
 					})
@@ -291,8 +292,7 @@ export class ComponentHandler extends Base {
 				error
 			})
 			if (this.client.options?.testHooks?.throwHandlerErrors === false) {
-				if (error instanceof Error) console.error(error.message)
-				console.error(error)
+				;(this.client.logger ?? defaultLogger).error(error)
 				return
 			}
 			throw error

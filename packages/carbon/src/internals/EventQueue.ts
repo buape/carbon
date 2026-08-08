@@ -286,10 +286,7 @@ export class EventQueue {
 			this.processingByLane[lane] += 1
 			void this.processEvent(event)
 				.catch((error) => {
-					console.error(
-						"[EventQueue] Unexpected error processing event:",
-						error
-					)
+					this.client.logger.error("Unexpected error processing event", error)
 				})
 				.finally(() => {
 					this.processingByLane[lane] -= 1
@@ -369,7 +366,7 @@ export class EventQueue {
 				this.options.logSlowListeners &&
 				duration >= this.options.slowListenerThreshold
 			) {
-				console.warn(
+				this.client.logger.warn(
 					JSON.stringify({
 						scope: "event-queue",
 						level: "warn",
@@ -393,7 +390,7 @@ export class EventQueue {
 							this.zombieExecutionCount - 1
 						)
 					})
-				console.error(
+				this.client.logger.error(
 					JSON.stringify({
 						scope: "event-queue",
 						level: "error",
@@ -406,7 +403,7 @@ export class EventQueue {
 				)
 				return
 			}
-			console.error(
+			this.client.logger.error(
 				JSON.stringify({
 					scope: "event-queue",
 					level: "error",

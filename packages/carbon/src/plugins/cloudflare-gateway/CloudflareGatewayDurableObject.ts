@@ -1,4 +1,5 @@
 import type { Client } from "../../classes/Client.js"
+import { defaultLogger } from "../../utils/logger.js"
 import { GatewayPlugin } from "../gateway/GatewayPlugin.js"
 import type {
 	CloudflareGatewayDurableObjectConfig,
@@ -200,13 +201,13 @@ export class CloudflareGatewayDurableObject {
 				} satisfies CloudflareGatewayForwardPayload)
 			})
 			if (!response.ok) {
-				console.error(
-					`[CloudflareGatewayDurableObject] Failed to forward event ${String(type)}: ${response.status}`
+				defaultLogger.error(
+					`Cloudflare gateway durable object failed to forward event ${String(type)}: ${response.status}`
 				)
 			}
 		} catch (error) {
-			console.error(
-				`[CloudflareGatewayDurableObject] Failed to forward event ${String(type)}`,
+			defaultLogger.error(
+				`Cloudflare gateway durable object failed to forward event ${String(type)}`,
 				error
 			)
 		}

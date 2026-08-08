@@ -6,7 +6,11 @@ import {
 	type LegacyPublicKey
 } from "../../classes/Client.js"
 import type { ApplicationId, ApplicationIdLike } from "../../types/index.js"
-import { deriveClientIdFromBotToken } from "../../utils/index.js"
+import {
+	deriveClientIdFromBotToken,
+	type Logger,
+	resolveLogger
+} from "../../utils/index.js"
 
 /**
  * Credentials for a single application in the ClientManager
@@ -137,6 +141,7 @@ export class ClientManager {
 		"baseUrl" | "deploySecret" | "clientId" | "publicKey" | "token"
 	>
 
+	logger: Logger
 	protected clients: Map<string, Client> = new Map()
 	protected staticApplications: ApplicationCredentials[]
 	protected initialHandlers: ConstructorParameters<typeof Client>[1]
@@ -153,6 +158,7 @@ export class ClientManager {
 		plugins: ConstructorParameters<typeof Client>[2]
 	) {
 		this.sharedOptions = options.sharedOptions
+		this.logger = resolveLogger(options.sharedOptions.logger)
 		this.deploySecret = options.deploySecret
 		this.baseUrl = options.baseUrl
 		this.staticApplications = options.applications ?? []
@@ -166,7 +172,7 @@ export class ClientManager {
 			options.startup
 		)
 		void this.startupPromise.catch((error) => {
-			console.error("[ClientManager] Startup failed", error)
+			this.logger.error("ClientManager startup failed", error)
 		})
 	}
 

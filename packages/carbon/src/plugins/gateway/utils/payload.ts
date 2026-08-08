@@ -1,3 +1,4 @@
+import { defaultLogger } from "../../../utils/logger.js"
 import {
 	GatewayOpcodes,
 	type GatewayPayload,
@@ -30,20 +31,23 @@ export function validatePayload(data: string): GatewayPayload | null {
 		const payload = JSON.parse(data) as GatewayPayload
 
 		if (!payload || typeof payload !== "object") {
-			console.error("[Gateway] Invalid payload: Not an object", { data })
+			defaultLogger.error("Gateway invalid payload: not an object", { data })
 			return null
 		}
 
 		if (!("op" in payload) || typeof payload.op !== "number") {
-			console.error("[Gateway] Invalid payload: Missing or invalid op code", {
-				data
-			})
+			defaultLogger.error(
+				"Gateway invalid payload: missing or invalid op code",
+				{
+					data
+				}
+			)
 			return null
 		}
 
 		return payload
 	} catch (error) {
-		console.error("[Gateway] Failed to validate payload:", error, { data })
+		defaultLogger.error("Gateway failed to validate payload", error, { data })
 		return null
 	}
 }

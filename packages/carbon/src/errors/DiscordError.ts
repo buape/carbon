@@ -25,13 +25,45 @@ export class DiscordError extends BaseError {
 	 * The raw body of the error from Discord
 	 * @internal
 	 */
-	rawBody: DiscordRawError
+	rawBody!: DiscordRawError
 
-	constructor(response: Response, body: DiscordRawError) {
-		super(body.message)
-		this.rawBody = body
+	constructor(response: Response, body: DiscordRawError, message?: string) {
+		const errors = errorMapper(body)
+		super(message ?? DiscordError.formatMessage(response, body, errors))
 		this.status = response.status
 		this.discordCode = body.code
-		this.errors = errorMapper(body)
+		this.errors = errors
+		Object.defineProperty(this, "rawBody", {
+			value: body,
+			enumerable: false,
+			writable: true,
+			configurable: true
+		})
+	}
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			status: this.status,
+			discordCode: this.discordCode,
+			errors: this.errors
+		}
+	}
+
+	private static formatMessage(
+		response: Response,
+		body: DiscordRawError,
+		errors: TransformedError[]
+	) {
+		const status = response.statusText
+			? `${response.status} ${response.statusText}`
+			: `${response.status}`
+		const code = body.code === undefined ? "" : `, Discord code ${body.code}`
+		const details = errors.map((error) => {
+			const location = error.location ? `${error.location}: ` : ""
+			return `- ${location}${error.message} (${error.code})`
+		})
+
+		return [`${body.message} (${status}${code})`, ...details].join("\n")
 	}
 }

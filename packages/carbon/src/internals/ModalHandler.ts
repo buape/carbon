@@ -1,6 +1,7 @@
 import type { APIModalSubmitInteraction } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Modal } from "../classes/Modal.js"
+import { defaultLogger } from "../utils/logger.js"
 import { ModalInteraction } from "./ModalInteraction.js"
 
 export class ModalHandler extends Base {
@@ -50,8 +51,7 @@ export class ModalHandler extends Base {
 				error
 			})
 			if (this.client.options?.testHooks?.throwHandlerErrors === false) {
-				if (error instanceof Error) console.error(error.message)
-				console.error(error)
+				;(this.client.logger ?? defaultLogger).error(error)
 				return
 			}
 			throw error

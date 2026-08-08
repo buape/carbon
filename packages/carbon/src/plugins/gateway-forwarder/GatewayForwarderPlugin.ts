@@ -247,7 +247,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 					})
 				}
 			} catch (error) {
-				console.error("Error forwarding webhook event:", error)
+				this.client?.logger.error("Error forwarding webhook event", error)
 			}
 		})
 	}
@@ -293,7 +293,7 @@ export class GatewayForwarderPlugin extends GatewayPlugin {
 			if (!response.retryable || finalAttempt) {
 				this.deliveryMetrics.failed += 1
 				this.trackFailure(response.reason, task.eventType)
-				console.error(
+				this.client?.logger.error(
 					JSON.stringify({
 						scope: "gateway-forwarder",
 						level: "error",

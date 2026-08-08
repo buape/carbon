@@ -12,6 +12,11 @@ import type {
 	CarbonTestHookDisposer,
 	CarbonTestHooks
 } from "../types/testHooks.js"
+import {
+	type Logger,
+	type LoggerOptions,
+	resolveLogger
+} from "../utils/logger.js"
 
 export type RuntimeProfile = "serverless" | "persistent"
 export type RequestPriority = RequestLane
@@ -80,6 +85,11 @@ export type RequestClientOptions = {
 	 */
 	fetch?: CarbonFetch
 	/**
+	 * Logger used by request internals.
+	 * Defaults to `console`; pass your own logger to redirect or silence logs.
+	 */
+	logger?: LoggerOptions
+	/**
 	 * Test hooks used by first-party testing utilities.
 	 * @internal
 	 */
@@ -87,7 +97,7 @@ export type RequestClientOptions = {
 }
 
 const defaultOptions: Required<
-	Omit<RequestClientOptions, "fetch" | "scheduler" | "testHooks">
+	Omit<RequestClientOptions, "fetch" | "logger" | "scheduler" | "testHooks">
 > = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
@@ -134,6 +144,7 @@ export class RequestClient {
 	 * The options used to initialize the client
 	 */
 	readonly options: RequestClientOptions
+	readonly logger: Logger
 	protected token: string
 	protected customFetch: CarbonFetch | undefined
 
@@ -161,6 +172,7 @@ export class RequestClient {
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
 		this.customFetch = options?.fetch
+		this.logger = resolveLogger(options?.logger)
 		this.options = {
 			...defaultOptions,
 			...options
@@ -292,7 +304,7 @@ export class RequestClient {
 			this.activeBucketKeys.add(bucketKey)
 			this.runQueuedRequest(next)
 				.catch((error) => {
-					console.error("[RequestClient] Queue worker failed", error)
+					this.logger.error("Request queue worker failed", error)
 				})
 				.finally(() => {
 					this.activeBucketKeys.delete(bucketKey)

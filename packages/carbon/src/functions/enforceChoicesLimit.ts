@@ -1,5 +1,6 @@
 // Utility to enforce the 25-item limit on choices in options (recursively)
 import type { APIApplicationCommandBasicOption } from "discord-api-types/v10"
+import { defaultLogger } from "../utils/logger.js"
 
 export function enforceChoicesLimit(
 	options?: APIApplicationCommandBasicOption[]
@@ -11,8 +12,8 @@ export function enforceChoicesLimit(
 			choices?: { name: string; value: string | number }[]
 		} = { ...option }
 		if (Array.isArray(newOption.choices) && newOption.choices.length > 25) {
-			console.warn(
-				`[Carbon] Command option '${newOption.name}' has ${newOption.choices.length} choices. Only the first 25 will be sent.`
+			defaultLogger.warn(
+				`Command option '${newOption.name}' has ${newOption.choices.length} choices. Only the first 25 will be sent.`
 			)
 			newOption.choices = newOption.choices.slice(0, 25)
 		}

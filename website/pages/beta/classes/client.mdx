@@ -119,6 +119,67 @@ Lane quick-reference:
 - `standard`: user-facing message send/edit/follow-up
 - `background`: background/admin/fetch
 
+## Logging
+
+Carbon uses a logger for its own warnings and errors. The default logger writes to `console` and prefixes messages with `[Carbon]`.
+
+You can pass a partial logger if you want logs to go somewhere else. Any methods you omit fall back to the default console logger.
+
+```ts title="src/index.ts"
+const client = new Client({
+    baseUrl: " ... ",
+    deploySecret: " ... ",
+    token: " ... ",
+    logger: {
+        error: (message, ...data) => {
+            myLogger.error({ message, data })
+        },
+        warn: (message, ...data) => {
+            myLogger.warn({ message, data })
+        }
+    }
+}, [new PingCommand()])
+```
+
+Available logger methods:
+
+- `debug(...data)`
+- `info(...data)`
+- `warn(...data)`
+- `error(...data)`
+
+`requestOptions.logger` can also be set if you are creating or tuning the request client separately.
+
+## Error Output
+
+Discord API failures throw `DiscordError`. The error keeps Discord's documented fields available:
+
+- `status`: HTTP status code
+- `discordCode`: Discord JSON error code, when present
+- `errors`: mapped nested form errors, when Discord returns an `errors` object
+- `rawBody`: the raw Discord error body, kept available for debugging
+
+For form body errors, the error message includes the top-level Discord message plus mapped field paths, codes, and messages.
+
+```txt
+Invalid Form Body (400 Bad Request, Discord code 50035)
+- options.0.name: This field is required (BASE_TYPE_REQUIRED)
+```
+
+Rate limits throw `RateLimitError` when request queuing is disabled. It follows Discord's rate-limit response and headers:
+
+- `retryAfter`: `retry_after` seconds
+- `global`: whether the limit is global
+- `scope`: `X-RateLimit-Scope` (`user`, `global`, or `shared`)
+- `bucket`: `X-RateLimit-Bucket`
+- `limit`: `X-RateLimit-Limit`
+- `remaining`: `X-RateLimit-Remaining`
+- `reset`: `X-RateLimit-Reset`
+- `resetAfter`: `X-RateLimit-Reset-After`
+- `method` and `url`: the request that hit the limit
+
+Both Carbon error classes provide `toJSON()` for structured logging.
+
 ## Event Queue Lanes
 
 `eventQueue.lanes` gives you per-lane control over queue size, concurrency, timeout, and max event age.

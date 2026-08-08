@@ -14,6 +14,7 @@ import type {
 	CommandExecutionStatus,
 	CommandMiddleware
 } from "../types/commandMiddleware.js"
+import { defaultLogger } from "../utils/logger.js"
 import { AutocompleteInteraction } from "./AutocompleteInteraction.js"
 import { CommandInteraction } from "./CommandInteraction.js"
 
@@ -182,8 +183,7 @@ export class CommandHandler extends Base {
 				error: e
 			})
 			if (this.client.options?.testHooks?.throwHandlerErrors) throw e
-			if (e instanceof Error) console.error(e.message)
-			console.error(e)
+			;(this.client.logger ?? defaultLogger).error(e)
 		} finally {
 			const endedAt = Date.now()
 			for (const middleware of middlewares) {
@@ -200,9 +200,7 @@ export class CommandHandler extends Base {
 						error
 					})
 				} catch (middlewareError: unknown) {
-					if (middlewareError instanceof Error)
-						console.error(middlewareError.message)
-					console.error(middlewareError)
+					;(this.client.logger ?? defaultLogger).error(middlewareError)
 				}
 			}
 		}
@@ -252,8 +250,7 @@ export class CommandHandler extends Base {
 				error: e
 			})
 			if (this.client.options?.testHooks?.throwHandlerErrors) throw e
-			if (e instanceof Error) console.error(e.message)
-			console.error(e)
+			;(this.client.logger ?? defaultLogger).error(e)
 		}
 	}
 }

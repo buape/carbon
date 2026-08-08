@@ -76,8 +76,8 @@ export class CloudflareGatewayPlugin extends Plugin {
 
 		this.lastConnectAttempt = now
 		const connectPromise = this.connectDurableObject(env).catch((error) => {
-			console.error(
-				"[CloudflareGatewayPlugin] Failed to connect durable object",
+			this.client?.logger.error(
+				"Cloudflare gateway failed to connect durable object",
 				error
 			)
 		})

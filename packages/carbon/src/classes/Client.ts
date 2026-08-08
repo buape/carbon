@@ -52,6 +52,9 @@ import type {
 import {
 	concatUint8Arrays,
 	deriveClientIdFromBotToken,
+	type Logger,
+	type LoggerOptions,
+	resolveLogger,
 	subtleCrypto,
 	valueToUint8Array
 } from "../utils/index.js"
@@ -147,6 +150,11 @@ export interface ClientOptions {
 	 */
 	commandMiddlewares?: CommandMiddleware[]
 	/**
+	 * Logger used by Carbon internals.
+	 * Defaults to `console`; pass your own logger to redirect or silence logs.
+	 */
+	logger?: LoggerOptions
+	/**
 	 * Hooks used by Carbon testing utilities to observe handler behavior.
 	 */
 	testHooks?: CarbonTestHooks
@@ -200,6 +208,10 @@ export class Client {
 	 * Opt-in entity cache manager.
 	 */
 	cache: CacheManager
+	/**
+	 * Logger used by Carbon internals.
+	 */
+	logger: Logger
 	/**
 	 * The handler for the component interactions sent from Discord
 	 * @internal
@@ -264,6 +276,7 @@ export class Client {
 		const runtimeProfile = options.runtimeProfile ?? "serverless"
 		this.clientId = clientId as ApplicationId
 		this.publicKey = options.publicKey
+		this.logger = resolveLogger(options.logger)
 		this.options = {
 			...options,
 			clientId,
@@ -275,13 +288,13 @@ export class Client {
 		}
 
 		if (options.clientId) {
-			console.warn(
-				"[Carbon] Passing clientId is deprecated and will be removed in the next major version. Omit clientId to derive it from the bot token."
+			this.logger.warn(
+				"Passing clientId is deprecated and will be removed in the next major version. Omit clientId to derive it from the bot token."
 			)
 		}
 		if (typeof options.publicKey === "string") {
-			console.warn(
-				"[Carbon] Passing publicKey as a string is deprecated and will be removed in the next major version. Omit publicKey to fetch the app public key, or pass string[] for additional forwarder public keys."
+			this.logger.warn(
+				"Passing publicKey as a string is deprecated and will be removed in the next major version. Omit publicKey to fetch the app public key, or pass string[] for additional forwarder public keys."
 			)
 		}
 		this.commands = handlers.commands ?? []
@@ -314,11 +327,15 @@ export class Client {
 		this.rest = new RequestClient(this.options.token, {
 			runtimeProfile,
 			testHooks: this.options.testHooks,
-			...this.options.requestOptions
+			...this.options.requestOptions,
+			logger: {
+				...this.logger,
+				...this.options.requestOptions?.logger
+			}
 		})
 		this.ready = this.initializeApplication()
 		void this.ready.catch((error) => {
-			console.error("[Carbon] Failed to initialize client", error)
+			this.logger.error("Failed to initialize client", error)
 		})
 
 		this.appendRoutes()
@@ -332,7 +349,7 @@ export class Client {
 			void this.ready
 				.then(() => this.deployCommands())
 				.catch((error) => {
-					console.error("[Carbon] Failed to auto-deploy commands", error)
+					this.logger.error("Failed to auto-deploy commands", error)
 				})
 		}
 	}

@@ -51,7 +51,7 @@ export function createHandler(client: Client | ClientManager): Handler {
 		try {
 			return await route.handler(req, ctx)
 		} catch (error) {
-			console.error(error)
+			client.logger.error(error)
 			return new Response("Internal Server Error", { status: 500 })
 		}
 	}
