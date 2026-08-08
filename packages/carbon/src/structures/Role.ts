@@ -6,29 +6,36 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	GuildId,
+	GuildIdLike,
+	IfPartial,
+	RoleId,
+	RoleIdLike
+} from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import { Guild } from "./Guild.js"
 
 export class Role<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
-		rawDataOrId: IsPartial extends true ? string : APIRole,
-		guildId?: string
+		rawDataOrId: IsPartial extends true ? RoleIdLike : APIRole,
+		guildId?: GuildIdLike
 	) {
 		super(client)
-		this._guildId = guildId
+		this._guildId = guildId as GuildId | undefined
 		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
+			this.id = rawDataOrId as RoleId
 		} else {
 			this._rawData = rawDataOrId
-			this.id = rawDataOrId.id
+			this.id = rawDataOrId.id as RoleId
 			this.setData(rawDataOrId)
 		}
 	}
 
 	protected _rawData: APIRole | null = null
-	private _guildId?: string
+	private _guildId?: GuildId
 
 	private setData(data: typeof this._rawData) {
 		if (!data) throw new Error("Cannot set data without having data... smh")
@@ -46,23 +53,23 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The raw Discord API data for this role
 	 */
-	get rawData(): Readonly<APIRole> {
+	get rawData(): Readonly<BrandedDiscordIds<APIRole, RoleId>> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial Role. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<APIRole, RoleId>
 	}
 
 	/**
 	 * The ID of the role.
 	 */
-	readonly id: string
+	readonly id: RoleId
 
 	/**
 	 * The ID of the guild this role belongs to
 	 */
-	get guildId(): string {
+	get guildId(): GuildId {
 		if (!this._guildId)
 			throw new Error(
 				"Guild ID is not available for this role. Use guild.fetchRole() to get a role with guild context."
@@ -189,9 +196,9 @@ export class Role<IsPartial extends boolean = false> extends Base {
 	 * The tags of this role.
 	 * @see https://discord.com/developers/docs/topics/permissions#role-object-role-tags-structure
 	 */
-	get tags(): IfPartial<IsPartial, APIRoleTags | undefined> {
+	get tags(): IfPartial<IsPartial, BrandedDiscordIds<APIRoleTags> | undefined> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.tags
+		return this._rawData.tags as BrandedDiscordIds<APIRoleTags>
 	}
 
 	/**

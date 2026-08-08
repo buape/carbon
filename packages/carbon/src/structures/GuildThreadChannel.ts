@@ -4,14 +4,21 @@ import {
 	type ThreadChannelType
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
-import type { IfPartial } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	ForumTagId,
+	IfPartial,
+	UserId,
+	UserIdLike
+} from "../types/index.js"
 
 export class GuildThreadChannel<
 	Type extends ThreadChannelType,
 	IsPartial extends boolean = false
 > extends BaseGuildChannel<Type, IsPartial> {
 	// @ts-expect-error
-	declare rawData: APIThreadChannel | null
+	declare rawData: BrandedDiscordIds<APIThreadChannel, ChannelId> | null
 
 	/**
 	 * Whether the thread is archived.
@@ -83,9 +90,9 @@ export class GuildThreadChannel<
 	/**
 	 * The ID of the owner of the thread.
 	 */
-	get ownerId(): IfPartial<IsPartial, string | undefined> {
+	get ownerId(): IfPartial<IsPartial, UserId | undefined> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.owner_id
+		return this.rawData.owner_id as never
 	}
 
 	/**
@@ -99,7 +106,7 @@ export class GuildThreadChannel<
 	/**
 	 * The tags applied to the thread.
 	 */
-	get appliedTags(): IfPartial<IsPartial, string[] | undefined> {
+	get appliedTags(): IfPartial<IsPartial, ForumTagId[] | undefined> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.applied_tags
 	}
@@ -114,7 +121,7 @@ export class GuildThreadChannel<
 	/**
 	 * Add a member to the thread
 	 */
-	async addMember(userId: string) {
+	async addMember(userId: UserIdLike | "@me") {
 		await this.client.rest.put(Routes.threadMembers(this.id, userId))
 	}
 
@@ -128,7 +135,7 @@ export class GuildThreadChannel<
 	/**
 	 * Get the pinned messages in the thread
 	 */
-	async removeMember(userId: string) {
+	async removeMember(userId: UserIdLike | "@me") {
 		await this.client.rest.delete(Routes.threadMembers(this.id, userId))
 	}
 

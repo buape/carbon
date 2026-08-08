@@ -1,3 +1,5 @@
+import type { GuildIdLike } from "../../types/index.js"
+
 // I called this the BabyCache because eventually, one way, carbon will have a more
 // proper caching setup. For now, this is the toddler of that cache.
 
@@ -16,7 +18,7 @@ export class BabyCache {
 		this.ttl = ttl
 	}
 
-	setGuild(guildId: string, entry: GuildCacheEntry) {
+	setGuild(guildId: GuildIdLike, entry: GuildCacheEntry) {
 		if (
 			this.guildCache.size >= this.maxGuilds &&
 			!this.guildCache.has(guildId)
@@ -39,7 +41,7 @@ export class BabyCache {
 		this.guildCache.set(guildId, entry)
 	}
 
-	getGuild(guildId: string): GuildCacheEntry | undefined {
+	getGuild(guildId: GuildIdLike): GuildCacheEntry | undefined {
 		const entry = this.guildCache.get(guildId)
 
 		if (!entry) return undefined
@@ -52,7 +54,7 @@ export class BabyCache {
 		return entry
 	}
 
-	removeGuild(guildId: string): boolean {
+	removeGuild(guildId: GuildIdLike): boolean {
 		return this.guildCache.delete(guildId)
 	}
 

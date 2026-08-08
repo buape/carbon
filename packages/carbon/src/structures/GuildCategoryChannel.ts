@@ -4,7 +4,7 @@ import {
 	Routes
 } from "discord-api-types/v10"
 import { BaseGuildChannel } from "../abstracts/BaseGuildChannel.js"
-import type { IfPartial } from "../types/index.js"
+import type { BrandedDiscordIds, ChannelId, IfPartial } from "../types/index.js"
 
 /**
  * Represents a guild category channel.
@@ -12,7 +12,7 @@ import type { IfPartial } from "../types/index.js"
 export class GuildCategoryChannel<
 	IsPartial extends boolean = false
 > extends BaseGuildChannel<ChannelType.GuildCategory, IsPartial> {
-	declare rawData: APIGuildCategoryChannel | null
+	declare rawData: BrandedDiscordIds<APIGuildCategoryChannel, ChannelId> | null
 
 	/**
 	 * The position of the channel in the channel list.

@@ -5,6 +5,13 @@ import {
 	GatewayIntentBits,
 	type GatewayReadyDispatchData
 } from "discord-api-types/v10"
+import type {
+	ApplicationIdLike,
+	ChannelIdLike,
+	EmojiIdLike,
+	GuildIdLike,
+	UserIdLike
+} from "../../types/index.js"
 import { ListenerEvent, type ListenerEventType } from "../../types/listeners.js"
 
 export type GatewayWebSocketLike = {
@@ -144,12 +151,12 @@ export interface Activity {
 		start?: number
 		end?: number
 	}
-	application_id?: string
+	application_id?: ApplicationIdLike
 	details?: string | null
 	state?: string | null
 	emoji?: {
 		name: string
-		id?: string
+		id?: EmojiIdLike
 		animated?: boolean
 	} | null
 	party?: {
@@ -173,20 +180,20 @@ export interface Activity {
 }
 
 export interface UpdateVoiceStateData {
-	guild_id: string
-	channel_id: string | null
+	guild_id: GuildIdLike
+	channel_id: ChannelIdLike | null
 	self_mute: boolean
 	self_deaf: boolean
 }
 
 export interface RequestGuildMembersData {
-	guild_id: string
+	guild_id: GuildIdLike
 	/** Query string (empty string "" requests all members). Either query or user_ids is required. */
 	query?: string
 	limit: number
 	presences?: boolean
 	/** Specific user IDs to request. Either query or user_ids is required. */
-	user_ids?: string | string[]
+	user_ids?: UserIdLike | UserIdLike[]
 	nonce?: string
 }
 

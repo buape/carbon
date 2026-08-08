@@ -1,4 +1,5 @@
 import type { QueuedRequest } from "../classes/RequestClient.js"
+import type { InteractionId } from "./index.js"
 
 export type CarbonFetch = (
 	input: string | URL | Request,
@@ -25,7 +26,7 @@ export type CarbonTestEvent =
 				| "autocomplete"
 				| "acknowledge"
 				| "update"
-			interactionId: string
+			interactionId: InteractionId
 			body: unknown
 	  }
 	| {

@@ -1,5 +1,6 @@
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
+import type { UserId } from "../../types/index.js"
 import {
 	ApplicationRoleConnectionMetadataType,
 	type LinkedRolesOptions
@@ -150,15 +151,16 @@ export class LinkedRoles extends Plugin {
 				}
 			})
 
-		const newMetadata = await this.getMetadataFromCheckers(authData.user.id)
+		const userId = authData.user.id as UserId
+		const newMetadata = await this.getMetadataFromCheckers(userId)
 
-		await this.updateMetadata(authData.user?.id, newMetadata, tokens)
+		await this.updateMetadata(userId, newMetadata, tokens)
 
 		// IDEA: Maybe we can redirect to a success page instead of just a message
 		return new Response("You can now close this tab.")
 	}
 
-	private async getMetadataFromCheckers(userId: string) {
+	private async getMetadataFromCheckers(userId: UserId) {
 		const result: Record<string, unknown> = {}
 		for (const metadata of this.options.metadata) {
 			const checker = this.options.metadataCheckers[metadata.key]
@@ -222,7 +224,7 @@ export class LinkedRoles extends Plugin {
 	}
 
 	private async updateMetadata(
-		userId: string,
+		userId: UserId,
 		metadata: Record<string, unknown>,
 		tokens: Tokens
 	) {

@@ -7,7 +7,13 @@ import {
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	BrandedAPIUser,
+	IfPartial,
+	MessagePayload,
+	UserId,
+	UserIdLike
+} from "../types/index.js"
 import {
 	buildCDNUrl,
 	type CDNUrlOptions,
@@ -18,14 +24,14 @@ import { Message } from "./Message.js"
 export class User<IsPartial extends boolean = false> extends Base {
 	constructor(
 		client: Client,
-		rawDataOrId: IsPartial extends true ? string : APIUser
+		rawDataOrId: IsPartial extends true ? UserIdLike : APIUser
 	) {
 		super(client)
 		if (typeof rawDataOrId === "string") {
-			this.id = rawDataOrId
+			this.id = rawDataOrId as UserId
 		} else {
 			this._rawData = rawDataOrId
-			this.id = rawDataOrId.id
+			this.id = rawDataOrId.id as UserId
 			this.setData(rawDataOrId)
 		}
 	}
@@ -44,18 +50,18 @@ export class User<IsPartial extends boolean = false> extends Base {
 	/**
 	 * The raw Discord API data for this user
 	 */
-	get rawData(): Readonly<APIUser> {
+	get rawData(): Readonly<BrandedAPIUser> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial User. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedAPIUser
 	}
 
 	/**
 	 * The ID of the user
 	 */
-	readonly id: string
+	readonly id: UserId
 
 	/**
 	 * Whether the user is a partial user (meaning it does not have all the data).

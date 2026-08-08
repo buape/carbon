@@ -7,7 +7,7 @@ import {
 } from "discord-api-types/v10"
 import { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
 import type { ButtonInteraction } from "../../internals/ButtonInteraction.js"
-import type { ComponentData } from "../../types/index.js"
+import type { ComponentData, SkuIdLike } from "../../types/index.js"
 
 abstract class BaseButton extends BaseMessageInteractiveComponent {
 	readonly type = ComponentType.Button as const
@@ -100,7 +100,7 @@ export abstract class PremiumButton extends BaseButton {
 	/**
 	 * The SKU ID of the button
 	 */
-	abstract sku_id: string
+	abstract sku_id: SkuIdLike
 
 	serialize = (): APIButtonComponentWithSKUId => {
 		return {

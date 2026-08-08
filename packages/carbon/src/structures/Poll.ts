@@ -8,11 +8,12 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { Message } from "../index.js"
+import type { BrandedDiscordIds, ChannelId, MessageId } from "../types/index.js"
 import { User } from "./User.js"
 
 export class Poll extends Base {
-	private channelId: string
-	private messageId: string
+	private channelId: ChannelId
+	private messageId: MessageId
 	protected _rawData: APIPoll
 
 	constructor(
@@ -21,7 +22,7 @@ export class Poll extends Base {
 			channelId,
 			messageId,
 			data
-		}: { channelId: string; messageId: string; data: APIPoll }
+		}: { channelId: ChannelId; messageId: MessageId; data: APIPoll }
 	) {
 		super(client)
 		this.channelId = channelId
@@ -32,8 +33,8 @@ export class Poll extends Base {
 	/**
 	 * The raw Discord API data for this poll
 	 */
-	get rawData(): Readonly<APIPoll> {
-		return this._rawData
+	get rawData(): Readonly<BrandedDiscordIds<APIPoll>> {
+		return this._rawData as BrandedDiscordIds<APIPoll>
 	}
 
 	get question() {

@@ -12,6 +12,7 @@ import {
 } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
 import type { Command } from "../classes/Command.js"
+import type { InteractionId } from "../types/index.js"
 import { OptionsHandler } from "./OptionsHandler.js"
 
 export class AutocompleteInteraction extends BaseInteraction<APIApplicationCommandAutocompleteInteraction> {
@@ -85,7 +86,7 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "autocomplete",
-			interactionId: this.rawData.id,
+			interactionId: this.rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(

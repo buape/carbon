@@ -1,6 +1,5 @@
 import type {
 	APIMessage,
-	APIUser,
 	APIWebhook,
 	RESTGetAPIWebhookResult,
 	RESTGetAPIWebhookWithTokenMessageResult,
@@ -10,7 +9,19 @@ import type {
 } from "discord-api-types/v10"
 import { Routes } from "discord-api-types/v10"
 import { RequestClient } from "../classes/RequestClient.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	ApplicationId,
+	BrandedAPIUser,
+	BrandedAPIWebhook,
+	ChannelId,
+	ChannelIdLike,
+	GuildId,
+	IfPartial,
+	MessageIdLike,
+	MessagePayload,
+	WebhookId,
+	WebhookIdLike
+} from "../types/index.js"
 import {
 	buildCDNUrl,
 	type CDNUrlOptions,
@@ -19,16 +30,16 @@ import {
 
 export type WebhookInput =
 	| APIWebhook
-	| { id: string; token: string; threadId?: string }
+	| { id: WebhookIdLike; token: string; threadId?: ChannelIdLike }
 	| string
 
 export class Webhook<IsPartial extends boolean = false> {
 	rest: RequestClient
 	constructor(rawData: APIWebhook)
 	constructor(idAndToken: {
-		id: string
+		id: WebhookIdLike
 		token: string
-		threadId?: string
+		threadId?: ChannelIdLike
 	})
 	constructor(url: string)
 	constructor(input: WebhookInput)
@@ -39,17 +50,22 @@ export class Webhook<IsPartial extends boolean = false> {
 			if (url.protocol !== "https:") throw new Error("Invalid URL")
 			const [id, token] = url.pathname.split("/").slice(3)
 			if (!id || !token) throw new Error("Invalid URL")
-			this.id = id
+			this.id = id as WebhookId
 			this.token = token
 			const potentialThreadId = url.searchParams.get("thread_id")
-			this.threadId = potentialThreadId ?? undefined
+			this.threadId = potentialThreadId
+				? (potentialThreadId as ChannelId)
+				: undefined
 		} else {
 			if ("channel_id" in input) {
 				this.setData(input)
 			}
-			this.id = input.id
+			this.id = input.id as WebhookId
 			this.token = input.token
-			this.threadId = "threadId" in input ? input.threadId : undefined
+			this.threadId =
+				"threadId" in input
+					? (input.threadId as ChannelId | undefined)
+					: undefined
 		}
 		this.rest = new RequestClient("webhook")
 	}
@@ -63,18 +79,18 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The raw Discord API data for this webhook
 	 */
-	get rawData(): Readonly<APIWebhook> {
+	get rawData(): Readonly<BrandedAPIWebhook> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial Webhook. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedAPIWebhook
 	}
 
 	/**
 	 * The ID of the webhook
 	 */
-	readonly id: string
+	readonly id: WebhookId
 
 	/**
 	 * The token of the webhook
@@ -84,7 +100,7 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The thread ID this webhook is for
 	 */
-	readonly threadId?: string
+	readonly threadId?: ChannelId
 
 	/**
 	 * Whether the webhook is a partial webhook (meaning it does not have all the data).
@@ -106,26 +122,26 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The guild id this webhook is for
 	 */
-	get guildId(): IfPartial<IsPartial, string | null | undefined> {
+	get guildId(): IfPartial<IsPartial, GuildId | null | undefined> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.guild_id
+		return this._rawData.guild_id as never
 	}
 
 	/**
 	 * The channel id this webhook is for
 	 */
-	get channelId(): IfPartial<IsPartial, string | null> {
+	get channelId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.channel_id
+		return this._rawData.channel_id as never
 	}
 
 	/**
 	 * The user this webhook was created by
 	 * Not returned when getting a webhook with its token
 	 */
-	get user(): IfPartial<IsPartial, APIUser | undefined> {
+	get user(): IfPartial<IsPartial, BrandedAPIUser | undefined> {
 		if (!this._rawData?.user) return undefined as never
-		return this._rawData.user
+		return this._rawData.user as BrandedAPIUser
 	}
 
 	/**
@@ -172,9 +188,9 @@ export class Webhook<IsPartial extends boolean = false> {
 	/**
 	 * The bot/OAuth2 application that created this webhook
 	 */
-	get applicationId(): IfPartial<IsPartial, string | null> {
+	get applicationId(): IfPartial<IsPartial, ApplicationId | null> {
 		if (!this._rawData) return undefined as never
-		return this._rawData.application_id
+		return this._rawData.application_id as never
 	}
 
 	/**
@@ -215,7 +231,7 @@ export class Webhook<IsPartial extends boolean = false> {
 		withComponents,
 		useDefaultThread = false
 	}: {
-		threadId?: string
+		threadId?: ChannelIdLike
 		wait?: boolean
 		withComponents?: boolean
 		useDefaultThread?: boolean
@@ -250,7 +266,7 @@ export class Webhook<IsPartial extends boolean = false> {
 		withComponents
 	}: {
 		wait?: boolean
-		threadId?: string
+		threadId?: ChannelIdLike
 		withComponents?: boolean
 	}): string {
 		let base = `/webhooks/${this.id}/${this.token}`
@@ -305,7 +321,7 @@ export class Webhook<IsPartial extends boolean = false> {
 	 */
 	async send<T extends true | false = false>(
 		data: MessagePayload,
-		threadId?: string,
+		threadId?: ChannelIdLike,
 		wait?: T
 	): Promise<T extends true ? APIMessage : void> {
 		if (!this.token)
@@ -336,9 +352,9 @@ export class Webhook<IsPartial extends boolean = false> {
 	 * @param threadId Optional ID of the thread to edit the message in. If not provided, uses the webhook's thread ID.
 	 */
 	async edit(
-		messageId: string,
+		messageId: MessageIdLike,
 		data: MessagePayload,
-		threadId?: string
+		threadId?: ChannelIdLike
 	): Promise<APIMessage> {
 		if (!this.token)
 			throw new Error("Cannot edit webhook message without token")
@@ -367,7 +383,10 @@ export class Webhook<IsPartial extends boolean = false> {
 	 * @param threadId Optional ID of the thread to delete the message from. If not provided, uses the webhook's thread ID.
 	 * @returns A Promise that resolves when the message is deleted
 	 */
-	async deleteMessage(messageId: string, threadId?: string): Promise<void> {
+	async deleteMessage(
+		messageId: MessageIdLike,
+		threadId?: ChannelIdLike
+	): Promise<void> {
 		if (!this.token)
 			throw new Error("Cannot delete webhook message without token")
 
@@ -385,7 +404,10 @@ export class Webhook<IsPartial extends boolean = false> {
 	 * @param threadId Optional ID of the thread to get the message from. If not provided, uses the webhook's thread ID.
 	 * @returns The raw data of the message, which you can then use to create a Message instance
 	 */
-	async getMessage(messageId: string, threadId?: string): Promise<APIMessage> {
+	async getMessage(
+		messageId: MessageIdLike,
+		threadId?: ChannelIdLike
+	): Promise<APIMessage> {
 		if (!this.token) throw new Error("Cannot get webhook message without token")
 
 		const query = this.buildQuery({ threadId, useDefaultThread: true })

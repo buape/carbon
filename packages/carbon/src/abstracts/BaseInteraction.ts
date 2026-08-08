@@ -26,8 +26,11 @@ import {
 import { GuildMember } from "../structures/GuildMember.js"
 import type {
 	APIModalInteractionResponseCallbackData2,
+	BrandedAPIInteraction,
+	InteractionId,
 	MessagePayload,
-	TopLevelComponents
+	TopLevelComponents,
+	UserId
 } from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { Base } from "./Base.js"
@@ -52,13 +55,13 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 	/**
 	 * The raw Discord API data for this interaction
 	 */
-	get rawData(): Readonly<T> {
-		return this._rawData
+	get rawData(): Readonly<BrandedAPIInteraction<T>> {
+		return this._rawData as unknown as BrandedAPIInteraction<T>
 	}
 	/**
 	 * The user who sent the interaction
 	 */
-	userId: string | undefined
+	userId: UserId | undefined
 
 	/**
 	 * Whether the interaction is deferred already
@@ -72,8 +75,9 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		super(client)
 		this._rawData = data
 		this.type = data.type
-		this.userId =
-			this._rawData.user?.id || this._rawData.member?.user.id || undefined
+		this.userId = (this._rawData.user?.id ||
+			this._rawData.member?.user.id ||
+			undefined) as UserId | undefined
 		if (defaults.ephemeral) this.defaultEphemeral = defaults.ephemeral
 	}
 
@@ -177,7 +181,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 			this.client.options?.testHooks?.emit?.({
 				type: "interaction:response",
 				kind: "edit-original",
-				interactionId: this._rawData.id,
+				interactionId: this._rawData.id as InteractionId,
 				body: serialized
 			})
 			const message = (await this.client.rest.patch(
@@ -199,7 +203,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "reply",
-			interactionId: this._rawData.id,
+			interactionId: this._rawData.id as InteractionId,
 			body
 		})
 		const done = (await this.client.rest.post(
@@ -246,7 +250,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "defer",
-			interactionId: this._rawData.id,
+			interactionId: this._rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(
@@ -285,7 +289,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "modal",
-			interactionId: this._rawData.id,
+			interactionId: this._rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(
@@ -311,7 +315,7 @@ export abstract class BaseInteraction<T extends APIInteraction> extends Base {
 		this.client.options?.testHooks?.emit?.({
 			type: "interaction:response",
 			kind: "followup",
-			interactionId: this._rawData.id,
+			interactionId: this._rawData.id as InteractionId,
 			body
 		})
 		await this.client.rest.post(

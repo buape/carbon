@@ -5,6 +5,7 @@ import type {
 } from "@discordjs/voice"
 import { Plugin } from "../../abstracts/Plugin.js"
 import type { Client } from "../../classes/Client.js"
+import type { GuildIdLike } from "../../types/index.js"
 import type { GatewayPlugin } from "../gateway/index.js"
 import type { GatewayPayload, ShardingPlugin } from "../sharding/index.js"
 import { GuildDelete } from "./GuildDeleteListener.js"
@@ -37,14 +38,16 @@ export class VoicePlugin extends Plugin {
 		this.client.registerListener(new VoiceServerUpdate())
 	}
 
-	getGateway(guild_id: string) {
+	getGateway(guild_id: GuildIdLike) {
 		if (this.shardingPlugin) {
 			return this.shardingPlugin.getShardForGuild(guild_id)
 		}
 		return this.gatewayPlugin
 	}
 
-	getGatewayAdapterCreator(guild_id: string): DiscordGatewayAdapterCreator {
+	getGatewayAdapterCreator(
+		guild_id: GuildIdLike
+	): DiscordGatewayAdapterCreator {
 		const gateway = this.getGateway(guild_id)
 
 		if (!gateway) {

@@ -1,6 +1,7 @@
 import {
 	type APIApplicationCommandInteraction,
 	type APIChatInputApplicationCommandInteractionData,
+	type APIMessage,
 	ApplicationCommandType,
 	InteractionType
 } from "discord-api-types/v10"
@@ -66,7 +67,9 @@ export class CommandInteraction extends BaseInteraction<APIApplicationCommandInt
 			? resolved.messages[targetId]
 			: Object.values(resolved.messages)[0]
 
-		return rawMessage ? new Message(this.client, rawMessage) : null
+		return rawMessage
+			? new Message(this.client, rawMessage as unknown as APIMessage)
+			: null
 	}
 
 	get targetUser() {

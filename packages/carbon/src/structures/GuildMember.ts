@@ -7,7 +7,13 @@ import {
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
 import { maxPermissions } from "../permissions.js"
-import type { IfPartial, VoiceState } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	IfPartial,
+	RoleIdLike,
+	VoiceState
+} from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import type { Guild } from "./Guild.js"
 import { Role } from "./Role.js"
@@ -54,12 +60,12 @@ export class GuildMember<
 	/**
 	 * The raw Discord API data for this guild member
 	 */
-	get rawData(): Readonly<APIGuildMemberPartialVoice> {
+	get rawData(): Readonly<BrandedDiscordIds<APIGuildMemberPartialVoice>> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial GuildMember. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<APIGuildMemberPartialVoice>
 	}
 
 	/**
@@ -189,7 +195,7 @@ export class GuildMember<
 		if (!voiceState) return null
 
 		const voiceStateData = {
-			channelId: voiceState.channel_id ?? null,
+			channelId: (voiceState.channel_id ?? null) as ChannelId | null,
 			guildId: this.guild.id,
 			userId: this.user.id,
 			sessionId: voiceState.session_id,
@@ -270,7 +276,7 @@ export class GuildMember<
 	/**
 	 * Add a role to the member
 	 */
-	async addRole(roleId: string, reason?: string): Promise<void> {
+	async addRole(roleId: RoleIdLike, reason?: string): Promise<void> {
 		await this.client.rest.put(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`,
 			{
@@ -286,7 +292,7 @@ export class GuildMember<
 	/**
 	 * Remove a role from the member
 	 */
-	async removeRole(roleId: string, reason?: string): Promise<void> {
+	async removeRole(roleId: RoleIdLike, reason?: string): Promise<void> {
 		await this.client.rest.delete(
 			`/guilds/${this.guild?.id}/members/${this.user?.id}/roles/${roleId}`,
 			{

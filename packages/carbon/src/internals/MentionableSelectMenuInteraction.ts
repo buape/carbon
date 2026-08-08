@@ -6,6 +6,7 @@ import {
 import { AnySelectMenuInteraction } from "../abstracts/AnySelectMenuInteraction.js"
 import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
+import type { RoleId, UserId } from "../types/index.js"
 
 export class MentionableSelectMenuInteraction extends AnySelectMenuInteraction {
 	constructor(
@@ -19,8 +20,8 @@ export class MentionableSelectMenuInteraction extends AnySelectMenuInteraction {
 		}
 	}
 
-	get values(): string[] {
+	get values(): Array<RoleId | UserId> {
 		return (this.rawData.data as APIMessageMentionableSelectInteractionData)
-			.values
+			.values as Array<RoleId | UserId>
 	}
 }

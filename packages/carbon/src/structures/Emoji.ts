@@ -2,6 +2,16 @@ import type { APIApplicationEmoji, APIEmoji } from "discord-api-types/v10"
 import { Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import type {
+	ApplicationId,
+	ApplicationIdLike,
+	BrandedDiscordIds,
+	EmojiId,
+	GuildId,
+	GuildIdLike,
+	RoleId,
+	RoleIdLike
+} from "../types/index.js"
 import { buildCDNUrl, type CDNUrlOptions } from "../utils/index.js"
 import type { Role } from "./Role.js"
 import { User } from "./User.js"
@@ -17,8 +27,8 @@ export abstract class BaseEmoji<T extends APIEmoji = APIEmoji> extends Base {
 	/**
 	 * The ID of the emoji
 	 */
-	get id() {
-		return this._rawData.id
+	get id(): EmojiId | null {
+		return this._rawData.id as EmojiId | null
 	}
 
 	/**
@@ -31,8 +41,8 @@ export abstract class BaseEmoji<T extends APIEmoji = APIEmoji> extends Base {
 	/**
 	 * The roles that can use the emoji
 	 */
-	get roles() {
-		return this._rawData.roles
+	get roles(): RoleId[] | undefined {
+		return this._rawData.roles as RoleId[] | undefined
 	}
 
 	/**
@@ -96,18 +106,21 @@ export abstract class BaseEmoji<T extends APIEmoji = APIEmoji> extends Base {
 }
 
 export class ApplicationEmoji extends BaseEmoji<APIApplicationEmoji> {
-	readonly applicationId: string
+	readonly applicationId: ApplicationId
 	constructor(
 		client: Client,
 		rawData: APIApplicationEmoji,
-		applicationId: string
+		applicationId: ApplicationIdLike
 	) {
 		super(client, rawData)
-		this.applicationId = applicationId
+		this.applicationId = applicationId as ApplicationId
 	}
 
-	get rawData(): APIApplicationEmoji {
-		return this._rawData
+	get rawData(): BrandedDiscordIds<APIApplicationEmoji, EmojiId> {
+		return this._rawData as unknown as BrandedDiscordIds<
+			APIApplicationEmoji,
+			EmojiId
+		>
 	}
 
 	private setData(data: typeof this._rawData) {
@@ -133,15 +146,15 @@ export class ApplicationEmoji extends BaseEmoji<APIApplicationEmoji> {
 }
 
 export class GuildEmoji extends BaseEmoji {
-	readonly guildId: string
-	constructor(client: Client, rawData: APIEmoji, guildId: string) {
+	readonly guildId: GuildId
+	constructor(client: Client, rawData: APIEmoji, guildId: GuildIdLike) {
 		super(client, rawData)
-		this.guildId = guildId
+		this.guildId = guildId as GuildId
 		this.setData(rawData)
 	}
 
-	get rawData(): APIEmoji {
-		return this._rawData
+	get rawData(): BrandedDiscordIds<APIEmoji, EmojiId> {
+		return this._rawData as unknown as BrandedDiscordIds<APIEmoji, EmojiId>
 	}
 
 	private setData(data: typeof this._rawData) {
@@ -164,7 +177,7 @@ export class GuildEmoji extends BaseEmoji {
 	 * Set the roles that can use the emoji
 	 * @param roles The roles to set
 	 */
-	async setRoles(roles: string[] | Role[]) {
+	async setRoles(roles: RoleIdLike[] | Role[]) {
 		if (!this.id) throw new Error("Emoji ID is required")
 		if (!this.guildId) throw new Error("Guild ID is required")
 		const updatedEmoji = (await this.client.rest.patch(

@@ -1,3 +1,5 @@
+import type { UserId } from "../../types/index.js"
+
 /**
  * The type of metadata that you can check for
  */
@@ -52,7 +54,7 @@ export type LinkedRolesOptions = {
 	 * If you are checking a datetime, you should return a Date.now() timestamp.
 	 */
 	metadataCheckers: {
-		[name: string]: (userId: string) => Promise<number | boolean>
+		[name: string]: (userId: UserId) => Promise<number | boolean>
 	}
 	/**
 	 * Whether the deploy route should be disabled.

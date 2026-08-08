@@ -1,13 +1,25 @@
 import type {
 	APIActionRowComponent,
 	APIAllowedMentions,
+	APIApplicationCommand,
+	APIApplicationCommandInteractionMetadata,
 	APIAttachment,
+	APIAuthorizingIntegrationOwnersMap,
 	APIComponentInLabel,
 	APIComponentInModalActionRow,
+	APIInteraction,
 	APILabelComponent,
+	APIMessage,
+	APIMessageComponentInteractionMetadata,
+	APIMessageInteractionMetadata,
+	APIMessageReference,
 	APIModalComponent,
 	APIModalInteractionResponseCallbackData,
+	APIModalSubmitInteractionMetadata,
+	APIStickerItem,
 	APITextDisplayComponent,
+	APIUser,
+	APIWebhook,
 	ApplicationCommandOptionType,
 	ChannelType,
 	Permissions
@@ -37,6 +49,274 @@ export type ComponentData<
 }
 
 export type AllowedMentions = APIAllowedMentions
+
+type BrandedId<Brand extends string> = string & { readonly __brand: Brand }
+type BrandedIdLike<Brand extends string> = string & {
+	readonly __brand?: Brand
+}
+type BrandStringValue<Value, Brand extends string> = Value extends string
+	? Brand
+	: Value
+type BrandDiscordIdField<
+	Key extends string,
+	Value,
+	Id extends string
+> = Key extends "id"
+	? BrandStringValue<Value, Id>
+	: Key extends "guild_id"
+		? BrandStringValue<Value, GuildId>
+		: Key extends "bot_id"
+			? BrandStringValue<Value, UserId>
+			: Key extends "integration_id"
+				? BrandStringValue<Value, IntegrationId>
+				: Key extends "sku_id" | "subscription_listing_id"
+					? BrandStringValue<Value, SkuId>
+					: Key extends
+								| "channel_id"
+								| "parent_id"
+								| "afk_channel_id"
+								| "widget_channel_id"
+								| "system_channel_id"
+								| "rules_channel_id"
+								| "public_updates_channel_id"
+								| "safety_alerts_channel_id"
+						? BrandStringValue<Value, ChannelId>
+						: Key extends "user_id" | "owner_id" | "creator_id"
+							? BrandStringValue<Value, UserId>
+							: Key extends "role_id"
+								? BrandStringValue<Value, RoleId>
+								: Key extends "message_id" | "last_message_id"
+									? BrandStringValue<Value, MessageId>
+									: Key extends "emoji_id"
+										? BrandStringValue<Value, EmojiId>
+										: Key extends "webhook_id"
+											? BrandStringValue<Value, WebhookId>
+											: Key extends "application_id"
+												? BrandStringValue<Value, ApplicationId>
+												: Key extends
+															| "original_response_message_id"
+															| "target_message_id"
+															| "interacted_message_id"
+													? BrandStringValue<Value, MessageId>
+													: Key extends "interaction_id"
+														? BrandStringValue<Value, InteractionId>
+														: Key extends "attachment_id"
+															? BrandStringValue<Value, AttachmentId>
+															: Key extends "roles"
+																? Value extends readonly string[]
+																	? RoleId[]
+																	: BrandedDiscordIds<Value, RoleId>
+																: Key extends
+																			| "user"
+																			| "author"
+																			| "creator"
+																			| "target_user"
+																	? BrandedDiscordIds<Value, UserId>
+																	: Key extends "guild"
+																		? BrandedDiscordIds<Value, GuildId>
+																		: Key extends "channel"
+																			? BrandedDiscordIds<Value, ChannelId>
+																			: Key extends
+																						| "message"
+																						| "referenced_message"
+																				? BrandedDiscordIds<Value, MessageId>
+																				: Key extends "attachments"
+																					? BrandedDiscordIds<
+																							Value,
+																							AttachmentId
+																						>
+																					: Key extends
+																								| "sticker_items"
+																								| "stickers"
+																						? BrandedDiscordIds<
+																								Value,
+																								StickerId
+																							>
+																						: Key extends "emoji" | "emojis"
+																							? BrandedDiscordIds<
+																									Value,
+																									EmojiId
+																								>
+																							: Key extends "available_tags"
+																								? BrandedDiscordIds<
+																										Value,
+																										ForumTagId
+																									>
+																								: Key extends "applied_tags"
+																									? Value extends readonly string[]
+																										? ForumTagId[]
+																										: BrandedDiscordIds<
+																												Value,
+																												ForumTagId
+																											>
+																									: Key extends "permission_overwrites"
+																										? BrandedDiscordIds<
+																												Value,
+																												RoleId | UserId
+																											>
+																										: BrandedDiscordIds<
+																												Value,
+																												Id
+																											>
+
+export type BrandedDiscordIds<T, Id extends string = string> = T extends (
+	...args: never[]
+) => unknown
+	? T
+	: T extends readonly (infer Item)[]
+		? BrandedDiscordIds<Item, Id>[]
+		: T extends object
+			? { [Key in keyof T]: BrandDiscordIdField<Key & string, T[Key], Id> }
+			: T
+
+export type GuildId = BrandedId<"GuildId">
+export type GuildIdLike = BrandedIdLike<"GuildId">
+export type UserId = BrandedId<"UserId">
+export type UserIdLike = BrandedIdLike<"UserId">
+export type ChannelId = BrandedId<"ChannelId">
+export type ChannelIdLike = BrandedIdLike<"ChannelId">
+export type RoleId = BrandedId<"RoleId">
+export type RoleIdLike = BrandedIdLike<"RoleId">
+export type MessageId = BrandedId<"MessageId">
+export type MessageIdLike = BrandedIdLike<"MessageId">
+export type EmojiId = BrandedId<"EmojiId">
+export type EmojiIdLike = BrandedIdLike<"EmojiId">
+export type WebhookId = BrandedId<"WebhookId">
+export type WebhookIdLike = BrandedIdLike<"WebhookId">
+export type ApplicationId = BrandedId<"ApplicationId">
+export type ApplicationIdLike = BrandedIdLike<"ApplicationId">
+export type InteractionId = BrandedId<"InteractionId">
+export type InteractionIdLike = BrandedIdLike<"InteractionId">
+export type AttachmentId = BrandedId<"AttachmentId">
+export type AttachmentIdLike = BrandedIdLike<"AttachmentId">
+export type ApplicationCommandId = BrandedId<"ApplicationCommandId">
+export type ApplicationCommandIdLike = BrandedIdLike<"ApplicationCommandId">
+export type IntegrationId = BrandedId<"IntegrationId">
+export type IntegrationIdLike = BrandedIdLike<"IntegrationId">
+export type SkuId = BrandedId<"SkuId">
+export type SkuIdLike = BrandedIdLike<"SkuId">
+export type ForumTagId = BrandedId<"ForumTagId">
+export type ForumTagIdLike = BrandedIdLike<"ForumTagId">
+
+export type BrandedAPIInteraction<T extends APIInteraction = APIInteraction> =
+	Omit<T, "id"> & { id: InteractionId }
+export type BrandedAPIUser = Omit<APIUser, "id"> & { id: UserId }
+export type BrandedAPIAttachment = Omit<
+	BrandedDiscordIds<APIAttachment, AttachmentId>,
+	"id" | "application"
+> & {
+	id: AttachmentId
+	application?: BrandedDiscordIds<
+		NonNullable<APIAttachment["application"]>,
+		ApplicationId
+	> | null
+}
+export type BrandedAPIStickerItem = Omit<APIStickerItem, "id"> & {
+	id: StickerId
+}
+export type BrandedAPIMessageReference = Omit<
+	APIMessageReference,
+	"message_id" | "channel_id" | "guild_id"
+> & {
+	message_id?: MessageId
+	channel_id: ChannelId
+	guild_id?: GuildId
+}
+export type BrandedAPIAuthorizingIntegrationOwnersMap = Omit<
+	APIAuthorizingIntegrationOwnersMap,
+	keyof APIAuthorizingIntegrationOwnersMap
+> & {
+	[key in keyof APIAuthorizingIntegrationOwnersMap]?: GuildId | UserId
+}
+
+type BrandedAPIBaseInteractionMetadata<
+	T extends APIMessageInteractionMetadata
+> = Omit<
+	T,
+	| "id"
+	| "user"
+	| "authorizing_integration_owners"
+	| "original_response_message_id"
+> & {
+	id: InteractionId
+	user: BrandedAPIUser
+	authorizing_integration_owners: BrandedAPIAuthorizingIntegrationOwnersMap
+	original_response_message_id?: MessageId
+}
+
+export type BrandedAPIApplicationCommandInteractionMetadata = Omit<
+	BrandedAPIBaseInteractionMetadata<APIApplicationCommandInteractionMetadata>,
+	"target_user" | "target_message_id"
+> & {
+	target_user?: BrandedAPIUser
+	target_message_id?: MessageId
+}
+export type BrandedAPIMessageComponentInteractionMetadata = Omit<
+	BrandedAPIBaseInteractionMetadata<APIMessageComponentInteractionMetadata>,
+	"interacted_message_id"
+> & {
+	interacted_message_id: MessageId
+}
+export type BrandedAPIModalSubmitInteractionMetadata = Omit<
+	BrandedAPIBaseInteractionMetadata<APIModalSubmitInteractionMetadata>,
+	"triggering_interaction_metadata"
+> & {
+	triggering_interaction_metadata:
+		| BrandedAPIApplicationCommandInteractionMetadata
+		| BrandedAPIMessageComponentInteractionMetadata
+}
+export type BrandedAPIMessageInteractionMetadata =
+	| BrandedAPIApplicationCommandInteractionMetadata
+	| BrandedAPIMessageComponentInteractionMetadata
+	| BrandedAPIModalSubmitInteractionMetadata
+
+export type BrandedAPIMessage = Omit<
+	APIMessage,
+	| "id"
+	| "channel_id"
+	| "application_id"
+	| "attachments"
+	| "sticker_items"
+	| "message_reference"
+	| "interaction_metadata"
+	| "author"
+	| "mentions"
+	| "referenced_message"
+> & {
+	id: MessageId
+	channel_id: ChannelId
+	application_id?: ApplicationId
+	attachments: BrandedAPIAttachment[]
+	sticker_items?: BrandedAPIStickerItem[]
+	message_reference?: BrandedAPIMessageReference
+	interaction_metadata?: BrandedAPIMessageInteractionMetadata
+	author: BrandedAPIUser
+	mentions: BrandedAPIUser[]
+	referenced_message?: BrandedAPIMessage | null
+}
+
+export type BrandedAPIWebhook = Omit<
+	APIWebhook,
+	"id" | "guild_id" | "channel_id" | "application_id" | "user"
+> & {
+	id: WebhookId
+	guild_id?: GuildId | null
+	channel_id: ChannelId | null
+	application_id: ApplicationId | null
+	user?: BrandedAPIUser
+}
+
+export type BrandedAPIApplicationCommand = Omit<
+	BrandedDiscordIds<APIApplicationCommand, ApplicationCommandId>,
+	"id" | "application_id" | "guild_id"
+> & {
+	id: ApplicationCommandId
+	application_id: ApplicationId
+	guild_id?: GuildId
+}
+
+export type GuildScheduledEventId = BrandedId<"GuildScheduledEventId">
+export type GuildScheduledEventIdLike = BrandedIdLike<"GuildScheduledEventId">
 
 /**
  * A function that takes a command interaction and returns a boolean value
@@ -99,7 +379,7 @@ export type PollSendPayload = {
 		 * When creating a poll answer with an emoji,
 		 * you only need to send either the id (custom emoji) or name (default emoji) as the only field.
 		 */
-		emoji?: { name: string; id: string }
+		emoji?: { name: string; id: EmojiIdLike }
 	}[]
 	/**
 	 * The time in seconds before the poll expires.
@@ -157,7 +437,10 @@ export type MessagePayloadObject = {
 	/**
 	 * The stickers to send in the message
 	 */
-	stickers?: [string, string, string] | [string, string] | [string]
+	stickers?:
+		| [StickerIdLike, StickerIdLike, StickerIdLike]
+		| [StickerIdLike, StickerIdLike]
+		| [StickerIdLike]
 }
 
 /**
@@ -192,10 +475,13 @@ export type MessagePayloadFile = {
 	waveform?: string
 }
 
+export type StickerId = BrandedId<"StickerId">
+export type StickerIdLike = BrandedIdLike<"StickerId">
+
 export type VoiceState = {
-	guildId?: string
-	channelId: string | null
-	userId: string
+	guildId?: GuildId
+	channelId: ChannelId | null
+	userId: UserId
 	sessionId: string
 	deaf: boolean
 	mute: boolean
@@ -207,7 +493,7 @@ export type VoiceState = {
 	requestToSpeakTimestamp: string | null
 }
 
-export type ResolvedFile = APIAttachment
+export type ResolvedFile = BrandedAPIAttachment
 
 /**
  * image includes '.png', '.gif', '.jpg', '.jpeg', '.jfif', '.webp', '.avif'

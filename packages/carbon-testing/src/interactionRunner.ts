@@ -142,7 +142,7 @@ export class InteractionTestRunner {
 			user: guildId ? undefined : user,
 			token: options.token ?? this.id(undefined, "token"),
 			version: 1
-		} as APIInteraction
+		} as unknown as APIInteraction
 	}
 
 	private componentInteraction(
@@ -180,7 +180,7 @@ export class InteractionTestRunner {
 			user: guildId ? undefined : user,
 			token: this.id(undefined, "token"),
 			version: 1
-		} as APIInteraction
+		} as unknown as APIInteraction
 	}
 
 	private modalInteraction(options: ModalSubmitOptions): APIInteraction {

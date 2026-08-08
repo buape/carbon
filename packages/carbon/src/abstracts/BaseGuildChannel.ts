@@ -21,7 +21,17 @@ import { GuildMember } from "../structures/GuildMember.js"
 import { Message } from "../structures/Message.js"
 import { Role } from "../structures/Role.js"
 import { User } from "../structures/User.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	GuildId,
+	IfPartial,
+	MessagePayload,
+	RoleId,
+	UserId,
+	UserIdLike
+} from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { BaseChannel } from "./BaseChannel.js"
 
@@ -30,7 +40,7 @@ export abstract class BaseGuildChannel<
 	IsPartial extends boolean = false
 > extends BaseChannel<Type, IsPartial> {
 	// @ts-expect-error
-	declare rawData: APIGuildChannel<Type> | null
+	declare rawData: BrandedDiscordIds<APIGuildChannel<Type>, ChannelId> | null
 
 	/**
 	 * The name of the channel.
@@ -43,7 +53,7 @@ export abstract class BaseGuildChannel<
 	/**
 	 * The ID of the guild this channel is in
 	 */
-	get guildId(): IfPartial<IsPartial, string> {
+	get guildId(): IfPartial<IsPartial, GuildId> {
 		if (!this.rawData) return undefined as never
 		return this.rawData.guild_id as never
 	}
@@ -51,9 +61,9 @@ export abstract class BaseGuildChannel<
 	/**
 	 * The ID of the parent category for the channel.
 	 */
-	get parentId(): IfPartial<IsPartial, string | null> {
+	get parentId(): IfPartial<IsPartial, ChannelId | null> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.parent_id ?? null
+		return (this.rawData.parent_id ?? null) as never
 	}
 
 	/**
@@ -67,9 +77,13 @@ export abstract class BaseGuildChannel<
 	/**
 	 * The explicit permission overwrites for members and roles in this channel.
 	 */
-	get permissionOverwrites(): IfPartial<IsPartial, APIOverwrite[]> {
+	get permissionOverwrites(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APIOverwrite, RoleId | UserId>[]
+	> {
 		if (!this._rawData) return undefined as never
-		return (this._rawData as APIGuildChannel<Type>).permission_overwrites ?? []
+		return ((this._rawData as APIGuildChannel<Type>).permission_overwrites ??
+			[]) as BrandedDiscordIds<APIOverwrite, RoleId | UserId>[]
 	}
 
 	/**
@@ -85,7 +99,7 @@ export abstract class BaseGuildChannel<
 	 * Resolve the effective permissions for a member, user, or role in this channel.
 	 */
 	async permissionsFor(
-		target: GuildMember | Role<boolean> | User<boolean> | string
+		target: GuildMember | Role<boolean> | User<boolean> | UserIdLike
 	): Promise<PermissionsBitField> {
 		if (!this._rawData) await this.fetch()
 		const rawData = this._rawData as APIGuildChannel<Type> | null
@@ -133,11 +147,13 @@ export abstract class BaseGuildChannel<
 			: target instanceof Role
 				? [target.id]
 				: []
-		const everyone = guild.roles.find((role) => role.id === guild.id)
+		const everyone = guild.roles.find(
+			(role) => String(role.id) === String(guild.id)
+		)
 		let permissions = everyone?.permissions ?? 0n
 
 		for (const role of guild.roles) {
-			if (role.id !== guild.id && roleIds.includes(role.id)) {
+			if (String(role.id) !== String(guild.id) && roleIds.includes(role.id)) {
 				permissions |= role.permissions
 			}
 		}
@@ -162,7 +178,7 @@ export abstract class BaseGuildChannel<
 			if (
 				overwrite.type === OverwriteType.Role &&
 				overwrite.id !== guild.id &&
-				roleIds.includes(overwrite.id)
+				roleIds.includes(overwrite.id as RoleId)
 			) {
 				roleDeny |= BigInt(overwrite.deny)
 				roleAllow |= BigInt(overwrite.allow)
@@ -209,7 +225,7 @@ export abstract class BaseGuildChannel<
 	 * Set the parent ID of the channel
 	 * @param parent The new category channel or ID to set
 	 */
-	async setParent(parent: GuildCategoryChannel | string) {
+	async setParent(parent: GuildCategoryChannel | ChannelIdLike) {
 		if (typeof parent === "string") {
 			await this.client.rest.patch(Routes.channel(this.id), {
 				body: {

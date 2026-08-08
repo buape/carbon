@@ -1,16 +1,23 @@
 import type { APIThreadMember, ThreadMemberFlags } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import type { Client } from "../classes/Client.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	GuildId,
+	GuildIdLike,
+	UserId
+} from "../types/index.js"
 import { Guild } from "./Guild.js"
 import { GuildMember } from "./GuildMember.js"
 import { User } from "./User.js"
 
 export class ThreadMember extends Base {
-	constructor(client: Client, rawData: APIThreadMember, guildId?: string) {
+	constructor(client: Client, rawData: APIThreadMember, guildId?: GuildIdLike) {
 		super(client)
 		this._rawData = rawData
 		this.setData(rawData)
-		this.guildId = guildId
+		this.guildId = guildId as GuildId | undefined
 	}
 
 	protected _rawData: APIThreadMember | null = null
@@ -22,32 +29,32 @@ export class ThreadMember extends Base {
 	/**
 	 * The raw Discord API data for this thread member
 	 */
-	get rawData(): Readonly<APIThreadMember> {
+	get rawData(): Readonly<BrandedDiscordIds<APIThreadMember, ChannelId>> {
 		if (!this._rawData)
 			throw new Error(
 				"Cannot access rawData on partial ThreadMember. Use fetch() to populate data."
 			)
-		return this._rawData
+		return this._rawData as BrandedDiscordIds<APIThreadMember, ChannelId>
 	}
 
 	/**
 	 * The ID of the guild. This is not present in the API response, so it must be provided.
 	 */
-	public guildId: string | undefined
+	public guildId: GuildId | undefined
 
 	/**
 	 * The ID of the thread
 	 */
-	get id(): string | undefined {
+	get id(): ChannelId | undefined {
 		if (!this._rawData) return undefined as never
-		return this._rawData.id
+		return this._rawData.id as ChannelId | undefined
 	}
 	/**
 	 * The ID of the user
 	 */
-	get userId(): string | undefined {
+	get userId(): UserId | undefined {
 		if (!this._rawData) return undefined as never
-		return this._rawData.user_id
+		return this._rawData.user_id as UserId | undefined
 	}
 	get user(): User<true> | undefined {
 		if (!this.userId) return undefined
@@ -70,7 +77,7 @@ export class ThreadMember extends Base {
 	/**
 	 * The member object of the user
 	 */
-	member(guildId?: string): GuildMember<false, true> | undefined {
+	member(guildId?: GuildIdLike): GuildMember<false, true> | undefined {
 		if (!this._rawData?.member || !this.user) return undefined
 		guildId = guildId ?? this.guildId
 		if (!guildId)

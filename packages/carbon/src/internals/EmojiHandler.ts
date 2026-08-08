@@ -1,6 +1,7 @@
 import { type APIApplicationEmoji, Routes } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
 import { ApplicationEmoji } from "../structures/Emoji.js"
+import type { EmojiIdLike } from "../types/index.js"
 
 /**
  * This class is specifically used for application emojis that you manage from the Discord Developer Portal
@@ -15,7 +16,7 @@ export class EmojiHandler extends Base {
 		)
 	}
 
-	public async get(id: string) {
+	public async get(id: EmojiIdLike) {
 		const emoji = (await this.client.rest.get(
 			Routes.applicationEmoji(this.client.clientId, id)
 		)) as APIApplicationEmoji
@@ -41,7 +42,7 @@ export class EmojiHandler extends Base {
 		return new ApplicationEmoji(this.client, emoji, this.client.clientId)
 	}
 
-	public async delete(id: string) {
+	public async delete(id: EmojiIdLike) {
 		await this.client.rest.delete(
 			Routes.applicationEmoji(this.client.clientId, id)
 		)

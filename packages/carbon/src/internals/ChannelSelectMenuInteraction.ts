@@ -5,6 +5,7 @@ import {
 import { AnySelectMenuInteraction } from "../abstracts/AnySelectMenuInteraction.js"
 import type { InteractionDefaults } from "../abstracts/BaseInteraction.js"
 import type { Client } from "../classes/Client.js"
+import type { ChannelId } from "../types/index.js"
 
 export class ChannelSelectMenuInteraction extends AnySelectMenuInteraction {
 	constructor(
@@ -16,5 +17,9 @@ export class ChannelSelectMenuInteraction extends AnySelectMenuInteraction {
 		if (data.data.component_type !== ComponentType.ChannelSelect) {
 			throw new Error("Invalid component type was used to create this class")
 		}
+	}
+
+	get values(): ChannelId[] {
+		return super.values as ChannelId[]
 	}
 }

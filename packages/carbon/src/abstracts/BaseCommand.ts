@@ -1,5 +1,4 @@
 import {
-	type APIApplicationCommand,
 	ApplicationCommandType,
 	type EntryPointCommandHandlerType,
 	type RESTPostAPIApplicationCommandsJSONBody
@@ -14,12 +13,18 @@ import {
 	InteractionContextType,
 	type Permission
 } from "../index.js"
+import type {
+	ApplicationCommandId,
+	BrandedAPIApplicationCommand,
+	GuildId,
+	GuildIdLike
+} from "../types/index.js"
 
 /**
  * Represents the base data of a command that the user creates
  */
 export abstract class BaseCommand {
-	id?: string
+	id?: ApplicationCommandId
 	/**
 	 * The name of the command (e.g. "ping" for /ping)
 	 */
@@ -92,7 +97,7 @@ export abstract class BaseCommand {
 	 * The guild IDs this command should be deployed to (guild-specific deployment).
 	 * If not set, the command is deployed globally.
 	 */
-	guildIds?: string[]
+	guildIds?: GuildIdLike[]
 
 	/**
 	 * The handler for an entry point command.
@@ -183,14 +188,14 @@ export abstract class BaseCommand {
 		return `</${this.name}:${this.id}>`
 	}
 
-	private findMatchingCommand(commands: APIApplicationCommand[]) {
+	private findMatchingCommand(commands: BrandedAPIApplicationCommand[]) {
 		return commands.find((cmd) => {
 			if (cmd.name !== this.name) return false
 			if (cmd.type !== this.type) return false
 			if (!cmd.guild_id) {
 				return !this.guildIds || this.guildIds.length === 0
 			}
-			return this.guildIds?.includes(cmd.guild_id) ?? true
+			return this.guildIds?.includes(cmd.guild_id as GuildId) ?? true
 		})
 	}
 }

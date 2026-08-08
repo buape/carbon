@@ -10,13 +10,24 @@ import type {
 import { Routes } from "discord-api-types/v10"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { Message } from "../structures/Message.js"
-import type { IfPartial, MessagePayload } from "../types/index.js"
+import type {
+	BrandedDiscordIds,
+	ChannelId,
+	ChannelIdLike,
+	ForumTagId,
+	ForumTagIdLike,
+	IfPartial,
+	MessagePayload
+} from "../types/index.js"
 import { BaseGuildChannel } from "./BaseGuildChannel.js"
 export abstract class GuildThreadOnlyChannel<
 	Type extends ChannelType.GuildForum | ChannelType.GuildMedia,
 	IsPartial extends boolean = false
 > extends BaseGuildChannel<Type, IsPartial> {
-	declare rawData: APIThreadOnlyChannel<Type> | null
+	declare rawData: BrandedDiscordIds<
+		APIThreadOnlyChannel<Type>,
+		ChannelId
+	> | null
 
 	/**
 	 * The position of the channel in the channel list.
@@ -66,9 +77,15 @@ export abstract class GuildThreadOnlyChannel<
 	/**
 	 * The available tags to set on posts in the channel.
 	 */
-	get availableTags(): IfPartial<IsPartial, APIGuildForumTag[]> {
+	get availableTags(): IfPartial<
+		IsPartial,
+		BrandedDiscordIds<APIGuildForumTag, ForumTagId>[]
+	> {
 		if (!this.rawData) return undefined as never
-		return this.rawData.available_tags ?? []
+		return (this.rawData.available_tags ?? []) as BrandedDiscordIds<
+			APIGuildForumTag,
+			ForumTagId
+		>[]
 	}
 
 	/**
@@ -105,7 +122,10 @@ export abstract class GuildThreadOnlyChannel<
 	 * @remarks
 	 * This is an alias for {@link GuildThreadChannel.send} that will fetch the channel, but if you already have the channel, you can use {@link GuildThreadChannel.send} instead.
 	 */
-	async sendToPost(message: MessagePayload, postId: string): Promise<Message> {
+	async sendToPost(
+		message: MessagePayload,
+		postId: ChannelIdLike
+	): Promise<Message> {
 		const channel = new GuildThreadChannel<ThreadChannelType, true>(
 			this.client,
 			postId
@@ -119,7 +139,7 @@ export abstract class GuildThreadOnlyChannel<
 		options?: {
 			autoArchiveDuration?: number
 			rateLimitPerUser?: number
-			appliedTags?: string[]
+			appliedTags?: ForumTagIdLike[]
 		}
 	): Promise<GuildThreadChannel<ThreadChannelType>> {
 		const response = (await this.client.rest.post(Routes.threads(this.id), {
