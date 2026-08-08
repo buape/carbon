@@ -11,5 +11,8 @@
 		"useCalculatedVersion": true,
 		"prereleaseTemplate": "{tag}-{datetime}"
 	},
+	"___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+		"onlyUpdatePeerDependentsWhenOutOfRange": true
+	},
 	"changelog": ["./generator.ts", { "repo": "buape/carbon" }]
 }
