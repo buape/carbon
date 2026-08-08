@@ -833,7 +833,6 @@ export class Client {
 			"guild_id",
 			"id",
 			"name_localized",
-			"nsfw",
 			"version"
 		])
 		const discordSubcommandOnlyFields = new Set([
@@ -883,7 +882,7 @@ export class Client {
 						return []
 					}
 					if (
-						(key === "required" || key === "autocomplete") &&
+						(key === "required" || key === "autocomplete" || key === "nsfw") &&
 						entry === false
 					) {
 						return []

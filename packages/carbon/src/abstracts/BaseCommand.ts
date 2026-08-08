@@ -58,6 +58,11 @@ export abstract class BaseCommand {
 	 */
 	abstract type: ApplicationCommandType
 	/**
+	 * Whether the command is age-restricted.
+	 * @default false
+	 */
+	nsfw?: boolean
+	/**
 	 * The places this command can be used in
 	 */
 	integrationTypes: ApplicationIntegrationType[] = [
@@ -126,6 +131,7 @@ export abstract class BaseCommand {
 				description_localizations: this.descriptionLocalizations,
 				type: this.type,
 				options: this.serializeOptions(),
+				nsfw: this.nsfw,
 				integration_types: this.integrationTypes,
 				contexts: this.contexts,
 				default_member_permissions: Array.isArray(this.permission)
@@ -144,6 +150,7 @@ export abstract class BaseCommand {
 				name_localizations: this.nameLocalizations,
 				type: this.type,
 				handler: this.handler,
+				nsfw: this.nsfw,
 				integration_types: this.integrationTypes,
 				contexts: this.contexts,
 				default_member_permissions: Array.isArray(this.permission)
@@ -161,6 +168,7 @@ export abstract class BaseCommand {
 			name_localizations: this.nameLocalizations,
 			type: this.type,
 			options: this.serializeOptions(),
+			nsfw: this.nsfw,
 			integration_types: this.integrationTypes,
 			contexts: this.contexts,
 			default_member_permissions: Array.isArray(this.permission)
