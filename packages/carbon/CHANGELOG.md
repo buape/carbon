@@ -1,5 +1,49 @@
 # @buape/carbon
 
+## 0.17.0
+
+### Minor Changes
+
+- [#412](https://github.com/buape/carbon/pull/412) [`b95d3cd`](https://github.com/buape/carbon/commit/b95d3cd17c039956c65b542e3d469bf89732e12c) - feat: add branded discord ids
+
+- [#409](https://github.com/buape/carbon/pull/409) [`0879188`](https://github.com/buape/carbon/commit/0879188a71d50567ffea51368e12a97846ede33a) - feat: add channel permission overwrite resolution
+
+- [`edd49ed`](https://github.com/buape/carbon/commit/edd49edbb22bd294f90153fc51f9e994b5e10f2d) - feat: improve Discord API error detail formatting
+
+- [`845c168`](https://github.com/buape/carbon/commit/845c1685be1e52008ed7c7840b357f90bb911ca6) - feat: support file types in attachment options and fileupload components
+
+- [`edd49ed`](https://github.com/buape/carbon/commit/edd49edbb22bd294f90153fc51f9e994b5e10f2d) - feat: add configurable Carbon logger
+
+- [`0cc97d9`](https://github.com/buape/carbon/commit/0cc97d97f8e90b0d8e61894df1f378312498d6bf) - feat: add the new search messages endpoint
+
+- [`f73db1f`](https://github.com/buape/carbon/commit/f73db1ff3f8494b440b83b61d8d7e488b75cb0e8) - feat: derive client metadata from bot token
+
+  warning: `this.client.options.clientId` and `this.client.options.publicKey` will be removed in a future release; use `this.client.clientId` and `this.client.publicKey` instead
+
+- [#395](https://github.com/buape/carbon/pull/395) [`ab335d4`](https://github.com/buape/carbon/commit/ab335d475e4e4fbeb1230c9f2f7a92dd1a75737f) - feat: add opt-in entity caching
+
+- [#404](https://github.com/buape/carbon/pull/404) [`2d7b3f6`](https://github.com/buape/carbon/commit/2d7b3f6eb6e9b0a6767a1a1c5c57a3b9a89d1d9e) - feat: add Redis Streams gateway forwarder/receiver plugins Thanks [@avasilic](https://github.com/avasilic)!
+
+- [`38434be`](https://github.com/buape/carbon/commit/38434be308ebff8455e020b7e439318ebd20d952) - feat: add guild prune members endpoint
+
+- [`cada33e`](https://github.com/buape/carbon/commit/cada33e9bf431afa0ae61140a64923918d2290c8) - feat: add NSFW command registration support
+
+- [`c9fa12f`](https://github.com/buape/carbon/commit/c9fa12fd84de6a550de4da63403e38eba9206fb2) - feat: add listeners for channel info and voice channel metadata events
+
+### Patch Changes
+
+- [#405](https://github.com/buape/carbon/pull/405) [`2e6c761`](https://github.com/buape/carbon/commit/2e6c76105a2c513ed5d7addf7c6509b078072871) - feat: add channel obfuscation support Thanks [@rubyrunsstuff](https://github.com/rubyrunsstuff)!
+
+- [`d3e5858`](https://github.com/buape/carbon/commit/d3e58583f7c59f9a681c5a97d6dee60746567d1c) - chore: Use the runtime-native WebSocket implementation on Node 24+, make voice/runtime type packages optional peers, and remove tsc-watch from generated Node projects.
+
+- [`cdf7b19`](https://github.com/buape/carbon/commit/cdf7b19ecfc54cf4ef7bfae8f44d829e96f2facc) - fix: handle falsy command option values
+
+- [`74d6b4d`](https://github.com/buape/carbon/commit/74d6b4dc8906cf4f6f62bec5124d8dfb25804e4e) - Guard gateway `createRequire(import.meta.url)` initialization so Cloudflare Worker deploy validation does not crash when `import.meta.url` is unavailable.
+
+- [#398](https://github.com/buape/carbon/pull/398) [`a608d3f`](https://github.com/buape/carbon/commit/a608d3ffd84aa5a9500672052f67a6aeacd06f66) - feat: add a testing package to carbon's suite
+
+- [`be6593d`](https://github.com/buape/carbon/commit/be6593d4d9bcb91c459b006da6c4dc208da05f7b) - feat: add resolved channel app permissions typing
+
 ## 0.16.0
 
 ### Minor Changes
