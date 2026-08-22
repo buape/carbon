@@ -1,5 +1,15 @@
 # create-carbon
 
+## 0.8.1
+
+### Patch Changes
+
+- [`d3e5858`](https://github.com/buape/carbon/commit/d3e58583f7c59f9a681c5a97d6dee60746567d1c) - chore: Use the runtime-native WebSocket implementation on Node 24+, make voice/runtime type packages optional peers, and remove tsc-watch from generated Node projects.
+
+- [`f73db1f`](https://github.com/buape/carbon/commit/f73db1ff3f8494b440b83b61d8d7e488b75cb0e8) - feat: derive client metadata from bot token
+
+  warning: `this.client.options.clientId` and `this.client.options.publicKey` will be removed in a future release; use `this.client.clientId` and `this.client.publicKey` instead
+
 ## 0.8.0
 
 ### Minor Changes
