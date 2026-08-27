@@ -71,6 +71,7 @@ export default {
 			pages: [
 				"adapters/fetch/index",
 				"adapters/fetch/cloudflare",
+				"adapters/fetch/neon",
 				"adapters/fetch/next",
 				"adapters/node",
 				"adapters/bun"
