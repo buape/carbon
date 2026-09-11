@@ -12,6 +12,6 @@
 		"@buape/carbon": "workspace:*"
 	},
 	"devDependencies": {
-		"wrangler": "4.103.0"
+		"wrangler": "4.127.1"
 	}
 }
