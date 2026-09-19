@@ -11,10 +11,12 @@ import { InteractionEventListener } from "./InteractionEventListener.js"
 import {
 	type APIGatewayBotInfo,
 	fatalGatewayCloseCodes,
+	type GatewayConnectionState,
 	GatewayIntents,
 	GatewayOpcodes,
 	type GatewayPayload,
 	type GatewayPluginOptions,
+	type GatewaySessionState,
 	type GatewayState,
 	type GatewayWebSocketLike,
 	type HelloData,
@@ -59,11 +61,13 @@ export class GatewayPlugin extends Plugin {
 	public shardId?: number
 	public totalShards?: number
 	protected gatewayInfo?: APIGatewayBotInfo
-	public isConnected = false
+	protected connectionState: GatewayConnectionState = {
+		kind: "idle",
+		reconnect: false
+	}
 	protected pings: number[] = []
 	protected babyCache: BabyCache
 	private reconnectTimeout?: NodeJS.Timeout
-	private isConnecting = false
 	private socketGeneration = 0
 	private shouldReconnect = false
 	private nextConnectionShouldResume = false
@@ -103,6 +107,14 @@ export class GatewayPlugin extends Plugin {
 		return this.pings.length
 			? this.pings.reduce((a, b) => a + b, 0) / this.pings.length
 			: null
+	}
+
+	get isConnected() {
+		return this.connectionState.kind === "connected"
+	}
+
+	protected get isConnecting() {
+		return this.connectionState.kind === "connecting"
 	}
 
 	/**
@@ -176,8 +188,12 @@ export class GatewayPlugin extends Plugin {
 		this.nextConnectionShouldResume = resume
 		this.socketGeneration++
 		this.ws = this.createWebSocket(url)
-		this.isConnecting = true
-		this.isConnected = false
+		this.setConnectionState({
+			kind: "connecting",
+			socket: this.ws,
+			generation: this.socketGeneration,
+			resume
+		})
 		this.setupWebSocket()
 	}
 
@@ -186,6 +202,7 @@ export class GatewayPlugin extends Plugin {
 	 */
 	public disconnect(): void {
 		this.shouldReconnect = false
+		this.setConnectionState({ kind: "disconnecting" })
 		this.clearReconnectTimeout()
 		stopHeartbeat(this)
 		this.lastHeartbeatAck = true
@@ -196,8 +213,7 @@ export class GatewayPlugin extends Plugin {
 			this.ws.close(1000, "Client disconnect")
 		}
 		this.ws = null
-		this.isConnecting = false
-		this.isConnected = false
+		this.setConnectionState({ kind: "idle", reconnect: false })
 		this.reconnectAttempts = 0
 		this.consecutiveResumeFailures = 0
 		this.pings = []
@@ -249,7 +265,6 @@ export class GatewayPlugin extends Plugin {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
-			this.isConnecting = false
 			this.emitter.emit("debug", "Gateway websocket opened")
 		})
 
@@ -299,8 +314,7 @@ export class GatewayPlugin extends Plugin {
 				return
 			}
 
-			this.isConnecting = false
-			this.isConnected = false
+			this.setConnectionState({ kind: "idle", reconnect: false })
 			stopHeartbeat(this)
 			this.lastHeartbeatAck = true
 
@@ -320,7 +334,7 @@ export class GatewayPlugin extends Plugin {
 			if (!this.isCurrentSocket(socket, generation)) {
 				return
 			}
-			this.isConnecting = false
+			this.setConnectionState({ kind: "idle", reconnect: false })
 			this.monitor.recordError()
 			this.emitter.emit("error", this.getSocketError(incoming))
 		})
@@ -547,6 +561,28 @@ export class GatewayPlugin extends Plugin {
 		return (this.options.intents & intent) !== 0
 	}
 
+	private setConnectionState(state: GatewayConnectionState) {
+		this.connectionState = state
+	}
+
+	private getSessionState(): GatewaySessionState {
+		if (this.sequence === null || !this.state.sessionId) {
+			return {
+				resumable: false,
+				sequence: null,
+				sessionId: null,
+				resumeGatewayUrl: null
+			}
+		}
+
+		return {
+			resumable: true,
+			sequence: this.sequence,
+			sessionId: this.state.sessionId,
+			resumeGatewayUrl: this.state.resumeGatewayUrl
+		}
+	}
+
 	/**
 	 * Guards handlers from acting on stale websocket instances.
 	 */
@@ -738,7 +774,14 @@ export class GatewayPlugin extends Plugin {
 		}
 
 		if (type === "READY" || type === "RESUMED") {
-			this.isConnected = true
+			if (this.ws) {
+				this.setConnectionState({
+					kind: "connected",
+					socket: this.ws,
+					generation: this.socketGeneration,
+					session: this.getSessionState()
+				})
+			}
 			this.reconnectAttempts = 0
 			this.consecutiveResumeFailures = 0
 		}
@@ -904,6 +947,12 @@ export class GatewayPlugin extends Plugin {
 			this.reconnectTimeout = undefined
 			this.connect(shouldResume)
 		}, delay)
+		this.setConnectionState({
+			kind: "reconnecting",
+			attempt: this.reconnectAttempts,
+			resume: shouldResume,
+			timeout: this.reconnectTimeout
+		})
 	}
 
 	/**
