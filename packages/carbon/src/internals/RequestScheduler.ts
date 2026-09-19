@@ -172,6 +172,16 @@ export class RequestScheduler<
 	}
 	private laneSchedule: RequestLane[] = []
 	private laneCursor = 0
+	private activeRoutesByLane = {
+		critical: [] as string[],
+		standard: [] as string[],
+		background: [] as string[]
+	}
+	private activeRouteSetsByLane = {
+		critical: new Set<string>(),
+		standard: new Set<string>(),
+		background: new Set<string>()
+	}
 	private routeCursorByLane = {
 		critical: 0,
 		standard: 0,
@@ -229,6 +239,10 @@ export class RequestScheduler<
 				background: T[]
 			})
 
+		if (routeQueues[lane].length === 0) {
+			this.activateRouteForLane(lane, request.routeKey)
+		}
+
 		routeQueues[lane].push(request)
 		this.pendingByRoute.set(request.routeKey, routeQueues)
 		this.laneCounts[lane] += 1
@@ -253,25 +267,25 @@ export class RequestScheduler<
 				]
 			if (!lane || this.laneCounts[lane] <= 0) continue
 
-			const routeKeys: string[] = []
-			for (const [routeKey, queues] of this.pendingByRoute.entries()) {
-				if (queues[lane].length > 0) {
-					routeKeys.push(routeKey)
-				}
-			}
+			const routeKeys = this.activeRoutesByLane[lane]
 			if (routeKeys.length === 0) continue
 
 			const startIndex = this.routeCursorByLane[lane] % routeKeys.length
-			for (
-				let routeOffset = 0;
-				routeOffset < routeKeys.length;
-				routeOffset += 1
-			) {
-				const routeKey =
-					routeKeys[(startIndex + routeOffset) % routeKeys.length]
-				if (!routeKey) continue
+			let routeOffset = 0
+			let remainingRoutes = routeKeys.length
+			while (routeKeys.length > 0 && routeOffset < remainingRoutes) {
+				const routeIndex = (startIndex + routeOffset) % routeKeys.length
+				const routeKey = routeKeys[routeIndex]
+				if (!routeKey) {
+					routeOffset += 1
+					continue
+				}
 				const routeQueues = this.pendingByRoute.get(routeKey)
-				if (!routeQueues) continue
+				if (!routeQueues) {
+					this.deactivateRouteForLane(lane, routeKey)
+					remainingRoutes -= 1
+					continue
+				}
 				const queue = routeQueues[lane]
 
 				while (queue.length > 0 && this.isStale(queue[0], now)) {
@@ -287,7 +301,9 @@ export class RequestScheduler<
 				}
 
 				if (queue.length === 0) {
+					this.deactivateRouteForLane(lane, routeKey)
 					this.compactRoute(routeKey, routeQueues)
+					remainingRoutes -= 1
 					continue
 				}
 
@@ -295,21 +311,31 @@ export class RequestScheduler<
 				if (waitMs > 0) {
 					earliestWaitMs =
 						earliestWaitMs === null ? waitMs : Math.min(earliestWaitMs, waitMs)
+					routeOffset += 1
 					continue
 				}
 
 				if (options.isBucketActive(routeKey)) {
 					earliestWaitMs =
 						earliestWaitMs === null ? 5 : Math.min(earliestWaitMs, 5)
+					routeOffset += 1
 					continue
 				}
 
 				const dequeued = queue.shift()
-				if (!dequeued) continue
+				if (!dequeued) {
+					routeOffset += 1
+					continue
+				}
 
 				this.laneCounts[lane] -= 1
-				this.routeCursorByLane[lane] =
-					(startIndex + routeOffset + 1) % routeKeys.length
+				if (queue.length === 0) {
+					this.deactivateRouteForLane(lane, routeKey)
+					this.routeCursorByLane[lane] =
+						routeKeys.length === 0 ? 0 : routeIndex % routeKeys.length
+				} else {
+					this.routeCursorByLane[lane] = (routeIndex + 1) % routeKeys.length
+				}
 				this.laneCursor =
 					(this.laneCursor + laneOffset + 1) % this.laneSchedule.length
 				this.compactRoute(routeKey, routeQueues)
@@ -332,6 +358,7 @@ export class RequestScheduler<
 		this.laneCounts.critical = 0
 		this.laneCounts.standard = 0
 		this.laneCounts.background = 0
+		this.clearActiveRoutes()
 	}
 
 	get size() {
@@ -355,6 +382,39 @@ export class RequestScheduler<
 				standard: this.getOldestAgeForLane("standard"),
 				background: this.getOldestAgeForLane("background")
 			}
+		}
+	}
+
+	private activateRouteForLane(lane: RequestLane, routeKey: string) {
+		if (this.activeRouteSetsByLane[lane].has(routeKey)) return
+		this.activeRouteSetsByLane[lane].add(routeKey)
+		this.activeRoutesByLane[lane].push(routeKey)
+	}
+
+	private deactivateRouteForLane(lane: RequestLane, routeKey: string) {
+		if (!this.activeRouteSetsByLane[lane].delete(routeKey)) return
+
+		const activeRoutes = this.activeRoutesByLane[lane]
+		const routeIndex = activeRoutes.indexOf(routeKey)
+		if (routeIndex === -1) return
+
+		activeRoutes.splice(routeIndex, 1)
+		if (activeRoutes.length === 0) {
+			this.routeCursorByLane[lane] = 0
+			return
+		}
+
+		if (routeIndex < this.routeCursorByLane[lane]) {
+			this.routeCursorByLane[lane] -= 1
+		}
+		this.routeCursorByLane[lane] %= activeRoutes.length
+	}
+
+	private clearActiveRoutes() {
+		for (const lane of ["critical", "standard", "background"] as const) {
+			this.activeRoutesByLane[lane] = []
+			this.activeRouteSetsByLane[lane].clear()
+			this.routeCursorByLane[lane] = 0
 		}
 	}
 
