@@ -10,3 +10,7 @@ onlyBuiltDependencies:
   - lefthook
   - sharp
   - workerd
+
+overrides:
+  lru-cache: 11.5.2
+
