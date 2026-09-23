@@ -70,11 +70,12 @@ export class CommandHandler extends Base {
 
 			if (!subcommandGroup) throw new Error("Subcommand group not found")
 
-			const subcommandName = (
-				data.options?.find(
-					(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
-				) as APIApplicationCommandSubcommandGroupOption
-			).options?.find(
+			const subcommandGroupOption = data.options?.find(
+				(x) => x.type === ApplicationCommandOptionType.SubcommandGroup
+			) as APIApplicationCommandSubcommandGroupOption | undefined
+			if (!subcommandGroupOption) throw new Error("No subcommand group option")
+
+			const subcommandName = subcommandGroupOption.options?.find(
 				(x) => x.type === ApplicationCommandOptionType.Subcommand
 			)?.name
 			if (!subcommandName) throw new Error("No subcommand name")
