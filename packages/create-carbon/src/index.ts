@@ -28,6 +28,7 @@ if (p.isCancel(name)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+const projectName = name as string
 
 const runtime = await p.select<Runtime>({
 	message: "What runtime do you want to use?",
@@ -37,12 +38,13 @@ if (p.isCancel(runtime)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+const selectedRuntime = runtime as Runtime
 
 const gatewayCapableRuntimes: Runtime[] = ["node", "bun", "cloudflare"]
-const wantsGateway = gatewayCapableRuntimes.includes(runtime)
+const wantsGateway = gatewayCapableRuntimes.includes(selectedRuntime)
 	? await p.confirm({
 			message:
-				runtime === "cloudflare"
+				selectedRuntime === "cloudflare"
 					? "Would you like to add gateway events (non-HTTP interaction events) to your app?"
 					: "Would you like to add gateway events (non-HTTP interaction events) to your app? This will require an active websocket connection alongside the normal HTTP server.",
 			initialValue: false
@@ -52,9 +54,10 @@ if (p.isCancel(wantsGateway)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+const addGateway = wantsGateway as boolean
 
 const wantsCloudflareGatewayDurableObject =
-	runtime === "cloudflare" && wantsGateway
+	selectedRuntime === "cloudflare" && addGateway
 		? await p.confirm({
 				message:
 					"Would you like to use Durable Objects for gateway support on Cloudflare Workers?",
@@ -65,13 +68,15 @@ if (p.isCancel(wantsCloudflareGatewayDurableObject)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+const addCloudflareGatewayDurableObject =
+	wantsCloudflareGatewayDurableObject as boolean
 
 const gateway =
-	wantsGateway &&
-	(runtime !== "cloudflare" || wantsCloudflareGatewayDurableObject)
+	addGateway &&
+	(selectedRuntime !== "cloudflare" || addCloudflareGatewayDurableObject)
 
 const linkedRoles =
-	runtime !== "forwarder"
+	selectedRuntime !== "forwarder"
 		? await p.confirm({
 				message: "Would you like to add linked roles to your app?",
 				initialValue: false
@@ -81,24 +86,25 @@ if (p.isCancel(linkedRoles)) {
 	p.outro("Cancelled")
 	process.exit(1)
 }
+const addLinkedRoles = linkedRoles as boolean
 
 // ================================================ Create Project ================================================
 
 p.log.step("Creating project...")
 const packageManager = getPackageManager()
 await processTemplate({
-	name,
-	runtime,
+	name: projectName,
+	runtime: selectedRuntime,
 	packageManager,
 	todaysDate: new Date().toISOString().split("T")[0] ?? "",
-	plugins: { linkedRoles, gateway }
+	plugins: { linkedRoles: addLinkedRoles, gateway }
 })
 p.log.success("Project created")
 
 // ================================================ Install Dependencies ================================================
 
 const doInstall =
-	runtime === "deno"
+	selectedRuntime === "deno"
 		? false
 		: await p.confirm({
 				message: `Would you like to automatically install dependencies with ${packageManager}?`,
@@ -111,7 +117,7 @@ if (p.isCancel(doInstall)) {
 
 if (doInstall === true) {
 	p.log.step("Installing dependencies...")
-	await runPackageManagerCommand("install", name)
+	await runPackageManagerCommand("install", projectName)
 	p.log.success("Dependencies installed")
 }
 
