@@ -29,6 +29,42 @@ export type GatewayWebSocketLike = {
 	) => void
 }
 
+export type GatewaySessionState =
+	| {
+			resumable: false
+			sequence: null
+			sessionId: null
+			resumeGatewayUrl: null
+	  }
+	| {
+			resumable: true
+			sequence: number
+			sessionId: string
+			resumeGatewayUrl: string | null
+	  }
+
+export type GatewayConnectionState =
+	| { kind: "idle"; reconnect: false }
+	| {
+			kind: "connecting"
+			socket: GatewayWebSocketLike
+			generation: number
+			resume: boolean
+	  }
+	| {
+			kind: "connected"
+			socket: GatewayWebSocketLike
+			generation: number
+			session: GatewaySessionState
+	  }
+	| {
+			kind: "reconnecting"
+			attempt: number
+			resume: boolean
+			timeout: NodeJS.Timeout
+	  }
+	| { kind: "disconnecting" }
+
 export interface GatewayPluginOptions {
 	/**
 	 * The intents to use for the client
