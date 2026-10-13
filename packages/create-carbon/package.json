@@ -20,7 +20,7 @@
 	],
 	"dependencies": {
 		"@clack/prompts": "1.8.0",
-		"handlebars": "4.7.9"
+		"handlebars": "4.7.10"
 	},
 	"bin": "./dist/src/index.js"
 }
