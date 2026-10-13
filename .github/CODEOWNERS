@@ -1,4 +1,7 @@
 * @buape/carbon-maintainers
 website/ @thewilloftheshadow
-website/content @buape/carbon-maintainers
+website/pages @buape/carbon-maintainers
+package.json @kevinatbuape @buape/carbon-maintainers
+pnpm-lock.yaml @kevinatbuape @buape/carbon-maintainers
+.changeset/** @kevinatbuape @buape/carbon-maintainers
 .github/CODEOWNERS @buape/core
