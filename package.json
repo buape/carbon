@@ -15,7 +15,7 @@
 		"dev:forwarder": "turbo run dev --env-mode loose --filter !demo-cloudo --filter !demo-rocko --filter !website",
 		"lint": "biome check . --write",
 		"preinstall": "npx only-allow pnpm",
-		"publish": "changeset version && pnpm run build && changeset publish --dry-run",
+		"publish": "changeset version && pnpm run build && changeset publish",
 		"publish:snapshot": "changeset version --snapshot beta && pnpm run build && changeset publish --tag beta --no-git-tag ",
 		"start": "turbo run start --filter !demo-cloudo",
 		"test": "vitest",
