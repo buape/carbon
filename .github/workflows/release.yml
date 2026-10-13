@@ -117,9 +117,19 @@ jobs:
                       `current: "${version}"`
                   )
 
-                  const match = withCurrent.match(/versions:\s*\[([^\]]*)\]/)
+                  const currentRedirectPattern = /from:\s*"\/v[^\"]+\/\*"/
+                  if (!currentRedirectPattern.test(withCurrent)) {
+                      throw new Error("Missing current-version wildcard redirect in tome.config.mjs")
+                  }
+
+                  const withCurrentRedirect = withCurrent.replace(
+                      currentRedirectPattern,
+                      `from: "/${version}/*"`
+                  )
+
+                  const match = withCurrentRedirect.match(/versions:\s*\[([^\]]*)\]/)
                   if (!match) {
-                      fs.writeFileSync(path, withCurrent)
+                      fs.writeFileSync(path, withCurrentRedirect)
                       process.exit(0)
                   }
 
@@ -147,7 +157,7 @@ jobs:
 
                   fs.writeFileSync(
                       path,
-                      withCurrent.replace(/versions:\s*\[[^\]]*\]/, replacement)
+                      withCurrentRedirect.replace(/versions:\s*\[[^\]]*\]/, replacement)
                   )
                   NODE
 

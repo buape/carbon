@@ -11,6 +11,9 @@ patchedDependencies:
   '@tomehq/core@0.8.1':
     hash: 6c52aae73f009fa1251ac7e8824004900f73ed628ed150565e4c2c9d48b2074e
     path: patches/@tomehq__core@0.8.1.patch
+  '@tomehq/theme@0.8.1':
+    hash: c4e9e9e095f048a954d82663d79a43ee1435acf91550fb38137dc70289248a53
+    path: patches/@tomehq__theme@0.8.1.patch
 
 importers:
 
@@ -132,7 +135,7 @@ importers:
         version: 0.8.1(@types/node@26.0.0)(esbuild@0.28.1)(rollup@4.62.2)(typescript@6.0.3)(yaml@2.9.0)
       '@tomehq/theme':
         specifier: 0.8.1
-        version: 0.8.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))
+        version: 0.8.1(patch_hash=c4e9e9e095f048a954d82663d79a43ee1435acf91550fb38137dc70289248a53)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))
       prismjs:
         specifier: 1.30.0
         version: 1.30.0
@@ -4256,7 +4259,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tomehq/theme@0.8.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))':
+  '@tomehq/theme@0.8.1(patch_hash=c4e9e9e095f048a954d82663d79a43ee1435acf91550fb38137dc70289248a53)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))':
     dependencies:
       '@tomehq/components': 0.8.1(react@19.2.7)
       '@tomehq/core': 0.8.1(patch_hash=6c52aae73f009fa1251ac7e8824004900f73ed628ed150565e4c2c9d48b2074e)(rollup@4.62.2)(typescript@6.0.3)(vite@8.0.16(@types/node@26.0.0)(esbuild@0.28.1)(yaml@2.9.0))

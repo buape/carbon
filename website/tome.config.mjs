@@ -24,8 +24,11 @@ export default {
 	],
 	redirects: [
 		{ from: "/", to: "/getting-started/introduction" },
+		{ from: "/beta/index", to: "/beta/getting-started/introduction" },
+		{ from: "/v0.17.0", to: "/" },
 		{ from: "/adapters/cloudflare", to: "/adapters/fetch/cloudflare" },
-		{ from: "/adapters/next", to: "/adapters/fetch/next" }
+		{ from: "/adapters/next", to: "/adapters/fetch/next" },
+		{ from: "/v0.17.0/*", to: "/:splat" }
 	],
 	navigation: [
 		{
@@ -38,6 +41,9 @@ export default {
 				"concepts/http-bots",
 				"concepts/interaction-responses",
 				"concepts/component-registration",
+				"concepts/branded-ids",
+				"concepts/caching",
+				"concepts/command-middlewares",
 				"concepts/routes",
 				"concepts/wildcards",
 				"concepts/prechecks",
@@ -81,6 +87,7 @@ export default {
 			group: "Plugins",
 			pages: [
 				"plugins/gateway",
+				"plugins/gateway-lifecycle",
 				"plugins/gateway-events",
 				"plugins/gateway-forwarder",
 				"plugins/linked-roles",
@@ -91,6 +98,7 @@ export default {
 			group: "Even More",
 			pages: [
 				"even-more/powered-by-carbon",
+				"even-more/testing",
 				"even-more/migration-guide",
 				"even-more/contributing",
 				"even-more/why-classes"

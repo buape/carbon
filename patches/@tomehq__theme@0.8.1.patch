@@ -1,0 +1,36 @@
+diff --git a/src/Shell.tsx b/src/Shell.tsx
+index e437fb9613ffaccfe8370c49a2ea001000ce8872..5a55a5138398cfd5572813dd82fd13a4c3fd33aa 100644
+--- a/src/Shell.tsx
++++ b/src/Shell.tsx
+@@ -937,9 +937,12 @@ export function Shell({
+                 <button
+                   key={v}
+                   onClick={() => {
+-                    // Navigate to the version's index page via hash routing
+-                    const targetId = v === versioning.current ? "index" : `${v}/index`;
+-                    onNavigate(targetId);
++                    const currentPagePath = currentVersion && currentPageId.startsWith(`${currentVersion}/`)
++                      ? currentPageId.slice(currentVersion.length + 1)
++                      : currentPageId;
++                    const targetPageId = v === versioning.current ? currentPagePath : `${v}/${currentPagePath}`;
++                    const fallbackPageId = v === versioning.current ? "getting-started/introduction" : `${v}/getting-started/introduction`;
++                    onNavigate(allPages.some(page => page.id === targetPageId) ? targetPageId : fallbackPageId);
+                   }}
+                   style={{
+                     flex: 1, padding: "3px 0", textAlign: "center",
+@@ -1110,9 +1113,12 @@ export function Shell({
+                         key={v}
+                         onClick={() => {
+                           setVersionDropdown(false);
+-                          // Navigate to the version's index page via hash routing
+-                          const targetId = v === versioning.current ? "index" : `${v}/index`;
+-                          onNavigate(targetId);
++                          const currentPagePath = currentVersion && currentPageId.startsWith(`${currentVersion}/`)
++                            ? currentPageId.slice(currentVersion.length + 1)
++                            : currentPageId;
++                          const targetPageId = v === versioning.current ? currentPagePath : `${v}/${currentPagePath}`;
++                          const fallbackPageId = v === versioning.current ? "getting-started/introduction" : `${v}/getting-started/introduction`;
++                          onNavigate(allPages.some(page => page.id === targetPageId) ? targetPageId : fallbackPageId);
+                         }}
+                         style={{
+                           display: "block", width: "100%", textAlign: "left",
