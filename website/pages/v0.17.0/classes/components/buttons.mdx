@@ -1,0 +1,65 @@
+---
+title: Buttons
+description: Buttons appear below messages and can be used to trigger actions or link to external sources.
+---
+
+Buttons appear below messages and can be used to trigger actions or link to external sources.
+
+## Creating a Button
+
+Subclassing the `Button` class remains the recommended approach for reusable components:
+
+```ts title="src/buttons/ping-class.ts"
+import { Button, type ButtonInteraction } from "@buape/carbon";
+
+export default class PingButton extends Button {
+	customId = "ping"
+	label = "Ping"
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("Pong!")
+	}
+}
+```
+
+### Inline Button Overrides
+
+If you only need a button in a single spot, you can instantiate it inline by extending the class on the fly:
+
+```ts
+import { Button, type ButtonInteraction } from "@buape/carbon";
+
+const pingButton = new (class extends Button {
+	customId = "ping-inline"
+	label = "Ping"
+
+	async run(interaction: ButtonInteraction) {
+		await interaction.reply("Pong!")
+	}
+})()
+```
+
+### Setting the Style
+
+The `style` property is used to set the style of the button. This is used to determine the style of the button. The available styles are:
+
+-	 `Primary`: A blurple colored button
+-	 `Secondary`: A gray colored button
+-	 `Success`: A green colored button
+-	 `Danger`: A red colored button
+-	 `Link`: A gray button solely used for links
+
+## Link Buttons
+
+Link buttons are used to link to external sources. They are typically created by extending the `LinkButton` class and providing a `url` property:
+
+```ts title="src/buttons/link.ts"
+import { LinkButton } from "@buape/carbon"
+
+export default class DocsButton extends LinkButton {
+	label = "Carbon Documentation"
+	url = "https://carbon.buape.com"
+}
+```
+
+Note that these buttons do not trigger any actions on the bot side, and are only used to link to external sources.

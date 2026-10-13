@@ -1,0 +1,423 @@
+---
+title: Testing Carbon Bots
+---
+
+`@buape/carbon-testing` is Carbon's first-party test harness. It lets you run your real Carbon commands, components, modals, and autocomplete handlers in tests while Discord HTTP calls go to an in-memory fake Discord server.
+
+The important part: you can attach it to the `Client` your app already exports. No duplicate test-only client needed.
+
+## Install
+
+```bash
+pnpm add -D @buape/carbon-testing
+```
+
+If you use Vitest matchers, install Vitest too:
+
+```bash
+pnpm add -D vitest
+```
+
+Vitest is an optional peer dependency. Bun users can use the Bun helper export without installing Vitest.
+
+## Mental model
+
+The harness has three pieces:
+
+1. **Disposable Carbon hooks** record Carbon-level events like replies, defers, followups, modals, component registration, REST requests, and handler errors.
+2. **Fake Discord** replaces Carbon's REST fetch and returns mocked Discord resources.
+3. **Interaction runners** build Discord interaction payloads and pass them through your real `client.handleInteraction(...)` pipeline.
+
+That means middleware, prechecks, defer settings, component auto-registration, modal fields, and response helpers all still run like they do in production.
+
+## Quickstart
+
+```ts
+import { testCarbon, expectReply } from "@buape/carbon-testing"
+import { afterAll, beforeEach, test } from "vitest"
+import { client } from "../src/client"
+
+const carbon = testCarbon(client)
+
+beforeEach(() => carbon.reset())
+afterAll(() => carbon.dispose())
+
+test("/ping replies with pong", async () => {
+	const result = await carbon.interactions.command("ping")
+
+	expectReply(result, { content: "pong" })
+})
+```
+
+`testCarbon(client)` installs hooks and a fake Discord fetch on the existing client. `dispose()` restores the previous hooks and fetch function.
+
+## Test setup file
+
+For most projects, create one test setup file:
+
+```ts
+// tests/carbon.ts
+import { testCarbon } from "@buape/carbon-testing"
+import { afterAll, beforeEach } from "vitest"
+import { client } from "../src/client"
+
+export const carbon = testCarbon(client)
+
+beforeEach(() => carbon.reset())
+afterAll(() => carbon.dispose())
+```
+
+Then import `carbon` in each test:
+
+```ts
+import { carbon } from "./carbon"
+
+const result = await carbon.interactions.command("ping")
+```
+
+If your app enables automatic command deployment, gate it during tests so the real client does not hit Discord before the harness attaches:
+
+```ts
+autoDeploy: process.env.NODE_ENV !== "test"
+```
+
+## Harness API
+
+```ts
+const carbon = testCarbon(client, {
+	strict: true,
+	throwHandlerErrors: true
+})
+```
+
+Returns:
+
+```ts
+carbon.client       // original Client
+carbon.discord      // fake Discord server
+carbon.recorder     // Carbon hook event recorder
+carbon.interactions // command/component/modal/autocomplete runners
+carbon.reset()      // clear calls, route mocks, messages, and recorded events
+carbon.dispose()    // restore original hooks/fetch
+carbon.reattach()   // attach again after dispose
+```
+
+Options:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `strict` | `true` | Unhandled fake Discord requests fail loudly. |
+| `throwHandlerErrors` | `true` | Command/component/modal/autocomplete errors are rethrown in tests. |
+
+## Snowflake test IDs
+
+Examples use Discord-format snowflakes instead of labels like `"guild"` or `"user"`. If you need IDs in your own tests, generate them with the built-in utility:
+
+```ts
+import { createSnowflakeGenerator, generateSnowflake } from "@buape/carbon-testing"
+
+const userId = generateSnowflake()
+const nextId = createSnowflakeGenerator()
+
+const guildId = nextId()
+const channelId = nextId()
+```
+
+The generated value follows Discord's snowflake layout: timestamp bits, worker id bits, process id bits, and increment bits. By default it uses a stable 2024 timestamp so tests are deterministic.
+
+## Mock Discord state
+
+Seed common Discord resources with plain objects:
+
+```ts
+carbon.discord.seed({
+	users: [{ id: "100000000000000201", username: "shadow" }],
+	guilds: [{ id: "100000000000000202", name: "Test Guild" }],
+	channels: [
+		{
+			id: "100000000000000203",
+			guild_id: "100000000000000202",
+			name: "general"
+		}
+	],
+	roles: [{ id: "100000000000000204", guild_id: "100000000000000202", name: "Admin" }],
+	members: [
+		{
+			guild_id: "100000000000000202",
+			user: { id: "100000000000000201", username: "shadow" },
+			roles: ["100000000000000204"]
+		}
+	]
+})
+```
+
+Now Carbon methods like these work without network calls:
+
+```ts
+await client.fetchUser("100000000000000201")
+await client.fetchChannel("100000000000000203")
+await client.fetchRole("100000000000000202", "100000000000000204")
+await client.fetchMember("100000000000000202", "100000000000000201")
+```
+
+You can also add resources one at a time:
+
+```ts
+carbon.discord.addUser({ id: "100000000000000201", username: "shadow" })
+carbon.discord.addChannel({
+	id: "100000000000000203",
+	guild_id: "100000000000000202"
+})
+```
+
+## Explicit route mocks
+
+Use route mocks for edge cases, errors, and APIs that the fake state layer does not model yet.
+
+```ts
+carbon.discord
+	.expect("GET", "/users/100000000000000999")
+	.reply(404, { code: 10013, message: "Unknown User" })
+
+carbon.discord
+	.expect("POST", /\/channels\/[^/]+\/messages/)
+	.reply(200, {
+		id: "100000000000000205",
+		channel_id: "100000000000000203",
+		content: "mocked"
+	})
+```
+
+Route paths are normalized without the Discord API prefix. Match `/users/100000000000000201`, not `/api/v10/users/100000000000000201`.
+
+Rate limit responses are built in:
+
+```ts
+carbon.discord.expect("POST", /\/channels\/[^/]+\/messages/).rateLimit(1)
+```
+
+Strict mode catches missing mocks:
+
+```txt
+Unhandled Discord request: GET /guilds/100000000000000202/audit-logs
+```
+
+If you want unhandled calls to return `204` instead, attach with `strict: false`.
+
+## Command interactions
+
+Run a slash command by name:
+
+```ts
+const result = await carbon.interactions.command("profile", {
+	guild: "100000000000000202",
+	channel: "100000000000000203",
+	user: "100000000000000201",
+	options: {
+		visibility: "public"
+	}
+})
+
+expectReply(result, { content: "Profile for shadow" })
+```
+
+The result includes the raw interaction, recorded responses, REST calls, the latest reply message, and followups:
+
+```ts
+result.interaction
+result.responses
+result.calls
+result.reply
+result.message
+result.followups
+result.deferred
+```
+
+## Deferred replies and followups
+
+```ts
+const result = await carbon.interactions.command("long-task")
+
+expect(result.deferred).toBe(true)
+expect(result.followups[0]?.content).toBe("Done")
+```
+
+`interaction.reply(...)` after a defer is recorded as an `edit-original` response because Carbon edits the original webhook message.
+
+## Components
+
+If a command replies with components, Carbon auto-registers them like normal. Click them from the previous result:
+
+```ts
+const start = await carbon.interactions.command("delete-message")
+
+const clicked = await start.click("confirm-delete")
+
+expectReply(clicked, { content: "Deleted" })
+```
+
+If you omit the custom ID, the runner uses the first interactive component in the latest message:
+
+```ts
+await start.click()
+```
+
+For select menus, pass values:
+
+```ts
+await start.click("role-select", {
+	values: ["100000000000000204"]
+})
+```
+
+## Modals
+
+Submit a modal after a command or component shows it:
+
+```ts
+const opened = await carbon.interactions.command("settings")
+
+const submitted = await opened.submitModal("settings-modal", {
+	timezone: "UTC",
+	color: "blue"
+})
+
+expectReply(submitted, { content: "Settings saved" })
+```
+
+Fields are sent through Carbon's real `ModalInteraction` and `FieldsHandler`, so code like this still works:
+
+```ts
+interaction.fields.getText("timezone", true)
+```
+
+## Autocomplete
+
+```ts
+const result = await carbon.interactions.autocomplete("search", {
+	options: { query: "car" },
+	focused: "query"
+})
+
+expectResponse(result, "autocomplete", {
+	choices: [{ name: "Carbon", value: "carbon" }]
+})
+```
+
+Command-level autocomplete and option-level autocomplete both run through Carbon's command handler.
+
+## Vitest matchers
+
+Import the Vitest subpath once in your Vitest setup file:
+
+```ts
+import "@buape/carbon-testing/vitest"
+```
+
+Then use matchers directly on interaction results:
+
+```ts
+expect(result).toHaveRepliedWith({ content: "pong" })
+expect(result).toHaveDeferred()
+expect(result).toHaveInteractionResponse("followup", { content: "Done" })
+expect(result).toHaveDiscordCall("POST", /\/interactions\//)
+```
+
+The Vitest export imports `vitest`, so only use it in projects that install Vitest.
+
+## Bun helpers
+
+Bun users can import assertion helpers that throw normal errors:
+
+```ts
+import {
+	expectDeferred,
+	expectDiscordCall,
+	expectReply,
+	expectResponse
+} from "@buape/carbon-testing/bun"
+
+expectReply(result, { content: "pong" })
+expectDeferred(result)
+expectResponse(result, "modal")
+expectDiscordCall(result.calls, "POST", /\/interactions\//)
+```
+
+These helpers also work with any other test runner.
+
+## Plain assertions
+
+If you do not want custom matchers or throwing helpers, inspect the arrays directly:
+
+```ts
+carbon.recorder.events
+carbon.discord.calls
+result.responses
+result.calls
+```
+
+Example:
+
+```ts
+expect(result.responses.map((response) => response.kind)).toEqual([
+	"defer",
+	"edit-original"
+])
+
+expect(carbon.discord.calls.some((call) => call.path === "/users/100000000000000201")).toBe(
+	true
+)
+```
+
+## Recorded event types
+
+The recorder stores Carbon test hook events:
+
+- `rest:request`
+- `interaction:response`
+- `handler:error`
+- `component:registered`
+- `modal:registered`
+
+Most tests should use `result` and `carbon.discord.calls`, but the raw event stream is useful for debugging.
+
+## Troubleshooting
+
+### My test hits real Discord
+
+Make sure the harness attaches before the code under test makes Discord calls:
+
+```ts
+const carbon = testCarbon(client)
+```
+
+Also disable `autoDeploy` in test mode.
+
+### I get an unhandled Discord request
+
+Seed the resource or add an explicit route mock:
+
+```ts
+carbon.discord.addUser({ id: "100000000000000201" })
+// or
+carbon.discord.expect("GET", "/users/100000000000000201").reply(200, { id: "100000000000000201" })
+```
+
+### Errors are being thrown instead of logged
+
+That is intentional in tests. To use production-style logging behavior:
+
+```ts
+const carbon = testCarbon(client, { throwHandlerErrors: false })
+```
+
+### Component clicks cannot find a component
+
+Make sure the command reply includes the component and that you run the command before clicking:
+
+```ts
+const result = await carbon.interactions.command("settings")
+await result.click("open-settings")
+```
+
+Carbon only auto-registers components when the message is sent.

@@ -1,0 +1,91 @@
+---
+title: Gateway Event Sending
+description: Send presence, voice-state, and guild-member requests over the gateway connection.
+icon: Send
+---
+
+Most gateway traffic is inbound, but you can send a few important things back to Discord too:
+
+- `updatePresence(...)`
+- `updateVoiceState(...)`
+- `requestGuildMembers(...)`
+
+All of these need a live gateway session (`gateway.isConnected === true`).
+
+## Update presence
+
+```ts
+gateway.updatePresence({
+	since: null,
+	activities: [
+		{
+			name: "Carbon",
+			type: 0 // Playing
+		}
+	],
+	status: "online",
+	afk: false
+})
+```
+
+## Update voice state
+
+```ts
+gateway.updateVoiceState({
+	guild_id: "123",
+	channel_id: "456", // use null to disconnect
+	self_mute: false,
+	self_deaf: false
+})
+```
+
+## Request guild members
+
+```ts
+gateway.requestGuildMembers({
+	guild_id: "123",
+	query: "",
+	limit: 0,
+	presences: false
+})
+```
+
+A few guardrails to remember:
+
+- needs `GUILD_MEMBERS` intent
+- if `presences: true`, also needs `GUILD_PRESENCES`
+- you must provide either `query` (empty string is valid) or `user_ids`
+
+Requested members come back through `GUILD_MEMBERS_CHUNK` events.
+
+## Rate limits
+
+Carbon tracks outbound gateway budget for you:
+
+```ts
+const status = gateway.getRateLimitStatus()
+// { remainingEvents, resetTime, currentEventCount }
+```
+
+Control packets (`HEARTBEAT`, `IDENTIFY`, `RESUME`) are treated as essential and not counted in the normal outbound event budget.
+
+## Safe sending pattern
+
+```ts
+if (!gateway.isConnected) {
+	return
+}
+
+try {
+	gateway.updatePresence({
+		since: null,
+		activities: [],
+		status: "online",
+		afk: false
+	})
+} catch (error) {
+	// log / handle
+}
+```
+
+If you call `gateway.send(...)` directly, it now throws when the socket is not open, so always guard or catch.

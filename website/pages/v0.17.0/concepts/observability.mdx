@@ -1,0 +1,78 @@
+---
+title: Observability
+description: Read Carbon operations and events from a client plugin.
+icon: Activity
+---
+
+Use `client.instrumentation` to observe Carbon from a plugin. `use()` wraps framework operations; `onEvent()` receives operation lifecycle and framework events. Send these to any metrics or tracing service you use.
+
+## Add a plugin
+
+```ts
+import { Plugin, type Client } from "@buape/carbon"
+
+class ObservabilityPlugin extends Plugin {
+  readonly id = "observability"
+  private disposers: (() => void)[] = []
+
+  registerClient(client: Client) {
+    this.disposers.push(
+      client.instrumentation.use(async (operation, next) => {
+        // Start a span with operation.name and operation.attributes.
+        // Run next() inside the span's context.
+        return await next()
+      }),
+      client.instrumentation.onEvent((event) => {
+        if (event.type === "operation.end") {
+          console.log(event.operation.name, event.durationMs, event.status)
+        }
+      })
+    )
+  }
+
+  dispose() {
+    for (const dispose of this.disposers.splice(0)) dispose()
+  }
+}
+
+const client = new Client(options, handlers, [new ObservabilityPlugin()])
+```
+
+Call `dispose()` when the plugin is no longer needed. Carbon does not currently call plugin shutdown hooks.
+
+Middleware wraps operations in registration order. Call `next()` once and return its result. Middleware errors propagate to the operation. Errors thrown by `onEvent()` listeners are ignored so they do not interrupt bot work.
+
+## Operations
+
+`operation.start` and `operation.end` events include an operation ID, name, and attributes. End events also include duration and status; responses include `statusCode`, and failures include the thrown `error`.
+
+Carbon currently instruments:
+
+- `http.server.request` — requests handled by the fetch adapter, including `ClientManager` routes.
+- `discord.webhook.event` and `discord.webhook.interaction` — incoming Discord webhooks.
+- `discord.interaction.command`, `discord.interaction.autocomplete`, `discord.interaction.component`, and `discord.interaction.modal`.
+- `discord.gateway.listener` — listener execution, with event type, queue lane, and listener name.
+- `discord.rest.request` — Discord REST calls, including time spent waiting in Carbon's request queue.
+- `discord.gateway.discover` — gateway metadata lookup.
+
+## Framework events
+
+`onEvent()` also receives signals that are not operations:
+
+- `carbon.gateway.event.enqueued`, `carbon.gateway.event.dropped`, and `carbon.gateway.listener.timeout`.
+- `carbon.gateway.connection.state`, `carbon.gateway.dispatch`, `carbon.gateway.send`, and `carbon.gateway.metrics`.
+- `carbon.discord.rest.response` and `carbon.discord.rest.rate_limit`.
+- `carbon.interaction.handler.error` and `carbon.interaction.command.outcome`.
+
+Events include details such as HTTP method/status, gateway opcode, event type, queue lane, and drop reason. Carbon does not attach tokens, request/interaction bodies, custom IDs, or user, guild, and channel IDs. Avoid using arbitrary event attributes as metric labels; some values, such as listener names, are application-defined.
+
+## Runtime metrics
+
+For a point-in-time snapshot of REST scheduler, event queue, and gateway-forwarder metrics, use `getRuntimeMetrics()`:
+
+```ts
+const metrics = client.getRuntimeMetrics()
+console.log(metrics.request, metrics.events, metrics.forwarder)
+```
+
+The snapshot complements the live instrumentation events; it does not replace them.

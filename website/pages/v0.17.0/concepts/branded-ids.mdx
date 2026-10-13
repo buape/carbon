@@ -1,0 +1,72 @@
+---
+title: Branded IDs
+description: Type-safe Discord IDs with backwards-compatible string inputs.
+---
+
+Carbon uses branded TypeScript types for Discord snowflake IDs. They are compile-time only, so they add no runtime validation and do not change the values sent to Discord.
+
+## Why this exists
+
+Discord IDs are all strings at runtime. Without brands, TypeScript cannot tell a guild ID from a user ID:
+
+```typescript
+await client.fetchMember(guild.id, user.id) // correct
+await client.fetchMember(user.id, guild.id) // should be wrong
+```
+
+With branded IDs, Carbon can catch the swapped version when the IDs came from Carbon objects.
+
+## Strict output types
+
+IDs returned by Carbon-owned objects are strict branded types:
+
+```typescript
+const guild = await client.fetchGuild("123")
+const user = await client.fetchUser("456")
+
+guild.id // GuildId
+user.id // UserId
+```
+
+Common exports include `GuildId`, `UserId`, `ChannelId`, `RoleId`, `MessageId`, `EmojiId`, `WebhookId`, `ApplicationId`, `InteractionId`, and `AttachmentId`. Carbon also exports matching aliases for additional Discord snowflakes it wraps, such as `ApplicationCommandId`, `GuildScheduledEventId`, `ForumTagId`, `IntegrationId`, `SkuId`, and `StickerId`.
+
+## Loose input types
+
+Public methods that accept IDs use matching `Like` aliases:
+
+```typescript
+await client.fetchGuild("123") // plain string still works
+await client.fetchMember(guild.id, user.id) // branded IDs work
+```
+
+The `Like` aliases accept plain strings for backwards compatibility and matching branded IDs for stronger safety:
+
+```typescript
+import type { GuildIdLike, UserIdLike } from "@buape/carbon"
+
+async function loadMember(guildId: GuildIdLike, userId: UserIdLike) {
+	return client.fetchMember(guildId, userId)
+}
+```
+
+## Opting in manually
+
+If an ID comes from your database or config, it is still just a string. You can keep passing it directly, or opt into stronger typing with a cast at the boundary:
+
+```typescript
+import type { GuildId } from "@buape/carbon"
+
+const guildId = process.env.GUILD_ID as GuildId
+```
+
+## Migration notes
+
+Existing correct code that passes strings should continue compiling. Brands only matter when you keep the branded types from Carbon or annotate your own functions with them.
+
+```typescript
+await client.fetchMember("123", "456") // still accepted
+await client.fetchMember(guild.id, user.id) // accepted
+await client.fetchMember(user.id, guild.id) // TypeScript error
+```
+
+No runtime behavior changes. No snowflake validation is performed by these types.
