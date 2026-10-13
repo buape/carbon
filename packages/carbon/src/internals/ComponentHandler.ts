@@ -3,12 +3,13 @@ import {
 	type APIMessageComponentInteraction,
 	type APIMessageComponentInteractionData,
 	type APIMessageComponentSelectMenuInteraction,
-	type ComponentType,
+	ComponentType,
 	InteractionResponseType,
 	type RESTPostAPIInteractionCallbackJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import { Base } from "../abstracts/Base.js"
+import type { BaseComponentInteraction } from "../abstracts/BaseComponentInteraction.js"
 import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageInteractiveComponent.js"
 import { Button } from "../classes/components/Button.js"
 import { ChannelSelectMenu } from "../classes/components/ChannelSelectMenu.js"
@@ -25,11 +26,24 @@ import { RoleSelectMenuInteraction } from "./RoleSelectMenuInteraction.js"
 import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
 import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
 
+const messageComponentTypes = [
+	ComponentType.Button,
+	ComponentType.StringSelect,
+	ComponentType.UserSelect,
+	ComponentType.RoleSelect,
+	ComponentType.MentionableSelect,
+	ComponentType.ChannelSelect
+] as const satisfies readonly ComponentType[]
+
 export class ComponentHandler extends Base {
 	private componentCache = new LRUCache<
 		string,
 		BaseMessageInteractiveComponent
 	>(10000)
+	private componentParsersByType = new Map<
+		ComponentType,
+		Set<BaseMessageInteractiveComponent["customIdParser"]>
+	>()
 
 	oneOffComponents: Map<
 		`${string}-${string}`,
@@ -48,6 +62,9 @@ export class ComponentHandler extends Base {
 	registerComponent(component: BaseMessageInteractiveComponent) {
 		const componentKey = component.customIdParser(component.customId).key
 		const cacheKey = this.getComponentCacheKey(componentKey, component.type)
+		const parsers = this.componentParsersByType.get(component.type) ?? new Set()
+		parsers.add(component.customIdParser)
+		this.componentParsersByType.set(component.type, parsers)
 		if (!this.componentCache.has(cacheKey)) {
 			this.componentCache.set(cacheKey, component)
 			this.client.options?.testHooks?.emit?.({
@@ -59,38 +76,53 @@ export class ComponentHandler extends Base {
 	}
 
 	hasComponentWithKey(key: string, componentType?: ComponentType): boolean {
-		for (const component of this.componentCache.values()) {
-			const componentKey = component.customIdParser(component.customId).key
-			if (componentKey !== key) continue
-
-			if (componentType === undefined || component.type === componentType) {
-				return true
-			}
+		if (componentType !== undefined) {
+			return this.componentCache.has(
+				this.getComponentCacheKey(key, componentType)
+			)
 		}
-		return false
+
+		return messageComponentTypes.some((type) =>
+			this.componentCache.has(this.getComponentCacheKey(key, type))
+		)
 	}
 
 	findComponent(
 		customId: string,
 		componentType: ComponentType
 	): BaseMessageInteractiveComponent | undefined {
-		for (const component of this.componentCache.values()) {
-			const componentKey = component.customIdParser(component.customId).key
-			const interactionKey = component.customIdParser(customId).key
-
-			if (componentKey === interactionKey && component.type === componentType) {
-				return component
+		const parsers = this.componentParsersByType.get(componentType)
+		if (parsers) {
+			for (const parser of parsers) {
+				const interactionKey = parser(customId).key
+				const exactComponent = this.componentCache.get(
+					this.getComponentCacheKey(interactionKey, componentType)
+				)
+				if (exactComponent?.customIdParser === parser) return exactComponent
 			}
 		}
 
-		for (const component of this.componentCache.values()) {
-			const componentKey = component.customIdParser(component.customId).key
-			if (componentKey === "*" && component.type === componentType) {
-				return component
-			}
+		return this.componentCache.get(
+			this.getComponentCacheKey("*", componentType)
+		)
+	}
+
+	private async runComponent(
+		component: BaseMessageInteractiveComponent,
+		interaction: BaseComponentInteraction,
+		parsed: ReturnType<BaseMessageInteractiveComponent["customIdParser"]>
+	): Promise<void> {
+		if (typeof component.ephemeral === "function") {
+			interaction.setDefaultEphemeral(component.ephemeral(interaction))
 		}
 
-		return undefined
+		const shouldDefer =
+			typeof component.defer === "function"
+				? component.defer(interaction)
+				: component.defer
+
+		if (shouldDefer) await interaction.defer()
+		await component.run(interaction, parsed.data)
 	}
 	async handleInteraction(data: APIMessageComponentInteraction) {
 		try {
@@ -129,157 +161,73 @@ export class ComponentHandler extends Base {
 			}
 
 			const parsed = component.customIdParser(data.data.custom_id)
+			const interactionOptions = {
+				ephemeral:
+					typeof component.ephemeral === "function"
+						? false
+						: component.ephemeral
+			}
 
 			if (component instanceof Button) {
-				const interaction = new ButtonInteraction(
-					this.client,
-					data as APIMessageComponentButtonInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new ButtonInteraction(
+						this.client,
+						data as APIMessageComponentButtonInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else if (component instanceof RoleSelectMenu) {
-				const interaction = new RoleSelectMenuInteraction(
-					this.client,
-					data as APIMessageComponentSelectMenuInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new RoleSelectMenuInteraction(
+						this.client,
+						data as APIMessageComponentSelectMenuInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else if (component instanceof ChannelSelectMenu) {
-				const interaction = new ChannelSelectMenuInteraction(
-					this.client,
-					data as APIMessageComponentSelectMenuInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new ChannelSelectMenuInteraction(
+						this.client,
+						data as APIMessageComponentSelectMenuInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else if (component instanceof MentionableSelectMenu) {
-				const interaction = new MentionableSelectMenuInteraction(
-					this.client,
-					data as APIMessageComponentSelectMenuInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new MentionableSelectMenuInteraction(
+						this.client,
+						data as APIMessageComponentSelectMenuInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else if (component instanceof StringSelectMenu) {
-				const interaction = new StringSelectMenuInteraction(
-					this.client,
-					data as APIMessageComponentSelectMenuInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new StringSelectMenuInteraction(
+						this.client,
+						data as APIMessageComponentSelectMenuInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else if (component instanceof UserSelectMenu) {
-				const interaction = new UserSelectMenuInteraction(
-					this.client,
-					data as APIMessageComponentSelectMenuInteraction,
-					{
-						ephemeral:
-							typeof component.ephemeral === "function"
-								? false
-								: component.ephemeral
-					}
+				await this.runComponent(
+					component,
+					new UserSelectMenuInteraction(
+						this.client,
+						data as APIMessageComponentSelectMenuInteraction,
+						interactionOptions
+					),
+					parsed
 				)
-
-				// Resolve ephemeral setting if it's a function
-				if (typeof component.ephemeral === "function") {
-					interaction.setDefaultEphemeral(component.ephemeral(interaction))
-				}
-
-				// Resolve defer setting if it's a function
-				const shouldDefer =
-					typeof component.defer === "function"
-						? component.defer(interaction)
-						: component.defer
-
-				if (shouldDefer) await interaction.defer()
-				await component.run(interaction, parsed.data)
 			} else {
 				throw new Error(
 					`Unknown component with type ${data.data.component_type} and custom ID ${data.data.custom_id}`
