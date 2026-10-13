@@ -5,3 +5,5 @@ package.json @kevinatbuape @buape/carbon-maintainers
 pnpm-lock.yaml @kevinatbuape @buape/carbon-maintainers
 .changeset/** @kevinatbuape @buape/carbon-maintainers
 .github/CODEOWNERS @buape/core
+.github/actions @kevinatbuape @thewilloftheshadow
+.github/workflows @kevinatbuape @thewilloftheshadow
