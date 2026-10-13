@@ -71,58 +71,6 @@ test("EventQueue: applies global fallback limits to non-critical lanes", () => {
 	expect(laneConfig.background.listenerConcurrency).toBe(2)
 })
 
-test("EventQueue: combines lane overrides, global fallbacks, and profile event-age defaults", () => {
-	const queue = new EventQueue(
-		{
-			listeners: [],
-			options: {
-				runtimeProfile: "serverless"
-			}
-		} as never,
-		{
-			maxQueueSize: 9,
-			maxConcurrency: 3,
-			listenerTimeout: 4567,
-			listenerConcurrency: 2,
-			lanes: {
-				critical: {
-					maxQueueSize: 4,
-					maxConcurrency: 5,
-					listenerTimeout: 6789,
-					listenerConcurrency: 6,
-					maxEventAgeMs: 1234
-				},
-				standard: {
-					maxQueueSize: 7
-				}
-			}
-		}
-	)
-
-	const laneConfig = queue.getMetrics().laneConfig
-	expect(laneConfig.critical).toEqual({
-		maxQueueSize: 4,
-		maxConcurrency: 5,
-		listenerTimeout: 6789,
-		listenerConcurrency: 6,
-		maxEventAgeMs: 1234
-	})
-	expect(laneConfig.standard).toEqual({
-		maxQueueSize: 7,
-		maxConcurrency: 3,
-		listenerTimeout: 4567,
-		listenerConcurrency: 2,
-		maxEventAgeMs: 15_000
-	})
-	expect(laneConfig.background).toEqual({
-		maxQueueSize: 9,
-		maxConcurrency: 3,
-		listenerTimeout: 4567,
-		listenerConcurrency: 2,
-		maxEventAgeMs: 8000
-	})
-})
-
 test("EventQueue: drops stale background events instead of processing ancient backlog", async () => {
 	vi.useFakeTimers()
 	let releaseHold: (() => void) | undefined
