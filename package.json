@@ -33,7 +33,7 @@
 		"typedoc": "0.28.19",
 		"typedoc-plugin-mdn-links": "5.1.1",
 		"typescript": "6.0.3",
-		"vitest": "4.1.9"
+		"vitest": "4.1.11"
 	},
 	"packageManager": "pnpm@10.34.4",
 	"engines": {
