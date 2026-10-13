@@ -41,7 +41,8 @@ export default {
 				"concepts/routes",
 				"concepts/wildcards",
 				"concepts/prechecks",
-				"concepts/partial-structures"
+				"concepts/partial-structures",
+				"concepts/observability"
 			]
 		},
 		{

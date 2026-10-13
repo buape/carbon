@@ -24,6 +24,16 @@ export class ModalHandler extends Base {
 	 * @internal
 	 */
 	async handleInteraction(data: APIModalSubmitInteraction) {
+		return this.client.instrumentation
+			? await this.client.instrumentation.run(
+					"discord.interaction.modal",
+					{},
+					() => this.handleInteractionInternal(data)
+				)
+			: await this.handleInteractionInternal(data)
+	}
+
+	private async handleInteractionInternal(data: APIModalSubmitInteraction) {
 		try {
 			let modal = this.modals.find((x) => {
 				const modalKey = x.customIdParser(x.customId).key
@@ -45,6 +55,9 @@ export class ModalHandler extends Base {
 				modal.customIdParser(data.data.custom_id).data
 			)
 		} catch (error: unknown) {
+			this.client.instrumentation?.emit("carbon.interaction.handler.error", {
+				handler: "modal"
+			})
 			this.client.options?.testHooks?.emit?.({
 				type: "handler:error",
 				handler: "modal",

@@ -58,6 +58,7 @@ import {
 	subtleCrypto,
 	valueToUint8Array
 } from "../utils/index.js"
+import { Instrumentation } from "./Instrumentation.js"
 import type { Modal } from "./Modal.js"
 import {
 	RequestClient,
@@ -172,6 +173,8 @@ export class Client {
 	 * The plugins that the client has registered
 	 */
 	plugins: { id: string; plugin: Plugin }[] = []
+	/** Runtime-neutral instrumentation for Carbon operations and events. */
+	readonly instrumentation = new Instrumentation()
 	/**
 	 * The options used to initialize the client
 	 */
@@ -328,6 +331,7 @@ export class Client {
 			runtimeProfile,
 			testHooks: this.options.testHooks,
 			...this.options.requestOptions,
+			instrumentation: this.instrumentation,
 			logger: {
 				...this.logger,
 				...this.options.requestOptions?.logger
@@ -549,6 +553,12 @@ export class Client {
 	 * @returns A response
 	 */
 	public async handleEventsRequest(req: Request) {
+		return await this.instrumentation.run("discord.webhook.event", {}, () =>
+			this.handleEventsRequestInternal(req)
+		)
+	}
+
+	private async handleEventsRequestInternal(req: Request) {
 		const isValid = await this.validateDiscordRequest(req)
 		if (!isValid) return new Response("Unauthorized", { status: 401 })
 
@@ -576,6 +586,14 @@ export class Client {
 	 * @returns A response
 	 */
 	public async handleInteractionsRequest(req: Request, ctx: Context) {
+		return await this.instrumentation.run(
+			"discord.webhook.interaction",
+			{},
+			() => this.handleInteractionsRequestInternal(req, ctx)
+		)
+	}
+
+	private async handleInteractionsRequestInternal(req: Request, ctx: Context) {
 		const isValid = await this.validateDiscordRequest(req)
 		if (!isValid) return new Response("Unauthorized", { status: 401 })
 

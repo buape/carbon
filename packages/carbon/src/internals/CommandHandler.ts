@@ -106,6 +106,19 @@ export class CommandHandler extends Base {
 	async handleCommandInteraction(
 		rawInteraction: APIApplicationCommandInteraction
 	) {
+		return await this.client.instrumentation.run(
+			"discord.interaction.command",
+			{
+				"discord.command.name": rawInteraction.data.name,
+				"discord.command.type": rawInteraction.data.type
+			},
+			() => this.handleCommandInteractionInternal(rawInteraction)
+		)
+	}
+
+	private async handleCommandInteractionInternal(
+		rawInteraction: APIApplicationCommandInteraction
+	) {
 		const command = this.getCommand(rawInteraction)
 		if (!command) return false
 
@@ -178,6 +191,9 @@ export class CommandHandler extends Base {
 		} catch (e: unknown) {
 			status = "error"
 			error = e
+			this.client.instrumentation.emit("carbon.interaction.handler.error", {
+				handler: "command"
+			})
 			this.client.options?.testHooks?.emit?.({
 				type: "handler:error",
 				handler: "command",
@@ -187,6 +203,10 @@ export class CommandHandler extends Base {
 			;(this.client.logger ?? defaultLogger).error(e)
 		} finally {
 			const endedAt = Date.now()
+			this.client.instrumentation?.emit("carbon.interaction.command.outcome", {
+				command: command.name,
+				status
+			})
 			for (const middleware of middlewares) {
 				try {
 					await middleware.after?.({
@@ -207,6 +227,16 @@ export class CommandHandler extends Base {
 		}
 	}
 	async handleAutocompleteInteraction(
+		rawInteraction: APIApplicationCommandAutocompleteInteraction
+	) {
+		return await this.client.instrumentation.run(
+			"discord.interaction.autocomplete",
+			{ "discord.command.name": rawInteraction.data.name },
+			() => this.handleAutocompleteInteractionInternal(rawInteraction)
+		)
+	}
+
+	private async handleAutocompleteInteractionInternal(
 		rawInteraction: APIApplicationCommandAutocompleteInteraction
 	) {
 		const command = this.getCommand(rawInteraction)
@@ -245,6 +275,9 @@ export class CommandHandler extends Base {
 			// Fall back to command-level autocomplete
 			return await command.autocomplete(interaction)
 		} catch (e: unknown) {
+			this.client.instrumentation.emit("carbon.interaction.handler.error", {
+				handler: "autocomplete"
+			})
 			this.client.options?.testHooks?.emit?.({
 				type: "handler:error",
 				handler: "autocomplete",

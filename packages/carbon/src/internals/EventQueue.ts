@@ -236,6 +236,11 @@ export class EventQueue {
 		const lane = this.getLane(type)
 		if (this.queues[lane].length >= this.options.lanes[lane].maxQueueSize) {
 			this.droppedCount += 1
+			this.client.instrumentation?.emit("carbon.gateway.event.dropped", {
+				event_type: String(type),
+				lane,
+				reason: "queue_full"
+			})
 			return false
 		}
 
@@ -243,6 +248,10 @@ export class EventQueue {
 			payload,
 			type,
 			timestamp: Date.now(),
+			lane
+		})
+		this.client.instrumentation?.emit("carbon.gateway.event.enqueued", {
+			event_type: String(type),
 			lane
 		})
 
@@ -278,6 +287,11 @@ export class EventQueue {
 		if (age > laneConfig.maxEventAgeMs) {
 			this.droppedCount += 1
 			this.droppedStaleCount += 1
+			this.client.instrumentation?.emit("carbon.gateway.event.dropped", {
+				event_type: String(event.type),
+				lane: event.lane,
+				reason: "stale"
+			})
 			return
 		}
 
@@ -315,15 +329,28 @@ export class EventQueue {
 		let listenerPromise: Promise<void> | null = null
 
 		try {
-			const data = listener.parseRawData(event.payload, this.client)
-			listenerPromise = listener.handle(
-				{
-					...data,
-					clientId: event.payload.clientId,
-					abortSignal: abortController.signal
-				},
-				this.client
-			)
+			const runListener = async () => {
+				const data = listener.parseRawData(event.payload, this.client)
+				await listener.handle(
+					{
+						...data,
+						clientId: event.payload.clientId,
+						abortSignal: abortController.signal
+					},
+					this.client
+				)
+			}
+			listenerPromise = this.client.instrumentation
+				? this.client.instrumentation.run(
+						"discord.gateway.listener",
+						{
+							"discord.gateway.event": String(event.type),
+							"carbon.event.lane": event.lane,
+							"carbon.listener.name": listener.constructor.name
+						},
+						runListener
+					)
+				: runListener()
 
 			const timeoutPromise = new Promise<never>((_, reject) => {
 				timeoutId = setTimeout(() => {
@@ -354,6 +381,12 @@ export class EventQueue {
 			}
 		} catch (error) {
 			if (timedOut) {
+				this.client.instrumentation?.emit("carbon.gateway.listener.timeout", {
+					"discord.gateway.event": String(event.type),
+					"carbon.event.lane": event.lane,
+					"carbon.listener.name": listener.constructor.name,
+					"carbon.listener.timeout_ms": listenerTimeout
+				})
 				this.timeoutCount += 1
 				this.zombieExecutionCount += 1
 				listenerPromise

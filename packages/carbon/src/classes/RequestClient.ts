@@ -17,6 +17,7 @@ import {
 	type LoggerOptions,
 	resolveLogger
 } from "../utils/logger.js"
+import type { Instrumentation } from "./Instrumentation.js"
 
 export type RuntimeProfile = "serverless" | "persistent"
 export type RequestPriority = RequestLane
@@ -90,6 +91,11 @@ export type RequestClientOptions = {
 	 */
 	logger?: LoggerOptions
 	/**
+	 * Carbon instrumentation hooks.
+	 * @internal
+	 */
+	instrumentation?: Instrumentation
+	/**
 	 * Test hooks used by first-party testing utilities.
 	 * @internal
 	 */
@@ -97,7 +103,10 @@ export type RequestClientOptions = {
 }
 
 const defaultOptions: Required<
-	Omit<RequestClientOptions, "fetch" | "logger" | "scheduler" | "testHooks">
+	Omit<
+		RequestClientOptions,
+		"fetch" | "logger" | "scheduler" | "testHooks" | "instrumentation"
+	>
 > = {
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
@@ -147,6 +156,7 @@ export class RequestClient {
 	readonly logger: Logger
 	protected token: string
 	protected customFetch: CarbonFetch | undefined
+	protected instrumentation?: Instrumentation
 
 	protected nextRequestId = 0
 	protected wakeupTimer: ReturnType<typeof setTimeout> | null = null
@@ -172,6 +182,7 @@ export class RequestClient {
 	constructor(token: string, options?: RequestClientOptions) {
 		this.token = token
 		this.customFetch = options?.fetch
+		this.instrumentation = options?.instrumentation
 		this.logger = resolveLogger(options?.logger)
 		this.options = {
 			...defaultOptions,
@@ -239,6 +250,20 @@ export class RequestClient {
 	}
 
 	protected async request(
+		method: string,
+		path: string,
+		options: { data?: RequestData; query?: QueuedRequest["query"] }
+	): Promise<unknown> {
+		if (!this.instrumentation)
+			return await this.requestInternal(method, path, options)
+		return await this.instrumentation.run(
+			"discord.rest.request",
+			{ "http.request.method": method.toUpperCase() },
+			() => this.requestInternal(method, path, options)
+		)
+	}
+
+	private async requestInternal(
 		method: string,
 		path: string,
 		{ data, query }: { data?: RequestData; query?: QueuedRequest["query"] }
@@ -502,6 +527,15 @@ export class RequestClient {
 				body,
 				signal: abortController.signal
 			})
+			this.instrumentation?.emit("carbon.discord.rest.response", {
+				method: method.toUpperCase(),
+				status_code: response.status
+			})
+			if (response.status === 429) {
+				this.instrumentation?.emit("carbon.discord.rest.rate_limit", {
+					method: method.toUpperCase()
+				})
+			}
 		} finally {
 			if (timeoutId) {
 				clearTimeout(timeoutId)

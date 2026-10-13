@@ -125,6 +125,18 @@ export class ComponentHandler extends Base {
 		await component.run(interaction, parsed.data)
 	}
 	async handleInteraction(data: APIMessageComponentInteraction) {
+		return this.client.instrumentation
+			? await this.client.instrumentation.run(
+					"discord.interaction.component",
+					{ "discord.component.type": data.data.component_type },
+					() => this.handleInteractionInternal(data)
+				)
+			: await this.handleInteractionInternal(data)
+	}
+
+	private async handleInteractionInternal(
+		data: APIMessageComponentInteraction
+	) {
 		try {
 			const oneOffComponent = this.oneOffComponents.get(
 				`${data.message.id}-${data.message.channel_id}`
@@ -234,6 +246,9 @@ export class ComponentHandler extends Base {
 				)
 			}
 		} catch (error: unknown) {
+			this.client.instrumentation?.emit("carbon.interaction.handler.error", {
+				handler: "component"
+			})
 			this.client.options?.testHooks?.emit?.({
 				type: "handler:error",
 				handler: "component",

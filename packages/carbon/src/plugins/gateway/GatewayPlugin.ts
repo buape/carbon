@@ -95,9 +95,18 @@ export class GatewayPlugin extends Plugin {
 		this.gatewayInfo = gatewayInfo
 		this.babyCache = new BabyCache()
 
-		this.monitor.on("metrics", (metrics: ConnectionMetrics) =>
+		this.monitor.on("metrics", (metrics: ConnectionMetrics) => {
 			this.emitter.emit("metrics", metrics)
-		)
+			this.client?.instrumentation.emit("carbon.gateway.metrics", {
+				latency_ms: metrics.latency,
+				uptime_ms: metrics.uptime,
+				reconnects: metrics.reconnects,
+				messages_received: metrics.messagesReceived,
+				messages_sent: metrics.messagesSent,
+				errors: metrics.errors,
+				zombie_connections: metrics.zombieConnections
+			})
+		})
 		this.monitor.on("warning", (warning: string) =>
 			this.emitter.emit("warning", warning)
 		)
@@ -124,25 +133,31 @@ export class GatewayPlugin extends Plugin {
 		this.client = client
 
 		if (!this.gatewayInfo) {
-			let response: Response
-			try {
-				response = await fetch("https://discord.com/api/v10/gateway/bot", {
-					headers: {
-						Authorization: `Bot ${client.options.token}`
+			this.gatewayInfo = await client.instrumentation.run(
+				"discord.gateway.discover",
+				{},
+				async () => {
+					let response: Response
+					try {
+						response = await fetch("https://discord.com/api/v10/gateway/bot", {
+							headers: {
+								Authorization: `Bot ${client.options.token}`
+							}
+						})
+					} catch (error) {
+						throw new Error(
+							`Failed to get gateway information from Discord: ${error instanceof Error ? error.message : String(error)}`,
+							{ cause: error }
+						)
 					}
-				})
-			} catch (error) {
-				throw new Error(
-					`Failed to get gateway information from Discord: ${error instanceof Error ? error.message : String(error)}`,
-					{ cause: error }
-				)
-			}
-			if (!response.ok) {
-				throw new Error(
-					`Failed to get gateway information from Discord: ${response.status} ${response.statusText}`
-				)
-			}
-			this.gatewayInfo = (await response.json()) as APIGatewayBotInfo
+					if (!response.ok) {
+						throw new Error(
+							`Failed to get gateway information from Discord: ${response.status} ${response.statusText}`
+						)
+					}
+					return (await response.json()) as APIGatewayBotInfo
+				}
+			)
 		}
 
 		if (this.options.shard) {
@@ -437,6 +452,10 @@ export class GatewayPlugin extends Plugin {
 
 		this.ws.send(encodedPayload)
 		this.monitor.recordMessageSent()
+		this.client?.instrumentation.emit("carbon.gateway.send", {
+			opcode: payload.op,
+			payload_bytes: payloadSize
+		})
 
 		if (!isEssentialEvent) {
 			this.rateLimit.recordEvent()
@@ -562,7 +581,15 @@ export class GatewayPlugin extends Plugin {
 	}
 
 	private setConnectionState(state: GatewayConnectionState) {
+		const previous = this.connectionState.kind
 		this.connectionState = state
+		if (previous !== state.kind) {
+			this.client?.instrumentation.emit("carbon.gateway.connection.state", {
+				previous_state: previous,
+				state: state.kind,
+				reconnect: state.kind === "reconnecting"
+			})
+		}
 	}
 
 	private getSessionState(): GatewaySessionState {
@@ -763,6 +790,9 @@ export class GatewayPlugin extends Plugin {
 	 */
 	private handleDispatch(payload: GatewayDispatchPayload): void {
 		const type = payload.t as ListenerEventType
+		this.client?.instrumentation.emit("carbon.gateway.dispatch", {
+			event_type: type
+		})
 		if (!listenerEvents.has(type)) {
 			return
 		}

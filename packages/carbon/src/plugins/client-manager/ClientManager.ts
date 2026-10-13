@@ -455,7 +455,11 @@ export class ClientManager {
 			}
 		}
 
-		return route.handler(req, ctx)
+		return await client.instrumentation.run(
+			"http.server.request",
+			{ "http.request.method": req.method },
+			() => route.handler(req, ctx)
+		)
 	}
 
 	protected async handleProxyRequest(
