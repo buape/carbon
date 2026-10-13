@@ -25,7 +25,8 @@ const ignoredUsers = new Set([
 	"thewilloftheshadow",
 	"rubyrunsstuff",
 	"kevinatbuape",
-	"buapebot"
+	"buapebot",
+	"renovate"
 ])
 
 const changelogFunctions: ChangelogFunctions = {
