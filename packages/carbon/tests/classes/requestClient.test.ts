@@ -105,7 +105,7 @@ test("RequestClient: includes method and url on RateLimitError", async () => {
 		expect(error).toBeInstanceOf(RateLimitError)
 		const rateLimit = error as RateLimitError
 		expect(rateLimit.method).toBe("GET")
-		expect(rateLimit.url).toBe("https://discord.com/api/rate-limited")
+		expect(rateLimit.url).toBe("https://discord.com/api/v10/rate-limited")
 	}
 })
 

@@ -1,3 +1,4 @@
+import packageJson from "../../package.json" with { type: "json" }
 import { DiscordError } from "../errors/DiscordError.js"
 import { RateLimitError } from "../errors/RatelimitError.js"
 import { serializeRequestBody } from "../internals/RequestBody.js"
@@ -46,7 +47,7 @@ export type RequestClientOptions = {
 	apiVersion?: number
 	/**
 	 * The user agent to use when making requests.
-	 * @default DiscordBot (https://github.com/buape/carbon, v0.0.0)
+	 * @default DiscordBot (https://github.com/buape/carbon, v<package version>)
 	 */
 	userAgent?: string
 	/**
@@ -111,7 +112,7 @@ const defaultOptions: Required<
 	tokenHeader: "Bot",
 	baseUrl: "https://discord.com/api",
 	apiVersion: 10,
-	userAgent: "DiscordBot (https://github.com/buape/carbon, v0.0.0)",
+	userAgent: `DiscordBot (https://github.com/buape/carbon, v${packageJson.version})`,
 	timeout: 15000,
 	queueRequests: true,
 	maxQueueSize: 1000,
@@ -481,7 +482,11 @@ export class RequestClient {
 					.join("&")
 			: ""
 		const queryString = serializedQuery ? `?${serializedQuery}` : ""
-		const url = `${this.options.baseUrl}${path}${queryString}`
+		const baseUrl = (this.options.baseUrl ?? defaultOptions.baseUrl)
+			.replace(/\/v\d+\/?$/, "")
+			.replace(/\/+$/, "")
+		const apiVersion = this.options.apiVersion ?? defaultOptions.apiVersion
+		const url = `${baseUrl}/v${apiVersion}${path}${queryString}`
 		const originalRequest = new Request(url, { method })
 		const headers =
 			this.token === "webhook"
@@ -489,6 +494,10 @@ export class RequestClient {
 				: new Headers({
 						Authorization: `${this.options.tokenHeader} ${this.token}`
 					})
+		headers.set(
+			"User-Agent",
+			this.options.userAgent ?? defaultOptions.userAgent
+		)
 
 		if (data?.headers) {
 			for (const [key, value] of Object.entries(data.headers)) {
