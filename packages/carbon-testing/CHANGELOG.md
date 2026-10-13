@@ -1,5 +1,11 @@
 # @buape/carbon-testing
 
+## 0.1.0
+
+### Minor Changes
+
+- [#398](https://github.com/buape/carbon/pull/398) [`a608d3f`](https://github.com/buape/carbon/commit/a608d3ffd84aa5a9500672052f67a6aeacd06f66) - feat: add a testing package to carbon's suite
+
 ## 0.0.0-beta-20260706053143
 
 ### Minor Changes
