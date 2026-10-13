@@ -9,11 +9,10 @@
         - any-glob-to-any-file: ["packages/create-carbon/**"]
 "plugin: gateway":
     - changed-files:
-        - any-glob-to-any-file: [
-            "packages/carbon/src/plugins/gateway-forwarder",
-            "packages/carbon/src/plugins/gateway",
-            "packages/carbon/src/plugins/sharding"
-        ]
+        - any-glob-to-any-file:
+            - "packages/carbon/src/plugins/gateway-forwarder"
+            - "packages/carbon/src/plugins/gateway"
+            - "packages/carbon/src/plugins/sharding"
 "package: linked-roles":
     - changed-files:
         - any-glob-to-any-file: ["packages/carbon/src/plugins/linked-roles"]
