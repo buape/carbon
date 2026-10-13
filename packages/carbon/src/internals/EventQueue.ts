@@ -8,6 +8,12 @@ import type {
 type RuntimeProfile = "serverless" | "persistent"
 type EventQueueLane = "critical" | "standard" | "background"
 
+const eventQueueLanes = [
+	"critical",
+	"standard",
+	"background"
+] as const satisfies readonly EventQueueLane[]
+
 interface QueuedEvent<T extends keyof ListenerEventRawData> {
 	payload: ListenerEventRawData[T] & ListenerEventAdditionalData
 	type: T
@@ -167,91 +173,59 @@ export class EventQueue {
 			options.listenerConcurrency ?? 10
 		)
 
-		const laneInput = {
-			critical: options.lanes?.critical,
-			standard: options.lanes?.standard,
-			background: options.lanes?.background
+		const fallbacks = {
+			maxQueueSize: fallbackQueueSize,
+			maxConcurrency: fallbackConcurrency,
+			listenerTimeout: fallbackTimeout,
+			listenerConcurrency: fallbackListenerConcurrency
 		}
 
 		this.options = {
-			lanes: {
-				critical: {
-					maxQueueSize:
-						laneInput.critical?.maxQueueSize ??
-						options.maxQueueSize ??
-						defaults.critical.maxQueueSize ??
-						fallbackQueueSize,
-					maxConcurrency:
-						laneInput.critical?.maxConcurrency ??
-						options.maxConcurrency ??
-						defaults.critical.maxConcurrency ??
-						fallbackConcurrency,
-					listenerTimeout:
-						laneInput.critical?.listenerTimeout ??
-						options.listenerTimeout ??
-						defaults.critical.listenerTimeout ??
-						fallbackTimeout,
-					listenerConcurrency:
-						laneInput.critical?.listenerConcurrency ??
-						options.listenerConcurrency ??
-						defaults.critical.listenerConcurrency ??
-						fallbackListenerConcurrency,
-					maxEventAgeMs:
-						laneInput.critical?.maxEventAgeMs ?? defaults.critical.maxEventAgeMs
-				},
-				standard: {
-					maxQueueSize:
-						laneInput.standard?.maxQueueSize ??
-						options.maxQueueSize ??
-						defaults.standard.maxQueueSize ??
-						fallbackQueueSize,
-					maxConcurrency:
-						laneInput.standard?.maxConcurrency ??
-						options.maxConcurrency ??
-						defaults.standard.maxConcurrency ??
-						fallbackConcurrency,
-					listenerTimeout:
-						laneInput.standard?.listenerTimeout ??
-						options.listenerTimeout ??
-						defaults.standard.listenerTimeout ??
-						fallbackTimeout,
-					listenerConcurrency:
-						laneInput.standard?.listenerConcurrency ??
-						options.listenerConcurrency ??
-						defaults.standard.listenerConcurrency ??
-						fallbackListenerConcurrency,
-					maxEventAgeMs:
-						laneInput.standard?.maxEventAgeMs ?? defaults.standard.maxEventAgeMs
-				},
-				background: {
-					maxQueueSize:
-						laneInput.background?.maxQueueSize ??
-						options.maxQueueSize ??
-						defaults.background.maxQueueSize ??
-						fallbackQueueSize,
-					maxConcurrency:
-						laneInput.background?.maxConcurrency ??
-						options.maxConcurrency ??
-						defaults.background.maxConcurrency ??
-						fallbackConcurrency,
-					listenerTimeout:
-						laneInput.background?.listenerTimeout ??
-						options.listenerTimeout ??
-						defaults.background.listenerTimeout ??
-						fallbackTimeout,
-					listenerConcurrency:
-						laneInput.background?.listenerConcurrency ??
-						options.listenerConcurrency ??
-						defaults.background.listenerConcurrency ??
-						fallbackListenerConcurrency,
-					maxEventAgeMs:
-						laneInput.background?.maxEventAgeMs ??
-						defaults.background.maxEventAgeMs
-				}
-			},
+			lanes: Object.fromEntries(
+				eventQueueLanes.map((lane) => [
+					lane,
+					this.resolveLaneOptions(
+						options.lanes?.[lane],
+						options,
+						defaults[lane],
+						fallbacks
+					)
+				])
+			) as Record<EventQueueLane, Required<EventQueueLaneOptions>>,
 			yieldIntervalMs: options.yieldIntervalMs ?? 0,
 			logSlowListeners: options.logSlowListeners ?? false,
 			slowListenerThreshold: options.slowListenerThreshold ?? 1000
+		}
+	}
+
+	private resolveLaneOptions(
+		input: EventQueueLaneOptions | undefined,
+		globalOptions: EventQueueOptions,
+		defaults: Required<EventQueueLaneOptions>,
+		fallbacks: Omit<Required<EventQueueLaneOptions>, "maxEventAgeMs">
+	): Required<EventQueueLaneOptions> {
+		return {
+			maxQueueSize:
+				input?.maxQueueSize ??
+				globalOptions.maxQueueSize ??
+				defaults.maxQueueSize ??
+				fallbacks.maxQueueSize,
+			maxConcurrency:
+				input?.maxConcurrency ??
+				globalOptions.maxConcurrency ??
+				defaults.maxConcurrency ??
+				fallbacks.maxConcurrency,
+			listenerTimeout:
+				input?.listenerTimeout ??
+				globalOptions.listenerTimeout ??
+				defaults.listenerTimeout ??
+				fallbacks.listenerTimeout,
+			listenerConcurrency:
+				input?.listenerConcurrency ??
+				globalOptions.listenerConcurrency ??
+				defaults.listenerConcurrency ??
+				fallbacks.listenerConcurrency,
+			maxEventAgeMs: input?.maxEventAgeMs ?? defaults.maxEventAgeMs
 		}
 	}
 
@@ -447,25 +421,21 @@ export class EventQueue {
 	}
 
 	getMetrics() {
-		const queueSizeByLane = {
-			critical: this.queues.critical.length,
-			standard: this.queues.standard.length,
-			background: this.queues.background.length
-		}
+		const queueSizeByLane = Object.fromEntries(
+			eventQueueLanes.map((lane) => [lane, this.queues[lane].length])
+		) as Record<EventQueueLane, number>
 		const processingByLane = {
 			...this.processingByLane
 		}
-		const oldestAgeMsByLane = {
-			critical: this.getOldestAgeMs("critical"),
-			standard: this.getOldestAgeMs("standard"),
-			background: this.getOldestAgeMs("background")
-		}
+		const oldestAgeMsByLane = Object.fromEntries(
+			eventQueueLanes.map((lane) => [lane, this.getOldestAgeMs(lane)])
+		) as Record<EventQueueLane, number>
 
 		return {
-			queueSize:
-				queueSizeByLane.critical +
-				queueSizeByLane.standard +
-				queueSizeByLane.background,
+			queueSize: eventQueueLanes.reduce(
+				(total, lane) => total + queueSizeByLane[lane],
+				0
+			),
 			queueSizeByLane,
 			processingByLane,
 			processed: this.processedCount,
@@ -479,22 +449,20 @@ export class EventQueue {
 	}
 
 	hasCapacity(): boolean {
-		return (
-			this.queues.critical.length < this.options.lanes.critical.maxQueueSize ||
-			this.queues.standard.length < this.options.lanes.standard.maxQueueSize ||
-			this.queues.background.length < this.options.lanes.background.maxQueueSize
+		return eventQueueLanes.some(
+			(lane) => this.queues[lane].length < this.options.lanes[lane].maxQueueSize
 		)
 	}
 
 	getUtilization(): number {
-		const totalQueued =
-			this.queues.critical.length +
-			this.queues.standard.length +
-			this.queues.background.length
-		const totalCapacity =
-			this.options.lanes.critical.maxQueueSize +
-			this.options.lanes.standard.maxQueueSize +
-			this.options.lanes.background.maxQueueSize
+		const totalQueued = eventQueueLanes.reduce(
+			(total, lane) => total + this.queues[lane].length,
+			0
+		)
+		const totalCapacity = eventQueueLanes.reduce(
+			(total, lane) => total + this.options.lanes[lane].maxQueueSize,
+			0
+		)
 		return totalQueued / totalCapacity
 	}
 

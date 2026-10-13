@@ -18,6 +18,20 @@ class WildcardButton extends Button {
 	label = "Any"
 }
 
+class ExactButton extends Button {
+	customId = "exact-button"
+	label = "Exact"
+}
+
+class CustomParserButton extends Button {
+	customId = "custom:registered"
+	label = "Custom"
+	customIdParser = (id: string) => ({
+		key: id.split(":")[1] ?? id,
+		data: {}
+	})
+}
+
 class WildcardSelectMenu extends StringSelectMenu {
 	customId = "*"
 	options = [
@@ -152,4 +166,31 @@ test("modal handler records and swallows errors when test hooks disable rethrow"
 		handler: "modal",
 		error: expect.any(Error)
 	})
+})
+
+test("findComponent prefers exact keyed lookup before wildcard fallback", () => {
+	const handler = new ComponentHandler({} as Client)
+	const exact = new ExactButton()
+	const wildcard = new WildcardButton()
+
+	handler.registerComponent(wildcard)
+	handler.registerComponent(exact)
+
+	expect(handler.findComponent("exact-button", ComponentType.Button)).toBe(
+		exact
+	)
+	expect(handler.findComponent("other-button", ComponentType.Button)).toBe(
+		wildcard
+	)
+})
+
+test("findComponent preserves custom parser lookup", () => {
+	const handler = new ComponentHandler({} as Client)
+	const custom = new CustomParserButton()
+
+	handler.registerComponent(custom)
+
+	expect(handler.findComponent("custom:registered", ComponentType.Button)).toBe(
+		custom
+	)
 })
