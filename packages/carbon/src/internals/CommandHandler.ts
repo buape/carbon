@@ -154,6 +154,15 @@ export class CommandHandler extends Base {
 				interaction.setDefaultEphemeral(command.ephemeral(interaction))
 			}
 
+			const shouldDefer =
+				typeof command.defer === "function"
+					? command.defer(interaction)
+					: command.defer
+
+			if (shouldDefer) {
+				await interaction.defer()
+			}
+
 			for (const middleware of middlewares) {
 				const middlewareResult = await middleware.before?.({
 					client: this.client,
@@ -168,16 +177,6 @@ export class CommandHandler extends Base {
 					status = "middleware-blocked"
 					return false
 				}
-			}
-
-			// Resolve defer setting if it's a function
-			const shouldDefer =
-				typeof command.defer === "function"
-					? command.defer(interaction)
-					: command.defer
-
-			if (shouldDefer) {
-				await interaction.defer()
 			}
 			const preCheckResult = await command.preCheck(interaction)
 			if (preCheckResult !== true) {

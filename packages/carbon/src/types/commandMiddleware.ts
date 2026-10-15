@@ -57,7 +57,7 @@ export type CommandMiddlewareAfterContext = CommandMiddlewareBaseContext & {
 
 export type CommandMiddleware = {
 	/**
-	 * Runs before command execution (`defer`, `preCheck`, and `run`).
+	 * Runs before `preCheck()` and `run()`, but after automatic defer.
 	 * Return `false` to block command execution.
 	 */
 	before?(

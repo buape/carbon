@@ -44,7 +44,7 @@ export abstract class BaseCommand {
 	 */
 	descriptionLocalizations?: Record<string, string>
 	/**
-	 * Whether the command response should be automatically deferred.
+	 * Whether Carbon should automatically defer the interaction before command middleware runs.
 	 * Can be a boolean or a function that receives the interaction and returns a boolean.
 	 */
 	defer: boolean | ConditionalCommandOption = false
@@ -93,7 +93,7 @@ export abstract class BaseCommand {
 	/**
 	 * Middleware hooks that run around this command's lifecycle.
 	 *
-	 * - `before` runs before `defer`, `preCheck`, and `run`
+	 * - `before` runs after automatic defer (when enabled) and before `preCheck` and `run`; otherwise, it can defer manually
 	 * - `after` runs in a `finally` block with status and timing metadata
 	 */
 	middlewares?: CommandMiddleware[]
