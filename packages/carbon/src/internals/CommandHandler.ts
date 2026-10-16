@@ -256,6 +256,7 @@ export class CommandHandler extends Base {
 
 		try {
 			const command = this.getCommand(rawInteraction)
+			if ((await command.preCheck(interaction)) !== true) return false
 
 			// Check if the focused option has its own autocomplete function
 			const focusedOption = interaction.options.getFocused()

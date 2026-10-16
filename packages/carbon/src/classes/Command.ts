@@ -52,14 +52,14 @@ export abstract class Command extends BaseCommand {
 	}
 
 	/**
-	 * The function that is called before the command is ran.
+	 * The function that is called before the command runs or handles autocomplete.
 	 * You can use this to run things such as cooldown checks, extra permission checks, etc.
-	 * If this returns anything other than `true`, the command will not run.
+	 * If this returns anything other than `true`, the command or autocomplete handler will not run.
 	 * @param interaction The interaction that triggered the command
 	 * @returns Whether the command should continue to run
 	 */
 	public async preCheck(
-		interaction: CommandInteraction
+		interaction: CommandInteraction | AutocompleteInteraction
 	): Promise<true | unknown> {
 		return !!interaction
 	}

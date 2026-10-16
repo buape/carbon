@@ -50,10 +50,12 @@ export class ModalHandler extends Base {
 
 			if (!modal) return false
 
-			return await modal.run(
-				new ModalInteraction(this.client, data, {}),
-				modal.customIdParser(data.data.custom_id).data
-			)
+			const interaction = new ModalInteraction(this.client, data, {})
+			const parsed = modal.customIdParser(data.data.custom_id)
+			if ((await modal.preCheck(interaction, parsed.data)) !== true)
+				return false
+
+			return await modal.run(interaction, parsed.data)
 		} catch (error: unknown) {
 			this.client.instrumentation?.emit("carbon.interaction.handler.error", {
 				handler: "modal"

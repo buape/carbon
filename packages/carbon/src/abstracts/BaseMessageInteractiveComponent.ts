@@ -58,6 +58,21 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 
 	abstract serialize: () => APIComponentInMessageActionRow
 
+	/**
+	 * The function that is called before the component runs.
+	 * You can use this to run things such as cooldown checks, extra permission checks, etc.
+	 * If this returns anything other than `true`, the component will not run.
+	 * @param interaction The interaction that triggered the component
+	 * @param data The data parsed from the component's custom ID
+	 * @returns Whether the component should continue to run
+	 */
+	preCheck(
+		_interaction: BaseComponentInteraction,
+		_data: ComponentData
+	): unknown | Promise<unknown> {
+		return true
+	}
+
 	run(
 		interaction: BaseComponentInteraction,
 		data: ComponentData

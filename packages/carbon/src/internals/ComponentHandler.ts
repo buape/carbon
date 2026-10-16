@@ -112,6 +112,8 @@ export class ComponentHandler extends Base {
 		interaction: BaseComponentInteraction,
 		parsed: ReturnType<BaseMessageInteractiveComponent["customIdParser"]>
 	): Promise<void> {
+		if ((await component.preCheck(interaction, parsed.data)) !== true) return
+
 		if (typeof component.ephemeral === "function") {
 			interaction.setDefaultEphemeral(component.ephemeral(interaction))
 		}

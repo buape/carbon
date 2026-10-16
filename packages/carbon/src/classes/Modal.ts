@@ -41,6 +41,21 @@ export abstract class Modal {
 	 */
 	customIdParser: (id: string) => ComponentParserResult = parseCustomId
 
+	/**
+	 * The function that is called before the modal runs.
+	 * You can use this to run things such as cooldown checks, extra permission checks, etc.
+	 * If this returns anything other than `true`, the modal will not run.
+	 * @param interaction The interaction that triggered the modal
+	 * @param data The data parsed from the modal's custom ID
+	 * @returns Whether the modal should continue to run
+	 */
+	preCheck(
+		_interaction: ModalInteraction,
+		_data: ComponentData
+	): unknown | Promise<unknown> {
+		return true
+	}
+
 	abstract run(
 		interaction: ModalInteraction,
 		data: ComponentData
