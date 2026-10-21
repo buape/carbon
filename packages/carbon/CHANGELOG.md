@@ -1,5 +1,11 @@
 # @buape/carbon
 
+## 0.18.0
+
+### Minor Changes
+
+- [`f161e91`](https://github.com/buape/carbon/commit/f161e913abe91b73ebffabf0fa6d424af96a999b) - feat: add precheck support for autocomplete, components, and modals
+
 ## 0.17.0
 
 ### Minor Changes
