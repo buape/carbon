@@ -1,0 +1,190 @@
+---
+title: Neon Functions
+description: Learn how to set up and deploy your Carbon bot using Neon Functions, including development and production environments.
+---
+
+export const Step = ({ title, children }) => (
+	<div>
+		{title ? <h3>{title}</h3> : null}
+		{children}
+	</div>
+)
+
+<CardGroup>
+		<Card title="Automatic Setup"
+				href="/getting-started/basic-setup#automatic-setup">
+Quickly set up your Carbon bot with minimal configuration using the automatic setup guide.
+</Card>
+		<Card title="Other Runtimes"
+				href="/adapters">
+Explore how to set up and deploy your Carbon bot using different runtimes.
+</Card>
+</CardGroup>
+
+[Neon Functions](https://neon.com/docs/compute/functions/overview) are serverless compute units you deploy onto a Neon branch, so your bot runs next to your Postgres data. They run web-standard `fetch` handlers on a long-lived Node.js runtime, the same handler shape Carbon's fetch adapter produces.
+
+<Callout type="warning">
+Neon Functions are in **Beta** and, for now, only run in the AWS US East (Ohio) (`aws-us-east-2`) region. See the [Neon Functions docs](https://neon.com/docs/compute/functions/get-started) for the latest status.
+</Callout>
+
+## Manual Setup
+
+This is a continuation of the [Basic Setup](/getting-started/basic-setup) guide. If you haven't already, make sure to follow the steps in the guide before proceeding.
+
+<Steps>
+
+<Step title="Create a Fetch Handler">
+
+The `@buape/carbon/adapters/fetch` package creates a handler that you export as your function's default export. Neon Functions treat any module whose default export has a `fetch(request)` method as a function, so Carbon's handler works as-is.
+
+```ts title="functions/discord.ts"
+import { createHandler } from '@buape/carbon/adapters/fetch'
+
+const client = new Client( ... )
+
+const handler = createHandler(client)
+export default {
+	fetch: (request: Request) => handler(request, {})
+}
+```
+
+<Callout type="info">
+Unlike Cloudflare Workers, Neon Functions run on a persistent Node.js runtime, so you can read your secrets from `process.env` directly. There's no need for a separate entry point or the `globalThis` workaround.
+</Callout>
+
+</Step>
+
+<Step title="Declare the Function in neon.ts">
+
+Create a `neon.ts` file at your project root. This declares the functions that `neon dev` and `neon deploy` read. The key is the function's slug, a permanent identifier used in CLI commands and in the public URL.
+
+```ts title="neon.ts"
+import { defineConfig } from '@neon/config/v1'
+
+export default defineConfig({
+	// preview groups features still in beta, including functions.
+	preview: {
+		functions: {
+			discord: {
+				name: 'Carbon Bot',
+				source: './functions/discord.ts'
+			}
+		}
+	}
+})
+```
+
+</Step>
+
+<Step title="Link Your Project">
+
+Link the directory to your Neon project. This writes a `.neon` file and pulls the branch's environment variables into a local `.env`.
+
+```bash
+neon link
+```
+
+</Step>
+
+</Steps>
+
+## Running in Development
+
+<Steps>
+<Step title="Start a Proxy">
+
+Discord requires a public URL to route interactions to your project, so you'll need a proxy. The simplest option is [`localtunnel`](https://www.npmjs.com/package/localtunnel). The following steps refer to this public URL as `PUBLIC_URL`.
+
+```bash
+npx localtunnel
+```
+
+<Callout type="info">
+You can use the `--subdomain` flag to specify a custom subdomain for your proxy.
+</Callout>
+</Step>
+
+<Step title="Set Environment Variables">
+
+Grab your Discord application's secrets from the [Developer Portal](https://discord.com/developers/applications) and paste them into your `.env` file. Neon injects `DATABASE_URL` and other branch-scoped variables automatically, so you only need to add your own values, such as the Discord secrets.
+
+</Step>
+
+<Step title="Configure Portal URLs">
+
+Now that you have a public URL, navigate back to the [Discord Developer Portal](https://discord.com/developers/applications) and set the "Interactions Endpoint URL" to `<BASE_URL>/interactions`.
+
+</Step>
+
+<Step title="Invite your App">
+
+You'll need to invite your app to your server to interact with it. To do so, navigate to the Installation tab of your app in the [Discord Developer Portal](https://discord.com/developers/applications).
+
+</Step>
+
+<Step title="Run the Bot">
+
+`neon dev` serves every function declared in `neon.ts` with hot reload, injecting `DATABASE_URL` and other Neon env vars from the linked branch. Point your proxy at the printed local URL.
+
+```bash
+neon dev
+```
+
+</Step>
+
+<Step title="Deploy Your Commands to Discord">
+
+To deploy your commands to Discord, navigate to `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>` in your browser. This sends your command data to Discord to register them with your bot.
+</Step>
+
+</Steps>
+
+<Callout type="info">
+To deploy commands to specific guilds, add a `guildIds` property to your command classes with an array of guild IDs. To deploy all commands to certain guilds during development, set the `devGuilds` option in your client config (e.g., from an environment variable). Commands with `guildIds` are only available in those guilds; commands without are deployed globally. If `devGuilds` is set, all commands are deployed to those guilds instead of globally.
+</Callout>
+
+## Deploying to Production
+
+<Steps>
+<Step title="Deploy the Function">
+
+`neon deploy` reads `neon.ts`, bundles each function with esbuild, uploads it and waits for the deployment to complete.
+
+```bash
+neon deploy
+```
+
+<Callout type="info">
+To deploy a single file without a `neon.ts`, deploy it by slug instead: `neon functions deploy discord --src functions/discord.ts`.
+</Callout>
+</Step>
+
+<Step title="Set Environment Variables">
+
+Pass your Discord secrets at deploy time with the repeatable `--env` flag, or declare them in the `env` field of your `neon.ts`. Neon injects branch credentials like `DATABASE_URL` automatically, so you don't need to ship those.
+
+```bash
+neon functions deploy discord --src functions/discord.ts \
+	--env DISCORD_PUBLIC_KEY=... \
+	--env DISCORD_CLIENT_ID=... \
+	--env DISCORD_BOT_TOKEN=... \
+	--env BASE_URL=...
+```
+</Step>
+
+<Step title="Get Your Public URL">
+
+Once the deployment reaches `completed`, retrieve the function's public `invocation_url`.
+
+```bash
+neon functions get discord
+```
+
+Use this URL as your `BASE_URL`, and remember to [configure your portal URLs](#configure-portal-urls) to point the "Interactions Endpoint URL" at `<BASE_URL>/interactions`.
+</Step>
+
+</Steps>
+
+<Callout type="info">
+Remember to deploy your commands to Discord using `<BASE_URL>/deploy?secret=<DEPLOY_SECRET>`.
+</Callout>
