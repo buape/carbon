@@ -78,8 +78,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/carbon
       '@hono/node-server':
-        specifier: 2.1.1
-        version: 2.1.1(hono@4.12.26)
+        specifier: 2.1.5
+        version: 2.1.5(hono@4.12.26)
 
   apps/socketo:
     dependencies:
@@ -90,8 +90,8 @@ importers:
         specifier: ^0.19.2
         version: 0.19.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@hono/node-server':
-        specifier: 2.1.1
-        version: 2.1.1(hono@4.12.26)
+        specifier: 2.1.5
+        version: 2.1.5(hono@4.12.26)
 
   packages/carbon:
     dependencies:
@@ -102,8 +102,8 @@ importers:
         specifier: '>=24.0.0'
         version: 26.0.0
       discord-api-types:
-        specifier: 0.38.55
-        version: 0.38.55
+        specifier: 0.38.56
+        version: 0.38.56
     devDependencies:
       ioredis:
         specifier: ^5.6.1
@@ -122,8 +122,8 @@ importers:
   packages/create-carbon:
     dependencies:
       '@clack/prompts':
-        specifier: 1.8.0
-        version: 1.8.0
+        specifier: 1.8.1
+        version: 1.8.1
       handlebars:
         specifier: 4.7.10
         version: 4.7.10
@@ -308,12 +308,12 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
-  '@clack/core@1.5.0':
-    resolution: {integrity: sha512-zNikCcd8BbcEvzzG1sbXFrRHFk5kHPrpwZwksPvf9qyQO1Teb7JaXaOAxXZei9nZLDW0gaZawiuTCji88bTBhw==}
+  '@clack/core@1.5.1':
+    resolution: {integrity: sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ==}
     engines: {node: '>= 20.12.0'}
 
-  '@clack/prompts@1.8.0':
-    resolution: {integrity: sha512-PXzLZ8N34rxmuo4dJg3xtOXhcBse94qGjDqsteoEYrFrrZ5FSjIGwMAuOcv64ln8rHVBBD06XeVGr+/JX+plcA==}
+  '@clack/prompts@1.8.1':
+    resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
 
   '@cloudflare/kv-asset-handler@0.5.0':
@@ -586,11 +586,11 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/node-server@2.1.1':
-    resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==}
+  '@hono/node-server@2.1.5':
+    resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: ^4
+      hono: ^4 || ^5.0.0-0
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -1649,8 +1649,8 @@ packages:
   discord-api-types@0.38.49:
     resolution: {integrity: sha512-XnqcWmnFZFAE8ZM8SHAw9DIV8D3Or00rMQ8iQLotrEA2PmXhl+ykaf6L6q4l474hrSUH1JaYcv+iOMRWp2p6Tg==}
 
-  discord-api-types@0.38.55:
-    resolution: {integrity: sha512-ytuaRTzdnHUCXJ6KjL9MrItQX0xKncBKEeYI1Bst4+ud47eejH3cG6gaesYakjpPcUhh68XYS2YwGq3mmujFsA==}
+  discord-api-types@0.38.56:
+    resolution: {integrity: sha512-Hti4RZsGvF5C7SM8rF2MDHtIm0Hyfrlk84GpEA29nj91tvVVMvX+oQSCodu10t2ZcjFGofq8TX0YyC04B2E69Q==}
 
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
@@ -3501,14 +3501,14 @@ snapshots:
       human-id: 4.2.0
       prettier: 2.8.8
 
-  '@clack/core@1.5.0':
+  '@clack/core@1.5.1':
     dependencies:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@clack/prompts@1.8.0':
+  '@clack/prompts@1.8.1':
     dependencies:
-      '@clack/core': 1.5.0
+      '@clack/core': 1.5.1
       fast-string-width: 3.0.2
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
@@ -3690,7 +3690,7 @@ snapshots:
     dependencies:
       hono: 4.12.26
 
-  '@hono/node-server@2.1.1(hono@4.12.26)':
+  '@hono/node-server@2.1.5(hono@4.12.26)':
     dependencies:
       hono: 4.12.26
 
@@ -4647,7 +4647,7 @@ snapshots:
 
   discord-api-types@0.38.49: {}
 
-  discord-api-types@0.38.55: {}
+  discord-api-types@0.38.56: {}
 
   dompurify@3.4.11:
     optionalDependencies:
