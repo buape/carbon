@@ -2,7 +2,7 @@ import {
 	type APIApplicationCommandSubcommandOption,
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	type RESTPostAPIApplicationCommandsJSONBody
+	type RESTPostAPIChatInputApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import { BaseCommand } from "../abstracts/BaseCommand.js"
 import type { Command } from "./Command.js"
@@ -22,7 +22,7 @@ export abstract class CommandWithSubcommands extends BaseCommand {
 	/**
 	 * @internal
 	 */
-	serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"] {
+	serializeOptions(): RESTPostAPIChatInputApplicationCommandsJSONBody["options"] {
 		return this.subcommands.map((subcommand) => ({
 			...subcommand.serialize(),
 			type: ApplicationCommandOptionType.Subcommand

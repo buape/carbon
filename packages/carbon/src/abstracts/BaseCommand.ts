@@ -1,7 +1,8 @@
 import {
 	ApplicationCommandType,
 	type EntryPointCommandHandlerType,
-	type RESTPostAPIApplicationCommandsJSONBody
+	type RESTPostAPIApplicationCommandsJSONBody,
+	type RESTPostAPIChatInputApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
 import {
@@ -167,7 +168,6 @@ export abstract class BaseCommand {
 			name: this.name,
 			name_localizations: this.nameLocalizations,
 			type: this.type,
-			options: this.serializeOptions(),
 			nsfw: this.nsfw,
 			integration_types: this.integrationTypes,
 			contexts: this.contexts,
@@ -185,7 +185,7 @@ export abstract class BaseCommand {
 	 * Serializes the options of the command into a JSON object that can be sent to Discord
 	 * @internal
 	 */
-	abstract serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"]
+	abstract serializeOptions(): RESTPostAPIChatInputApplicationCommandsJSONBody["options"]
 
 	async getMention(client: Client): Promise<string> {
 		if (this.id) return `</${this.name}:${this.id}>`
