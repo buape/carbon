@@ -1,7 +1,7 @@
 import {
 	ApplicationCommandType,
 	EntryPointCommandHandlerType,
-	type RESTPostAPIApplicationCommandsJSONBody
+	type RESTPostAPIChatInputApplicationCommandsJSONBody
 } from "discord-api-types/v10"
 import { BaseCommand } from "../abstracts/BaseCommand.js"
 
@@ -13,7 +13,7 @@ export abstract class EntryPointCommand extends BaseCommand {
 	handler: EntryPointCommandHandlerType =
 		EntryPointCommandHandlerType.DiscordLaunchActivity
 
-	serializeOptions(): RESTPostAPIApplicationCommandsJSONBody["options"] {
+	serializeOptions(): RESTPostAPIChatInputApplicationCommandsJSONBody["options"] {
 		return undefined
 	}
 }
