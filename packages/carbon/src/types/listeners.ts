@@ -608,11 +608,11 @@ export type ListenerEventData = {
 	}
 	[ListenerEvent.VoiceChannelStartTimeUpdate]: GatewayVoiceChannelStartTimeUpdateDispatchData & {
 		guild: Guild<true>
-		channel: AnyChannel<true>
+		channel?: AnyChannel<true>
 	}
 	[ListenerEvent.VoiceChannelStatusUpdate]: GatewayVoiceChannelStatusUpdateDispatchData & {
 		guild: Guild<true>
-		channel: AnyChannel<true>
+		channel?: AnyChannel<true>
 	}
 	[ListenerEvent.VoiceServerUpdate]: GatewayVoiceServerUpdateDispatchData & {
 		guild: Guild<true>

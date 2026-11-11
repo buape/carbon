@@ -140,6 +140,12 @@ export class ComponentHandler extends Base {
 		data: APIMessageComponentInteraction
 	) {
 		try {
+			if (
+				!messageComponentTypes.some((type) => type === data.data.component_type)
+			) {
+				return
+			}
+
 			const oneOffComponent = this.oneOffComponents.get(
 				`${data.message.id}-${data.message.channel_id}`
 			)

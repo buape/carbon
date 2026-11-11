@@ -114,7 +114,7 @@ export abstract class BaseGuildChannel<
 			rawData.parent_id
 		) {
 			const parent = await this.client.fetchChannel(rawData.parent_id)
-			if (!parent.isGuildBased()) {
+			if (!parent?.isGuildBased()) {
 				throw new Error(
 					"Cannot resolve thread permissions without a guild parent"
 				)

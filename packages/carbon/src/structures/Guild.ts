@@ -607,13 +607,13 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 			keyof ChannelTypeMap
 	>(
 		data: Omit<RESTPostAPIGuildChannelJSONBody, "type"> & { type: T }
-	): Promise<ChannelTypeMap[T]>
+	): Promise<ChannelTypeMap[T] | undefined>
 	async createChannel(
 		data: Omit<RESTPostAPIGuildChannelJSONBody, "type"> & { type?: undefined }
-	): Promise<ChannelTypeMap[ChannelType.GuildText]>
+	): Promise<ChannelTypeMap[ChannelType.GuildText] | undefined>
 	async createChannel(
 		data: RESTPostAPIGuildChannelJSONBody
-	): Promise<AnyChannel> {
+	): Promise<AnyChannel | undefined> {
 		const channel = (await this.client.rest.post(
 			Routes.guildChannels(this.id),
 			{
@@ -773,9 +773,10 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 				this.client.cache.channels.set(channel.id, channel)
 			)
 		)
-		const channelObjects = channels.map((channel) =>
-			channelFactory(this.client, channel)
-		)
+		const channelObjects = channels.flatMap((channel) => {
+			const parsed = channelFactory(this.client, channel)
+			return parsed ? [parsed] : []
+		})
 
 		return channelObjects
 	}
