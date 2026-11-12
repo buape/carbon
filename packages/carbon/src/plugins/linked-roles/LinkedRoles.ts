@@ -163,6 +163,13 @@ export class LinkedRoles extends Plugin {
 	private async getMetadataFromCheckers(userId: UserId) {
 		const result: Record<string, unknown> = {}
 		for (const metadata of this.options.metadata) {
+			if (
+				!Object.values(ApplicationRoleConnectionMetadataType).includes(
+					metadata.type
+				)
+			) {
+				continue
+			}
 			const checker = this.options.metadataCheckers[metadata.key]
 			if (!checker)
 				throw new Error(`You did not provide a checker for ${metadata.key}`)
@@ -186,7 +193,7 @@ export class LinkedRoles extends Plugin {
 						throw new Error(`Expected integer for ${metadata.key}`)
 					break
 				default:
-					throw new Error(`Unknown metadata type ${metadata.type}`)
+					continue
 			}
 			result[metadata.key] = value
 		}

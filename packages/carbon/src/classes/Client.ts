@@ -747,7 +747,7 @@ export class Client {
 	 * Fetch a channel from the Discord API
 	 * @param id The ID of the channel to fetch
 	 * @param force Whether to bypass cache and request fresh data from Discord
-	 * @returns The channel data
+	 * @returns The channel data, or undefined if its Discord channel type is unsupported.
 	 */
 	async fetchChannel(id: ChannelIdLike, force: boolean = false) {
 		const cached = force ? undefined : await this.cache.channels.get(id)

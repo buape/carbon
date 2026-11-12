@@ -14,20 +14,21 @@ import { GuildTextChannel } from "../structures/GuildTextChannel.js"
 import { GuildThreadChannel } from "../structures/GuildThreadChannel.js"
 import type { AnyChannel, ChannelTypeMap } from "../types/channels.js"
 
+/** Creates a supported channel, or returns undefined for unknown Discord channel types. */
 export function channelFactory<T extends APIChannel>(
 	client: Client,
 	channelData: T
-): ChannelTypeMap[T["type"]]
+): ChannelTypeMap[T["type"]] | undefined
 export function channelFactory<T extends Pick<APIChannel, "id" | "type">>(
 	client: Client,
 	channelData: T,
 	partial: true
-): ChannelTypeMap<true>[T["type"]]
+): ChannelTypeMap<true>[T["type"]] | undefined
 export function channelFactory(
 	client: Client,
 	channelData: Pick<APIChannel, "id" | "type">,
 	partial = false
-): AnyChannel<boolean> {
+): AnyChannel<boolean> | undefined {
 	switch (channelData.type) {
 		case ChannelType.DM:
 			return partial
@@ -172,6 +173,6 @@ export function channelFactory(
 						channelData as Extract<APIChannel, { type: ChannelType.GuildMedia }>
 					)
 		default:
-			throw new Error(`Unsupported channel type: ${channelData.type}`)
+			return undefined
 	}
 }
