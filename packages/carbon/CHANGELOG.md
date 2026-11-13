@@ -1,5 +1,17 @@
 # @buape/carbon
 
+## 0.18.0
+
+### Minor Changes
+
+- [`f161e91`](https://github.com/buape/carbon/commit/f161e913abe91b73ebffabf0fa6d424af96a999b) - feat: add precheck support for autocomplete, components, and modals
+
+### Patch Changes
+
+- [#436](https://github.com/buape/carbon/pull/436) [`5006b21`](https://github.com/buape/carbon/commit/5006b215addbb19fe20bbaf304f2e18076665ec4) - fix: align command serialization with updated Discord API types Thanks [@renovate](https://github.com/apps/renovate)!
+
+- [#439](https://github.com/buape/carbon/pull/439) [`d15c270`](https://github.com/buape/carbon/commit/d15c270fafcd90680cd9de8745285555ac293710) - fix: tolerate unknown Discord types Thanks [@kevinatbuape](https://github.com/kevinatbuape)!
+
 ## 0.17.0
 
 ### Minor Changes
