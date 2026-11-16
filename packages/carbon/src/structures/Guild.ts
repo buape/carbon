@@ -710,6 +710,18 @@ export class Guild<IsPartial extends boolean = false> extends Base {
 	}
 
 	/**
+	 * Unban a member from the guild by ID.
+	 * The member does not need to be a current guild member.
+	 * @param memberId The ID of the member to unban
+	 * @param reason The reason for the unban, shown in the audit log
+	 */
+	async unbanMember(memberId: UserIdLike, reason?: string): Promise<void> {
+		await this.client.rest.delete(Routes.guildBan(this.id, memberId), {
+			headers: reason ? { "X-Audit-Log-Reason": reason } : undefined
+		})
+	}
+
+	/**
 	 * Begin a guild prune operation.
 	 *
 	 * @remarks
