@@ -102,8 +102,8 @@ importers:
         specifier: '>=24.0.0'
         version: 26.0.0
       discord-api-types:
-        specifier: 0.38.56
-        version: 0.38.56
+        specifier: 0.38.58
+        version: 0.38.58
     devDependencies:
       ioredis:
         specifier: ^5.6.1
@@ -1649,8 +1649,8 @@ packages:
   discord-api-types@0.38.49:
     resolution: {integrity: sha512-XnqcWmnFZFAE8ZM8SHAw9DIV8D3Or00rMQ8iQLotrEA2PmXhl+ykaf6L6q4l474hrSUH1JaYcv+iOMRWp2p6Tg==}
 
-  discord-api-types@0.38.56:
-    resolution: {integrity: sha512-Hti4RZsGvF5C7SM8rF2MDHtIm0Hyfrlk84GpEA29nj91tvVVMvX+oQSCodu10t2ZcjFGofq8TX0YyC04B2E69Q==}
+  discord-api-types@0.38.58:
+    resolution: {integrity: sha512-6utghVho47hBzmx8nIp+pKEDDNIlVk6On/J5Y1Q529payNLZjBsrw+mt+G5Y3NYRE3kgta6eBx5hRYVyfHGdOA==}
 
   dompurify@3.4.11:
     resolution: {integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==}
@@ -4647,7 +4647,7 @@ snapshots:
 
   discord-api-types@0.38.49: {}
 
-  discord-api-types@0.38.56: {}
+  discord-api-types@0.38.58: {}
 
   dompurify@3.4.11:
     optionalDependencies:
