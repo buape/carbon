@@ -1,7 +1,6 @@
 import {
+	type APIMenuActionItemInteraction,
 	type APIMessageComponentButtonInteraction,
-	type APIMessageComponentInteraction,
-	type APIMessageComponentInteractionData,
 	type APIMessageComponentSelectMenuInteraction,
 	ComponentType,
 	InteractionResponseType,
@@ -14,14 +13,24 @@ import type { BaseMessageInteractiveComponent } from "../abstracts/BaseMessageIn
 import { Button } from "../classes/components/Button.js"
 import { ChannelSelectMenu } from "../classes/components/ChannelSelectMenu.js"
 import { MentionableSelectMenu } from "../classes/components/MentionableSelectMenu.js"
+import {
+	LinkMenuActionItem,
+	MenuActionItem
+} from "../classes/components/MenuActionItem.js"
+import { OverflowMenu } from "../classes/components/OverflowMenu.js"
 import { RoleSelectMenu } from "../classes/components/RoleSelectMenu.js"
 import { StringSelectMenu } from "../classes/components/StringSelectMenu.js"
 import { UserSelectMenu } from "../classes/components/UserSelectMenu.js"
+import type {
+	APIMessageComponentInteraction2 as APIMessageComponentInteraction,
+	APIMessageComponentInteractionData2 as APIMessageComponentInteractionData
+} from "../types/index.js"
 import { LRUCache } from "../utils/LRUCache.js"
 import { defaultLogger } from "../utils/logger.js"
 import { ButtonInteraction } from "./ButtonInteraction.js"
 import { ChannelSelectMenuInteraction } from "./ChannelSelectMenuInteraction.js"
 import { MentionableSelectMenuInteraction } from "./MentionableSelectMenuInteraction.js"
+import { MenuActionItemInteraction } from "./MenuActionItemInteraction.js"
 import { RoleSelectMenuInteraction } from "./RoleSelectMenuInteraction.js"
 import { StringSelectMenuInteraction } from "./StringSelectMenuInteraction.js"
 import { UserSelectMenuInteraction } from "./UserSelectMenuInteraction.js"
@@ -32,8 +41,9 @@ const messageComponentTypes = [
 	ComponentType.UserSelect,
 	ComponentType.RoleSelect,
 	ComponentType.MentionableSelect,
-	ComponentType.ChannelSelect
-] as const satisfies readonly ComponentType[]
+	ComponentType.ChannelSelect,
+	26 // TODO: ComponentType.MenuActionItem
+] as const satisfies readonly (ComponentType | 26)[]
 
 export class ComponentHandler extends Base {
 	private componentCache = new LRUCache<
@@ -41,7 +51,7 @@ export class ComponentHandler extends Base {
 		BaseMessageInteractiveComponent
 	>(10000)
 	private componentParsersByType = new Map<
-		ComponentType,
+		ComponentType | 25 | 26,
 		Set<BaseMessageInteractiveComponent["customIdParser"]>
 	>()
 
@@ -54,12 +64,19 @@ export class ComponentHandler extends Base {
 
 	private getComponentCacheKey(
 		key: string,
-		componentType: ComponentType
+		componentType: ComponentType | 25 | 26
 	): string {
 		return `${componentType}:${key}`
 	}
 
 	registerComponent(component: BaseMessageInteractiveComponent) {
+		if (component instanceof OverflowMenu) {
+			for (const group of component.groups) {
+				for (const item of group.components) this.registerComponent(item)
+			}
+			return
+		}
+		if (component instanceof LinkMenuActionItem) return
 		const componentKey = component.customIdParser(component.customId).key
 		const cacheKey = this.getComponentCacheKey(componentKey, component.type)
 		const parsers = this.componentParsersByType.get(component.type) ?? new Set()
@@ -75,7 +92,10 @@ export class ComponentHandler extends Base {
 		}
 	}
 
-	hasComponentWithKey(key: string, componentType?: ComponentType): boolean {
+	hasComponentWithKey(
+		key: string,
+		componentType?: ComponentType | 25 | 26
+	): boolean {
 		if (componentType !== undefined) {
 			return this.componentCache.has(
 				this.getComponentCacheKey(key, componentType)
@@ -89,7 +109,7 @@ export class ComponentHandler extends Base {
 
 	findComponent(
 		customId: string,
-		componentType: ComponentType
+		componentType: ComponentType | 25 | 26
 	): BaseMessageInteractiveComponent | undefined {
 		const parsers = this.componentParsersByType.get(componentType)
 		if (parsers) {
@@ -194,6 +214,16 @@ export class ComponentHandler extends Base {
 					new ButtonInteraction(
 						this.client,
 						data as APIMessageComponentButtonInteraction,
+						interactionOptions
+					),
+					parsed
+				)
+			} else if (component instanceof MenuActionItem) {
+				await this.runComponent(
+					component,
+					new MenuActionItemInteraction(
+						this.client,
+						data as APIMenuActionItemInteraction,
 						interactionOptions
 					),
 					parsed

@@ -1,17 +1,20 @@
 import {
-	type APIMessageComponentInteraction,
 	type ComponentType,
 	InteractionResponseType,
 	type RESTPostAPIInteractionCallbackJSONBody,
 	Routes
 } from "discord-api-types/v10"
 import type { Client } from "../classes/Client.js"
-import type { InteractionId, MessagePayload } from "../types/index.js"
+import type {
+	APIMessageComponentInteraction2 as APIMessageComponentInteraction,
+	InteractionId,
+	MessagePayload
+} from "../types/index.js"
 import { serializePayload } from "../utils/index.js"
 import { BaseInteraction, type InteractionDefaults } from "./BaseInteraction.js"
 
 export class BaseComponentInteraction extends BaseInteraction<APIMessageComponentInteraction> {
-	componentType: ComponentType
+	componentType: ComponentType | 26
 	constructor(
 		client: Client,
 		data: APIMessageComponentInteraction,

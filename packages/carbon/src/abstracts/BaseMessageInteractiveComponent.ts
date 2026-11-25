@@ -1,5 +1,7 @@
 import type {
 	APIComponentInMessageActionRow,
+	APIMenuActionItemComponent,
+	APIOverflowMenuComponent,
 	ComponentType
 } from "discord-api-types/v10"
 import type {
@@ -20,8 +22,10 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 		| ComponentType.RoleSelect
 		| ComponentType.MentionableSelect
 		| ComponentType.ChannelSelect
+		| 25 // TODO: ComponentType.OverflowMenu
+		| 26 // TODO: ComponentType.MenuActionItem
 
-	readonly isV2 = false
+	readonly isV2: boolean = false
 
 	/**
 	 * Whether the component response should be automatically deferred.
@@ -56,7 +60,10 @@ export abstract class BaseMessageInteractiveComponent extends BaseComponent {
 	 */
 	customIdParser: (id: string) => ComponentParserResult = parseCustomId
 
-	abstract serialize: () => APIComponentInMessageActionRow
+	abstract serialize: () =>
+		| APIComponentInMessageActionRow
+		| APIOverflowMenuComponent
+		| APIMenuActionItemComponent
 
 	/**
 	 * The function that is called before the component runs.

@@ -1,8 +1,14 @@
 import type {
+	APIMenuActionItemComponent,
 	APIMessageComponent,
 	APIModalComponent2,
+	APIOverflowMenuComponent,
 	ComponentType
 } from "discord-api-types/v10"
+import type {
+	APIActionRowComponent2,
+	APISectionComponent2
+} from "../types/index.js"
 
 export abstract class BaseComponent {
 	/**
@@ -23,5 +29,11 @@ export abstract class BaseComponent {
 	 */
 	id?: number
 
-	abstract serialize: () => APIMessageComponent | APIModalComponent2
+	abstract serialize: () =>
+		| APIMessageComponent
+		| APIModalComponent2
+		| APIOverflowMenuComponent
+		| APIMenuActionItemComponent
+		| APIActionRowComponent2
+		| APISectionComponent2
 }

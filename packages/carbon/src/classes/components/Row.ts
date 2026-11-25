@@ -1,16 +1,15 @@
-import {
-	type APIActionRowComponent,
-	type APIComponentInMessageActionRow,
-	ComponentType
-} from "discord-api-types/v10"
+import { ComponentType } from "discord-api-types/v10"
 import { BaseComponent } from "../../abstracts/BaseComponent.js"
 import type { BaseMessageInteractiveComponent } from "../../abstracts/BaseMessageInteractiveComponent.js"
+import type { APIActionRowComponent2 } from "../../types/index.js"
 
 export class Row<
 	T extends BaseMessageInteractiveComponent
 > extends BaseComponent {
 	readonly type = ComponentType.ActionRow as const
-	readonly isV2 = false
+	get isV2() {
+		return this.components.some((component) => component.isV2)
+	}
 
 	/**
 	 * The components in the action row
@@ -47,10 +46,18 @@ export class Row<
 		this.components = []
 	}
 
-	serialize = (): APIActionRowComponent<APIComponentInMessageActionRow> => {
+	serialize = (): APIActionRowComponent2 => {
 		return {
 			type: ComponentType.ActionRow,
-			components: this.components.map((component) => component.serialize())
+			components: this.components.map((component) => {
+				const data = component.serialize()
+				if (data.type === 26) {
+					throw new Error(
+						"Menu action items must be placed inside an OverflowMenu"
+					)
+				}
+				return data
+			})
 		}
 	}
 }

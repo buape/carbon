@@ -1,6 +1,6 @@
 import {
 	type APIInteraction,
-	type APIMessageComponentInteractionData,
+	type APIMenuActionItemInteraction,
 	InteractionResponseType,
 	type InteractionType,
 	MessageFlags,
@@ -25,6 +25,7 @@ import {
 } from "../index.js"
 import { GuildMember } from "../structures/GuildMember.js"
 import type {
+	APIMessageComponentInteractionData2 as APIMessageComponentInteractionData,
 	APIModalInteractionResponseCallbackData2,
 	BrandedAPIInteraction,
 	InteractionId,
@@ -42,7 +43,9 @@ export type InteractionDefaults = {
 /**
  * This is the base type interaction, all interaction types extend from this
  */
-export abstract class BaseInteraction<T extends APIInteraction> extends Base {
+export abstract class BaseInteraction<
+	T extends APIInteraction | APIMenuActionItemInteraction
+> extends Base {
 	/**
 	 * The type of interaction
 	 */

@@ -24,6 +24,7 @@ import Modal2Command from "./commands/testing/modal2.js"
 import Modal3Command from "./commands/testing/modal3.js"
 import Modal4Command from "./commands/testing/modal4.js"
 import OptionsCommand from "./commands/testing/options.js"
+import OverflowMenuCommand from "./commands/testing/overflow_menu.js"
 import PaginatorCommand from "./commands/testing/paginator.js"
 import PermissionCommand from "./commands/testing/permissions.js"
 import PollCommand from "./commands/testing/poll.js"
@@ -76,6 +77,7 @@ const client = new Client(
 			new Modal3Command(),
 			new Modal4Command(),
 			new OptionsCommand(),
+			new OverflowMenuCommand(),
 			new PermissionCommand(),
 			new SubcommandsCommand(),
 			new SubcommandGroupsCommand(),

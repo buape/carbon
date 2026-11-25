@@ -4,6 +4,7 @@ import {
 	type APIGuild,
 	type APIGuildMember,
 	type APIInteraction,
+	type APIMenuActionItemInteraction,
 	type APIMessage,
 	type APIRole,
 	type APIUser,
@@ -597,7 +598,9 @@ export class Client {
 		const isValid = await this.validateDiscordRequest(req)
 		if (!isValid) return new Response("Unauthorized", { status: 401 })
 
-		const interaction = (await req.json()) as APIInteraction
+		const interaction = (await req.json()) as
+			| APIInteraction
+			| APIMenuActionItemInteraction
 
 		if (interaction.type === InteractionType.Ping) {
 			return Response.json({ type: InteractionResponseType.Pong })
@@ -613,7 +616,10 @@ export class Client {
 	 * @param ctx The context for the request
 	 * @returns A response
 	 */
-	public async handleInteraction(interaction: APIInteraction, ctx: Context) {
+	public async handleInteraction(
+		interaction: APIInteraction | APIMenuActionItemInteraction,
+		ctx: Context
+	) {
 		if (interaction.type === InteractionType.ApplicationCommand) {
 			const promise = this.commandHandler.handleCommandInteraction(interaction)
 			if (ctx?.waitUntil) ctx.waitUntil(promise)

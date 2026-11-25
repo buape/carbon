@@ -6,16 +6,23 @@ import type {
 	APIAttachment,
 	APIAuthorizingIntegrationOwnersMap,
 	APIComponentInLabel,
+	APIComponentInMessageActionRow,
 	APIComponentInModalActionRow,
 	APIInteraction,
 	APILabelComponent,
+	APIMenuActionItemInteraction,
 	APIMessage,
+	APIMessageComponentEmoji,
+	APIMessageComponentInteraction,
+	APIMessageComponentInteractionData,
 	APIMessageComponentInteractionMetadata,
 	APIMessageInteractionMetadata,
 	APIMessageReference,
 	APIModalComponent,
 	APIModalInteractionResponseCallbackData,
 	APIModalSubmitInteractionMetadata,
+	APIOverflowMenuComponent,
+	APISectionComponent,
 	APIStickerItem,
 	APITextDisplayComponent,
 	APIUser,
@@ -198,8 +205,9 @@ export type SkuIdLike = BrandedIdLike<"SkuId">
 export type ForumTagId = BrandedId<"ForumTagId">
 export type ForumTagIdLike = BrandedIdLike<"ForumTagId">
 
-export type BrandedAPIInteraction<T extends APIInteraction = APIInteraction> =
-	Omit<T, "id"> & { id: InteractionId }
+export type BrandedAPIInteraction<
+	T extends APIInteraction | APIMenuActionItemInteraction = APIInteraction
+> = Omit<T, "id"> & { id: InteractionId }
 export type BrandedAPIUser = Omit<APIUser, "id"> & { id: UserId }
 export type BrandedAPIAttachment = Omit<
 	BrandedDiscordIds<APIAttachment, AttachmentId>,
@@ -331,6 +339,25 @@ export type ConditionalCommandOption = (
 export type ConditionalComponentOption = (
 	interaction: BaseComponentInteraction
 ) => boolean
+
+export type APIActionRowComponent2 = Omit<
+	APIActionRowComponent<APIComponentInMessageActionRow>,
+	"components"
+> & {
+	components: (APIComponentInMessageActionRow | APIOverflowMenuComponent)[]
+}
+
+export type APISectionComponent2 = Omit<APISectionComponent, "accessory"> & {
+	accessory: APISectionComponent["accessory"] | APIOverflowMenuComponent
+}
+
+export type APIMessageComponentInteraction2 =
+	| APIMessageComponentInteraction
+	| APIMenuActionItemInteraction
+
+export type APIMessageComponentInteractionData2 =
+	| APIMessageComponentInteractionData
+	| APIMenuActionItemInteraction["data"]
 
 export type APILabelComponent2 = Omit<APILabelComponent, "component"> & {
 	component:
@@ -516,6 +543,36 @@ export * from "./commandMiddleware.js"
 export * from "./listeners.js"
 
 declare module "discord-api-types/v10" {
+	// TODO: Use upstream types once discord-api-types supports overflow menus.
+	export interface APIOverflowMenuComponent {
+		type: 25
+		id?: number
+		groups: APIOverflowMenuGroup[]
+	}
+
+	export interface APIOverflowMenuGroup {
+		label?: string
+		components: APIMenuActionItemComponent[]
+	}
+
+	export interface APIMenuActionItemComponent {
+		type: 26
+		id?: number
+		label: string
+		style: 1 | 2 | 3
+		custom_id?: string
+		description?: string
+		url?: string
+		emoji?: APIMessageComponentEmoji
+	}
+
+	export type APIMenuActionItemInteraction = Omit<
+		APIMessageComponentInteraction,
+		"data"
+	> & {
+		data: { component_type: 26; custom_id: string; id: number }
+	}
+
 	export type APIModalComponent2 =
 		| APIModalComponent
 		| APILabelComponent2
